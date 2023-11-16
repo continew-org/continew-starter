@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2022-present Charles7c Authors. All Rights Reserved.
+  <p>
+  Licensed under the GNU LESSER GENERAL PUBLIC LICENSE 3.0;
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  <p>
+  http://www.gnu.org/licenses/lgpl.html
+  <p>
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>top.charles7c.continew</groupId>
+    <artifactId>continew-starter</artifactId>
+    <version>${revision}</version>
+    <packaging>pom</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>ContiNew Starter</description>
+    <url>https://github.com/Charles7c/continew-starter</url>
+    <licenses>
+        <license>
+            <name>GNU LESSER GENERAL PUBLIC LICENSE</name>
+            <url>http://www.gnu.org/licenses/lgpl.html</url>
+        </license>
+    </licenses>
+
+    <properties>
+        <!-- ### 基础环境相关 ### -->
+        <revision>1.0.0-SNAPSHOT</revision>
+        <spotless.version>2.30.0</spotless.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <build>
+        <plugins>
+            <!-- 代码等格式化插件 -->
+            <plugin>
+                <groupId>com.diffplug.spotless</groupId>
+                <artifactId>spotless-maven-plugin</artifactId>
+                <version>${spotless.version}</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>apply</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <java>
+                        <removeUnusedImports/>
+                        <licenseHeader>
+                            <file>code-style/license-header</file>
+                        </licenseHeader>
+                    </java>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <developers>
+        <developer>
+            <id>charles7c</id>
+            <name>Charles7c</name>
+            <email>charles7c@126.com</email>
+            <roles>
+                <role>Creator</role>
+                <role>Java Development Engineer</role>
+            </roles>
+            <timezone>+8</timezone>
+            <url>https://github.com/Charles7c</url>
+        </developer>
+        <developer>
+            <id>bull-bcls</id>
+            <name>Bull-BCLS</name>
+            <email>Tomcat416@163.com</email>
+            <roles>
+                <role>Java Development Engineer</role>
+            </roles>
+            <timezone>+8</timezone>
+            <url>https://github.com/Bull-BCLS</url>
+        </developer>
+    </developers>
+</project>
