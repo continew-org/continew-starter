@@ -23,7 +23,7 @@
 
 ## 简介
 
-ContiNew Starter
+ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot Starter，其作用与常规的 Starter 类似，它可以帮助开发人员快速集成常用的第三方库或工具到 Spring 应用程序中。ContiNew Starter 包含了一系列经过优化和配置的依赖包（如 MyBatis-Plus、SaToken），可轻松集成到应用中，从而避免开发人员手动引入依赖的麻烦，为 Spring Boot 项目的灵活快速构建提供支持。
 
 ## 项目源码
 
