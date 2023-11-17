@@ -39,6 +39,11 @@
         </license>
     </licenses>
 
+    <modules>
+        <module>continew-starter-dependencies</module>
+        <module>continew-starter-core</module>
+    </modules>
+
     <properties>
         <!-- ### 基础环境相关 ### -->
         <revision>1.0.0-SNAPSHOT</revision>
@@ -47,6 +52,19 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- ContiNew Starter 依赖模块 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-dependencies</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
