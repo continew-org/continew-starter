@@ -11,13 +11,28 @@
 
     <name>${project.artifactId}</name>
     <description>ContiNew Starter 依赖模块</description>
+    <url>https://github.com/Charles7c/continew-starter</url>
+    <licenses>
+        <license>
+            <name>GNU LESSER GENERAL PUBLIC LICENSE</name>
+            <url>http://www.gnu.org/licenses/lgpl.html</url>
+        </license>
+    </licenses>
 
     <properties>
         <revision>1.0.0-SNAPSHOT</revision>
+        <hutool.version>5.8.23</hutool.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Hutool（小而全的 Java 工具类库，通过静态方法封装，降低相关 API 的学习成本，提高工作效率，使 Java 拥有函数式语言般的优雅，让 Java 语言也可以“甜甜的”） -->
+            <dependency>
+                <groupId>cn.hutool</groupId>
+                <artifactId>hutool-all</artifactId>
+                <version>${hutool.version}</version>
+            </dependency>
+
             <!-- 核心模块 -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
@@ -26,4 +41,28 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <developers>
+        <developer>
+            <id>charles7c</id>
+            <name>Charles7c</name>
+            <email>charles7c@126.com</email>
+            <roles>
+                <role>Creator</role>
+                <role>Java Development Engineer</role>
+            </roles>
+            <timezone>+8</timezone>
+            <url>https://github.com/Charles7c</url>
+        </developer>
+        <developer>
+            <id>bull-bcls</id>
+            <name>Bull-BCLS</name>
+            <email>Tomcat416@163.com</email>
+            <roles>
+                <role>Java Development Engineer</role>
+            </roles>
+            <timezone>+8</timezone>
+            <url>https://github.com/Bull-BCLS</url>
+        </developer>
+    </developers>
 </project>

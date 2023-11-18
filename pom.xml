@@ -45,8 +45,9 @@
     </modules>
 
     <properties>
-        <!-- ### 基础环境相关 ### -->
         <revision>1.0.0-SNAPSHOT</revision>
+        <spring-boot.version>3.1.5</spring-boot.version>
+
         <spotless.version>2.30.0</spotless.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -55,7 +56,16 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- ContiNew Starter 依赖模块 -->
+            <!-- Spring 依赖 -->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ContiNew Starter 依赖 -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
                 <artifactId>continew-starter-dependencies</artifactId>
