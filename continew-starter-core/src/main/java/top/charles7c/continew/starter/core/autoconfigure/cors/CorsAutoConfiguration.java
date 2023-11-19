@@ -16,6 +16,7 @@
 
 package top.charles7c.continew.starter.core.autoconfigure.cors;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
@@ -34,6 +35,7 @@ import top.charles7c.continew.starter.core.constant.StringConsts;
  * @author Charles7c
  * @since 1.0.0
  */
+@Slf4j
 @Lazy
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnWebApplication
@@ -47,7 +49,6 @@ public class CorsAutoConfiguration {
         CorsConfiguration config = new CorsConfiguration();
         // 设置跨域允许时间
         config.setMaxAge(1800L);
-
         // 配置允许跨域的域名
         if (properties.getAllowedOrigins().contains(StringConsts.ASTERISK)) {
             config.addAllowedOriginPattern(StringConsts.ASTERISK);
@@ -62,10 +63,11 @@ public class CorsAutoConfiguration {
         properties.getAllowedHeaders().forEach(config::addAllowedHeader);
         // 配置允许跨域的响应头
         properties.getExposedHeaders().forEach(config::addExposedHeader);
-
         // 添加映射路径，拦截一切请求
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
-        return new CorsFilter(source);
+        CorsFilter corsFilter = new CorsFilter(source);
+        log.info("[ContiNew Starter] - Auto Configuration 'Cors' completed initialization.");
+        return corsFilter;
     }
 }
