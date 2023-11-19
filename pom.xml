@@ -19,9 +19,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>top.charles7c.continew</groupId>
+    <parent>
+        <groupId>top.charles7c.continew</groupId>
+        <artifactId>continew-starter-dependencies</artifactId>
+        <version>${revision}</version>
+        <relativePath>continew-starter-dependencies/pom.xml</relativePath>
+    </parent>
+
     <artifactId>continew-starter</artifactId>
-    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
@@ -45,36 +50,8 @@
     </modules>
 
     <properties>
-        <revision>1.0.0-SNAPSHOT</revision>
-        <spring-boot.version>3.1.5</spring-boot.version>
-
         <spotless.version>2.30.0</spotless.version>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <dependencyManagement>
-        <dependencies>
-            <!-- Spring 依赖 -->
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-
-            <!-- ContiNew Starter 依赖 -->
-            <dependency>
-                <groupId>top.charles7c.continew</groupId>
-                <artifactId>continew-starter-dependencies</artifactId>
-                <version>${project.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>
@@ -126,4 +103,10 @@
             <url>https://github.com/Bull-BCLS</url>
         </developer>
     </developers>
+
+    <scm>
+        <url>https://github.com/Charles7c/continew-starter</url>
+        <connection>scm:git:git@github.com:Charles7c/continew-starter.git</connection>
+        <developerConnection>scm:git:git@github.com:Charles7c/continew-starter.git</developerConnection>
+    </scm>
 </project>

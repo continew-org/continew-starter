@@ -52,6 +52,63 @@ ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot S
 💬 如无加群意愿，欢迎在 <a href="https://github.com/Charles7c/continew-starter/discussions" target="_blank">Discussions</a> 中进行交流探讨~ 🍻
 </details>
 
+## 快速使用
+
+> **Note**
+> 目前 ContiNew Starter 尚处于开发中，若要提前体验 Snapshot（快照）版本，请按以下方法进行。如遇问题，诚邀反馈。
+
+1.在项目 pom.xml 中配置 Snapshot（快照）仓库地址
+
+```xml
+<repositories>
+    <repository>
+        <id>sonatype-nexus-snapshots</id>
+        <name>Sonatype Nexus Snapshots</name>
+        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+    </repository>
+</repositories>
+```
+
+2.在项目 pom.xml 中锁定版本，替换 Spring Boot 父依赖/添加 ContiNew Starter 父依赖
+
+```xml
+<parent>
+    <groupId>top.charles7c.continew</groupId>
+    <artifactId>continew-starter</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+</parent>
+```
+
+3.在项目 pom.xml 中引入所需模块依赖
+
+```xml
+<dependencies>
+    <!-- 核心模块 -->
+    <dependency>
+        <groupId>top.charles7c.continew</groupId>
+        <artifactId>continew-starter-core</artifactId>
+    </dependency>
+</dependencies>
+```
+
+4.在  application.yml  中根据引入模块，添加所需配置
+
+e.g. 跨域配置
+
+```yaml
+--- ### 跨域配置
+cors:
+  enabled: true
+  # 配置允许跨域的域名
+  allowedOrigins: '*'
+  # 配置允许跨域的请求方式
+  allowedMethods: '*'
+  # 配置允许跨域的请求头
+  allowedHeaders: '*'
+  # 配置允许跨域的响应头
+  exposedHeaders: '*'
+```
+
 ## 贡献代码
 
 ### 分支说明
