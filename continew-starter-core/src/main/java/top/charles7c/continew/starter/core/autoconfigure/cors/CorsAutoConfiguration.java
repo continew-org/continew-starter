@@ -43,6 +43,9 @@ import top.charles7c.continew.starter.core.constant.StringConsts;
 @EnableConfigurationProperties(CorsProperties.class)
 public class CorsAutoConfiguration {
 
+    /**
+     * 跨域过滤器
+     */
     @Bean
     @ConditionalOnMissingBean
     public CorsFilter corsFilter(CorsProperties properties) {
@@ -67,7 +70,7 @@ public class CorsAutoConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
         CorsFilter corsFilter = new CorsFilter(source);
-        log.info("[ContiNew Starter] - Auto Configuration 'Cors' completed initialization.");
+        log.info("[ContiNew Starter] - Auto Configuration 'CorsFilter' completed initialization.");
         return corsFilter;
     }
 }
