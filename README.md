@@ -65,11 +65,17 @@ ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot S
         <id>sonatype-nexus-snapshots</id>
         <name>Sonatype Nexus Snapshots</name>
         <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+        <snapshots>
+            <updatePolicy>always</updatePolicy>
+            <enabled>true</enabled>
+        </snapshots>
     </repository>
 </repositories>
 ```
 
-2.在项目 pom.xml 中锁定版本，替换 Spring Boot 父依赖/添加 ContiNew Starter 父依赖
+2.在项目 pom.xml 中锁定版本（**下方两种方式请任选其一**）
+
+第一种方式：如您使用的是 Spring Boot Parent 的方式，则替换 Spring Boot Parent 为 ContiNew Starter
 
 ```xml
 <parent>
@@ -77,6 +83,30 @@ ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot S
     <artifactId>continew-starter</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 </parent>
+```
+
+第二种方式：如您使用的是引入 Spring Boot Dependencies 的方式，则替换 Spring Boot Dependencies 为 ContiNew Starter Dependencies
+
+```xml
+<properties>
+    <java.version>17</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+</properties>
+
+<dependencyManagement>
+    <dependencies>
+        <!-- ContiNew Starter Dependencies -->
+        <dependency>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-dependencies</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
 ```
 
 3.在项目 pom.xml 中引入所需模块依赖
