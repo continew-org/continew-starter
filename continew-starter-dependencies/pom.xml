@@ -47,7 +47,6 @@
             <url>https://github.com/Bull-BCLS</url>
         </developer>
     </developers>
-
     <scm>
         <url>https://github.com/Charles7c/continew-starter</url>
         <connection>scm:git:git@github.com:Charles7c/continew-starter.git</connection>
@@ -57,10 +56,6 @@
     <properties>
         <revision>1.0.0-SNAPSHOT</revision>
         <hutool.version>5.8.23</hutool.version>
-
-        <!-- Maven Plugin Versions -->
-        <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
-        <flatten-maven-plugin.version>1.5.0</flatten-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -80,6 +75,141 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <!-- Create an effective POM (with versions expanded) for the CLI and documentation -->
+                        <id>flatten-effective-pom</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                        <configuration>
+                            <updatePomFile>false</updatePomFile>
+                            <outputDirectory>${project.build.directory}/effective-pom</outputDirectory>
+                            <flattenedPomFilename>continew-starter-dependencies.xml</flattenedPomFilename>
+                            <flattenMode>oss</flattenMode>
+                            <pomElements>
+                                <dependencyManagement>expand</dependencyManagement>
+                                <pluginManagement>expand</pluginManagement>
+                                <properties>remove</properties>
+                                <repositories>remove</repositories>
+                            </pomElements>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Flatten and simplify our own POM for install/deploy -->
+                        <id>flatten</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>flatten</goal>
+                        </goals>
+                        <configuration>
+                            <updatePomFile>true</updatePomFile>
+                            <flattenMode>bom</flattenMode>
+                            <pomElements>
+                                <parent>expand</parent>
+                                <properties>keep</properties>
+                                <pluginManagement>keep</pluginManagement>
+                                <repositories>remove</repositories>
+                            </pomElements>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>flatten-clean</id>
+                        <phase>clean</phase>
+                        <goals>
+                            <goal>clean</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <!-- Cleanup the effective POM -->
+                        <id>post-process-effective-pom</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <transformationSets>
+                                <transformationSet>
+                                    <dir>${project.build.directory}/effective-pom</dir>
+                                    <outputDir>${project.build.directory}/effective-pom</outputDir>
+                                    <stylesheet>src/main/xslt/post-process-flattened-pom.xsl</stylesheet>
+                                    <outputProperties>
+                                        <outputProperty>
+                                            <name>indent</name>
+                                            <value>yes</value>
+                                        </outputProperty>
+                                    </outputProperties>
+                                </transformationSet>
+                            </transformationSets>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Cleanup the flattened project POM -->
+                        <id>post-process-flattened-pom</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <configuration>
+                            <transformationSets>
+                                <transformationSet>
+                                    <dir>${project.basedir}</dir>
+                                    <outputDir>${project.basedir}</outputDir>
+                                    <includes>.flattened-pom.xml</includes>
+                                    <stylesheet>src/main/xslt/post-process-flattened-pom.xsl</stylesheet>
+                                    <outputProperties>
+                                        <outputProperty>
+                                            <name>indent</name>
+                                            <value>yes</value>
+                                        </outputProperty>
+                                    </outputProperties>
+                                </transformationSet>
+                            </transformationSets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <!-- Attach effective POM -->
+                        <id>attach-artifacts</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>attach-artifact</goal>
+                        </goals>
+                        <configuration>
+                            <artifacts>
+                                <artifact>
+                                    <file>${project.build.directory}/effective-pom/continew-starter-dependencies.xml</file>
+                                    <type>effective-pom</type>
+                                </artifact>
+                            </artifacts>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
     <profiles>
         <profile>
@@ -110,11 +240,10 @@
                             </execution>
                         </executions>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>${maven-gpg-plugin.version}</version>
+                        <version>3.1.0</version>
                         <executions>
                             <execution>
                                 <phase>verify</phase>
@@ -124,47 +253,19 @@
                             </execution>
                         </executions>
                     </plugin>
-
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>flatten-maven-plugin</artifactId>
-                        <version>${flatten-maven-plugin.version}</version>
-                        <inherited>false</inherited>
-                        <configuration>
-                            <updatePomFile>true</updatePomFile>
-                            <flattenMode>resolveCiFriendliesOnly</flattenMode>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>flatten</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>flatten</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>flatten.clean</id>
-                                <phase>clean</phase>
-                                <goals>
-                                    <goal>clean</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
                 </plugins>
             </build>
-
             <distributionManagement>
-                <repository>
-                    <id>sonatype-nexus-staging</id>
-                    <name>Nexus Release Repository</name>
-                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
                 <snapshotRepository>
                     <id>sonatype-nexus-snapshots</id>
                     <name>Sonatype Nexus Snapshots</name>
                     <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
                 </snapshotRepository>
+                <repository>
+                    <id>sonatype-nexus-staging</id>
+                    <name>Nexus Release Repository</name>
+                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
             </distributionManagement>
         </profile>
     </profiles>
