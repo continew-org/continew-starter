@@ -55,16 +55,33 @@
 
     <properties>
         <revision>1.0.0-SNAPSHOT</revision>
+        <knife4j.version>4.3.0</knife4j.version>
         <hutool.version>5.8.23</hutool.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Knife4j（前身是 swagger-bootstrap-ui，集 Swagger2 和 OpenAPI3 为一体的增强解决方案） -->
+            <dependency>
+                <groupId>com.github.xiaoymin</groupId>
+                <artifactId>knife4j-dependencies</artifactId>
+                <version>${knife4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Hutool（小而全的 Java 工具类库，通过静态方法封装，降低相关 API 的学习成本，提高工作效率，使 Java 拥有函数式语言般的优雅，让 Java 语言也可以“甜甜的”） -->
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- API 文档模块 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-api-doc</artifactId>
+                <version>${revision}</version>
             </dependency>
 
             <!-- Jackson 模块 -->

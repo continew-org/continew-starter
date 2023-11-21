@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>top.charles7c.continew</groupId>
+        <artifactId>continew-starter</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>continew-starter-api-doc</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>ContiNew Starter API 文档模块</description>
+
+    <dependencies>
+        <!-- Knife4j（前身是 swagger-bootstrap-ui，集 Swagger2 和 OpenAPI3 为一体的增强解决方案） -->
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- 核心模块 -->
+        <dependency>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>

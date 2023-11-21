@@ -70,6 +70,7 @@
         <module>continew-starter-dependencies</module>
         <module>continew-starter-core</module>
         <module>continew-starter-json</module>
+        <module>continew-starter-api-doc</module>
     </modules>
 
     <dependencies>
