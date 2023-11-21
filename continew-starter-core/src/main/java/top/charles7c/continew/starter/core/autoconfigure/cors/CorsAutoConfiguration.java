@@ -17,12 +17,12 @@
 package top.charles7c.continew.starter.core.autoconfigure.cors;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -37,7 +37,7 @@ import top.charles7c.continew.starter.core.constant.StringConsts;
  */
 @Slf4j
 @Lazy
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnWebApplication
 @ConditionalOnProperty(prefix = "cors", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(CorsProperties.class)

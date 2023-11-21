@@ -16,8 +16,8 @@
 
 package top.charles7c.continew.starter.apidoc.autoconfigure;
 
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  * @since 1.0.0
  */
 @EnableWebMvc
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnProperty(name = "springdoc.swagger-ui.enabled", havingValue = "true")
 public class StaticResourceAutoConfiguration implements WebMvcConfigurer {
 

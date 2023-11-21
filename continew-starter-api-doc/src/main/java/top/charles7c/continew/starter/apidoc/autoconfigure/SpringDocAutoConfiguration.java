@@ -22,11 +22,10 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import top.charles7c.continew.starter.core.autoconfigure.ProjectProperties;
 
 /**
@@ -36,8 +35,7 @@ import top.charles7c.continew.starter.core.autoconfigure.ProjectProperties;
  * @since 1.0.0
  */
 @Slf4j
-@Lazy
-@Configuration(proxyBeanMethods = false)
+@AutoConfiguration
 @ConditionalOnProperty(name = "springdoc.swagger-ui.enabled", havingValue = "true")
 public class SpringDocAutoConfiguration {
 
