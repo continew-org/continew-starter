@@ -67,6 +67,13 @@
                 <version>${hutool.version}</version>
             </dependency>
 
+            <!-- Jackson 模块 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-json-jackson</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 核心模块 -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
