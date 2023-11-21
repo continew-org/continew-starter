@@ -7,6 +7,12 @@
 <img src="https://img.shields.io/badge/SNAPSHOT-v1.0.0-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<img src="https://img.shields.io/badge/SpringBoot-3.1.5-%236CB52D.svg" alt="Release" />
+</a>
+<a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<img src="https://img.shields.io/badge/Java-17-%236CB52D.svg" alt="Release" />
+</a>
+<a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/github/stars/Charles7c/continew-starter?style=social" alt="GitHub stars" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
@@ -130,13 +136,13 @@ e.g. 跨域配置
 cors:
   enabled: true
   # 配置允许跨域的域名
-  allowedOrigins: '*'
+  allowed-origins: '*'
   # 配置允许跨域的请求方式
-  allowedMethods: '*'
+  allowed-methods: '*'
   # 配置允许跨域的请求头
-  allowedHeaders: '*'
+  allowed-headers: '*'
   # 配置允许跨域的响应头
-  exposedHeaders: '*'
+  exposed-headers: '*'
 ```
 
 ## 贡献代码
