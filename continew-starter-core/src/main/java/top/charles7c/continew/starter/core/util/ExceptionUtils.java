@@ -19,7 +19,7 @@ package top.charles7c.continew.starter.core.util;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import top.charles7c.continew.starter.core.constant.StringConsts;
+import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -99,7 +99,7 @@ public class ExceptionUtils {
      * @return /
      */
     public static String exToBlank(ExSupplier<String> exSupplier) {
-        return exToDefault(exSupplier, StringConsts.EMPTY);
+        return exToDefault(exSupplier, StringConstants.EMPTY);
     }
 
     /**

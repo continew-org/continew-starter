@@ -27,7 +27,7 @@ import lombok.NoArgsConstructor;
  * @since 1.0.0
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class StringConsts implements StrPool {
+public class StringConstants implements StrPool {
 
     /**
      * 空字符串

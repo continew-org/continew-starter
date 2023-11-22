@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-import top.charles7c.continew.starter.core.constant.StringConsts;
+import top.charles7c.continew.starter.core.constant.StringConstants;
 
 /**
  * 跨域自动配置
@@ -53,8 +53,8 @@ public class CorsAutoConfiguration {
         // 设置跨域允许时间
         config.setMaxAge(1800L);
         // 配置允许跨域的域名
-        if (properties.getAllowedOrigins().contains(StringConsts.ASTERISK)) {
-            config.addAllowedOriginPattern(StringConsts.ASTERISK);
+        if (properties.getAllowedOrigins().contains(StringConstants.ASTERISK)) {
+            config.addAllowedOriginPattern(StringConstants.ASTERISK);
         } else {
             // 配置为 true 后则必须配置允许跨域的域名，且不允许配置为 *
             config.setAllowCredentials(true);

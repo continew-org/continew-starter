@@ -22,7 +22,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.redisson.api.*;
 import org.redisson.config.Config;
-import top.charles7c.continew.starter.core.constant.StringConsts;
+import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.time.Duration;
 import java.util.Collection;
@@ -150,7 +150,7 @@ public class RedisUtils {
      * @return 键
      */
     public static String formatKey(String... subKeys) {
-        return String.join(StringConsts.COLON, subKeys);
+        return String.join(StringConstants.COLON, subKeys);
     }
 
     /**

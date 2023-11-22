@@ -32,7 +32,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import top.charles7c.continew.starter.core.constant.StringConsts;
+import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.List;
 
@@ -107,7 +107,7 @@ public class RedissonAutoConfiguration {
                         singleServerConfig.setPassword(redisProperties.getPassword());
                     }
                     if (StrUtil.isBlank(singleServerConfig.getAddress())) {
-                        singleServerConfig.setAddress(protocol + redisProperties.getHost() + StringConsts.COLON + redisProperties.getPort());
+                        singleServerConfig.setAddress(protocol + redisProperties.getHost() + StringConstants.COLON + redisProperties.getPort());
                     }
                 }
             }
