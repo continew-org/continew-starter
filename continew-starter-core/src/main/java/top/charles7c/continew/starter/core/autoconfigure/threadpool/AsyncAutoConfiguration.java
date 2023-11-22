@@ -17,6 +17,7 @@
 package top.charles7c.continew.starter.core.autoconfigure.threadpool;
 
 import cn.hutool.core.util.ArrayUtil;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -40,15 +41,12 @@ import java.util.concurrent.ScheduledExecutorService;
 @Slf4j
 @Lazy
 @AutoConfiguration
+@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "thread-pool", name = "enabled", havingValue = "true")
 @EnableAsync(proxyTargetClass = true)
 public class AsyncAutoConfiguration implements AsyncConfigurer {
 
     private final ScheduledExecutorService scheduledExecutorService;
-
-    public AsyncAutoConfiguration(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduledExecutorService = scheduledExecutorService;
-    }
 
     /**
      * 异步任务 @Async 执行时，使用 Java 内置线程池

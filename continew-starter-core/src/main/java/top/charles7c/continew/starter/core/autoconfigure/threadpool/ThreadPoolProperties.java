@@ -31,7 +31,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ThreadPoolProperties {
 
     /**
-     * 是否启用
+     * 是否启用线程池配置
      */
     private boolean enabled = false;
 

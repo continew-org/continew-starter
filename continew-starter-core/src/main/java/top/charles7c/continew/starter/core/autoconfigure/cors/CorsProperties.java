@@ -33,7 +33,7 @@ import java.util.List;
 public class CorsProperties {
 
     /**
-     * 是否启用
+     * 是否启用跨域配置
      */
     private boolean enabled = false;
 
