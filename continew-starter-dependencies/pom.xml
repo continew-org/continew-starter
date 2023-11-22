@@ -55,12 +55,20 @@
 
     <properties>
         <revision>1.0.0-SNAPSHOT</revision>
+        <redisson.version>3.24.3</redisson.version>
         <knife4j.version>4.3.0</knife4j.version>
         <hutool.version>5.8.23</hutool.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!-- Redisson（不仅仅是一个 Redis Java 客户端） -->
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
+
             <!-- Knife4j（前身是 swagger-bootstrap-ui，集 Swagger2 和 OpenAPI3 为一体的增强解决方案） -->
             <dependency>
                 <groupId>com.github.xiaoymin</groupId>
@@ -75,6 +83,13 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <!-- 缓存 - Redisson 模块 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-cache-redisson</artifactId>
+                <version>${revision}</version>
             </dependency>
 
             <!-- API 文档模块 -->

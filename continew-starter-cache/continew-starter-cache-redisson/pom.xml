@@ -5,20 +5,21 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>top.charles7c.continew</groupId>
-        <artifactId>continew-starter-json</artifactId>
+        <artifactId>continew-starter-cache</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-json-jackson</artifactId>
+    <artifactId>continew-starter-cache-redisson</artifactId>
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
-    <description>ContiNew Starter JSON - Jackson 模块</description>
+    <description>ContiNew Starter 缓存 - Redisson 模块</description>
 
     <dependencies>
+        <!-- Redisson（不仅仅是一个 Redis Java 客户端） -->
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
         </dependency>
     </dependencies>
 </project>

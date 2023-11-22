@@ -5,20 +5,25 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>top.charles7c.continew</groupId>
-        <artifactId>continew-starter-json</artifactId>
+        <artifactId>continew-starter</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-json-jackson</artifactId>
-    <packaging>jar</packaging>
+    <artifactId>continew-starter-cache</artifactId>
+    <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>
-    <description>ContiNew Starter JSON - Jackson 模块</description>
+    <description>ContiNew Starter 缓存模块</description>
+
+    <modules>
+        <module>continew-starter-cache-redisson</module>
+    </modules>
 
     <dependencies>
+        <!-- 核心模块 -->
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-core</artifactId>
         </dependency>
     </dependencies>
 </project>
