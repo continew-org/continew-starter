@@ -55,6 +55,9 @@
 
     <properties>
         <revision>1.0.0-SNAPSHOT</revision>
+        <mybatis-plus.version>3.5.4.1</mybatis-plus.version>
+        <dynamic-datasource.version>4.2.0</dynamic-datasource.version>
+        <p6spy.version>3.9.1</p6spy.version>
         <redisson.version>3.24.3</redisson.version>
         <knife4j.version>4.3.0</knife4j.version>
         <hutool.version>5.8.23</hutool.version>
@@ -62,6 +65,27 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- MyBatis Plus（MyBatis 的增强工具，在 MyBatis 的基础上只做增强不做改变，简化开发、提高效率） -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
+
+            <!-- Dynamic Datasource（基于 Spring Boot 的快速集成多数据源的启动器） -->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
+                <version>${dynamic-datasource.version}</version>
+            </dependency>
+
+            <!-- P6Spy（SQL 性能分析组件） -->
+            <dependency>
+                <groupId>p6spy</groupId>
+                <artifactId>p6spy</artifactId>
+                <version>${p6spy.version}</version>
+            </dependency>
+
             <!-- Redisson（不仅仅是一个 Redis Java 客户端） -->
             <dependency>
                 <groupId>org.redisson</groupId>
@@ -85,7 +109,15 @@
                 <version>${hutool.version}</version>
             </dependency>
 
-            <!-- 缓存 - Redisson 模块 -->
+            <!-- ContiNew Starter 依赖 -->
+            <!-- 数据访问模块 - MyBatis Plus -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-data-mybatis-plus</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 缓存模块 - Redisson -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
                 <artifactId>continew-starter-cache-redisson</artifactId>
@@ -99,7 +131,7 @@
                 <version>${revision}</version>
             </dependency>
 
-            <!-- Jackson 模块 -->
+            <!-- JSON 模块 - Jackson -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
                 <artifactId>continew-starter-json-jackson</artifactId>
