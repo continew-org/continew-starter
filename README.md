@@ -145,6 +145,16 @@ cors:
   exposed-headers: '*'
 ```
 
+## 模块结构
+
+| 模块名称                 | 模块作用                                   |
+| ------------------------ | ------------------------------------------ |
+| continew-starter-core    | 核心模块（包含跨域、线程池自动配置）       |
+| continew-starter-api-doc | API 文档模块（包含 Knife4j 自动配置）      |
+| continew-starter-json    | JSON 模块（包含 Jackson 自动配置）         |
+| continew-starter-cache   | 缓存模块（包含 Redisson 自动配置）         |
+| continew-starter-data    | 数据访问模块（包含 MyBatis Plus 自动配置） |
+
 ## 贡献代码
 
 ### 分支说明
