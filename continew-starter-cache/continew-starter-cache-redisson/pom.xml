@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
-    <description>ContiNew Starter 缓存 - Redisson 模块</description>
+    <description>ContiNew Starter 缓存模块 - Redisson</description>
 
     <dependencies>
         <!-- Redisson（不仅仅是一个 Redis Java 客户端） -->

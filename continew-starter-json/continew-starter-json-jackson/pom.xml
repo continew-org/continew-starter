@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
-    <description>ContiNew Starter JSON - Jackson 模块</description>
+    <description>ContiNew Starter JSON 模块 - Jackson</description>
 
     <dependencies>
         <dependency>
