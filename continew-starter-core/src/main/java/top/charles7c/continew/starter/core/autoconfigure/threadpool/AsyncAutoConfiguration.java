@@ -35,7 +35,7 @@ import java.util.concurrent.ScheduledExecutorService;
  * 异步任务自动配置
  *
  * @author Charles7c
- * @author Lion Li（RuoYi-Vue-Plus）
+ * @author Lion Li（<a href="https://gitee.com/dromara/RuoYi-Vue-Plus">RuoYi-Vue-Plus</a>）
  * @since 1.0.0
  */
 @Slf4j

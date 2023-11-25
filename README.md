@@ -147,13 +147,16 @@ cors:
 
 ## 模块结构
 
-| 模块名称                 | 模块作用                                   |
-| ------------------------ | ------------------------------------------ |
-| continew-starter-core    | 核心模块（包含跨域、线程池自动配置）       |
-| continew-starter-api-doc | API 文档模块（包含 Knife4j 自动配置）      |
-| continew-starter-json    | JSON 模块（包含 Jackson 自动配置）         |
-| continew-starter-cache   | 缓存模块（包含 Redisson 自动配置）         |
-| continew-starter-data    | 数据访问模块（包含 MyBatis Plus 自动配置） |
+| 模块名称                   | 模块作用                                    |
+| -------------------------- | ------------------------------------------- |
+| continew-starter-core      | 核心模块（包含跨域、线程池自动配置）        |
+| continew-starter-json      | JSON 模块（包含 Jackson 自动配置）          |
+| continew-starter-api-doc   | API 文档模块（包含 Knife4j 自动配置）       |
+| continew-starter-captcha   | 验证码模块（包含图形验证码自动配置）        |
+| continew-starter-cache     | 缓存模块（包含 Redisson 自动配置）          |
+| continew-starter-data      | 数据访问模块（包含 MyBatis Plus 自动配置）  |
+| continew-starter-auth      | 认证模块（包含 SaToken、JustAuth 自动配置） |
+| continew-starter-messaging | 消息模块（包含 SMS4J、邮箱自动配置）        |
 
 ## 贡献代码
 
@@ -185,6 +188,26 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 > 1. 请确保代码、配置文件的结构和命名规范良好，完善的代码注释，并遵循阿里巴巴的 <a href="https://github.com/Charles7c/continew-starter/blob/dev/code-style/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C(%E9%BB%84%E5%B1%B1%E7%89%88).pdf" target="_blank">《Java开发手册(黄山版)》</a> 中的代码规范，保证代码质量和可维护性
 > 2. 在提交代码前，请按照 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) 编写 commit 的 message（建议在 IntelliJ IDEA 中下载并安装 Git Commit Template 插件，以便按照规范进行 commit）
 > 3. 提交代码之前，请关闭所有代码窗口，执行 mvn compile 命令，编译通过后，不要再打开查看任何代码窗口，直接提交即可
+
+## 鸣谢
+
+### 鸣谢
+
+感谢参与贡献的每一位小伙伴🥰
+
+<a href="https://github.com/Charles7c/continew-starter/graphs/contributors">
+	<img src="https://contrib.rocks/image?repo=Charles7c/continew-starter" />
+</a>
+
+### 特别鸣谢
+
+- 感谢 <a href="https://www.jetbrains.com/" target="_blank">JetBrains</a> 提供的 <a href="https://www.jetbrains.com/shop/eform/opensource" target="_blank">非商业开源软件开发授权</a> 
+- 感谢 <a href="https://github.com/baomidou/mybatis-plus" target="_blank">MyBatis Plus</a>、<a href="https://github.com/dromara/sa-token" target="_blank">Sa-Token</a> 、<a href="https://github.com/xiaoymin/knife4j" target="_blank">Knife4j</a>、<a href="https://github.com/dromara/hutool" target="_blank">Hutool</a> 等国产开源组件作者为国内开源世界作出的贡献
+- 感谢 <a href="https://github.com/elunez/eladmin" target="_blank">ELADMIN</a>、<a href="https://github.com/dromara/RuoYi-Vue-Plus" target="_blank">RuoYi-Vue-Plus</a>、<a href="https://gitee.com/herodotus/dante-engine" target="_blank">Dante-Engine</a>，致敬各位作者为开源脚手架领域作出的贡献
+  - e.g. 起始于 ELADMIN 项目开源的 QueryHelper 组件
+  - e.g. 使用 RuoYi-Vue-Plus 项目封装的 SaToken 相关认证鉴权配置
+  - e.g. 使用 Dante-Engine 项目封装的 Redisson 相关配置
+- 感谢项目使用或未使用到的每一款开源组件，致敬各位开源先驱 :fire:
 
 ## License
 
