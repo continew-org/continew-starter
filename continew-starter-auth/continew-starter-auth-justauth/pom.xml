@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>top.charles7c.continew</groupId>
+        <artifactId>continew-starter-auth</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>continew-starter-auth-justauth</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>ContiNew Starter 认证模块 - JustAuth</description>
+
+    <dependencies>
+        <!-- Just Auth（开箱即用的整合第三方登录的开源组件，脱离繁琐的第三方登录 SDK，让登录变得 So easy!） -->
+        <dependency>
+            <groupId>me.zhyd.oauth</groupId>
+            <artifactId>JustAuth</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.xkcoding.justauth</groupId>
+            <artifactId>justauth-spring-boot-starter</artifactId>
+        </dependency>
+
+        <!-- 缓存模块 - Redisson -->
+        <dependency>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-cache-redisson</artifactId>
+        </dependency>
+    </dependencies>
+</project>

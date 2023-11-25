@@ -17,6 +17,7 @@
 
     <modules>
         <module>continew-starter-auth-satoken</module>
+        <module>continew-starter-auth-justauth</module>
     </modules>
 
     <dependencies>

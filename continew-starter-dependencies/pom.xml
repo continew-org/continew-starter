@@ -55,6 +55,7 @@
 
     <properties>
         <revision>1.0.0-SNAPSHOT</revision>
+        <just-auth.version>1.16.5</just-auth.version>
         <sa-token.version>1.37.0</sa-token.version>
         <mybatis-plus.version>3.5.4.1</mybatis-plus.version>
         <dynamic-datasource.version>4.2.0</dynamic-datasource.version>
@@ -67,6 +68,28 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Just Auth（开箱即用的整合第三方登录的开源组件，脱离繁琐的第三方登录 SDK，让登录变得 So easy!） -->
+            <dependency>
+                <groupId>me.zhyd.oauth</groupId>
+                <artifactId>JustAuth</artifactId>
+                <version>${just-auth.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.xkcoding.justauth</groupId>
+                <artifactId>justauth-spring-boot-starter</artifactId>
+                <version>1.4.0</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>cn.hutool</groupId>
+                        <artifactId>hutool-core</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>me.zhyd.oauth</groupId>
+                        <artifactId>JustAuth</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
             <!-- Sa-Token（轻量级 Java 权限认证框架，让鉴权变得简单、优雅） -->
             <dependency>
                 <groupId>cn.dev33</groupId>
@@ -139,6 +162,13 @@
             </dependency>
 
             <!-- ContiNew Starter 依赖 -->
+            <!-- 认证模块 - JustAuth -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-auth-justauth</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 认证模块 - SaToken -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
