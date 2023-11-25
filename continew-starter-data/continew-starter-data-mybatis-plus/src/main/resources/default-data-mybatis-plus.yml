@@ -1,0 +1,17 @@
+--- ### MyBatis Plus 配置（https://baomidou.com/pages/56bac0/#%E5%9F%BA%E6%9C%AC%E9%85%8D%E7%BD%AE）
+mybatis-plus:
+  # 启动时是否检查 MyBatis XML 文件的存在（默认：false 不检查）
+  check-config-location: true
+  ## MyBatis 原生支持配置
+  configuration:
+    # 是否开启自动驼峰命名规则（camel case）映射，即从经典数据库列名 A_COLUMN（下划线命名）到经典 Java 属性名 aColumn（驼峰命名）的类似映射
+    # 此属性在 MyBatis 中原默认值为 false，在 MyBatis-Plus 中，此属性也将用于生成最终的 SQL 的 select body，如果您的数据库命名符合规则无需使用 @TableField 注解指定数据库字段名
+    map-underscore-to-camel-case: true
+    # MyBatis 自动映射时未知列或未知属性处理策略，通过该配置可指定 MyBatis 在自动映射过程中遇到未知列或者未知属性时如何处理
+    # NONE：不做任何处理 (默认值)；WARNING：以日志的形式打印相关警告信息；FAILING：当作映射失败处理，并抛出异常和详细信息
+    auto-mapping-unknown-column-behavior: NONE
+    # 日志配置
+    # 默认：org.apache.ibatis.logging.slf4j.Slf4jImpl
+    # 更详细（会有性能损耗）：org.apache.ibatis.logging.stdout.StdOutImpl
+    # 关闭（可单纯使用 p6spy 分析）：org.apache.ibatis.logging.nologging.NoLoggingImpl
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl

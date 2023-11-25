@@ -33,7 +33,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
 
 /**
  * MyBatis Plus 自动配置
@@ -47,6 +49,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableConfigurationProperties(MyBatisPlusExtensionProperties.class)
 @ConditionalOnProperty(prefix = "mybatis-plus.extension", name = "enabled", havingValue = "true")
+@PropertySource(value = "classpath:default-data-mybatis-plus.yml", factory = GeneralPropertySourceFactory.class)
 public class MybatisPlusAutoConfiguration {
 
     /**

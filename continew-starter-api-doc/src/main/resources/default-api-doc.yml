@@ -1,0 +1,16 @@
+--- ### 接口文档配置
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    show-extensions: true
+  api-docs:
+    enabled: ${springdoc.swagger-ui.enabled}
+    path: /v3/api-docs
+## 接口文档增强配置
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+    swagger-model-name: 实体类列表

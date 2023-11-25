@@ -1,0 +1,21 @@
+--- ### Spring 配置
+spring:
+  ## MVC 配置
+  mvc:
+    format:
+      # 日期格式化（针对 java.util.Date）
+      date-time: yyyy-MM-dd HH:mm:ss
+  ## Jackson 配置
+  jackson:
+    # 时区配置
+    time-zone: GMT+8
+    # 日期格式化（针对 java.util.Date）
+    date-format: yyyy-MM-dd HH:mm:ss
+    # 序列化配置（Bean -> JSON）
+    serialization:
+      # 允许序列化无属性的 Bean
+      FAIL_ON_EMPTY_BEANS: false
+    # 反序列化配置（JSON -> Bean）
+    deserialization:
+      # 允许反序列化不存在的属性
+      FAIL_ON_UNKNOWN_PROPERTIES: false

@@ -28,6 +28,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
+import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
 import top.charles7c.continew.starter.json.jackson.serializer.BigNumberSerializer;
 
 import java.math.BigInteger;
@@ -45,6 +47,7 @@ import java.util.TimeZone;
  */
 @Slf4j
 @AutoConfiguration
+@PropertySource(value = "classpath:default-json-jackson.yml", factory = GeneralPropertySourceFactory.class)
 public class JacksonAutoConfiguration {
 
     @Bean

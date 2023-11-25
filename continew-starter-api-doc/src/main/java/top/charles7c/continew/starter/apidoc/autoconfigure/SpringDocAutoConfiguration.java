@@ -26,7 +26,10 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 import top.charles7c.continew.starter.core.autoconfigure.ProjectProperties;
+import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
+
 
 /**
  * API 文档自动配置
@@ -37,6 +40,7 @@ import top.charles7c.continew.starter.core.autoconfigure.ProjectProperties;
 @Slf4j
 @AutoConfiguration
 @ConditionalOnProperty(name = "springdoc.swagger-ui.enabled", havingValue = "true")
+@PropertySource(value = "classpath:default-api-doc.yml", factory = GeneralPropertySourceFactory.class)
 public class SpringDocAutoConfiguration {
 
     /**

@@ -31,8 +31,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
 
 /**
  * Sa-Token 自动配置
@@ -45,6 +47,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 @EnableConfigurationProperties(SaTokenExtensionProperties.class)
 @ConditionalOnProperty(prefix = "sa-token.extension", name = "enabled", havingValue = "true")
+@PropertySource(value = "classpath:default-auth-satoken.yml", factory = GeneralPropertySourceFactory.class)
 public class SaTokenAutoConfiguration implements WebMvcConfigurer {
 
     private final SaTokenExtensionProperties properties;
