@@ -61,6 +61,7 @@
         <dynamic-datasource.version>4.2.0</dynamic-datasource.version>
         <p6spy.version>3.9.1</p6spy.version>
         <redisson.version>3.24.3</redisson.version>
+        <sms4j.version>3.0.4</sms4j.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <knife4j.version>4.3.0</knife4j.version>
         <hutool.version>5.8.23</hutool.version>
@@ -138,6 +139,13 @@
                 <version>${redisson.version}</version>
             </dependency>
 
+            <!-- SMS4J（短信聚合框架，轻松集成多家短信服务，解决接入多个短信 SDK 的繁琐流程） -->
+            <dependency>
+                <groupId>org.dromara.sms4j</groupId>
+                <artifactId>sms4j-spring-boot-starter</artifactId>
+                <version>${sms4j.version}</version>
+            </dependency>
+
             <!-- Easy Captcha（Java 图形验证码，支持 gif、中文、算术等类型，可用于 Java Web、JavaSE 等项目） -->
             <dependency>
                 <groupId>com.github.whvcse</groupId>
@@ -187,6 +195,13 @@
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
                 <artifactId>continew-starter-cache-redisson</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 消息模块 - SMS -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-messaging-sms</artifactId>
                 <version>${revision}</version>
             </dependency>
 

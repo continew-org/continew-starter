@@ -75,6 +75,7 @@
         <module>continew-starter-cache</module>
         <module>continew-starter-data</module>
         <module>continew-starter-auth</module>
+        <module>continew-starter-messaging</module>
     </modules>
 
     <dependencies>
