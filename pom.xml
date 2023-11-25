@@ -74,6 +74,7 @@
         <module>continew-starter-captcha</module>
         <module>continew-starter-cache</module>
         <module>continew-starter-data</module>
+        <module>continew-starter-auth</module>
     </modules>
 
     <dependencies>
