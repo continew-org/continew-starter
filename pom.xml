@@ -62,6 +62,7 @@
         <resource.delimiter>@</resource.delimiter>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
@@ -77,6 +78,7 @@
         <module>continew-starter-data</module>
         <module>continew-starter-auth</module>
         <module>continew-starter-messaging</module>
+        <module>continew-starter-extension</module>
     </modules>
 
     <dependencies>

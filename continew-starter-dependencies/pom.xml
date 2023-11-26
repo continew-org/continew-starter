@@ -186,6 +186,13 @@
             </dependency>
 
             <!-- ContiNew Starter 依赖 -->
+            <!-- 扩展模块 - CRUD -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-extension-crud</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 认证模块 - JustAuth -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
