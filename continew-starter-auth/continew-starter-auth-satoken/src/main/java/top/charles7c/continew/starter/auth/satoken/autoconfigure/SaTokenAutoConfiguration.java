@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 
-import cn.dev33.satoken.dao.SaTokenDao;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.jwt.StpLogicJwtForSimple;
 import cn.dev33.satoken.stp.StpInterface;
@@ -31,6 +30,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -60,29 +61,27 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 整合 JWT（简单模式）
-     */
-    @Bean
-    public StpLogic stpLogic() {
-        return new StpLogicJwtForSimple();
-    }
-
-    /**
-     * 自定义缓存实现
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public SaTokenDao saTokenDao() {
-        return ReflectUtil.newInstance(properties.getDaoImpl());
-    }
-
-    /**
-     * 权限认证实现
+     * 权限认证实现类
      */
     @Bean
     @ConditionalOnMissingBean
     public StpInterface stpInterface() {
         return ReflectUtil.newInstance(properties.getPermissionImpl());
+    }
+
+    /**
+     * 自定义持久层配置
+     */
+    @Configuration
+    @Import({SaTokenDaoConfiguration.Redis.class, SaTokenDaoConfiguration.Custom.class})
+    protected static class SaTokenDaoAutoConfiguration {}
+
+    /**
+     * 整合 JWT（简单模式）
+     */
+    @Bean
+    public StpLogic stpLogic() {
+        return new StpLogicJwtForSimple();
     }
 
     @PostConstruct

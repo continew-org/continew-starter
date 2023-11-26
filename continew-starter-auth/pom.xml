@@ -21,10 +21,10 @@
     </modules>
 
     <dependencies>
-        <!-- 核心模块 -->
+        <!-- 缓存模块 - Redisson -->
         <dependency>
             <groupId>top.charles7c.continew</groupId>
-            <artifactId>continew-starter-core</artifactId>
+            <artifactId>continew-starter-cache-redisson</artifactId>
         </dependency>
     </dependencies>
 </project>

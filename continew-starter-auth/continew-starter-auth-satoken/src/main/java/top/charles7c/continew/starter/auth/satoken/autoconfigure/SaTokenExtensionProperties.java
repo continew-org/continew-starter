@@ -16,10 +16,12 @@
 
 package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 
-import cn.dev33.satoken.dao.SaTokenDao;
 import cn.dev33.satoken.stp.StpInterface;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import top.charles7c.continew.starter.auth.satoken.properties.SaTokenDaoProperties;
+import top.charles7c.continew.starter.auth.satoken.properties.SaTokenSecurityProperties;
 
 
 /**
@@ -38,29 +40,19 @@ public class SaTokenExtensionProperties {
     private boolean enabled = false;
 
     /**
-     * 自定义缓存实现
-     */
-    private Class<? extends SaTokenDao> daoImpl;
-
-    /**
      * 权限认证实现
      */
     private Class<? extends StpInterface> permissionImpl;
 
     /**
-     * 安全配置
+     * 持久层配置
      */
-    private SecurityProperties security;
+    @NestedConfigurationProperty
+    private SaTokenDaoProperties dao;
 
     /**
-     * 安全配置属性
+     * 安全配置
      */
-    @Data
-    public static class SecurityProperties {
-
-        /**
-         * 排除（放行）路径配置
-         */
-        private String[] excludes = new String[0];
-    }
+    @NestedConfigurationProperty
+    private SaTokenSecurityProperties security;
 }
