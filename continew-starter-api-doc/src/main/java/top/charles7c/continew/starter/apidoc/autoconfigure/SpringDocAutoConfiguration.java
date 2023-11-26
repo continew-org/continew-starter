@@ -27,8 +27,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
-import top.charles7c.continew.starter.core.autoconfigure.ProjectProperties;
+import org.springframework.http.CacheControl;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.charles7c.continew.starter.core.autoconfigure.project.ProjectProperties;
 import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
+
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -38,10 +44,19 @@ import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
  * @since 1.0.0
  */
 @Slf4j
+@EnableWebMvc
 @AutoConfiguration
 @ConditionalOnProperty(name = "springdoc.swagger-ui.enabled", havingValue = "true")
 @PropertySource(value = "classpath:default-api-doc.yml", factory = GeneralPropertySourceFactory.class)
-public class SpringDocAutoConfiguration {
+public class SpringDocAutoConfiguration implements WebMvcConfigurer {
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/");
+        registry.addResourceHandler("/doc.html").addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/")
+                .setCacheControl(CacheControl.maxAge(5, TimeUnit.HOURS).cachePublic());
+    }
 
     /**
      * Open API 配置
