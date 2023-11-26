@@ -71,6 +71,7 @@
         <module>continew-starter-core</module>
         <module>continew-starter-json</module>
         <module>continew-starter-api-doc</module>
+        <module>continew-starter-file</module>
         <module>continew-starter-captcha</module>
         <module>continew-starter-cache</module>
         <module>continew-starter-data</module>
