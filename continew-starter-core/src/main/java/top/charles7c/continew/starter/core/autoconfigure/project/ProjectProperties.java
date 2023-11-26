@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.core.autoconfigure;
+package top.charles7c.continew.starter.core.autoconfigure.project;
 
+import cn.hutool.core.convert.Convert;
+import cn.hutool.extra.spring.SpringUtil;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import org.springframework.stereotype.Component;
 
 /**
  * 项目配置属性
@@ -28,7 +28,6 @@ import org.springframework.stereotype.Component;
  * @since 1.0.0
  */
 @Data
-@Component
 @ConfigurationProperties(prefix = "project")
 public class ProjectProperties {
 
@@ -65,19 +64,28 @@ public class ProjectProperties {
     /**
      * 联系人
      */
-    @NestedConfigurationProperty
     private Contact contact;
 
     /**
      * 许可协议
      */
-    @NestedConfigurationProperty
     private License license;
 
     /**
      * 是否为生产环境
      */
     private boolean production = false;
+
+    /**
+     * 是否启用本地解析 IP 归属地
+     */
+    public static final boolean IP_ADDR_LOCAL_PARSE_ENABLED;
+
+    static {
+        String underlineCaseProperty = SpringUtil.getProperty("ip-addr-local-parse-enabled");
+        String camelCaseProperty = SpringUtil.getProperty("ipAddrLocalParseEnabled");
+        IP_ADDR_LOCAL_PARSE_ENABLED = Convert.toBool(underlineCaseProperty, false) || Convert.toBool(camelCaseProperty, false);
+    }
 
     /**
      * 联系人配置属性
