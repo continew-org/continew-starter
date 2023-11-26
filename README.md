@@ -150,13 +150,15 @@ cors:
 | 模块名称                   | 模块作用                                    |
 | -------------------------- | ------------------------------------------- |
 | continew-starter-core      | 核心模块（包含跨域、线程池自动配置）        |
+| continew-starter-file      | 文件处理模块（包含 Excel 相关配置）         |
 | continew-starter-json      | JSON 模块（包含 Jackson 自动配置）          |
 | continew-starter-api-doc   | API 文档模块（包含 Knife4j 自动配置）       |
 | continew-starter-captcha   | 验证码模块（包含图形验证码自动配置）        |
 | continew-starter-cache     | 缓存模块（包含 Redisson 自动配置）          |
 | continew-starter-data      | 数据访问模块（包含 MyBatis Plus 自动配置）  |
 | continew-starter-auth      | 认证模块（包含 SaToken、JustAuth 自动配置） |
-| continew-starter-messaging | 消息模块（包含 SMS4J、邮箱自动配置）        |
+| continew-starter-messaging | 消息模块（包含 SMS4J、邮件自动配置）        |
+| continew-starter-extension | 扩展模块（包含 CRUD 等复杂模组及自动配置）  |
 
 ## 贡献代码
 
