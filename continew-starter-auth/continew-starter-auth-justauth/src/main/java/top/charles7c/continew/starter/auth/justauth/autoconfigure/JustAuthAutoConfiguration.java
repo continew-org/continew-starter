@@ -19,7 +19,9 @@ package top.charles7c.continew.starter.auth.justauth.autoconfigure;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthStateCache;
+import org.redisson.client.RedisClient;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import top.charles7c.continew.starter.auth.justauth.impl.JustAuthStateCacheRedisImpl;
@@ -31,7 +33,7 @@ import top.charles7c.continew.starter.auth.justauth.impl.JustAuthStateCacheRedis
  * @since 1.0.0
  */
 @Slf4j
-@AutoConfiguration(after = com.xkcoding.justauth.autoconfigure.JustAuthAutoConfiguration.class)
+@AutoConfiguration(before = com.xkcoding.justauth.autoconfigure.JustAuthAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "justauth", value = "enabled", havingValue = "true", matchIfMissing = true)
 public class JustAuthAutoConfiguration {
 
@@ -39,9 +41,12 @@ public class JustAuthAutoConfiguration {
      * 自定义 State 缓存实现
      */
     @Bean
-    @ConditionalOnProperty(prefix = "justauth.cache", value = "type", havingValue = "custom")
+    @ConditionalOnClass(RedisClient.class)
+    @ConditionalOnProperty(prefix = "justauth.cache", value = "type", havingValue = "redis")
     public AuthStateCache authStateCache() {
-        return new JustAuthStateCacheRedisImpl();
+        JustAuthStateCacheRedisImpl impl = new JustAuthStateCacheRedisImpl();
+        log.debug("[ContiNew Starter] - Auto Configuration 'JustAuth-AuthStateCache-Redis' completed initialization.");
+        return impl;
     }
 
     @PostConstruct

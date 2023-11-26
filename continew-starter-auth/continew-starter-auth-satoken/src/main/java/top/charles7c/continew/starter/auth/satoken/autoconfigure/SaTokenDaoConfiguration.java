@@ -38,7 +38,7 @@ import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoC
  */
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public abstract class SaTokenDaoConfiguration {
+abstract class SaTokenDaoConfiguration {
 
     /**
      * 自定义持久层实现类-Redis

@@ -22,7 +22,7 @@ import top.charles7c.continew.starter.cache.redisson.util.RedisUtils;
 import java.time.Duration;
 
 /**
- * Just Auth 自定义 State 缓存实现（Redis）
+ * JustAuth State 缓存 Redis 实现
  *
  * @author Charles7c
  * @since 1.0.0
