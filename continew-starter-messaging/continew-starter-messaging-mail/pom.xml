@@ -5,26 +5,21 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>top.charles7c.continew</groupId>
-        <artifactId>continew-starter</artifactId>
+        <artifactId>continew-starter-messaging</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-messaging</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>continew-starter-messaging-mail</artifactId>
+    <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
-    <description>ContiNew Starter 消息模块</description>
-
-    <modules>
-        <module>continew-starter-messaging-sms</module>
-        <module>continew-starter-messaging-mail</module>
-    </modules>
+    <description>ContiNew Starter 消息模块 - 邮件</description>
 
     <dependencies>
-        <!-- 核心模块 -->
+        <!-- Java 邮件支持 -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
-            <artifactId>continew-starter-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
         </dependency>
     </dependencies>
 </project>

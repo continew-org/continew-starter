@@ -221,6 +221,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 消息模块 - 邮件 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-messaging-mail</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 验证码模块 - 图形验证码 -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
