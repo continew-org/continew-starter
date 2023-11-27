@@ -17,8 +17,10 @@
 package top.charles7c.continew.starter.extension.crud.handler;
 
 import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
+import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.mvc.condition.RequestCondition;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.util.pattern.PathPatternParser;
@@ -26,6 +28,7 @@ import top.charles7c.continew.starter.core.util.ExceptionUtils;
 import top.charles7c.continew.starter.extension.crud.annotation.CrudRequestMapping;
 import top.charles7c.continew.starter.extension.crud.enums.Api;
 
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
 
 /**
@@ -46,27 +49,38 @@ public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMappi
         if (!handlerType.isAnnotationPresent(CrudRequestMapping.class)) {
             return requestMappingInfo;
         }
-        // 获取 @CrudRequestMapping 注解信息
+        // 过滤 API，如果 API 列表中不包含，则忽略
         CrudRequestMapping crudRequestMapping = handlerType.getDeclaredAnnotation(CrudRequestMapping.class);
-        // 拼接路径前缀（合并了 @RequestMapping 的部分能力）
-        String pathPrefix = crudRequestMapping.value();
-        if (StrUtil.isNotBlank(pathPrefix)) {
-            /*
-             * 问题：RequestMappingInfo.paths(pathPrefix) 返回的 RequestMappingInfo 对象里 pathPatternsCondition = null
-             * 导致 combine() 方法抛出断言异常！ 修复：创建 options 对象，并设置 PatternParser
-             */
-            RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
-            options.setPatternParser(PathPatternParser.defaultInstance);
-            requestMappingInfo =
-                RequestMappingInfo.paths(pathPrefix).options(options).build().combine(requestMappingInfo);
-        }
-        // 过滤 API
         Api[] apiArr = crudRequestMapping.api();
-        // 如果非本类中定义，且 API 列表中不包含，则忽略
         Api api = ExceptionUtils.exToNull(() -> Api.valueOf(method.getName().toUpperCase()));
-        if (method.getDeclaringClass() != handlerType && !ArrayUtil.containsAny(apiArr, Api.ALL, api)) {
+        if (!ArrayUtil.containsAny(apiArr, Api.ALL, api)) {
             return null;
         }
-        return requestMappingInfo;
+        // 拼接路径（合并了 @RequestMapping 的部分能力）
+        return this.getMappingForMethodWrapper(method, handlerType, crudRequestMapping);
+    }
+
+    private RequestMappingInfo getMappingForMethodWrapper(@NonNull Method method, @NonNull Class<?> handlerType, CrudRequestMapping crudRequestMapping) {
+        RequestMappingInfo info = this.createRequestMappingInfo(method);
+        if (null != info) {
+            RequestMappingInfo typeInfo = this.createRequestMappingInfo(handlerType);
+            if (null != typeInfo) {
+                info = typeInfo.combine(info);
+            }
+            String prefix = crudRequestMapping.value();
+            if (null != prefix) {
+                RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
+                options.setPatternParser(PathPatternParser.defaultInstance);
+                info = RequestMappingInfo.paths(prefix).options(options).build().combine(info);
+            }
+        }
+        return info;
+    }
+
+    private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
+        RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
+        RequestCondition<?> condition = (element instanceof Class<?> clazz ?
+                getCustomTypeCondition(clazz) : getCustomMethodCondition((Method) element));
+        return (requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null);
     }
 }
