@@ -29,7 +29,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.extension.crud.annotation.CrudRequestMapping;
-import top.charles7c.continew.starter.extension.crud.annotation.NoResponseAdvice;
 import top.charles7c.continew.starter.extension.crud.enums.Api;
 import top.charles7c.continew.starter.extension.crud.model.query.PageQuery;
 import top.charles7c.continew.starter.extension.crud.model.query.SortQuery;
@@ -72,9 +71,10 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Operation(summary = "分页查询列表", description = "分页查询列表")
     @ResponseBody
     @GetMapping
-    public PageDataResp<L> page(Q query, @Validated PageQuery pageQuery) {
+    public R<PageDataResp<L>> page(Q query, @Validated PageQuery pageQuery) {
         this.checkPermission(Api.LIST);
-        return baseService.page(query, pageQuery);
+        PageDataResp<L> pageData = baseService.page(query, pageQuery);
+        return R.ok(pageData);
     }
 
     /**
@@ -89,9 +89,10 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Operation(summary = "查询树列表", description = "查询树列表")
     @ResponseBody
     @GetMapping("/tree")
-    public List<Tree<Long>> tree(Q query, SortQuery sortQuery) {
+    public R<List<Tree<Long>>> tree(Q query, SortQuery sortQuery) {
         this.checkPermission(Api.LIST);
-        return baseService.tree(query, sortQuery, false);
+        List<Tree<Long>> list = baseService.tree(query, sortQuery, false);
+        return R.ok(list);
     }
 
     /**
@@ -106,9 +107,10 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Operation(summary = "查询列表", description = "查询列表")
     @ResponseBody
     @GetMapping("/list")
-    public List<L> list(Q query, SortQuery sortQuery) {
+    public R<List<L>> list(Q query, SortQuery sortQuery) {
         this.checkPermission(Api.LIST);
-        return baseService.list(query, sortQuery);
+        List<L> list = baseService.list(query, sortQuery);
+        return R.ok(list);
     }
 
     /**
@@ -122,9 +124,10 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @GetMapping("/{id}")
-    public D get(@PathVariable Long id) {
+    public R<D> get(@PathVariable Long id) {
         this.checkPermission(Api.LIST);
-        return baseService.get(id);
+        D detail = baseService.get(id);
+        return R.ok(detail);
     }
 
     /**
@@ -190,7 +193,6 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
      *            响应对象
      */
     @Operation(summary = "导出数据", description = "导出数据")
-    @NoResponseAdvice
     @GetMapping("/export")
     public void export(Q query, SortQuery sortQuery, HttpServletResponse response) {
         this.checkPermission(Api.EXPORT);
