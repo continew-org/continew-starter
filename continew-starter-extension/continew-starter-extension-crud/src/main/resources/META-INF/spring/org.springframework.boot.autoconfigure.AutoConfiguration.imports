@@ -1,1 +1,2 @@
 top.charles7c.continew.starter.extension.crud.autoconfigure.CrudAutoConfiguration
+top.charles7c.continew.starter.extension.crud.autoconfigure.GlobalErrorHandlerAutoConfiguration
