@@ -32,10 +32,6 @@ import top.charles7c.continew.starter.core.autoconfigure.project.ProjectProperti
 /**
  * IP 工具类
  *
- * <p>
- *     使用本地解析时请提前引入 Hutool SpringUtil，详情请见<a href="https://doc.hutool.cn/pages/SpringUtil">引入方式</a>。
- * </p>
- *
  * @author Charles7c
  * @since 1.0.0
  */
@@ -51,8 +47,7 @@ public class IpUtils {
     /**
      * 根据 IP 获取归属地信息
      *
-     * @param ip
-     *            IP 地址
+     * @param ip IP 地址
      * @return 归属地信息
      */
     public static String getCityInfo(String ip) {
@@ -66,8 +61,7 @@ public class IpUtils {
     /**
      * 根据 IP 获取归属地信息（网络解析）
      *
-     * @param ip
-     *            IP 地址
+     * @param ip IP 地址
      * @return 归属地信息
      */
     public static String getHttpCityInfo(String ip) {
@@ -82,8 +76,7 @@ public class IpUtils {
     /**
      * 根据 IP 获取归属地信息（本地解析）
      *
-     * @param ip
-     *            IP 地址
+     * @param ip IP 地址
      * @return 归属地信息
      */
     public static String getLocalCityInfo(String ip) {
@@ -101,8 +94,7 @@ public class IpUtils {
     /**
      * 是否为内网 IPv4
      *
-     * @param ip
-     *            IP 地址
+     * @param ip IP 地址
      * @return 是否为内网 IP
      */
     public static boolean isInnerIp(String ip) {
