@@ -46,7 +46,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableConfigurationProperties(ThreadPoolProperties.class)
 public class ThreadPoolAutoConfiguration {
 
-    /** 核心（最小）线程数 = CPU 核心数 + 1 */
+    /**
+     * 核心（最小）线程数 = CPU 核心数 + 1
+     */
     private final int corePoolSize = Runtime.getRuntime().availableProcessors() + 1;
 
     /**

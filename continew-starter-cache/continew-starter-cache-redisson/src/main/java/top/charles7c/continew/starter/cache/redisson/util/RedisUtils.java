@@ -112,8 +112,7 @@ public class RedisUtils {
     /**
      * 查询缓存剩余过期时间
      *
-     * @param key
-     *            键
+     * @param key 键
      * @return 缓存剩余过期时间（单位：毫秒）
      */
     public static long getTimeToLive(final String key) {
@@ -134,8 +133,7 @@ public class RedisUtils {
     /**
      * 查询缓存列表
      *
-     * @param keyPattern
-     *            键表达式
+     * @param keyPattern 键表达式
      * @return 缓存列表
      */
     public static Collection<String> keys(final String keyPattern) {

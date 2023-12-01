@@ -26,7 +26,7 @@ import java.io.IOException;
 /**
  * 大数值序列化器
  * <p>
- *     将 JS 取值范围之外的数值转换为字符串
+ * 将 JS 取值范围之外的数值转换为字符串
  * </p>
  *
  * @author Charles7c
@@ -35,11 +35,17 @@ import java.io.IOException;
 @JacksonStdImpl
 public class BigNumberSerializer extends NumberSerializer {
 
-    /** 静态实例 */
+    /**
+     * 静态实例
+     */
     public static final BigNumberSerializer SERIALIZER_INSTANCE = new BigNumberSerializer(Number.class);
-    /** JS：Number.MAX_SAFE_INTEGER */
+    /**
+     * JS：Number.MAX_SAFE_INTEGER
+     */
     private static final long MAX_SAFE_INTEGER = 9007199254740991L;
-    /** JS：Number.MIN_SAFE_INTEGER */
+    /**
+     * JS：Number.MIN_SAFE_INTEGER
+     */
     private static final long MIN_SAFE_INTEGER = -9007199254740991L;
 
     public BigNumberSerializer(Class<? extends Number> rawType) {

@@ -39,11 +39,9 @@ public class ReflectUtils {
      * 获得一个类中所有非静态字段名列表，包括其父类中的字段<br>
      * 如果子类与父类中存在同名字段，则这两个字段同时存在，子类字段在前，父类字段在后。
      *
-     * @param beanClass
-     *            类
+     * @param beanClass 类
      * @return 非静态字段名列表
-     * @throws SecurityException
-     *             安全检查异常
+     * @throws SecurityException 安全检查异常
      */
     public static List<String> getNonStaticFieldsName(Class<?> beanClass) throws SecurityException {
         List<Field> nonStaticFields = getNonStaticFields(beanClass);
@@ -54,11 +52,9 @@ public class ReflectUtils {
      * 获得一个类中所有非静态字段列表，包括其父类中的字段<br>
      * 如果子类与父类中存在同名字段，则这两个字段同时存在，子类字段在前，父类字段在后。
      *
-     * @param beanClass
-     *            类
+     * @param beanClass 类
      * @return 非静态字段列表
-     * @throws SecurityException
-     *             安全检查异常
+     * @throws SecurityException 安全检查异常
      */
     public static List<Field> getNonStaticFields(Class<?> beanClass) throws SecurityException {
         Field[] fields = ReflectUtil.getFields(beanClass);

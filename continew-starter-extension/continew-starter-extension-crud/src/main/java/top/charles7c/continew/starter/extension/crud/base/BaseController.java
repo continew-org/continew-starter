@@ -40,16 +40,11 @@ import java.util.List;
 /**
  * 控制器基类
  *
- * @param <S>
- *            业务接口
- * @param <L>
- *            列表信息
- * @param <D>
- *            详情信息
- * @param <Q>
- *            查询条件
- * @param <C>
- *            创建或修改信息
+ * @param <S> 业务接口
+ * @param <L> 列表信息
+ * @param <D> 详情信息
+ * @param <Q> 查询条件
+ * @param <C> 创建或修改信息
  * @author Charles7c
  * @since 1.0.0
  */
@@ -62,10 +57,8 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     /**
      * 分页查询列表
      *
-     * @param query
-     *            查询条件
-     * @param pageQuery
-     *            分页查询条件
+     * @param query     查询条件
+     * @param pageQuery 分页查询条件
      * @return 分页信息
      */
     @Operation(summary = "分页查询列表", description = "分页查询列表")
@@ -80,10 +73,8 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     /**
      * 查询树列表
      *
-     * @param query
-     *            查询条件
-     * @param sortQuery
-     *            排序查询条件
+     * @param query     查询条件
+     * @param sortQuery 排序查询条件
      * @return 树列表信息
      */
     @Operation(summary = "查询树列表", description = "查询树列表")
@@ -98,10 +89,8 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     /**
      * 查询列表
      *
-     * @param query
-     *            查询条件
-     * @param sortQuery
-     *            排序查询条件
+     * @param query     查询条件
+     * @param sortQuery 排序查询条件
      * @return 列表信息
      */
     @Operation(summary = "查询列表", description = "查询列表")
@@ -116,8 +105,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     /**
      * 查看详情
      *
-     * @param id
-     *            ID
+     * @param id ID
      * @return 详情信息
      */
     @Operation(summary = "查看详情", description = "查看详情")
@@ -133,8 +121,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     /**
      * 新增
      *
-     * @param req
-     *            创建信息
+     * @param req 创建信息
      * @return 自增 ID
      */
     @Operation(summary = "新增数据", description = "新增数据")
@@ -149,10 +136,8 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     /**
      * 修改
      *
-     * @param req
-     *            修改信息
-     * @param id
-     *            ID
+     * @param req 修改信息
+     * @param id  ID
      * @return /
      */
     @Operation(summary = "修改数据", description = "修改数据")
@@ -168,8 +153,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     /**
      * 删除
      *
-     * @param ids
-     *            ID 列表
+     * @param ids ID 列表
      * @return /
      */
     @Operation(summary = "删除数据", description = "删除数据")
@@ -185,12 +169,9 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     /**
      * 导出
      *
-     * @param query
-     *            查询条件
-     * @param sortQuery
-     *            排序查询条件
-     * @param response
-     *            响应对象
+     * @param query     查询条件
+     * @param sortQuery 排序查询条件
+     * @param response  响应对象
      */
     @Operation(summary = "导出数据", description = "导出数据")
     @GetMapping("/export")
@@ -202,8 +183,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     /**
      * 根据 API 类型进行权限验证
      *
-     * @param api
-     *            API 类型
+     * @param api API 类型
      */
     private void checkPermission(Api api) {
         CrudRequestMapping crudRequestMapping = this.getClass().getDeclaredAnnotation(CrudRequestMapping.class);

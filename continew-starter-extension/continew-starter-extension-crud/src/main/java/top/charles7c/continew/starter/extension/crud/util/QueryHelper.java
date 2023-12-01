@@ -46,12 +46,9 @@ public class QueryHelper {
     /**
      * 根据查询条件构建 MyBatis Plus 查询条件封装对象
      *
-     * @param query
-     *            查询条件
-     * @param <Q>
-     *            查询条件数据类型
-     * @param <R>
-     *            查询数据类型
+     * @param query 查询条件
+     * @param <Q>   查询条件数据类型
+     * @param <R>   查询数据类型
      * @return MyBatis Plus 查询条件封装对象
      */
     public static <Q, R> QueryWrapper<R> build(Q query) {
@@ -69,16 +66,11 @@ public class QueryHelper {
     /**
      * 构建 MyBatis Plus 查询条件封装对象
      *
-     * @param query
-     *            查询条件
-     * @param field
-     *            字段
-     * @param queryWrapper
-     *            MyBatis Plus 查询条件封装对象
-     * @param <Q>
-     *            查询条件数据类型
-     * @param <R>
-     *            查询数据类型
+     * @param query        查询条件
+     * @param field        字段
+     * @param queryWrapper MyBatis Plus 查询条件封装对象
+     * @param <Q>          查询条件数据类型
+     * @param <R>          查询数据类型
      */
     private static <Q, R> void buildQuery(Q query, Field field, QueryWrapper<R> queryWrapper) {
         boolean accessible = field.canAccess(query);
@@ -100,7 +92,7 @@ public class QueryHelper {
             parse(queryAnnotation, field.getName(), fieldValue, queryWrapper);
         } catch (BadRequestException e) {
             log.error("Build query occurred an validation error: {}. Query: {}, Field: {}.", e.getMessage(), query,
-                field, e);
+                    field, e);
             throw e;
         } catch (Exception e) {
             log.error("Build query occurred an error: {}. Query: {}, Field: {}.", e.getMessage(), query, field, e);
@@ -112,19 +104,14 @@ public class QueryHelper {
     /**
      * 解析查询条件
      *
-     * @param queryAnnotation
-     *            查询注解
-     * @param fieldName
-     *            字段名
-     * @param fieldValue
-     *            字段值
-     * @param queryWrapper
-     *            MyBatis Plus 查询条件封装对象
-     * @param <R>
-     *            查询数据类型
+     * @param queryAnnotation 查询注解
+     * @param fieldName       字段名
+     * @param fieldValue      字段值
+     * @param queryWrapper    MyBatis Plus 查询条件封装对象
+     * @param <R>             查询数据类型
      */
     private static <R> void parse(Query queryAnnotation, String fieldName, Object fieldValue,
-        QueryWrapper<R> queryWrapper) {
+                                  QueryWrapper<R> queryWrapper) {
         // 解析多属性模糊查询
         // 如果设置了多属性模糊查询，分割属性进行条件拼接
         String[] blurryPropertyArr = queryAnnotation.blurry();
@@ -151,7 +138,7 @@ public class QueryHelper {
             case GREATER_THAN_OR_EQUAL -> queryWrapper.ge(columnName, fieldValue);
             case LESS_THAN_OR_EQUAL -> queryWrapper.le(columnName, fieldValue);
             case BETWEEN -> {
-                List<Object> between = new ArrayList<>((List<Object>)fieldValue);
+                List<Object> between = new ArrayList<>((List<Object>) fieldValue);
                 ValidationUtils.throwIf(between.size() != 2, "[{}] 必须是一个范围", fieldName);
                 queryWrapper.between(columnName, between.get(0), between.get(1));
             }
@@ -160,11 +147,11 @@ public class QueryHelper {
             case RIGHT_LIKE -> queryWrapper.likeRight(columnName, fieldValue);
             case IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", fieldName);
-                queryWrapper.in(columnName, (List<Object>)fieldValue);
+                queryWrapper.in(columnName, (List<Object>) fieldValue);
             }
             case NOT_IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", fieldName);
-                queryWrapper.notIn(columnName, (List<Object>)fieldValue);
+                queryWrapper.notIn(columnName, (List<Object>) fieldValue);
             }
             case IS_NULL -> queryWrapper.isNull(columnName);
             case IS_NOT_NULL -> queryWrapper.isNotNull(columnName);

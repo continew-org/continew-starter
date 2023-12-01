@@ -29,8 +29,7 @@ import java.util.Collection;
 /**
  * Mapper 基类
  *
- * @param <T>
- *            实体类
+ * @param <T> 实体类
  * @author Charles7c
  * @since 1.0.0
  */
@@ -39,8 +38,7 @@ public interface BaseMapper<T> extends com.baomidou.mybatisplus.core.mapper.Base
     /**
      * 批量插入记录
      *
-     * @param entityList
-     *            实体列表
+     * @param entityList 实体列表
      * @return 是否成功
      */
     default boolean insertBatch(Collection<T> entityList) {
@@ -50,8 +48,7 @@ public interface BaseMapper<T> extends com.baomidou.mybatisplus.core.mapper.Base
     /**
      * 批量更新记录
      *
-     * @param entityList
-     *            实体列表
+     * @param entityList 实体列表
      * @return 是否成功
      */
     default boolean updateBatchById(Collection<T> entityList) {
@@ -79,8 +76,7 @@ public interface BaseMapper<T> extends com.baomidou.mybatisplus.core.mapper.Base
     /**
      * 链式查询（lambda 式）
      *
-     * @param entity
-     *            实体对象
+     * @param entity 实体对象
      * @return LambdaQueryWrapper 的包装类
      */
     default LambdaQueryChainWrapper<T> lambdaQuery(T entity) {
@@ -111,6 +107,6 @@ public interface BaseMapper<T> extends com.baomidou.mybatisplus.core.mapper.Base
      * @return 实体类 Class 对象
      */
     default Class<T> currentEntityClass() {
-        return (Class<T>)ClassUtil.getTypeArgument(this.getClass(), 0);
+        return (Class<T>) ClassUtil.getTypeArgument(this.getClass(), 0);
     }
 }

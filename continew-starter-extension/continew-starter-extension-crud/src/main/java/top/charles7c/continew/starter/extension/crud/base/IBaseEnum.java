@@ -23,8 +23,7 @@ import java.io.Serializable;
 /**
  * 枚举接口
  *
- * @param <T>
- *            value 类型
+ * @param <T> value 类型
  * @author Charles7c
  * @since 1.0.0
  */

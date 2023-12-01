@@ -51,14 +51,10 @@ public class MailUtils {
     /**
      * 发送文本邮件给单个人
      *
-     * @param subject
-     *            主题
-     * @param content
-     *            内容
-     * @param to
-     *            收件人
-     * @throws MessagingException
-     *             /
+     * @param subject 主题
+     * @param content 内容
+     * @param to      收件人
+     * @throws MessagingException /
      */
     public static void sendText(String to, String subject, String content) throws MessagingException {
         send(splitAddress(to), null, null, subject, content, false);
@@ -67,14 +63,10 @@ public class MailUtils {
     /**
      * 发送 HTML 邮件给单个人
      *
-     * @param subject
-     *            主题
-     * @param content
-     *            内容
-     * @param to
-     *            收件人
-     * @throws MessagingException
-     *             /
+     * @param subject 主题
+     * @param content 内容
+     * @param to      收件人
+     * @throws MessagingException /
      */
     public static void sendHtml(String to, String subject, String content) throws MessagingException {
         send(splitAddress(to), null, null, subject, content, true);
@@ -83,16 +75,11 @@ public class MailUtils {
     /**
      * 发送 HTML 邮件给单个人
      *
-     * @param subject
-     *            主题
-     * @param content
-     *            内容
-     * @param to
-     *            收件人
-     * @param files
-     *            附件列表
-     * @throws MessagingException
-     *             /
+     * @param subject 主题
+     * @param content 内容
+     * @param to      收件人
+     * @param files   附件列表
+     * @throws MessagingException /
      */
     public static void sendHtml(String to, String subject, String content, File... files) throws MessagingException {
         send(splitAddress(to), null, null, subject, content, true, files);
@@ -101,92 +88,66 @@ public class MailUtils {
     /**
      * 发送 HTML 邮件给多个人
      *
-     * @param subject
-     *            主题
-     * @param content
-     *            内容
-     * @param tos
-     *            收件人列表
-     * @param files
-     *            附件列表
-     * @throws MessagingException
-     *             /
+     * @param subject 主题
+     * @param content 内容
+     * @param tos     收件人列表
+     * @param files   附件列表
+     * @throws MessagingException /
      */
     public static void sendHtml(Collection<String> tos, String subject, String content, File... files)
-        throws MessagingException {
+            throws MessagingException {
         send(tos, null, null, subject, content, true, files);
     }
 
     /**
      * 发送 HTML 邮件给多个人
      *
-     * @param subject
-     *            主题
-     * @param content
-     *            内容
-     * @param tos
-     *            收件人列表
-     * @param ccs
-     *            抄送人列表
-     * @param files
-     *            附件列表
-     * @throws MessagingException
-     *             /
+     * @param subject 主题
+     * @param content 内容
+     * @param tos     收件人列表
+     * @param ccs     抄送人列表
+     * @param files   附件列表
+     * @throws MessagingException /
      */
     public static void sendHtml(Collection<String> tos, Collection<String> ccs, String subject, String content,
-        File... files) throws MessagingException {
+                                File... files) throws MessagingException {
         send(tos, ccs, null, subject, content, true, files);
     }
 
     /**
      * 发送 HTML 邮件给多个人
      *
-     * @param subject
-     *            主题
-     * @param content
-     *            内容
-     * @param tos
-     *            收件人列表
-     * @param ccs
-     *            抄送人列表
-     * @param bccs
-     *            密送人列表
-     * @param files
-     *            附件列表
-     * @throws MessagingException
-     *             /
+     * @param subject 主题
+     * @param content 内容
+     * @param tos     收件人列表
+     * @param ccs     抄送人列表
+     * @param bccs    密送人列表
+     * @param files   附件列表
+     * @throws MessagingException /
      */
     public static void sendHtml(Collection<String> tos, Collection<String> ccs, Collection<String> bccs, String subject,
-        String content, File... files) throws MessagingException {
+                                String content, File... files) throws MessagingException {
         send(tos, ccs, bccs, subject, content, true, files);
     }
 
     /**
      * 发送邮件给多个人
      *
-     * @param tos
-     *            收件人列表
-     * @param ccs
-     *            抄送人列表
-     * @param bccs
-     *            密送人列表
-     * @param subject
-     *            主题
-     * @param content
-     *            内容
-     * @param isHtml
-     *            是否是 HTML
-     * @param files
-     *            附件列表
-     * @throws MessagingException
-     *             /
+     * @param tos     收件人列表
+     * @param ccs     抄送人列表
+     * @param bccs    密送人列表
+     * @param subject 主题
+     * @param content 内容
+     * @param isHtml  是否是 HTML
+     * @param files   附件列表
+     * @throws MessagingException /
      */
     public static void send(Collection<String> tos, Collection<String> ccs, Collection<String> bccs, String subject,
-        String content, boolean isHtml, File... files) throws MessagingException {
+                            String content, boolean isHtml, File... files) throws MessagingException {
         Assert.isTrue(CollUtil.isEmpty(tos), "请至少指定一名收件人");
         MimeMessage mimeMessage = MAIL_SENDER.createMimeMessage();
         MimeMessageHelper messageHelper =
-            new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+                new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
 
         // 设置基本信息
         messageHelper.setFrom(SpringUtil.getProperty("spring.mail.username"));
@@ -219,8 +180,7 @@ public class MailUtils {
     /**
      * 将多个联系人转为列表，分隔符为逗号或者分号
      *
-     * @param addresses
-     *            多个联系人，如果为空返回null
+     * @param addresses 多个联系人，如果为空返回null
      * @return 联系人列表
      */
     private static List<String> splitAddress(String addresses) {

@@ -30,8 +30,7 @@ import java.util.List;
 /**
  * 分页信息
  *
- * @param <L>
- *            列表数据类型
+ * @param <L> 列表数据类型
  * @author Charles7c
  * @since 1.0.0
  */
@@ -57,14 +56,10 @@ public class PageDataResp<L> implements Serializable {
     /**
      * 基于 MyBatis Plus 分页数据构建分页信息，并将源数据转换为指定类型数据
      *
-     * @param page
-     *            MyBatis Plus 分页数据
-     * @param targetClass
-     *            目标类型 Class 对象
-     * @param <T>
-     *            源列表数据类型
-     * @param <L>
-     *            目标列表数据类型
+     * @param page        MyBatis Plus 分页数据
+     * @param targetClass 目标类型 Class 对象
+     * @param <T>         源列表数据类型
+     * @param <L>         目标列表数据类型
      * @return 分页信息
      */
     public static <T, L> PageDataResp<L> build(IPage<T> page, Class<L> targetClass) {
@@ -80,10 +75,8 @@ public class PageDataResp<L> implements Serializable {
     /**
      * 基于 MyBatis Plus 分页数据构建分页信息
      *
-     * @param page
-     *            MyBatis Plus 分页数据
-     * @param <L>
-     *            列表数据类型
+     * @param page MyBatis Plus 分页数据
+     * @param <L>  列表数据类型
      * @return 分页信息
      */
     public static <L> PageDataResp<L> build(IPage<L> page) {
@@ -99,14 +92,10 @@ public class PageDataResp<L> implements Serializable {
     /**
      * 基于列表数据构建分页信息
      *
-     * @param page
-     *            页码
-     * @param size
-     *            每页条数
-     * @param list
-     *            列表数据
-     * @param <L>
-     *            列表数据类型
+     * @param page 页码
+     * @param size 每页条数
+     * @param list 列表数据
+     * @param <L>  列表数据类型
      * @return 分页信息
      */
     public static <L> PageDataResp<L> build(int page, int size, List<L> list) {
@@ -131,8 +120,7 @@ public class PageDataResp<L> implements Serializable {
     /**
      * 空分页信息
      *
-     * @param <L>
-     *            列表数据类型
+     * @param <L> 列表数据类型
      * @return 分页信息
      */
     private static <L> PageDataResp<L> empty() {

@@ -40,29 +40,43 @@ public class R<T> implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    /** 是否成功 */
+    /**
+     * 是否成功
+     */
     @Schema(description = "是否成功", example = "true")
     private boolean success;
 
-    /** 业务状态码 */
+    /**
+     * 业务状态码
+     */
     @Schema(description = "业务状态码", example = "200")
     private int code;
 
-    /** 业务状态信息 */
+    /**
+     * 业务状态信息
+     */
     @Schema(description = "业务状态信息", example = "操作成功")
     private String msg;
 
-    /** 响应数据 */
+    /**
+     * 响应数据
+     */
     @Schema(description = "响应数据")
     private T data;
 
-    /** 时间戳 */
+    /**
+     * 时间戳
+     */
     @Schema(description = "时间戳", example = "1691453288")
     private long timestamp = DateUtil.currentSeconds();
 
-    /** 成功状态码 */
+    /**
+     * 成功状态码
+     */
     private static final int SUCCESS_CODE = HttpStatus.OK.value();
-    /** 失败状态码 */
+    /**
+     * 失败状态码
+     */
     private static final int FAIL_CODE = HttpStatus.INTERNAL_SERVER_ERROR.value();
 
     private R(boolean success, int code, String msg, T data) {

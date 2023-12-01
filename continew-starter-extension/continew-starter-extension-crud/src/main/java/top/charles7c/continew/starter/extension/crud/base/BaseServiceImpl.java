@@ -51,23 +51,17 @@ import java.util.List;
 /**
  * 业务实现基类
  *
- * @param <M>
- *            Mapper 接口
- * @param <T>
- *            实体类
- * @param <L>
- *            列表信息
- * @param <D>
- *            详情信息
- * @param <Q>
- *            查询条件
- * @param <C>
- *            创建或修改信息
+ * @param <M> Mapper 接口
+ * @param <T> 实体类
+ * @param <L> 列表信息
+ * @param <D> 详情信息
+ * @param <Q> 查询条件
+ * @param <C> 创建或修改信息
  * @author Charles7c
  * @since 1.0.0
  */
 public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO, L, D, Q, C extends BaseReq>
-    implements BaseService<L, D, Q, C> {
+        implements BaseService<L, D, Q, C> {
 
     @Autowired
     protected M baseMapper;
@@ -77,9 +71,9 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     private final Class<D> detailClass;
 
     protected BaseServiceImpl() {
-        this.entityClass = (Class<T>)ClassUtil.getTypeArgument(this.getClass(), 1);
-        this.listClass = (Class<L>)ClassUtil.getTypeArgument(this.getClass(), 2);
-        this.detailClass = (Class<D>)ClassUtil.getTypeArgument(this.getClass(), 3);
+        this.entityClass = (Class<T>) ClassUtil.getTypeArgument(this.getClass(), 1);
+        this.listClass = (Class<L>) ClassUtil.getTypeArgument(this.getClass(), 2);
+        this.detailClass = (Class<D>) ClassUtil.getTypeArgument(this.getClass(), 3);
     }
 
     @Override
@@ -114,9 +108,9 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
             if (!isSimple) {
                 List<Field> fieldList = ReflectUtils.getNonStaticFields(listClass);
                 fieldList.removeIf(f -> StrUtil.containsAnyIgnoreCase(f.getName(), treeField.value(),
-                    treeField.parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
+                        treeField.parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
                 fieldList
-                    .forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, StrUtil.genGetter(f.getName()))));
+                        .forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, StrUtil.genGetter(f.getName()))));
             }
         });
     }
@@ -131,12 +125,9 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     /**
      * 查询列表
      *
-     * @param query
-     *            查询条件
-     * @param sortQuery
-     *            排序查询条件
-     * @param targetClass
-     *            指定类型
+     * @param query       查询条件
+     * @param sortQuery   排序查询条件
+     * @param targetClass 指定类型
      * @return 列表信息
      */
     protected <E> List<E> list(Q query, SortQuery sortQuery, Class<E> targetClass) {
@@ -150,10 +141,8 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     /**
      * 设置排序
      *
-     * @param queryWrapper
-     *            查询 Wrapper
-     * @param sortQuery
-     *            排序查询条件
+     * @param queryWrapper 查询 Wrapper
+     * @param sortQuery    排序查询条件
      */
     protected void sort(QueryWrapper<T> queryWrapper, SortQuery sortQuery) {
         Sort sort = Opt.ofNullable(sortQuery).orElseGet(SortQuery::new).getSort();
@@ -207,8 +196,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     /**
      * 根据 ID 查询
      *
-     * @param id
-     *            ID
+     * @param id ID
      * @return 实体信息
      */
     protected T getById(Object id) {
@@ -220,8 +208,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     /**
      * 填充数据
      *
-     * @param baseObj
-     *            待填充列表信息
+     * @param baseObj 待填充列表信息
      */
     protected void fill(Object baseObj) {
         if (baseObj instanceof BaseResp baseResp) {
@@ -237,8 +224,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     /**
      * 填充详情数据
      *
-     * @param detailObj
-     *            待填充详情信息
+     * @param detailObj 待填充详情信息
      */
     public void fillDetail(Object detailObj) {
         if (detailObj instanceof BaseDetailResp detail) {

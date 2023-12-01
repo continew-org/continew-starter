@@ -27,8 +27,7 @@ public interface CommonUserService {
     /**
      * 根据 ID 查询昵称
      *
-     * @param id
-     *            ID
+     * @param id ID
      * @return 昵称
      */
     String getNicknameById(Long id);

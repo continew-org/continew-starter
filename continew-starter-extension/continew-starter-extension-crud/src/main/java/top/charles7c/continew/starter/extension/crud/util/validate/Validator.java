@@ -38,12 +38,9 @@ public class Validator {
     /**
      * 如果为空，抛出异常
      *
-     * @param obj
-     *            被检测的对象
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param obj           被检测的对象
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfNull(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
         throwIf(null == obj, message, exceptionType);
@@ -52,12 +49,9 @@ public class Validator {
     /**
      * 如果不为空，抛出异常
      *
-     * @param obj
-     *            被检测的对象
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param obj           被检测的对象
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfNotNull(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
         throwIf(null != obj, message, exceptionType);
@@ -66,12 +60,9 @@ public class Validator {
     /**
      * 如果为空，抛出异常
      *
-     * @param obj
-     *            被检测的对象
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param obj           被检测的对象
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfEmpty(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
         throwIf(ObjectUtil.isEmpty(obj), message, exceptionType);
@@ -80,12 +71,9 @@ public class Validator {
     /**
      * 如果不为空，抛出异常
      *
-     * @param obj
-     *            被检测的对象
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param obj           被检测的对象
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfNotEmpty(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
         throwIf(ObjectUtil.isNotEmpty(obj), message, exceptionType);
@@ -94,110 +82,85 @@ public class Validator {
     /**
      * 如果为空，抛出异常
      *
-     * @param str
-     *            被检测的字符串
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param str           被检测的字符串
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfBlank(CharSequence str, String message,
-        Class<? extends RuntimeException> exceptionType) {
+                                       Class<? extends RuntimeException> exceptionType) {
         throwIf(StrUtil.isBlank(str), message, exceptionType);
     }
 
     /**
      * 如果不为空，抛出异常
      *
-     * @param str
-     *            被检测的字符串
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param str           被检测的字符串
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfNotBlank(CharSequence str, String message,
-        Class<? extends RuntimeException> exceptionType) {
+                                          Class<? extends RuntimeException> exceptionType) {
         throwIf(StrUtil.isNotBlank(str), message, exceptionType);
     }
 
     /**
      * 如果相同，抛出异常
      *
-     * @param obj1
-     *            要比较的对象1
-     * @param obj2
-     *            要比较的对象2
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param obj1          要比较的对象1
+     * @param obj2          要比较的对象2
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfEqual(Object obj1, Object obj2, String message,
-        Class<? extends RuntimeException> exceptionType) {
+                                       Class<? extends RuntimeException> exceptionType) {
         throwIf(ObjectUtil.equal(obj1, obj2), message, exceptionType);
     }
 
     /**
      * 如果不相同，抛出异常
      *
-     * @param obj1
-     *            要比较的对象1
-     * @param obj2
-     *            要比较的对象2
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param obj1          要比较的对象1
+     * @param obj2          要比较的对象2
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfNotEqual(Object obj1, Object obj2, String message,
-        Class<? extends RuntimeException> exceptionType) {
+                                          Class<? extends RuntimeException> exceptionType) {
         throwIf(ObjectUtil.notEqual(obj1, obj2), message, exceptionType);
     }
 
     /**
      * 如果相同，抛出异常（不区分大小写）
      *
-     * @param str1
-     *            要比较的字符串1
-     * @param str2
-     *            要比较的字符串2
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param str1          要比较的字符串1
+     * @param str2          要比较的字符串2
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfEqualIgnoreCase(CharSequence str1, CharSequence str2, String message,
-        Class<? extends RuntimeException> exceptionType) {
+                                                 Class<? extends RuntimeException> exceptionType) {
         throwIf(StrUtil.equalsIgnoreCase(str1, str2), message, exceptionType);
     }
 
     /**
      * 如果不相同，抛出异常（不区分大小写）
      *
-     * @param str1
-     *            要比较的字符串1
-     * @param str2
-     *            要比较的字符串2
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param str1          要比较的字符串1
+     * @param str2          要比较的字符串2
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIfNotEqualIgnoreCase(CharSequence str1, CharSequence str2, String message,
-        Class<? extends RuntimeException> exceptionType) {
+                                                    Class<? extends RuntimeException> exceptionType) {
         throwIf(!StrUtil.equalsIgnoreCase(str1, str2), message, exceptionType);
     }
 
     /**
      * 如果条件成立，抛出异常
      *
-     * @param condition
-     *            条件
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param condition     条件
+     * @param message       错误信息
+     * @param exceptionType 异常类型
      */
     protected static void throwIf(boolean condition, String message, Class<? extends RuntimeException> exceptionType) {
         if (condition) {
@@ -209,15 +172,12 @@ public class Validator {
     /**
      * 如果条件成立，抛出异常
      *
-     * @param conditionSupplier
-     *            条件
-     * @param message
-     *            错误信息
-     * @param exceptionType
-     *            异常类型
+     * @param conditionSupplier 条件
+     * @param message           错误信息
+     * @param exceptionType     异常类型
      */
     protected static void throwIf(BooleanSupplier conditionSupplier, String message,
-        Class<? extends RuntimeException> exceptionType) {
+                                  Class<? extends RuntimeException> exceptionType) {
         if (null != conditionSupplier && conditionSupplier.getAsBoolean()) {
             log.error(message);
             throw ReflectUtil.newInstance(exceptionType, message);

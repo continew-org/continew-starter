@@ -39,10 +39,8 @@ public class ExceptionUtils {
     /**
      * 打印线程异常信息
      *
-     * @param runnable
-     *            线程执行内容
-     * @param throwable
-     *            异常
+     * @param runnable  线程执行内容
+     * @param throwable 异常
      */
     public static void printException(Runnable runnable, Throwable throwable) {
         if (null == throwable && runnable instanceof Future<?> future) {
@@ -66,10 +64,8 @@ public class ExceptionUtils {
     /**
      * 如果有异常，返回 null
      *
-     * @param exSupplier
-     *            可能会出现异常的方法执行
-     * @param <T>
-     *            /
+     * @param exSupplier 可能会出现异常的方法执行
+     * @param <T>        /
      * @return /
      */
     public static <T> T exToNull(ExSupplier<T> exSupplier) {
@@ -79,12 +75,9 @@ public class ExceptionUtils {
     /**
      * 如果有异常，执行异常处理
      *
-     * @param supplier
-     *            可能会出现异常的方法执行
-     * @param exConsumer
-     *            异常处理
-     * @param <T>
-     *            /
+     * @param supplier   可能会出现异常的方法执行
+     * @param exConsumer 异常处理
+     * @param <T>        /
      * @return /
      */
     public static <T> T exToNull(ExSupplier<T> supplier, Consumer<Exception> exConsumer) {
@@ -94,8 +87,7 @@ public class ExceptionUtils {
     /**
      * 如果有异常，返回空字符串
      *
-     * @param exSupplier
-     *            可能会出现异常的方法执行
+     * @param exSupplier 可能会出现异常的方法执行
      * @return /
      */
     public static String exToBlank(ExSupplier<String> exSupplier) {
@@ -105,12 +97,9 @@ public class ExceptionUtils {
     /**
      * 如果有异常，返回默认值
      *
-     * @param exSupplier
-     *            可能会出现异常的方法执行
-     * @param defaultValue
-     *            默认值
-     * @param <T>
-     *            /
+     * @param exSupplier   可能会出现异常的方法执行
+     * @param defaultValue 默认值
+     * @param <T>          /
      * @return /
      */
     public static <T> T exToDefault(ExSupplier<T> exSupplier, T defaultValue) {
@@ -120,14 +109,10 @@ public class ExceptionUtils {
     /**
      * 如果有异常，执行异常处理，返回默认值
      *
-     * @param exSupplier
-     *            可能会出现异常的方法执行
-     * @param defaultValue
-     *            默认值
-     * @param exConsumer
-     *            异常处理
-     * @param <T>
-     *            /
+     * @param exSupplier   可能会出现异常的方法执行
+     * @param defaultValue 默认值
+     * @param exConsumer   异常处理
+     * @param <T>          /
      * @return /
      */
     public static <T> T exToDefault(ExSupplier<T> exSupplier, T defaultValue, Consumer<Exception> exConsumer) {
@@ -144,16 +129,14 @@ public class ExceptionUtils {
     /**
      * 异常提供者
      *
-     * @param <T>
-     *            /
+     * @param <T> /
      */
     public interface ExSupplier<T> {
         /**
          * 获取返回值
          *
          * @return /
-         * @throws Exception
-         *             /
+         * @throws Exception /
          */
         T get() throws Exception;
     }

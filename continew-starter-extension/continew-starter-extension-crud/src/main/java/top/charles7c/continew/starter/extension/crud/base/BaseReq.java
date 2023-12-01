@@ -18,6 +18,7 @@ package top.charles7c.continew.starter.extension.crud.base;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -29,5 +30,6 @@ import java.io.Serializable;
 @Data
 public class BaseReq implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 }

@@ -45,9 +45,13 @@ public class PageQuery extends SortQuery {
 
     @Serial
     private static final long serialVersionUID = 1L;
-    /** 默认页码：1 */
+    /**
+     * 默认页码：1
+     */
     private static final int DEFAULT_PAGE = 1;
-    /** 默认每页条数：10 */
+    /**
+     * 默认每页条数：10
+     */
     private static final int DEFAULT_SIZE = 10;
 
     /**
@@ -67,8 +71,7 @@ public class PageQuery extends SortQuery {
     /**
      * 基于分页查询条件转换为 MyBatis Plus 分页条件
      *
-     * @param <T>
-     *            列表数据类型
+     * @param <T> 列表数据类型
      * @return MyBatis Plus 分页条件
      */
     public <T> IPage<T> toPage() {

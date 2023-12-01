@@ -74,7 +74,8 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
      */
     @Configuration
     @Import({SaTokenDaoConfiguration.Redis.class, SaTokenDaoConfiguration.Custom.class})
-    protected static class SaTokenDaoAutoConfiguration {}
+    protected static class SaTokenDaoAutoConfiguration {
+    }
 
     /**
      * 整合 JWT（简单模式）

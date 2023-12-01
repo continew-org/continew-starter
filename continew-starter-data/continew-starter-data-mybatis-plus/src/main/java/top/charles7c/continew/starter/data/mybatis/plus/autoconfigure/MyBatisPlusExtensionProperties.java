@@ -40,7 +40,7 @@ public class MyBatisPlusExtensionProperties {
     /**
      * Mapper 接口扫描包（配置时必须使用：mapper-package 键名）
      * <p>
-     *  e.g. com.example.**.mapper
+     * e.g. com.example.**.mapper
      * </p>
      */
     private String mapperPackage;

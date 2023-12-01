@@ -28,7 +28,7 @@ import com.alibaba.excel.metadata.property.ExcelContentProperty;
 /**
  * Easy Excel 大数值转换器
  * <p>
- *     Excel 中对长度超过 15 位的数值输入是有限制的，从 16 位开始无论录入什么数字均会变为 0，因此输入时只能以文本的形式进行录入
+ * Excel 中对长度超过 15 位的数值输入是有限制的，从 16 位开始无论录入什么数字均会变为 0，因此输入时只能以文本的形式进行录入
  * </p>
  *
  * @author Charles7c
@@ -56,7 +56,7 @@ public class ExcelBigNumberConverter implements Converter<Long> {
      */
     @Override
     public Long convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty,
-        GlobalConfiguration globalConfiguration) {
+                                  GlobalConfiguration globalConfiguration) {
         return Convert.toLong(cellData.getData());
     }
 
@@ -65,7 +65,7 @@ public class ExcelBigNumberConverter implements Converter<Long> {
      */
     @Override
     public WriteCellData<Object> convertToExcelData(Long value, ExcelContentProperty contentProperty,
-        GlobalConfiguration globalConfiguration) {
+                                                    GlobalConfiguration globalConfiguration) {
         if (null != value) {
             String str = Long.toString(value);
             if (str.length() > MAX_LENGTH) {

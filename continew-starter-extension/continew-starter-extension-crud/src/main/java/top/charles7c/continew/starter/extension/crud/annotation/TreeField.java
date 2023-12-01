@@ -21,8 +21,8 @@ import java.lang.annotation.*;
 /**
  * 树结构字段
  *
- * @see cn.hutool.core.lang.tree.TreeNodeConfig
  * @author Charles7c
+ * @see cn.hutool.core.lang.tree.TreeNodeConfig
  * @since 1.0.0
  */
 @Target(ElementType.TYPE)
