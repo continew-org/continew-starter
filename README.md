@@ -7,12 +7,6 @@
 <img src="https://img.shields.io/badge/SNAPSHOT-v1.0.0-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/SpringBoot-3.1.5-%236CB52D.svg" alt="Release" />
-</a>
-<a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/Java-17-%236CB52D.svg" alt="Release" />
-</a>
-<a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/github/stars/Charles7c/continew-starter?style=social" alt="GitHub stars" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
@@ -25,11 +19,32 @@
 <img src="https://gitee.com/Charles7c/continew-starter/badge/fork.svg?theme=white" alt="Gitee forks" />
 </a>
 
-✨ [ContiNew Admin 脚手架](https://cnadmin.charles7c.top/)
-
 ## 简介
 
-ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot Starter，其作用与常规的 Starter 类似，它可以帮助开发人员快速集成常用的第三方库或工具到 Spring 应用程序中。ContiNew Starter 包含了一系列经过优化和配置的依赖包（如 MyBatis-Plus、SaToken），可轻松集成到应用中，从而避免开发人员手动引入依赖的麻烦，为 Spring Boot 项目的灵活快速构建提供支持。
+ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot Starter，其作用与常规的 Starter 类似，基于“约定优于配置”的理念，再次精简常规配置，提供一个更为完整的配置解决方案，帮助开发人员更加快速的集成常用第三方库或工具到 Spring Boot Web 应用程序中。
+
+ContiNew Starter 包含了一系列经过企业实践优化和配置的依赖包（如 MyBatis-Plus、SaToken），可轻松集成到应用中，从而避免开发人员手动引入依赖的麻烦，为 Spring Boot Web 项目的灵活快速构建提供支持。
+
+> ContiNew Starter 源自 [ContiNew Admin](https://github.com/Charles7c/continew-admin) 后台管理框架/脚手架项目。在 ContiNew Admin 发展到一定程度时，作者发现新手用户上手时需要关注过多的脚手架通用基础能力，而且如果想要在一个全新项目中使用这些基础能力，“迁移”起来也很麻烦。于是，ContiNew Starter 应运而生，作者在 ContiNew Admin 2.x 版本时，将项目中的通用基础能力进行了抽离和深度优化。这样，无论是在 ContiNew Admin 中使用，还是单独使用这些基础能力，都可以更加轻松。
+
+## 解决痛点
+
+在开发一个 Java Web 项目之前，我们可能需要做如下准备工作：
+
+1. 引入 Spring Boot 父项目进行版本锁定（无 Spring 不 Java）
+2. 引入 Spring Boot Web 依赖
+3. 根据自身需要引入不同组件的 Starter
+4. 根据自身需要对引入的 Starter 进行配置（查阅文档或通过搜索引擎查找常用配置）
+   1. 编写 Java 配置
+   2. 编写 application.yml 配置
+5. 编写各种全局处理器
+6. 开始使用
+
+在 Spring Boot “约定优于配置” 理念的帮助下，我们开发一个 Spring Java Web 程序已经简化到了不可思议的程度，而且很多设计良好的组件 Starter 提供了极大的扩展性，提供了非常多的配置，给使用者最大的可行性，当你需要处理一些自定义场景时，这些配置简直是太过方便。
+
+然而，极大的扩展性带来的另一面就是配置“混乱”，对于小白用户，初步使用某个组件时，仅配置就足够“吃一壶”。因此，各种脚手架项目应运而生，你可能会想，这基础配置关脚手架项目什么事？**脚手架项目的作用不仅仅是提供一系列通用基础功能，更多的是提供了一种通用的解决方案，无论是针对所使用组件的配置，还是实现的某个功能的设计，亦或是开发规范** 。即使是一个小白，把脚手架项目拿过来，只需要删减下不需要的功能，改动下品牌元素，就可以继续在其基础上进行开发一个成熟的项目。
+
+ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装及深度优化，从企业通用实践层面精简配置，让一个完全从头开始或已有的项目，在使用部分组件时变得更轻松。
 
 ## 项目源码
 
@@ -38,48 +53,9 @@ ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot S
 | GitHub        | https://github.com/Charles7c/continew-starter |
 | Gitee（码云） | https://gitee.com/Charles7c/continew-starter  |
 
-## 反馈交流
+## 像数1，2，3一样容易
 
-💬 欢迎各位小伙伴儿扫描下方二维码加好友，备注 `cnadmin`，拉你进群，探讨技术、提提需求~   
-
-加入交流群后，你将会：
-
-- 第一时间收到框架动态
-- 第一时间收到框架更新通知
-- 第一时间收到框架 Bug 通知
-- 和众多大佬互相 (huá shuǐ) 交流 (mō yú)
-
-<div align="left">
-  <img src="https://doc.charles7c.top/qrcode.jpg" alt="二维码" width="230px" />
-</div>
-
-<details>
-<summary>无加群意愿</summary>
-💬 如无加群意愿，欢迎在 <a href="https://github.com/Charles7c/continew-starter/discussions" target="_blank">Discussions</a> 中进行交流探讨~ 🍻
-</details>
-
-## 快速使用
-
-> **Note**
-> 目前 ContiNew Starter 尚处于开发中，若要提前体验 Snapshot（快照）版本，请按以下方法进行。如遇问题，诚邀反馈。
-
-1.在项目 pom.xml 中配置 Snapshot（快照）仓库地址
-
-```xml
-<repositories>
-    <repository>
-        <id>sonatype-nexus-snapshots</id>
-        <name>Sonatype Nexus Snapshots</name>
-        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-        <snapshots>
-            <updatePolicy>always</updatePolicy>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
-</repositories>
-```
-
-2.在项目 pom.xml 中锁定版本（**下方两种方式请任选其一**）
+1.在项目 pom.xml 中锁定版本（**下方两种方式请任选其一**）
 
 第一种方式：如您使用的是 Spring Boot Parent 的方式，则替换 Spring Boot Parent 为 ContiNew Starter
 
@@ -87,7 +63,7 @@ ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot S
 <parent>
     <groupId>top.charles7c.continew</groupId>
     <artifactId>continew-starter</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </parent>
 ```
 
@@ -107,7 +83,7 @@ ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot S
         <dependency>
             <groupId>top.charles7c.continew</groupId>
             <artifactId>continew-starter-dependencies</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -115,7 +91,7 @@ ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot S
 </dependencyManagement>
 ```
 
-3.在项目 pom.xml 中引入所需模块依赖
+2.在项目 pom.xml 中引入所需模块依赖
 
 ```xml
 <dependencies>
@@ -127,7 +103,7 @@ ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot S
 </dependencies>
 ```
 
-4.在  application.yml  中根据引入模块，添加所需配置
+3.在  application.yml  中根据引入模块，添加所需配置
 
 e.g. 跨域配置
 
@@ -160,6 +136,8 @@ cors:
 | continew-starter-messaging | 消息模块（包含 SMS4J、邮件自动配置）        |
 | continew-starter-extension | 扩展模块（包含 CRUD 等复杂模组及自动配置）  |
 
+![模块依赖图](.image/模块依赖图.png)
+
 ## 贡献代码
 
 ### 分支说明
@@ -191,6 +169,10 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 > 2. 在提交代码前，请按照 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) 编写 commit 的 message（建议在 IntelliJ IDEA 中下载并安装 Git Commit Template 插件，以便按照规范进行 commit）
 > 3. 提交代码之前，请关闭所有代码窗口，执行 mvn compile 命令，编译通过后，不要再打开查看任何代码窗口，直接提交即可
 
+## 谁在使用？
+
+- ✨[ContiNew Admin](https://github.com/Charles7c/continew-admin)：ContiNew Admin （Continue New Admin）中后台管理框架/脚手架，持续以最新流行技术栈构建，拥抱变化，迭代优化。依托开源协作模式，提升技术透明度、放大集体智慧、共创优秀实践，源源不断地为企业级项目开发提供助力。当前采用的技术栈：Spring Boot3（Java17）、Vue3 & Arco Design、Sa-Token、MyBatis Plus、Redisson、Liquibase、JustAuth、Easy Excel、Hutool、TypeScript、Vite4 等。
+
 ## 鸣谢
 
 ### 鸣谢
@@ -206,10 +188,29 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 - 感谢 <a href="https://www.jetbrains.com/" target="_blank">JetBrains</a> 提供的 <a href="https://www.jetbrains.com/shop/eform/opensource" target="_blank">非商业开源软件开发授权</a> 
 - 感谢 <a href="https://github.com/baomidou/mybatis-plus" target="_blank">MyBatis Plus</a>、<a href="https://github.com/dromara/sa-token" target="_blank">Sa-Token</a> 、<a href="https://github.com/xiaoymin/knife4j" target="_blank">Knife4j</a>、<a href="https://github.com/dromara/hutool" target="_blank">Hutool</a> 等国产开源组件作者为国内开源世界作出的贡献
 - 感谢 <a href="https://github.com/elunez/eladmin" target="_blank">ELADMIN</a>、<a href="https://github.com/dromara/RuoYi-Vue-Plus" target="_blank">RuoYi-Vue-Plus</a>、<a href="https://gitee.com/herodotus/dante-engine" target="_blank">Dante-Engine</a>，致敬各位作者为开源脚手架领域作出的贡献
-  - e.g. 起始于 ELADMIN 项目开源的 QueryHelper 组件
+  - e.g. 脱胎于 ELADMIN 项目开源的 QueryHelper 组件
   - e.g. 使用 RuoYi-Vue-Plus 项目封装的 SaToken 相关认证鉴权配置
   - e.g. 使用 Dante-Engine 项目封装的 Redisson 相关配置
 - 感谢项目使用或未使用到的每一款开源组件，致敬各位开源先驱 :fire:
+
+## 反馈交流
+
+💬 欢迎各位小伙伴儿扫描下方二维码加好友，备注 `cnadmin`，拉你进群，探讨技术、提提需求~   
+
+加入交流群后，你将会：
+
+- 第一时间收到框架动态
+- 第一时间收到框架更新通知
+- 第一时间收到框架 Bug 通知
+- 和众多大佬互相 (huá shuǐ) 交流 (mō yú)
+
+<div align="left">
+  <img src="https://doc.charles7c.top/qrcode.jpg" alt="二维码" width="230px" />
+</div>
+<details>
+<summary>无加群意愿</summary>
+💬 如无加群意愿，欢迎在 <a href="https://github.com/Charles7c/continew-starter/issues" target="_blank">Issues</a> 中反馈交流~ 🍻
+</details>
 
 ## License
 
