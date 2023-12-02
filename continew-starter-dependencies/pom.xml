@@ -54,7 +54,7 @@
     </scm>
 
     <properties>
-        <revision>1.0.0-SNAPSHOT</revision>
+        <revision>1.0.0</revision>
         <just-auth.version>1.16.5</just-auth.version>
         <sa-token.version>1.37.0</sa-token.version>
         <mybatis-plus.version>3.5.4.1</mybatis-plus.version>
