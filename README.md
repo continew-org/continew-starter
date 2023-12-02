@@ -123,18 +123,20 @@ cors:
 
 ## 模块结构
 
-| 模块名称                   | 模块作用                                    |
-| -------------------------- | ------------------------------------------- |
-| continew-starter-core      | 核心模块（包含跨域、线程池自动配置）        |
-| continew-starter-file      | 文件处理模块（包含 Excel 相关配置）         |
-| continew-starter-json      | JSON 模块（包含 Jackson 自动配置）          |
-| continew-starter-api-doc   | API 文档模块（包含 Knife4j 自动配置）       |
-| continew-starter-captcha   | 验证码模块（包含图形验证码自动配置）        |
-| continew-starter-cache     | 缓存模块（包含 Redisson 自动配置）          |
-| continew-starter-data      | 数据访问模块（包含 MyBatis Plus 自动配置）  |
-| continew-starter-auth      | 认证模块（包含 SaToken、JustAuth 自动配置） |
-| continew-starter-messaging | 消息模块（包含 SMS4J、邮件自动配置）        |
-| continew-starter-extension | 扩展模块（包含 CRUD 等复杂模组及自动配置）  |
+| 模块名称                           | 模块说明                                 | 依赖版本                                                     |
+| ---------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
+| continew-starter-core              | 核心模块：包含跨域、线程池等自动配置     | <a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot</a>：3.1.5<br /><a href="https://undertow.io/" target="_blank">Undertow</a>：2.3.10.Final<br /><a href="https://www.hutool.cn/" target="_blank">Hutool</a>：5.8.23<br />mica-ip2region：3.1.5.1 |
+| continew-starter-file-excel        | 文件处理模块：Excel 相关配置             | <a href="https://easyexcel.opensource.alibaba.com/" target="_blank">Easy Excel</a>：3.3.2 |
+| continew-starter-json-jackson      | JSON 模块：Jackson 自动配置              | Jackson：2.15.3                                              |
+| continew-starter-api-doc           | API 文档模块：Knife4j 自动配置           | <a href="https://doc.xiaominfo.com/" target="_blank">Knife4j</a>：4.3.0 |
+| continew-starter-captcha-graphic   | 验证码模块：图形验证码                   | Easy Captcha：1.6.2                                          |
+| continew-starter-cache-redisson    | 缓存模块：Redisson 自动配置              | <a href="https://github.com/redisson/redisson/wiki/Redisson%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D" target="_blank">Redisson</a>：3.24.3 |
+| continew-starter-data-mybatis-plus | 数据访问模块：MyBatis Plus 自动配置      | <a href="https://baomidou.com/" target="_blank">MyBatis Plus</a>：3.5.4.1<br /><a href="https://www.kancloud.cn/tracy5546/dynamic-datasource/2264611" target="_blank">dynamic-datasource-spring-boot-starter</a>：4.2.0<br /><a href="https://github.com/p6spy/p6spy" target="_blank">P6Spy</a>：3.9.1 |
+| continew-starter-auth-satoken      | 认证模块：SaToken 自动配置               | <a href="https://sa-token.dev33.cn/" target="_blank">Sa-Token</a>：1.37.0 |
+| continew-starter-auth-justauth     | 认证模块：JustAuth 自动配置              | <a href="https://justauth.cn/" target="_blank">Just Auth</a>：1.16.5 |
+| continew-starter-messaging-mail    | 消息模块：邮件                           | Jakarta Mail：1.1.0                                          |
+| continew-starter-messaging-sms     | 消息模块：短信                           | <a href="https://sms4j.com/" target="_blank">SMS4J</a>：3.0.4 |
+| continew-starter-extension         | 扩展模块：包含 CRUD 等复杂模组及自动配置 |                                                              |
 
 ![模块依赖图](.image/模块依赖图.png)
 
