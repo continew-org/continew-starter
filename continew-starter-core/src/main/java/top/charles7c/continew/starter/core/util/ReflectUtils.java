@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.util;
+package top.charles7c.continew.starter.core.util;
 
 import cn.hutool.core.util.ReflectUtil;
 import lombok.AccessLevel;

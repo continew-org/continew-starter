@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.enums;
+package top.charles7c.continew.starter.data.mybatis.plus.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import top.charles7c.continew.starter.extension.crud.base.IBaseEnum;
 
 /**
  * 查询类型枚举

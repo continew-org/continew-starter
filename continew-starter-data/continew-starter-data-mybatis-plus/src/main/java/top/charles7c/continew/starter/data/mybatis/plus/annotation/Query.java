@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.annotation;
+package top.charles7c.continew.starter.data.mybatis.plus.annotation;
 
-import top.charles7c.continew.starter.extension.crud.enums.QueryTypeEnum;
+import top.charles7c.continew.starter.data.mybatis.plus.enums.QueryTypeEnum;
 
 import java.lang.annotation.*;
 

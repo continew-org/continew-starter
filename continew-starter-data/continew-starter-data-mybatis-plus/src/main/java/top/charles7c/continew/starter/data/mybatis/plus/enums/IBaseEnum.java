@@ -14,21 +14,34 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.exception;
+package top.charles7c.continew.starter.data.mybatis.plus.enums;
 
-import lombok.NoArgsConstructor;
-import top.charles7c.continew.starter.core.exception.BaseException;
+import com.baomidou.mybatisplus.annotation.IEnum;
+
+import java.io.Serializable;
 
 /**
- * 业务异常
+ * 枚举接口
  *
+ * @param <T> value 类型
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor
-public class BusinessException extends BaseException {
+public interface IBaseEnum<T extends Serializable> extends IEnum<T> {
 
-    public BusinessException(String message) {
-        super(message);
+    /**
+     * 枚举描述
+     *
+     * @return 枚举描述
+     */
+    String getDescription();
+
+    /**
+     * 颜色
+     *
+     * @return 颜色
+     */
+    default String getColor() {
+        return null;
     }
 }

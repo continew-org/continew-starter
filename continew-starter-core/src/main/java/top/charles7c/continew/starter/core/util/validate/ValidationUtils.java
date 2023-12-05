@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.util.validate;
+package top.charles7c.continew.starter.core.util.validate;
 
 import cn.hutool.core.util.StrUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import top.charles7c.continew.starter.extension.crud.exception.BadRequestException;
+import top.charles7c.continew.starter.core.exception.BadRequestException;
 
 import java.util.function.BooleanSupplier;
 

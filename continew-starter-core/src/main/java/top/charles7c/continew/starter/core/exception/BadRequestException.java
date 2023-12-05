@@ -14,34 +14,20 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.base;
+package top.charles7c.continew.starter.core.exception;
 
-import com.baomidou.mybatisplus.annotation.IEnum;
-
-import java.io.Serializable;
+import lombok.NoArgsConstructor;
 
 /**
- * 枚举接口
+ * 自定义验证异常-错误请求
  *
- * @param <T> value 类型
  * @author Charles7c
  * @since 1.0.0
  */
-public interface IBaseEnum<T extends Serializable> extends IEnum<T> {
+@NoArgsConstructor
+public class BadRequestException extends BaseException {
 
-    /**
-     * 枚举描述
-     *
-     * @return 枚举描述
-     */
-    String getDescription();
-
-    /**
-     * 颜色
-     *
-     * @return 颜色
-     */
-    default String getColor() {
-        return null;
+    public BadRequestException(String message) {
+        super(message);
     }
 }

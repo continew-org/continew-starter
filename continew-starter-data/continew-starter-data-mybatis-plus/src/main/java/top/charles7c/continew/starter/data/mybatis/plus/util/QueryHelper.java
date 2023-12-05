@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.util;
+package top.charles7c.continew.starter.data.mybatis.plus.util;
 
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -23,10 +23,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import top.charles7c.continew.starter.extension.crud.annotation.Query;
-import top.charles7c.continew.starter.extension.crud.enums.QueryTypeEnum;
-import top.charles7c.continew.starter.extension.crud.exception.BadRequestException;
-import top.charles7c.continew.starter.extension.crud.util.validate.ValidationUtils;
+import top.charles7c.continew.starter.core.exception.BadRequestException;
+import top.charles7c.continew.starter.core.util.ReflectUtils;
+import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
+import top.charles7c.continew.starter.data.mybatis.plus.annotation.Query;
+import top.charles7c.continew.starter.data.mybatis.plus.enums.QueryTypeEnum;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
