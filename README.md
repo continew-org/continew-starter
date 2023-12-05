@@ -4,7 +4,7 @@
 <img src="https://img.shields.io/badge/License-LGPL--3.0-blue.svg" alt="License" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/RELEASE-v1.0.0-%23ff3f59.svg" alt="Release" />
+<img src="https://img.shields.io/badge/SNAPSHOT-v1.0.1-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/github/stars/Charles7c/continew-starter?style=social" alt="GitHub stars" />
@@ -48,8 +48,8 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
 
 ## 项目源码
 
-| 开源平台      | 源码地址                                    |
-| ------------- | ------------------------------------------- |
+| 开源平台      | 源码地址                                      |
+| :------------ | :-------------------------------------------- |
 | GitHub        | https://github.com/Charles7c/continew-starter |
 | Gitee（码云） | https://gitee.com/Charles7c/continew-starter  |
 
@@ -63,7 +63,7 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
 <parent>
     <groupId>top.charles7c.continew</groupId>
     <artifactId>continew-starter</artifactId>
-    <version>1.0.0</version>
+    <version>{latest-version}</version>
 </parent>
 ```
 
@@ -83,7 +83,7 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
         <dependency>
             <groupId>top.charles7c.continew</groupId>
             <artifactId>continew-starter-dependencies</artifactId>
-            <version>1.0.0</version>
+            <version>{latest-version}</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -121,6 +121,31 @@ cors:
   exposed-headers: '*'
 ```
 
+<details>
+  <summary>抢先体验快照（SNAPSHOT）版本💡</summary>
+
+> **注意：** 快照版本目前处于开发测试阶段，其中很多特性或改动尚不稳定，可能会因为修复或优化而频繁调整。因此，仅可用于体验，切勿用于生产环境！
+
+1.在项目 pom.xml 中配置 SNAPSHOT（快照）仓库地址（如果你已配有其他仓库地址，追加下方快照仓库地址即可）
+
+```xml
+<repositories>
+    <repository>
+        <id>sonatype-nexus-snapshots</id>
+        <name>Sonatype Nexus Snapshots</name>
+        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+        <snapshots>
+            <updatePolicy>always</updatePolicy>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+
+2.将 ContiNew Starter 版本改为对应快照版本，例如：1.0.1-SNAPSHOT
+
+</details>
+
 ## 模块结构
 
 | 模块名称                           | 模块说明                                 | 依赖版本                                                     |
@@ -139,6 +164,10 @@ cors:
 | continew-starter-extension         | 扩展模块：包含 CRUD 等复杂模组及自动配置 |                                                              |
 
 ![模块依赖图](.image/模块依赖图.png)
+
+## 谁在使用？
+
+- ✨[ContiNew Admin](https://github.com/Charles7c/continew-admin)：ContiNew Admin （Continue New Admin）中后台管理框架/脚手架，持续以最新流行技术栈构建，拥抱变化，迭代优化。依托开源协作模式，提升技术透明度、放大集体智慧、共创优秀实践，源源不断地为企业级项目开发提供助力。当前采用的技术栈：Spring Boot3（Java17）、Vue3 & Arco Design、Sa-Token、MyBatis Plus、Redisson、Liquibase、JustAuth、Easy Excel、Hutool、TypeScript、Vite4 等。
 
 ## 贡献代码
 
@@ -171,9 +200,24 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 > 2. 在提交代码前，请按照 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) 编写 commit 的 message（建议在 IntelliJ IDEA 中下载并安装 Git Commit Template 插件，以便按照规范进行 commit）
 > 3. 提交代码之前，请关闭所有代码窗口，执行 mvn compile 命令，编译通过后，不要再打开查看任何代码窗口，直接提交即可
 
-## 谁在使用？
+## 反馈交流
 
-- ✨[ContiNew Admin](https://github.com/Charles7c/continew-admin)：ContiNew Admin （Continue New Admin）中后台管理框架/脚手架，持续以最新流行技术栈构建，拥抱变化，迭代优化。依托开源协作模式，提升技术透明度、放大集体智慧、共创优秀实践，源源不断地为企业级项目开发提供助力。当前采用的技术栈：Spring Boot3（Java17）、Vue3 & Arco Design、Sa-Token、MyBatis Plus、Redisson、Liquibase、JustAuth、Easy Excel、Hutool、TypeScript、Vite4 等。
+💬 欢迎各位小伙伴儿扫描下方二维码加好友，备注 `cnadmin`，拉你进群，探讨技术、提提需求~   
+
+加入交流群后，你将会：
+
+- 第一时间收到框架动态
+- 第一时间收到框架更新通知
+- 第一时间收到框架 Bug 通知
+- 和众多大佬互相 (huá shuǐ) 交流 (mō yú)
+
+<div align="left">
+  <img src="https://doc.charles7c.top/qrcode.jpg" alt="二维码" width="230px" />
+</div>
+<details>
+<summary>无加群意愿</summary>
+💬 如无加群意愿，欢迎在 <a href="https://github.com/Charles7c/continew-starter/issues" target="_blank">Issues</a> 中反馈交流~ 🍻
+</details>
 
 ## 鸣谢
 
@@ -194,25 +238,6 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
   - e.g. 使用 RuoYi-Vue-Plus 项目封装的 SaToken 相关认证鉴权配置
   - e.g. 使用 Dante-Engine 项目封装的 Redisson 相关配置
 - 感谢项目使用或未使用到的每一款开源组件，致敬各位开源先驱 :fire:
-
-## 反馈交流
-
-💬 欢迎各位小伙伴儿扫描下方二维码加好友，备注 `cnadmin`，拉你进群，探讨技术、提提需求~   
-
-加入交流群后，你将会：
-
-- 第一时间收到框架动态
-- 第一时间收到框架更新通知
-- 第一时间收到框架 Bug 通知
-- 和众多大佬互相 (huá shuǐ) 交流 (mō yú)
-
-<div align="left">
-  <img src="https://doc.charles7c.top/qrcode.jpg" alt="二维码" width="230px" />
-</div>
-<details>
-<summary>无加群意愿</summary>
-💬 如无加群意愿，欢迎在 <a href="https://github.com/Charles7c/continew-starter/issues" target="_blank">Issues</a> 中反馈交流~ 🍻
-</details>
 
 ## License
 
