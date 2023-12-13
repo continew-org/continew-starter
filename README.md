@@ -48,8 +48,8 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
 
 ## 项目源码
 
-| 开源平台      | 源码地址                                    |
-| ------------- | ------------------------------------------- |
+| 开源平台      | 源码地址                                      |
+| :------------ | :-------------------------------------------- |
 | GitHub        | https://github.com/Charles7c/continew-starter |
 | Gitee（码云） | https://gitee.com/Charles7c/continew-starter  |
 
@@ -63,7 +63,7 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
 <parent>
     <groupId>top.charles7c.continew</groupId>
     <artifactId>continew-starter</artifactId>
-    <version>1.0.0</version>
+    <version>{latest-version}</version>
 </parent>
 ```
 
@@ -83,7 +83,7 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
         <dependency>
             <groupId>top.charles7c.continew</groupId>
             <artifactId>continew-starter-dependencies</artifactId>
-            <version>1.0.0</version>
+            <version>{latest-version}</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -120,6 +120,31 @@ cors:
   # 配置允许跨域的响应头
   exposed-headers: '*'
 ```
+
+<details>
+  <summary>抢先体验快照（SNAPSHOT）版本💡</summary>
+
+> **注意：** 快照版本目前处于开发测试阶段，其中很多特性或改动尚不稳定，可能会因为修复或优化而频繁调整。因此，仅可用于体验，切勿用于生产环境！
+
+1.在项目 pom.xml 中配置 SNAPSHOT（快照）仓库地址（如果你已配有其他仓库地址，追加下方快照仓库地址即可）
+
+```xml
+<repositories>
+    <repository>
+        <id>sonatype-nexus-snapshots</id>
+        <name>Sonatype Nexus Snapshots</name>
+        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
+        <snapshots>
+            <updatePolicy>always</updatePolicy>
+            <enabled>true</enabled>
+        </snapshots>
+    </repository>
+</repositories>
+```
+
+2.将 ContiNew Starter 版本改为对应快照版本，例如：1.0.1-SNAPSHOT
+
+</details>
 
 ## 模块结构
 

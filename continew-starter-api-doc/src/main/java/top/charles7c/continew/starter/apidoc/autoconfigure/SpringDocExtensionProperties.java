@@ -14,34 +14,27 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.base;
+package top.charles7c.continew.starter.apidoc.autoconfigure;
 
-import com.baomidou.mybatisplus.annotation.IEnum;
+import io.swagger.v3.oas.models.Components;
+import lombok.Data;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
-import java.io.Serializable;
 
 /**
- * 枚举接口
+ * API 文档扩展配置属性
  *
- * @param <T> value 类型
  * @author Charles7c
- * @since 1.0.0
+ * @since 1.0.1
  */
-public interface IBaseEnum<T extends Serializable> extends IEnum<T> {
+@Data
+@ConfigurationProperties(prefix = "springdoc")
+public class SpringDocExtensionProperties {
 
     /**
-     * 枚举描述
-     *
-     * @return 枚举描述
+     * 组件配置（包括鉴权配置等）
      */
-    String getDescription();
-
-    /**
-     * 颜色
-     *
-     * @return 颜色
-     */
-    default String getColor() {
-        return null;
-    }
+    @NestedConfigurationProperty
+    private Components components;
 }

@@ -24,8 +24,8 @@ import cn.hutool.core.lang.tree.parser.NodeParser;
 import cn.hutool.core.util.ReflectUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import top.charles7c.continew.starter.core.util.validate.CheckUtils;
 import top.charles7c.continew.starter.extension.crud.annotation.TreeField;
-import top.charles7c.continew.starter.extension.crud.util.validate.CheckUtils;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.annotation;
+package top.charles7c.continew.starter.data.mybatis.plus.annotation;
 
-import top.charles7c.continew.starter.extension.crud.enums.QueryTypeEnum;
+import top.charles7c.continew.starter.data.mybatis.plus.enums.QueryType;
 
 import java.lang.annotation.*;
 
@@ -40,7 +40,7 @@ public @interface Query {
     /**
      * 查询类型（等值查询、模糊查询、范围查询等）
      */
-    QueryTypeEnum type() default QueryTypeEnum.EQUAL;
+    QueryType type() default QueryType.EQUAL;
 
     /**
      * 多属性模糊查询，仅支持 String 类型属性

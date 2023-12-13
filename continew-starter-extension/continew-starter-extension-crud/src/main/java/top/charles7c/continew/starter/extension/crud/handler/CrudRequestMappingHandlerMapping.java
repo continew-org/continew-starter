@@ -49,11 +49,11 @@ public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMappi
         if (!handlerType.isAnnotationPresent(CrudRequestMapping.class)) {
             return requestMappingInfo;
         }
-        // 过滤 API，如果 API 列表中不包含，则忽略
         CrudRequestMapping crudRequestMapping = handlerType.getDeclaredAnnotation(CrudRequestMapping.class);
+        // 过滤 API，如果非本类中定义，且 API 列表中不包含，则忽略
         Api[] apiArr = crudRequestMapping.api();
         Api api = ExceptionUtils.exToNull(() -> Api.valueOf(method.getName().toUpperCase()));
-        if (!ArrayUtil.containsAny(apiArr, Api.ALL, api)) {
+        if (method.getDeclaringClass() != handlerType && !ArrayUtil.containsAny(apiArr, Api.ALL, api)) {
             return null;
         }
         // 拼接路径（合并了 @RequestMapping 的部分能力）

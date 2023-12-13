@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.enums;
+package top.charles7c.continew.starter.data.mybatis.plus.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import top.charles7c.continew.starter.extension.crud.base.IBaseEnum;
 
 /**
  * 查询类型枚举
@@ -28,7 +27,7 @@ import top.charles7c.continew.starter.extension.crud.base.IBaseEnum;
  */
 @Getter
 @RequiredArgsConstructor
-public enum QueryTypeEnum implements IBaseEnum<Integer> {
+public enum QueryType {
 
     /**
      * 等值查询，例如：WHERE `age` = 18

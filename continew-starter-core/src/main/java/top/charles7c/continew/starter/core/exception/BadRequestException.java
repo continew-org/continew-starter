@@ -14,21 +14,20 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.exception;
+package top.charles7c.continew.starter.core.exception;
 
 import lombok.NoArgsConstructor;
-import top.charles7c.continew.starter.core.exception.BaseException;
 
 /**
- * 业务异常
+ * 自定义验证异常-错误请求
  *
  * @author Charles7c
  * @since 1.0.0
  */
 @NoArgsConstructor
-public class BusinessException extends BaseException {
+public class BadRequestException extends BaseException {
 
-    public BusinessException(String message) {
+    public BadRequestException(String message) {
         super(message);
     }
 }
