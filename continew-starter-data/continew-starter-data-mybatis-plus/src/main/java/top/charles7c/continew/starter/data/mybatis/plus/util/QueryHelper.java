@@ -27,7 +27,7 @@ import top.charles7c.continew.starter.core.exception.BadRequestException;
 import top.charles7c.continew.starter.core.util.ReflectUtils;
 import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
 import top.charles7c.continew.starter.data.mybatis.plus.annotation.Query;
-import top.charles7c.continew.starter.data.mybatis.plus.enums.QueryTypeEnum;
+import top.charles7c.continew.starter.data.mybatis.plus.enums.QueryType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -130,7 +130,7 @@ public class QueryHelper {
         // 注意：数据库规范中列采用下划线连接法命名，程序规范中变量采用驼峰法命名
         String property = queryAnnotation.property();
         String columnName = StrUtil.toUnderlineCase(StrUtil.blankToDefault(property, fieldName));
-        QueryTypeEnum queryType = queryAnnotation.type();
+        QueryType queryType = queryAnnotation.type();
         switch (queryType) {
             case EQUAL -> queryWrapper.eq(columnName, fieldValue);
             case NOT_EQUAL -> queryWrapper.ne(columnName, fieldValue);

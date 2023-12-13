@@ -27,7 +27,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum QueryTypeEnum implements IBaseEnum<Integer> {
+public enum QueryType {
 
     /**
      * 等值查询，例如：WHERE `age` = 18
