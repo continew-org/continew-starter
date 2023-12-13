@@ -4,7 +4,7 @@
 <img src="https://img.shields.io/badge/License-LGPL--3.0-blue.svg" alt="License" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/SNAPSHOT-v1.0.1-%23ff3f59.svg" alt="Release" />
+<img src="https://img.shields.io/badge/RELEASE-v1.0.1-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/github/stars/Charles7c/continew-starter?style=social" alt="GitHub stars" />
