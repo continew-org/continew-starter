@@ -23,17 +23,18 @@ import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorContro
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 import top.charles7c.continew.starter.extension.crud.handler.GlobalErrorHandler;
+import top.charles7c.continew.starter.extension.crud.handler.GlobalExceptionHandler;
 
 /**
- * 全局错误处理器自动配置
+ * 全局异常处理器自动配置
  *
  * @author Charles7c
  * @since 1.0.0
  */
 @Slf4j
 @AutoConfiguration
-@Import(GlobalErrorHandler.class)
+@Import({GlobalExceptionHandler.class, GlobalErrorHandler.class})
 @ConditionalOnMissingBean(BasicErrorController.class)
 @ComponentScan("top.charles7c.continew.starter.extension.crud.handler")
-public class GlobalErrorHandlerAutoConfiguration {
+public class GlobalExceptionHandlerAutoConfiguration {
 }
