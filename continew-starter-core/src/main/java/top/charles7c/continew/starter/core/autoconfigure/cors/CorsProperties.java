@@ -18,8 +18,10 @@ package top.charles7c.continew.starter.core.autoconfigure.cors;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -40,20 +42,22 @@ public class CorsProperties {
     /**
      * 允许跨域的域名
      */
-    private List<String> allowedOrigins = new ArrayList<>();
+    private List<String> allowedOrigins = new ArrayList<>(ALL);
 
     /**
      * 允许跨域的请求方式
      */
-    private List<String> allowedMethods = new ArrayList<>();
+    private List<String> allowedMethods = new ArrayList<>(ALL);
 
     /**
      * 允许跨域的请求头
      */
-    private List<String> allowedHeaders = new ArrayList<>();
+    private List<String> allowedHeaders = new ArrayList<>(ALL);
 
     /**
      * 允许跨域的响应头
      */
     private List<String> exposedHeaders = new ArrayList<>();
+
+    private static final List<String> ALL = Collections.singletonList(StringConstants.ASTERISK);
 }
