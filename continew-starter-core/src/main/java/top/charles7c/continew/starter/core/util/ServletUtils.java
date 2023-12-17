@@ -24,6 +24,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.Objects;
 
@@ -64,8 +65,42 @@ public class ServletUtils {
         if (null == request) {
             return null;
         }
-        UserAgent userAgent = UserAgentUtil.parse(request.getHeader("User-Agent"));
-        return userAgent.getBrowser().getName() + " " + userAgent.getVersion();
+        return getBrowser(request.getHeader("User-Agent"));
+    }
+
+    /**
+     * 获取浏览器及其版本信息
+     *
+     * @param userAgentString User-Agent 字符串
+     * @return 浏览器及其版本信息
+     */
+    public static String getBrowser(String userAgentString) {
+        UserAgent userAgent = UserAgentUtil.parse(userAgentString);
+        return userAgent.getBrowser().getName() + StringConstants.SPACE + userAgent.getVersion();
+    }
+
+    /**
+     * 获取操作系统
+     *
+     * @param request 请求对象
+     * @return 操作系统
+     */
+    public static String getOs(HttpServletRequest request) {
+        if (null == request) {
+            return null;
+        }
+        return getOs(request.getHeader("User-Agent"));
+    }
+
+    /**
+     * 获取操作系统
+     *
+     * @param userAgentString User-Agent 字符串
+     * @return 操作系统
+     */
+    public static String getOs(String userAgentString) {
+        UserAgent userAgent = UserAgentUtil.parse(userAgentString);
+        return userAgent.getOs().getName();
     }
 
     private static ServletRequestAttributes getServletRequestAttributes() {

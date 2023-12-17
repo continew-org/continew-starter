@@ -45,26 +45,26 @@ public class IpUtils {
     private static final String IP_URL = "http://whois.pconline.com.cn/ipJson.jsp?ip=%s&json=true";
 
     /**
-     * 根据 IP 获取归属地信息
+     * 查询 IP 归属地
      *
      * @param ip IP 地址
-     * @return 归属地信息
+     * @return IP 归属地
      */
-    public static String getCityInfo(String ip) {
+    public static String getAddress(String ip) {
         if (ProjectProperties.IP_ADDR_LOCAL_PARSE_ENABLED) {
-            return getLocalCityInfo(ip);
+            return getAddressByLocal(ip);
         } else {
-            return getHttpCityInfo(ip);
+            return getAddressByHttp(ip);
         }
     }
 
     /**
-     * 根据 IP 获取归属地信息（网络解析）
+     * 查询 IP 归属地（网络解析）
      *
      * @param ip IP 地址
-     * @return 归属地信息
+     * @return IP 归属地
      */
-    public static String getHttpCityInfo(String ip) {
+    public static String getAddressByHttp(String ip) {
         if (isInnerIp(ip)) {
             return "内网IP";
         }
@@ -74,12 +74,12 @@ public class IpUtils {
     }
 
     /**
-     * 根据 IP 获取归属地信息（本地解析）
+     * 查询 IP 归属地（本地库解析）
      *
      * @param ip IP 地址
-     * @return 归属地信息
+     * @return IP 归属地
      */
-    public static String getLocalCityInfo(String ip) {
+    public static String getAddressByLocal(String ip) {
         if (isInnerIp(ip)) {
             return "内网IP";
         }
