@@ -257,6 +257,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 存储模块 - 本地存储 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-storage-local</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 日志模块 - HttpTracePro（Spring Boot Actuator HttpTrace 定制增强版） -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
