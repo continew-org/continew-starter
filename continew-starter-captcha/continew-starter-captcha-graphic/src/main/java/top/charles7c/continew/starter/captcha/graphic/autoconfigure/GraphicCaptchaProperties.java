@@ -32,7 +32,7 @@ import java.awt.*;
  * @since 1.0.0
  */
 @Data
-@ConfigurationProperties(prefix = "captcha.graphic")
+@ConfigurationProperties(prefix = "continew-starter.captcha.graphic")
 public class GraphicCaptchaProperties {
 
     /**

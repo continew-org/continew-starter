@@ -31,7 +31,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @Slf4j
 @AutoConfiguration
 @EnableConfigurationProperties(GraphicCaptchaProperties.class)
-@ConditionalOnProperty(prefix = "captcha.graphic", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "continew-starter.captcha.graphic", name = "enabled", havingValue = "true")
 public class GraphicCaptchaAutoConfiguration {
 
     @PostConstruct
