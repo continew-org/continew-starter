@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.base;
+package top.charles7c.continew.starter.data.mybatis.plus.base;
 
 import cn.hutool.core.util.ClassUtil;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;

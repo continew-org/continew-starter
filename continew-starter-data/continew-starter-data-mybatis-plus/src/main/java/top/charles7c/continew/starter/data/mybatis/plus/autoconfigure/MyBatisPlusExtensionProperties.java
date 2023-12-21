@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.data.mybatis.plus.autoconfigure;
 
 import com.baomidou.mybatisplus.annotation.DbType;
-import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -46,14 +45,27 @@ public class MyBatisPlusExtensionProperties {
     private String mapperPackage;
 
     /**
-     * 数据权限处理器实现类
+     * 数据权限插件配置
      */
-    private Class<? extends DataPermissionHandler> dataPermissionHandlerImpl;
+    private DataPermissionProperties dataPermission;
 
     /**
      * 分页插件配置
      */
     private PaginationProperties pagination;
+
+    /**
+     * 数据权限插件配置属性
+     */
+    @Data
+    public static class DataPermissionProperties {
+
+        /**
+         * 是否启用数据权限插件
+         */
+        private boolean enabled = false;
+
+    }
 
     /**
      * 分页插件配置属性

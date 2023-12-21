@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.data.mybatis.plus.enums;
+package top.charles7c.continew.starter.data.mybatis.plus.query;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

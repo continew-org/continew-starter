@@ -17,7 +17,7 @@
 package top.charles7c.continew.starter.data.mybatis.plus.autoconfigure;
 
 import cn.hutool.core.net.NetUtil;
-import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
 import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -36,6 +36,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
+import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionFilter;
+import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionHandlerImpl;
 
 /**
  * MyBatis Plus 自动配置
@@ -60,18 +62,28 @@ public class MybatisPlusAutoConfiguration {
     public MybatisPlusInterceptor mybatisPlusInterceptor(MyBatisPlusExtensionProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         // 数据权限插件
-        Class<? extends DataPermissionHandler> dataPermissionHandlerImpl = properties.getDataPermissionHandlerImpl();
-        if (null != dataPermissionHandlerImpl) {
-            interceptor.addInnerInterceptor(new DataPermissionInterceptor(ReflectUtil.newInstance(dataPermissionHandlerImpl)));
+        MyBatisPlusExtensionProperties.DataPermissionProperties dataPermissionProperties = properties.getDataPermission();
+        if (null != dataPermissionProperties && dataPermissionProperties.isEnabled()) {
+            interceptor.addInnerInterceptor(new DataPermissionInterceptor(SpringUtil.getBean(DataPermissionHandler.class)));
         }
         // 分页插件
         MyBatisPlusExtensionProperties.PaginationProperties paginationProperties = properties.getPagination();
-        if (properties.isEnabled() && paginationProperties.isEnabled()) {
+        if (null != paginationProperties && paginationProperties.isEnabled()) {
             interceptor.addInnerInterceptor(this.paginationInnerInterceptor(paginationProperties));
         }
         // 防全表更新与删除插件
         interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
         return interceptor;
+    }
+
+    /**
+     * 数据权限处理器
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    @ConditionalOnEnabledDataPermission
+    public DataPermissionHandler dataPermissionHandler(DataPermissionFilter dataPermissionFilter) {
+        return new DataPermissionHandlerImpl(dataPermissionFilter);
     }
 
     /**
