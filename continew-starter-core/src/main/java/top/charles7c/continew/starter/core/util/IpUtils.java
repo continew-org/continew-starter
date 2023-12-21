@@ -16,7 +16,9 @@
 
 package top.charles7c.continew.starter.core.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.NetUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.http.HttpUtil;
@@ -28,6 +30,9 @@ import lombok.extern.slf4j.Slf4j;
 import net.dreamlu.mica.ip2region.core.Ip2regionSearcher;
 import net.dreamlu.mica.ip2region.core.IpInfo;
 import top.charles7c.continew.starter.core.autoconfigure.project.ProjectProperties;
+import top.charles7c.continew.starter.core.constant.StringConstants;
+
+import java.util.Set;
 
 /**
  * IP 工具类
@@ -86,7 +91,9 @@ public class IpUtils {
         Ip2regionSearcher ip2regionSearcher = SpringUtil.getBean(Ip2regionSearcher.class);
         IpInfo ipInfo = ip2regionSearcher.memorySearch(ip);
         if (null != ipInfo) {
-            return ipInfo.getAddress();
+            Set<String> regionSet = CollUtil.newLinkedHashSet(ipInfo.getAddress(), ipInfo.getIsp());
+            regionSet.removeIf(StrUtil::isBlank);
+            return String.join(StringConstants.SPACE, regionSet);
         }
         return null;
     }

@@ -69,19 +69,23 @@ public class LogInterceptor implements HandlerInterceptor {
         timestampTtl.remove();
         Set<Include> includeSet = properties.getInclude();
         RecordableServletHttpRequest sourceRequest = new RecordableServletHttpRequest(request);
-        LogRecord.Started startedLogRecord = LogRecord.start(timestamp, sourceRequest);
-        RecordableServletHttpResponse sourceResponse = new RecordableServletHttpResponse(response, response.getStatus());
-        LogRecord finishedLogRecord = startedLogRecord.finish(sourceResponse, includeSet);
-        HandlerMethod handlerMethod = (HandlerMethod) handler;
-        if (includeSet.contains(Include.DESCRIPTION)) {
-            // 记录日志描述
-            this.logDescription(finishedLogRecord, handlerMethod);
+        try {
+            LogRecord.Started startedLogRecord = LogRecord.start(timestamp, sourceRequest);
+            RecordableServletHttpResponse sourceResponse = new RecordableServletHttpResponse(response, response.getStatus());
+            LogRecord finishedLogRecord = startedLogRecord.finish(sourceResponse, includeSet);
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            if (includeSet.contains(Include.DESCRIPTION)) {
+                // 记录日志描述
+                this.logDescription(finishedLogRecord, handlerMethod);
+            }
+            if (includeSet.contains(Include.MODULE)) {
+                // 记录所属模块
+                this.logModule(finishedLogRecord, handlerMethod);
+            }
+            dao.add(finishedLogRecord);
+        } catch (Exception ex) {
+            log.error("Logging http log occurred an error: {}.", ex.getMessage(), ex);
         }
-        if (includeSet.contains(Include.MODULE)) {
-            // 记录所属模块
-            this.logModule(finishedLogRecord, handlerMethod);
-        }
-        dao.add(finishedLogRecord);
     }
 
     /**

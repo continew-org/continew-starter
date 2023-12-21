@@ -82,8 +82,8 @@ public class ProjectProperties {
     public static final boolean IP_ADDR_LOCAL_PARSE_ENABLED;
 
     static {
-        String underlineCaseProperty = SpringUtil.getProperty("ip-addr-local-parse-enabled");
-        String camelCaseProperty = SpringUtil.getProperty("ipAddrLocalParseEnabled");
+        String underlineCaseProperty = SpringUtil.getProperty("project.ip-addr-local-parse-enabled");
+        String camelCaseProperty = SpringUtil.getProperty("project.ipAddrLocalParseEnabled");
         IP_ADDR_LOCAL_PARSE_ENABLED = Convert.toBool(underlineCaseProperty, false) || Convert.toBool(camelCaseProperty, false);
     }
 
