@@ -54,15 +54,13 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     public URI getUri() {
         String queryString = request.getQueryString();
         if (StrUtil.isBlank(queryString)) {
-            return URI.create(request.getRequestURL().toString());
+            return URI.create(request.getRequestURI());
         }
         try {
-            StringBuffer urlBuffer = this.appendQueryString(queryString);
-            return new URI(urlBuffer.toString());
+            return new URI(this.appendQueryString(queryString));
         } catch (URISyntaxException e) {
             String encoded = UriUtils.encodeQuery(queryString, StandardCharsets.UTF_8);
-            StringBuffer urlBuffer = this.appendQueryString(encoded);
-            return URI.create(urlBuffer.toString());
+            return URI.create(this.appendQueryString(encoded));
         }
     }
 
@@ -93,7 +91,7 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
                 : Collections.unmodifiableMap(request.getParameterMap());
     }
 
-    private StringBuffer appendQueryString(String queryString) {
-        return request.getRequestURL().append(StringConstants.QUESTION_MARK).append(queryString);
+    private String appendQueryString(String queryString) {
+        return request.getRequestURI() + StringConstants.QUESTION_MARK + queryString;
     }
 }

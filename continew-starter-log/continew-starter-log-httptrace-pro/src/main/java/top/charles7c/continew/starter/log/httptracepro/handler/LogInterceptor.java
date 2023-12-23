@@ -31,6 +31,8 @@ import top.charles7c.continew.starter.log.common.annotation.Log;
 import top.charles7c.continew.starter.log.common.dao.LogDao;
 import top.charles7c.continew.starter.log.common.enums.Include;
 import top.charles7c.continew.starter.log.common.model.LogRecord;
+import top.charles7c.continew.starter.log.common.model.LogRequest;
+import top.charles7c.continew.starter.log.common.model.LogResponse;
 import top.charles7c.continew.starter.log.httptracepro.autoconfigure.LogProperties;
 
 import java.time.Clock;
@@ -48,13 +50,19 @@ public class LogInterceptor implements HandlerInterceptor {
 
     private final LogDao dao;
     private final LogProperties properties;
-    private final TransmittableThreadLocal<Clock> timestampTtl = new TransmittableThreadLocal<>();
+    private final TransmittableThreadLocal<LogRecord.Started> timestampTtl = new TransmittableThreadLocal<>();
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
+        Clock timestamp = Clock.systemUTC();
         if (this.isRequestRecord(handler)) {
-            timestampTtl.set(Clock.systemUTC());
+            RecordableServletHttpRequest sourceRequest = new RecordableServletHttpRequest(request);
+            if (Boolean.TRUE.equals(properties.getIsPrint())) {
+                log.info("[{}] {}", sourceRequest.getMethod(), sourceRequest.getUri());
+            }
+            LogRecord.Started startedLogRecord = LogRecord.start(timestamp, sourceRequest);
+            timestampTtl.set(startedLogRecord);
         }
         return true;
     }
@@ -62,25 +70,27 @@ public class LogInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
                                 @NonNull Object handler, Exception e) {
-        Clock timestamp = timestampTtl.get();
-        if (null == timestamp) {
+        LogRecord.Started startedLogRecord = timestampTtl.get();
+        if (null == startedLogRecord) {
             return;
         }
         timestampTtl.remove();
         Set<Include> includeSet = properties.getInclude();
-        RecordableServletHttpRequest sourceRequest = new RecordableServletHttpRequest(request);
         try {
-            LogRecord.Started startedLogRecord = LogRecord.start(timestamp, sourceRequest);
-            RecordableServletHttpResponse sourceResponse = new RecordableServletHttpResponse(response, response.getStatus());
-            LogRecord finishedLogRecord = startedLogRecord.finish(sourceResponse, includeSet);
+            LogRecord finishedLogRecord = startedLogRecord.finish(new RecordableServletHttpResponse(response, response.getStatus()), includeSet);
             HandlerMethod handlerMethod = (HandlerMethod) handler;
+            // 记录日志描述
             if (includeSet.contains(Include.DESCRIPTION)) {
-                // 记录日志描述
                 this.logDescription(finishedLogRecord, handlerMethod);
             }
+            // 记录所属模块
             if (includeSet.contains(Include.MODULE)) {
-                // 记录所属模块
                 this.logModule(finishedLogRecord, handlerMethod);
+            }
+            if (Boolean.TRUE.equals(properties.getIsPrint())) {
+                LogRequest logRequest = finishedLogRecord.getRequest();
+                LogResponse logResponse = finishedLogRecord.getResponse();
+                log.info("[{}] {} {} {}ms", logRequest.getMethod(), logRequest.getUri(), logResponse.getStatus(), finishedLogRecord.getTimeTaken().toMillis());
             }
             dao.add(finishedLogRecord);
         } catch (Exception ex) {

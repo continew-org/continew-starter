@@ -42,17 +42,17 @@ public enum Include {
     MODULE,
 
     /**
-     * 请求头
+     * 请求头（默认）
      */
     REQUEST_HEADERS,
 
     /**
-     * 请求体
+     * 请求体（如包含请求体，则请求参数无效）
      */
     REQUEST_BODY,
 
     /**
-     * 请求参数
+     * 请求参数（默认）
      */
     REQUEST_PARAM,
 
@@ -72,32 +72,29 @@ public enum Include {
     OS,
 
     /**
-     * 响应头
+     * 响应头（默认）
      */
     RESPONSE_HEADERS,
 
     /**
-     * 响应体
+     * 响应体（如包含响应体，则响应参数无效）
      */
     RESPONSE_BODY,
 
     /**
-     * 响应参数
+     * 响应参数（默认）
      */
     RESPONSE_PARAM,
-
-    /**
-     * 耗时
-     */
-    TIME_TAKEN;
+    ;
 
     private static final Set<Include> DEFAULT_INCLUDES;
 
     static {
         Set<Include> defaultIncludes = new LinkedHashSet<>();
-        defaultIncludes.add(Include.TIME_TAKEN);
         defaultIncludes.add(Include.REQUEST_HEADERS);
         defaultIncludes.add(Include.RESPONSE_HEADERS);
+        defaultIncludes.add(Include.REQUEST_PARAM);
+        defaultIncludes.add(Include.RESPONSE_PARAM);
         DEFAULT_INCLUDES = Collections.unmodifiableSet(defaultIncludes);
     }
 

@@ -52,8 +52,11 @@ public class LogResponse {
 
     public LogResponse(RecordableHttpResponse response, Set<Include> includes) {
         this.status = response.getStatus();
-        this.headers = (includes.contains(Include.REQUEST_HEADERS)) ? response.getHeaders() : null;
-        this.body = (includes.contains(Include.REQUEST_BODY)) ? response.getBody() : null;
-        this.param = (includes.contains(Include.RESPONSE_PARAM)) ? response.getParam() : null;
+        this.headers = (includes.contains(Include.RESPONSE_HEADERS)) ? response.getHeaders() : null;
+        if (includes.contains(Include.RESPONSE_BODY)) {
+            this.body = response.getBody();
+        } else if (includes.contains(Include.RESPONSE_PARAM)) {
+            this.param = response.getParam();
+        }
     }
 }

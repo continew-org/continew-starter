@@ -87,8 +87,11 @@ public class LogRequest {
         this.uri = request.getUri();
         this.ip = request.getIp();
         this.headers = (includes.contains(Include.REQUEST_HEADERS)) ? request.getHeaders() : null;
-        this.body = (includes.contains(Include.REQUEST_BODY)) ? request.getBody() : null;
-        this.param = (includes.contains(Include.RESPONSE_PARAM)) ? request.getParam() : null;
+        if (includes.contains(Include.REQUEST_BODY)) {
+            this.body = request.getBody();
+        } else if (includes.contains(Include.REQUEST_PARAM)) {
+            this.param = request.getParam();
+        }
         this.address = (includes.contains(Include.IP_ADDRESS)) ? IpUtils.getAddress(this.ip) : null;
         String userAgentString = ExceptionUtils.exToNull(() -> this.headers.get(HttpHeaders.USER_AGENT).get(0));
         this.browser = (includes.contains(Include.BROWSER)) ? ServletUtils.getBrowser(userAgentString) : null;

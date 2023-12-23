@@ -131,7 +131,7 @@ public class LogRecord {
         public LogRecord finish(Clock clock, RecordableHttpResponse response, Set<Include> includes) {
             LogRequest logRequest = new LogRequest(this.request, includes);
             LogResponse logResponse = new LogResponse(response, includes);
-            Duration duration = (includes.contains(Include.TIME_TAKEN)) ? Duration.between(this.timestamp, Instant.now(clock)) : null;
+            Duration duration = Duration.between(this.timestamp, Instant.now(clock));
             return new LogRecord(this.timestamp, logRequest, logResponse, duration);
         }
     }

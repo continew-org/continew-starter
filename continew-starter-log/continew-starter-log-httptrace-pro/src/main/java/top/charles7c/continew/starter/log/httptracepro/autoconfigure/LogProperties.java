@@ -39,6 +39,11 @@ public class LogProperties {
     private boolean enabled = false;
 
     /**
+     * 是否打印日志，开启后可打印访问日志（类似于 Nginx access log）
+     */
+    private Boolean isPrint = false;
+
+    /**
      * 包含信息
      */
     private Set<Include> include = new HashSet<>(Include.defaultIncludes());
