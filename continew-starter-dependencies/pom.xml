@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>3.1.5</version>
+        <version>3.1.7</version>
         <relativePath/>
     </parent>
 
@@ -55,19 +55,19 @@
 
     <properties>
         <revision>1.1.0-SNAPSHOT</revision>
-        <just-auth.version>1.16.5</just-auth.version>
+        <just-auth.version>1.16.6</just-auth.version>
         <sa-token.version>1.37.0</sa-token.version>
         <mybatis-plus.version>3.5.4.1</mybatis-plus.version>
         <dynamic-datasource.version>4.2.0</dynamic-datasource.version>
         <p6spy.version>3.9.1</p6spy.version>
-        <redisson.version>3.24.3</redisson.version>
+        <redisson.version>3.25.2</redisson.version>
         <sms4j.version>3.0.4</sms4j.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
-        <easy-excel.version>3.3.2</easy-excel.version>
-        <knife4j.version>4.3.0</knife4j.version>
+        <easy-excel.version>3.3.3</easy-excel.version>
+        <knife4j.version>4.4.0</knife4j.version>
         <ttl.version>2.14.4</ttl.version>
         <ip2region.version>3.1.5.1</ip2region.version>
-        <hutool.version>5.8.23</hutool.version>
+        <hutool.version>5.8.24</hutool.version>
     </properties>
 
     <dependencyManagement>

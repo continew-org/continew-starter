@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.core.autoconfigure.project;
 
-import cn.hutool.core.convert.Convert;
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -82,9 +81,8 @@ public class ProjectProperties {
     public static final boolean IP_ADDR_LOCAL_PARSE_ENABLED;
 
     static {
-        String underlineCaseProperty = SpringUtil.getProperty("project.ip-addr-local-parse-enabled");
-        String camelCaseProperty = SpringUtil.getProperty("project.ipAddrLocalParseEnabled");
-        IP_ADDR_LOCAL_PARSE_ENABLED = Convert.toBool(underlineCaseProperty, false) || Convert.toBool(camelCaseProperty, false);
+        IP_ADDR_LOCAL_PARSE_ENABLED = SpringUtil.getProperty("project.ip-addr-local-parse-enabled", boolean.class, false)
+                || SpringUtil.getProperty("project.ipAddrLocalParseEnabled", boolean.class, false);
     }
 
     /**
