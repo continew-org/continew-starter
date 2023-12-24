@@ -18,7 +18,7 @@ package top.charles7c.continew.starter.auth.satoken.properties;
 
 import cn.dev33.satoken.dao.SaTokenDao;
 import lombok.Data;
-import top.charles7c.continew.starter.auth.satoken.enums.SaTokenDaoTypeEnum;
+import top.charles7c.continew.starter.auth.satoken.enums.SaTokenDaoType;
 
 /**
  * SaToken 持久层配置属性
@@ -32,7 +32,7 @@ public class SaTokenDaoProperties {
     /**
      * 持久层类型
      */
-    private SaTokenDaoTypeEnum type;
+    private SaTokenDaoType type;
 
     /**
      * 自定义持久层实现类（当 type 为 CUSTOM 时必填）

@@ -22,7 +22,7 @@ package top.charles7c.continew.starter.auth.satoken.enums;
  * @author Charles7c
  * @since 1.0.0
  */
-public enum SaTokenDaoTypeEnum {
+public enum SaTokenDaoType {
 
     /**
      * Redis
