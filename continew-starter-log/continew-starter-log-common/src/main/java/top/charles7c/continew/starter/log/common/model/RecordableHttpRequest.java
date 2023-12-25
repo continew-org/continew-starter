@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.log.common.model;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -57,7 +56,7 @@ public interface RecordableHttpRequest {
      *
      * @return 请求头
      */
-    Map<String, List<String>> getHeaders();
+    Map<String, String> getHeaders();
 
     /**
      * 获取请求体

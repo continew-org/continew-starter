@@ -16,6 +16,7 @@
 
 package top.charles7c.continew.starter.log.common.model;
 
+import cn.hutool.core.util.StrUtil;
 import lombok.Data;
 import org.springframework.http.HttpHeaders;
 import top.charles7c.continew.starter.core.util.ExceptionUtils;
@@ -24,7 +25,6 @@ import top.charles7c.continew.starter.core.util.ServletUtils;
 import top.charles7c.continew.starter.log.common.enums.Include;
 
 import java.net.URI;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,7 +55,7 @@ public class LogRequest {
     /**
      * 请求头
      */
-    private Map<String, List<String>> headers;
+    private Map<String, String> headers;
 
     /**
      * 请求体（JSON 字符串）
@@ -93,8 +93,10 @@ public class LogRequest {
             this.param = request.getParam();
         }
         this.address = (includes.contains(Include.IP_ADDRESS)) ? IpUtils.getAddress(this.ip) : null;
-        String userAgentString = ExceptionUtils.exToNull(() -> this.headers.get(HttpHeaders.USER_AGENT).get(0));
-        this.browser = (includes.contains(Include.BROWSER)) ? ServletUtils.getBrowser(userAgentString) : null;
-        this.os = (includes.contains(Include.OS)) ? ServletUtils.getOs(userAgentString) : null;
+        String userAgentString = ExceptionUtils.exToNull(() -> this.headers.get(HttpHeaders.USER_AGENT));
+        if (StrUtil.isNotBlank(userAgentString)) {
+            this.browser = (includes.contains(Include.BROWSER)) ? ServletUtils.getBrowser(userAgentString) : null;
+            this.os = (includes.contains(Include.OS)) ? ServletUtils.getOs(userAgentString) : null;
+        }
     }
 }

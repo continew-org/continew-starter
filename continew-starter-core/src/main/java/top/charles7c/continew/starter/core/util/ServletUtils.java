@@ -16,6 +16,7 @@
 
 package top.charles7c.continew.starter.core.util;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +27,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Servlet 工具类
@@ -101,6 +102,21 @@ public class ServletUtils {
     public static String getOs(String userAgentString) {
         UserAgent userAgent = UserAgentUtil.parse(userAgentString);
         return userAgent.getOs().getName();
+    }
+
+    /**
+     * 获取响应所有的头（header）信息
+     *
+     * @param response 响应对象{@link HttpServletResponse}
+     * @return header值
+     */
+    public static Map<String, String> getHeaderMap(HttpServletResponse response) {
+        final Collection<String> headerNames = response.getHeaderNames();
+        final Map<String, String> headerMap = MapUtil.newHashMap(headerNames.size(), true);
+        for (String name : headerNames) {
+            headerMap.put(name, response.getHeader(name));
+        }
+        return headerMap;
     }
 
     private static ServletRequestAttributes getServletRequestAttributes() {

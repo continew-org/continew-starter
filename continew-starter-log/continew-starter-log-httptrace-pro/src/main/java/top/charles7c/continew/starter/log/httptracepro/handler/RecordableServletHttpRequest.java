@@ -72,8 +72,8 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     }
 
     @Override
-    public Map<String, List<String>> getHeaders() {
-        return JakartaServletUtil.getHeadersMap(request);
+    public Map<String, String> getHeaders() {
+        return JakartaServletUtil.getHeaderMap(request);
     }
 
     @Override

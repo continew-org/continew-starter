@@ -22,6 +22,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
 import top.charles7c.continew.starter.core.constant.StringConstants;
+import top.charles7c.continew.starter.core.util.ServletUtils;
 import top.charles7c.continew.starter.log.common.model.RecordableHttpResponse;
 
 import java.util.*;
@@ -49,12 +50,8 @@ public final class RecordableServletHttpResponse implements RecordableHttpRespon
     }
 
     @Override
-    public Map<String, List<String>> getHeaders() {
-        Map<String, List<String>> headers = new LinkedHashMap<>();
-        for (String name : response.getHeaderNames()) {
-            headers.put(name, new ArrayList<>(response.getHeaders(name)));
-        }
-        return headers;
+    public Map<String, String> getHeaders() {
+        return ServletUtils.getHeaderMap(response);
     }
 
     @Override

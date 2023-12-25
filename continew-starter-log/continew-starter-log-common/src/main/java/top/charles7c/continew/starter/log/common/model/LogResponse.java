@@ -38,7 +38,7 @@ public class LogResponse {
     /**
      * 响应头
      */
-    private Map<String, List<String>> headers;
+    private Map<String, String> headers;
 
     /**
      * 响应体（JSON 字符串）

@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.log.common.model;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -41,7 +40,7 @@ public interface RecordableHttpResponse {
      *
      * @return 响应头
      */
-    Map<String, List<String>> getHeaders();
+    Map<String, String> getHeaders();
 
     /**
      * 获取响应体
