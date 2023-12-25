@@ -21,7 +21,7 @@ import cn.hutool.core.util.StrUtil;
 import com.wf.captcha.base.Captcha;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import top.charles7c.continew.starter.captcha.graphic.enums.GraphicCaptchaTypeEnum;
+import top.charles7c.continew.starter.captcha.graphic.enums.GraphicCaptchaType;
 
 import java.awt.*;
 
@@ -43,7 +43,7 @@ public class GraphicCaptchaProperties {
     /**
      * 类型
      */
-    private GraphicCaptchaTypeEnum type;
+    private GraphicCaptchaType type;
 
     /**
      * 内容长度
