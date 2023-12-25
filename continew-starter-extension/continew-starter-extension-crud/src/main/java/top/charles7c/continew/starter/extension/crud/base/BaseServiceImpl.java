@@ -163,7 +163,6 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public Long add(C req) {
         if (null == req) {
             return 0L;
@@ -174,7 +173,6 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public void update(C req, Long id) {
         T entity = this.getById(id);
         BeanUtil.copyProperties(req, entity, CopyOptions.create().ignoreNullValue());
