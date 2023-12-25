@@ -31,7 +31,6 @@ import top.charles7c.continew.starter.log.common.annotation.Log;
 import top.charles7c.continew.starter.log.common.dao.LogDao;
 import top.charles7c.continew.starter.log.common.enums.Include;
 import top.charles7c.continew.starter.log.common.model.LogRecord;
-import top.charles7c.continew.starter.log.common.model.LogRequest;
 import top.charles7c.continew.starter.log.common.model.LogResponse;
 import top.charles7c.continew.starter.log.httptracepro.autoconfigure.LogProperties;
 
@@ -57,11 +56,10 @@ public class LogInterceptor implements HandlerInterceptor {
                              @NonNull Object handler) {
         Clock timestamp = Clock.systemUTC();
         if (this.isRequestRecord(handler)) {
-            RecordableServletHttpRequest sourceRequest = new RecordableServletHttpRequest(request);
             if (Boolean.TRUE.equals(properties.getIsPrint())) {
-                log.info("[{}] {}", sourceRequest.getMethod(), sourceRequest.getUri());
+                log.info("[{}] {}", request.getMethod(), request.getRequestURI());
             }
-            LogRecord.Started startedLogRecord = LogRecord.start(timestamp, sourceRequest);
+            LogRecord.Started startedLogRecord = LogRecord.start(timestamp, new RecordableServletHttpRequest(request));
             timestampTtl.set(startedLogRecord);
         }
         return true;
@@ -88,9 +86,8 @@ public class LogInterceptor implements HandlerInterceptor {
                 this.logModule(finishedLogRecord, handlerMethod);
             }
             if (Boolean.TRUE.equals(properties.getIsPrint())) {
-                LogRequest logRequest = finishedLogRecord.getRequest();
                 LogResponse logResponse = finishedLogRecord.getResponse();
-                log.info("[{}] {} {} {}ms", logRequest.getMethod(), logRequest.getUri(), logResponse.getStatus(), finishedLogRecord.getTimeTaken().toMillis());
+                log.info("[{}] {} {} {}ms", request.getMethod(), request.getRequestURI(), logResponse.getStatus(), finishedLogRecord.getTimeTaken().toMillis());
             }
             dao.add(finishedLogRecord);
         } catch (Exception ex) {

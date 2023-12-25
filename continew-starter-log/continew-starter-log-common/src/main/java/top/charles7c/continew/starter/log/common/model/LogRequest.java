@@ -43,9 +43,9 @@ public class LogRequest {
     private String method;
 
     /**
-     * 请求 URI
+     * 请求 URL
      */
-    private URI uri;
+    private URI url;
 
     /**
      * IP
@@ -84,7 +84,7 @@ public class LogRequest {
 
     public LogRequest(RecordableHttpRequest request, Set<Include> includes) {
         this.method = request.getMethod();
-        this.uri = request.getUri();
+        this.url = request.getUrl();
         this.ip = request.getIp();
         this.headers = (includes.contains(Include.REQUEST_HEADERS)) ? request.getHeaders() : null;
         if (includes.contains(Include.REQUEST_BODY)) {

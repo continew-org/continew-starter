@@ -39,11 +39,11 @@ public interface RecordableHttpRequest {
     String getMethod();
 
     /**
-     * 获取 URI
+     * 获取 URL
      *
-     * @return URI
+     * @return URL
      */
-    URI getUri();
+    URI getUrl();
 
     /**
      * 获取 IP
