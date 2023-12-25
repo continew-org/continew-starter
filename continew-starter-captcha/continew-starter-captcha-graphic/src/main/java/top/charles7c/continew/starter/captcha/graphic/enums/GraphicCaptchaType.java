@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-public enum GraphicCaptchaTypeEnum {
+public enum GraphicCaptchaType {
 
     /**
      * 算术
