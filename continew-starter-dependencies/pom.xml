@@ -57,7 +57,7 @@
         <revision>1.1.0-SNAPSHOT</revision>
         <just-auth.version>1.16.6</just-auth.version>
         <sa-token.version>1.37.0</sa-token.version>
-        <mybatis-plus.version>3.5.4.1</mybatis-plus.version>
+        <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <dynamic-datasource.version>4.2.0</dynamic-datasource.version>
         <p6spy.version>3.9.1</p6spy.version>
         <redisson.version>3.25.2</redisson.version>

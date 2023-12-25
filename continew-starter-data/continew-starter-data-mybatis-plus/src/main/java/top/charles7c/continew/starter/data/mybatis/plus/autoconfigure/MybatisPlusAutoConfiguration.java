@@ -18,10 +18,8 @@ package top.charles7c.continew.starter.data.mybatis.plus.autoconfigure;
 
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import com.baomidou.mybatisplus.autoconfigure.DdlApplicationRunner;
 import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
 import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
-import com.baomidou.mybatisplus.extension.ddl.IDdl;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
@@ -30,7 +28,6 @@ import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerIntercept
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -42,7 +39,6 @@ import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
 import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionFilter;
 import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionHandlerImpl;
 
-import java.util.List;
 
 /**
  * MyBatis Plus 自动配置
@@ -51,7 +47,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @Slf4j
-@AutoConfiguration(before = com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration.class)
+@AutoConfiguration
 @MapperScan("${mybatis-plus.extension.mapper-package}")
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableConfigurationProperties(MyBatisPlusExtensionProperties.class)
@@ -114,17 +110,6 @@ public class MybatisPlusAutoConfiguration {
         paginationInnerInterceptor.setOverflow(paginationProperties.isOverflow());
         paginationInnerInterceptor.setMaxLimit(paginationProperties.getMaxLimit());
         return paginationInnerInterceptor;
-    }
-
-    /**
-     * Spring Boot 3.1.7 升级冲突
-     * <p>
-     * org.springframework.beans.factory.BeanNotOfRequiredTypeException: Bean named 'ddlApplicationRunner' is expected to be of type 'org.springframework.boot.Runner' but was actually of type 'org.springframework.beans.factory.support.NullBean'
-     * </p>
-     */
-    @Bean
-    public DdlApplicationRunner ddlApplicationRunner(@Autowired(required = false) List<IDdl> ddlList) {
-        return new DdlApplicationRunner(ddlList);
     }
 
     @PostConstruct
