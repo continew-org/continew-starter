@@ -94,7 +94,7 @@
 
     <build>
         <plugins>
-            <!-- 代码等格式化插件 -->
+            <!-- 代码格式化插件 -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
@@ -116,6 +116,7 @@
                     </java>
                 </configuration>
             </plugin>
+            <!-- 扁平化 Maven 插件（统一版本号） -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>

@@ -68,7 +68,7 @@
         <x-file-storage.version>2.0.0</x-file-storage.version>
         <knife4j.version>4.4.0</knife4j.version>
         <ttl.version>2.14.4</ttl.version>
-        <ip2region.version>3.1.5.1</ip2region.version>
+        <ip2region.version>3.1.6</ip2region.version>
         <hutool.version>5.8.24</hutool.version>
     </properties>
 
@@ -326,6 +326,7 @@
 
     <build>
         <plugins>
+            <!-- 扁平化 Maven 插件（统一版本号） -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
