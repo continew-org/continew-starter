@@ -66,6 +66,7 @@
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <easy-excel.version>3.3.3</easy-excel.version>
         <x-file-storage.version>2.0.0</x-file-storage.version>
+        <aws-s3.version>1.12.626</aws-s3.version>
         <knife4j.version>4.4.0</knife4j.version>
         <ttl.version>2.14.4</ttl.version>
         <ip2region.version>3.1.6</ip2region.version>
@@ -177,6 +178,13 @@
                 <groupId>org.dromara.x-file-storage</groupId>
                 <artifactId>x-file-storage-spring</artifactId>
                 <version>${x-file-storage.version}</version>
+            </dependency>
+
+            <!-- Amazon Simple Storage Service（亚马逊简单存储服务，通用存储协议 S3，兼容主流云厂商对象存储） -->
+            <dependency>
+                <groupId>com.amazonaws</groupId>
+                <artifactId>aws-java-sdk-s3</artifactId>
+                <version>${aws-s3.version}</version>
             </dependency>
 
             <!-- Knife4j（前身是 swagger-bootstrap-ui，集 Swagger2 和 OpenAPI3 为一体的增强解决方案） -->
