@@ -60,7 +60,7 @@ public class BehaviorCaptchaAutoConfiguration {
      * 自定义缓存实现配置
      */
     @Configuration
-    @Import({BehaviorCaptchaCacheConfiguration.Redis.class,BehaviorCaptchaCacheConfiguration.Custom.class})
+    @Import({BehaviorCaptchaCacheConfiguration.Redis.class, BehaviorCaptchaCacheConfiguration.Custom.class})
     protected static class BehaviorCaptchaCacheAutoConfiguration {
     }
 
