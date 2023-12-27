@@ -18,7 +18,8 @@ package top.charles7c.continew.starter.captcha.behavior.autoconfigure;
 
 import cn.hutool.core.util.ReflectUtil;
 import com.anji.captcha.service.CaptchaCacheService;
-import com.anji.captcha.service.impl.CaptchaCacheServiceMemImpl;
+import com.anji.captcha.service.impl.CaptchaServiceFactory;
+import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +28,8 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
 import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
+import top.charles7c.continew.starter.captcha.behavior.enums.StorageType;
 import top.charles7c.continew.starter.captcha.behavior.impl.BehaviorCaptchaCacheServiceImpl;
 
 /**
@@ -48,30 +49,13 @@ abstract class BehaviorCaptchaCacheConfiguration {
     @ConditionalOnMissingBean(CaptchaCacheService.class)
     @AutoConfigureBefore(RedissonAutoConfiguration.class)
     @ConditionalOnProperty(name = "continew-starter.captcha.behavior.cache-type", havingValue = "redis")
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     static class Redis {
-        static {
+
+        @PostConstruct
+        public void captchaCacheService() {
+            CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name().toLowerCase(), new BehaviorCaptchaCacheServiceImpl());
             log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Redis' completed initialization.");
-        }
-
-        @Bean
-        public CaptchaCacheService captchaCacheService() {
-            return new BehaviorCaptchaCacheServiceImpl();
-        }
-    }
-
-    /**
-     * 自定义缓存实现类-内存
-     */
-    @ConditionalOnMissingBean(CaptchaCacheService.class)
-    @ConditionalOnProperty(name = "continew-starter.captcha.behavior.cache-type", havingValue = "local")
-    static class Local {
-        static {
-            log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Local' completed initialization.");
-        }
-
-        @Bean
-        public CaptchaCacheService captchaCacheService() {
-            return new CaptchaCacheServiceMemImpl();
         }
     }
 
@@ -80,14 +64,13 @@ abstract class BehaviorCaptchaCacheConfiguration {
      */
     @ConditionalOnMissingBean(CaptchaCacheService.class)
     @ConditionalOnProperty(name = "continew-starter.captcha.behavior.cache-type", havingValue = "custom")
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     static class Custom {
-        static {
-            log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Custom' completed initialization.");
-        }
 
-        @Bean
-        public CaptchaCacheService captchaCacheService(BehaviorCaptchaProperties properties) {
-            return ReflectUtil.newInstance(properties.getCacheImpl());
+        @PostConstruct
+        public void captchaCacheService(BehaviorCaptchaProperties properties) {
+            CaptchaServiceFactory.cacheService.put(StorageType.CUSTOM.name().toLowerCase(), ReflectUtil.newInstance(properties.getCacheImpl()));
+            log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Custom' completed initialization.");
         }
     }
 }

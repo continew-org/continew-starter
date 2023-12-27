@@ -60,7 +60,7 @@ public class BehaviorCaptchaAutoConfiguration {
      * 自定义缓存实现配置
      */
     @Configuration
-    @Import({BehaviorCaptchaCacheConfiguration.Redis.class, BehaviorCaptchaCacheConfiguration.Local.class, BehaviorCaptchaCacheConfiguration.Custom.class})
+    @Import({BehaviorCaptchaCacheConfiguration.Redis.class,BehaviorCaptchaCacheConfiguration.Custom.class})
     protected static class BehaviorCaptchaCacheAutoConfiguration {
     }
 
@@ -79,7 +79,7 @@ public class BehaviorCaptchaAutoConfiguration {
         config.put(Const.ORIGINAL_PATH_JIGSAW, StrUtil.emptyIfNull(properties.getJigsawBaseMapPath()));
         config.put(Const.ORIGINAL_PATH_PIC_CLICK, StrUtil.emptyIfNull(properties.getPicClickBaseMapPath()));
         config.put(Const.CAPTCHA_SLIP_OFFSET, properties.getSlipOffset());
-        config.put(Const.CAPTCHA_AES_STATUS, String.valueOf(properties.getEnableAES()));
+        config.put(Const.CAPTCHA_AES_STATUS, String.valueOf(properties.getEnableAes()));
         config.put(Const.CAPTCHA_WATER_FONT, properties.getWaterFont());
         config.put(Const.CAPTCHA_CACAHE_MAX_NUMBER, properties.getCacheNumber());
         config.put(Const.CAPTCHA_TIMING_CLEAR_SECOND, properties.getTimingClear());
