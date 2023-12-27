@@ -42,7 +42,7 @@ public class BehaviorCaptchaProperties {
     /**
      * 是否开启 AES 坐标加密（默认：true）
      */
-    private Boolean enableAES = true;
+    private Boolean enableAes = true;
 
     /**
      * 验证码类型（默认：滑动验证码）
