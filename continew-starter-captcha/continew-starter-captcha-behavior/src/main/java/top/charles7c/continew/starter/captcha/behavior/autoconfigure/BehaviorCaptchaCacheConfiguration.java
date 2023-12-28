@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.client.RedisClient;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
@@ -49,11 +50,8 @@ abstract class BehaviorCaptchaCacheConfiguration {
     @ConditionalOnClass(RedisClient.class)
     @AutoConfigureBefore(RedissonAutoConfiguration.class)
     @ConditionalOnProperty(name = "continew-starter.captcha.behavior.cache-type", havingValue = "redis")
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     static class Redis {
-
-        @PostConstruct
-        public void postConstruct() {
+        static {
             CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name().toLowerCase(), new BehaviorCaptchaCacheServiceImpl());
             log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Redis' completed initialization.");
         }
@@ -63,10 +61,10 @@ abstract class BehaviorCaptchaCacheConfiguration {
      * 自定义缓存实现类-自定义
      */
     @ConditionalOnProperty(name = "continew-starter.captcha.behavior.cache-type", havingValue = "custom")
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     static class Custom {
 
         @Bean
+        @ConditionalOnMissingBean
         public CaptchaCacheService captchaCacheService(BehaviorCaptchaProperties properties) {
             return ReflectUtil.newInstance(properties.getCacheImpl());
         }

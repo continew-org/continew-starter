@@ -180,7 +180,7 @@
                 <version>${x-file-storage.version}</version>
             </dependency>
 
-            <!-- Amazon Simple Storage Service（亚马逊简单存储服务，通用存储协议 S3，兼容主流云厂商对象存储） -->
+            <!-- Amazon S3（Amazon Simple Storage Service，亚马逊简单存储服务，通用存储协议 S3，兼容主流云厂商对象存储） -->
             <dependency>
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
