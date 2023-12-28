@@ -58,4 +58,9 @@ public class StringConstants implements StrPool {
      * 中文逗号
      */
     public static final String CHINESE_COMMA = "，";
+
+    /**
+     * 路径模式
+     */
+    public static final String PATH_PATTERN = "/**";
 }
