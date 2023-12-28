@@ -17,6 +17,8 @@
 package top.charles7c.continew.starter.captcha.behavior.autoconfigure;
 
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import com.anji.captcha.service.CaptchaCacheService;
 import com.anji.captcha.service.impl.CaptchaServiceFactory;
 import jakarta.annotation.PostConstruct;
 import lombok.AccessLevel;
@@ -26,6 +28,7 @@ import org.redisson.client.RedisClient;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
 import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 import top.charles7c.continew.starter.captcha.behavior.enums.StorageType;
 import top.charles7c.continew.starter.captcha.behavior.impl.BehaviorCaptchaCacheServiceImpl;
@@ -63,9 +66,14 @@ abstract class BehaviorCaptchaCacheConfiguration {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     static class Custom {
 
+        @Bean
+        public CaptchaCacheService captchaCacheService(BehaviorCaptchaProperties properties) {
+            return ReflectUtil.newInstance(properties.getCacheImpl());
+        }
+
         @PostConstruct
-        public void postConstruct(BehaviorCaptchaProperties properties) {
-            CaptchaServiceFactory.cacheService.put(StorageType.CUSTOM.name().toLowerCase(), ReflectUtil.newInstance(properties.getCacheImpl()));
+        public void postConstruct() {
+            CaptchaServiceFactory.cacheService.put(StorageType.CUSTOM.name().toLowerCase(), SpringUtil.getBean(CaptchaCacheService.class));
             log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Custom' completed initialization.");
         }
     }
