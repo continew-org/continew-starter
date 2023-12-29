@@ -35,6 +35,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
 
 /**
@@ -56,7 +57,7 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 注册 Sa-Token 拦截器，校验规则为 StpUtil.checkLogin() 登录校验
-        registry.addInterceptor(new SaInterceptor(handle -> StpUtil.checkLogin())).addPathPatterns("/**")
+        registry.addInterceptor(new SaInterceptor(handle -> StpUtil.checkLogin())).addPathPatterns(StringConstants.PATH_PATTERN)
                 .excludePathPatterns(properties.getSecurity().getExcludes());
     }
 

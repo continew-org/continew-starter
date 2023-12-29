@@ -42,7 +42,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 @Lazy
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "thread-pool", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "continew-starter.thread-pool", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(ThreadPoolProperties.class)
 public class ThreadPoolAutoConfiguration {
 

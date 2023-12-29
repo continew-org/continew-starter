@@ -39,7 +39,7 @@ import top.charles7c.continew.starter.core.constant.StringConstants;
 @Lazy
 @AutoConfiguration
 @ConditionalOnWebApplication
-@ConditionalOnProperty(prefix = "cors", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "continew-starter.cors", name = "enabled", havingValue = "true")
 @EnableConfigurationProperties(CorsProperties.class)
 public class CorsAutoConfiguration {
 
@@ -68,7 +68,7 @@ public class CorsAutoConfiguration {
         properties.getExposedHeaders().forEach(config::addExposedHeader);
         // 添加映射路径，拦截一切请求
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
+        source.registerCorsConfiguration(StringConstants.PATH_PATTERN, config);
         CorsFilter corsFilter = new CorsFilter(source);
         log.info("[ContiNew Starter] - Auto Configuration 'CorsFilter' completed initialization.");
         return corsFilter;

@@ -27,7 +27,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 1.0.0
  */
 @Data
-@ConfigurationProperties(prefix = "thread-pool")
+@ConfigurationProperties(prefix = "continew-starter.thread-pool")
 public class ThreadPoolProperties {
 
     /**

@@ -31,7 +31,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @Data
-@ConfigurationProperties(prefix = "cors")
+@ConfigurationProperties(prefix = "continew-starter.cors")
 public class CorsProperties {
 
     /**
