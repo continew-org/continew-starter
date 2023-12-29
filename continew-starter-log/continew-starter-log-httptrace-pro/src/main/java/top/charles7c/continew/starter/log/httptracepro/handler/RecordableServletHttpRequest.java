@@ -80,9 +80,10 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     public String getBody() {
         ContentCachingRequestWrapper wrapper = WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);
         if (null != wrapper) {
-            return StrUtil.utf8Str(wrapper.getContentAsByteArray());
+            String body = StrUtil.utf8Str(wrapper.getContentAsByteArray());
+            return JSONUtil.isTypeJSON(body) ? body : null;
         }
-        return StringConstants.EMPTY;
+        return null;
     }
 
     @Override
