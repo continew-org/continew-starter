@@ -13,7 +13,7 @@
     <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
-    <description>ContiNew Starter 日志模块 - HttpTracePro（Spring Boot Actuator HttpTrace 定制增强版）</description>
+    <description>ContiNew Starter 日志模块 - HttpTracePro（Spring Boot Actuator HttpTrace 重置增强版）</description>
 
     <dependencies>
         <!-- Swagger 注解 -->

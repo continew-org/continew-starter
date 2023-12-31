@@ -4,7 +4,7 @@
 <img src="https://img.shields.io/badge/License-LGPL--3.0-blue.svg" alt="License" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/SNAPSHOT-v1.1.0-%23ff3f59.svg" alt="Release" />
+<img src="https://img.shields.io/badge/RELEASE-v1.1.0-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/github/stars/Charles7c/continew-starter?style=social" alt="GitHub stars" />
@@ -148,29 +148,25 @@ cors:
 
 ## 模块结构
 
-| 模块名称                           | 模块说明                                 | 依赖版本                                                     |
-| ---------------------------------- | ---------------------------------------- | ------------------------------------------------------------ |
-| continew-starter-core              | 核心模块：包含跨域、线程池等自动配置     | <a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot</a>：3.1.7<br /><a href="https://undertow.io/" target="_blank">Undertow</a>：2.3.10.Final<br /><a href="https://www.hutool.cn/" target="_blank">Hutool</a>：5.8.24<br />mica-ip2region：3.1.6 |
-| continew-starter-json-jackson      | JSON 模块：Jackson 自动配置              | Jackson：2.15.3                                              |
-| continew-starter-api-doc           | API 文档模块：Knife4j 自动配置           | <a href="https://doc.xiaominfo.com/" target="_blank">Knife4j</a>：4.4.0 |
-| continew-starter-log               | 日志模块：HTTP Trace Pro                 |                                                              |
-| continew-starter-storage           | 存储模块：本地存储、OSS 自动配置         |                                                              |
-| continew-starter-file-excel        | 文件处理模块：Excel 相关配置             | <a href="https://easyexcel.opensource.alibaba.com/" target="_blank">Easy Excel</a>：3.3.4 |
-| continew-starter-captcha-graphic   | 验证码模块：图形验证码                   | Easy Captcha：1.6.2                                          |
-| continew-starter-captcha-behavior  | 验证码模块：行为验证码                   | AJ-Captcha：1.3.0                                            |
-| continew-starter-cache-redisson    | 缓存模块：Redisson 自动配置              | <a href="https://github.com/redisson/redisson/wiki/Redisson%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D" target="_blank">Redisson</a>：3.25.2 |
-| continew-starter-data-mybatis-plus | 数据访问模块：MyBatis Plus 自动配置      | <a href="https://baomidou.com/" target="_blank">MyBatis Plus</a>：3.5.5<br /><a href="https://www.kancloud.cn/tracy5546/dynamic-datasource/2264611" target="_blank">dynamic-datasource-spring-boot-starter</a>：4.2.0<br /><a href="https://github.com/p6spy/p6spy" target="_blank">P6Spy</a>：3.9.1 |
-| continew-starter-auth-satoken      | 认证模块：SaToken 自动配置               | <a href="https://sa-token.dev33.cn/" target="_blank">Sa-Token</a>：1.37.0 |
-| continew-starter-auth-justauth     | 认证模块：JustAuth 自动配置              | <a href="https://justauth.cn/" target="_blank">Just Auth</a>：1.16.6 |
-| continew-starter-messaging-mail    | 消息模块：邮件                           | Jakarta Mail：1.1.0                                          |
-| continew-starter-messaging-sms     | 消息模块：短信                           | <a href="https://sms4j.com/" target="_blank">SMS4J</a>：3.0.4 |
-| continew-starter-extension         | 扩展模块：包含 CRUD 等复杂模组及自动配置 |                                                              |
+| 模块名称                           | 模块说明                                            | 依赖版本                                                     |
+| ---------------------------------- | --------------------------------------------------- | ------------------------------------------------------------ |
+| continew-starter-core              | 核心模块：包含跨域、线程池等自动配置                | <a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot</a>：3.1.7<br /><a href="https://undertow.io/" target="_blank">Undertow</a>：2.3.10.Final<br /><a href="https://www.hutool.cn/" target="_blank">Hutool</a>：5.8.24<br />mica-ip2region：3.1.6 |
+| continew-starter-json-jackson      | JSON 模块：Jackson 自动配置                         | Jackson：2.15.3                                              |
+| continew-starter-api-doc           | API 文档模块：Knife4j 自动配置                      | <a href="https://doc.xiaominfo.com/" target="_blank">Knife4j</a>：4.4.0 |
+| continew-starter-log-httptrace-pro | 日志模块：Spring Boot Actuator HttpTrace 重置增强版 |                                                              |
+| continew-starter-storage-local     | 存储模块：本地存储                                  |                                                              |
+| continew-starter-file-excel        | 文件处理模块：Excel 相关配置                        | <a href="https://easyexcel.opensource.alibaba.com/" target="_blank">Easy Excel</a>：3.3.4 |
+| continew-starter-captcha-graphic   | 验证码模块：图形验证码                              | Easy Captcha：1.6.2                                          |
+| continew-starter-captcha-behavior  | 验证码模块：行为验证码                              | AJ-Captcha：1.3.0                                            |
+| continew-starter-cache-redisson    | 缓存模块：Redisson 自动配置                         | <a href="https://github.com/redisson/redisson/wiki/Redisson%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D" target="_blank">Redisson</a>：3.25.2 |
+| continew-starter-data-mybatis-plus | 数据访问模块：MyBatis Plus 自动配置                 | <a href="https://baomidou.com/" target="_blank">MyBatis Plus</a>：3.5.5<br /><a href="https://www.kancloud.cn/tracy5546/dynamic-datasource/2264611" target="_blank">dynamic-datasource-spring-boot-starter</a>：4.2.0<br /><a href="https://github.com/p6spy/p6spy" target="_blank">P6Spy</a>：3.9.1 |
+| continew-starter-auth-satoken      | 认证模块：SaToken 自动配置                          | <a href="https://sa-token.dev33.cn/" target="_blank">Sa-Token</a>：1.37.0 |
+| continew-starter-auth-justauth     | 认证模块：JustAuth 自动配置                         | <a href="https://justauth.cn/" target="_blank">Just Auth</a>：1.16.6 |
+| continew-starter-messaging-mail    | 消息模块：邮件                                      | Jakarta Mail：1.1.0                                          |
+| continew-starter-messaging-sms     | 消息模块：短信                                      | <a href="https://sms4j.com/" target="_blank">SMS4J</a>：3.0.4 |
+| continew-starter-extension-crud    | 扩展模块：CRUD 通用内容封装                         |                                                              |
 
 ![模块依赖图](.image/模块依赖图.png)
-
-## 谁在使用？
-
-- ✨[ContiNew Admin](https://github.com/Charles7c/continew-admin)：ContiNew Admin （Continue New Admin）中后台管理框架/脚手架，持续以最新流行技术栈构建，拥抱变化，迭代优化。依托开源协作模式，提升技术透明度、放大集体智慧、共创优秀实践，源源不断地为企业级项目开发提供助力。当前采用的技术栈：Spring Boot3（Java17）、Vue3 & Arco Design、Sa-Token、MyBatis Plus、Redisson、Liquibase、JustAuth、Easy Excel、Hutool、TypeScript、Vite4 等。
 
 ## 贡献代码
 
@@ -238,8 +234,8 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 - 感谢 <a href="https://github.com/baomidou/mybatis-plus" target="_blank">MyBatis Plus</a>、<a href="https://github.com/dromara/sa-token" target="_blank">Sa-Token</a> 、<a href="https://github.com/xiaoymin/knife4j" target="_blank">Knife4j</a>、<a href="https://github.com/dromara/hutool" target="_blank">Hutool</a> 等国产开源组件作者为国内开源世界作出的贡献
 - 感谢 <a href="https://github.com/elunez/eladmin" target="_blank">ELADMIN</a>、<a href="https://github.com/dromara/RuoYi-Vue-Plus" target="_blank">RuoYi-Vue-Plus</a>、<a href="https://gitee.com/herodotus/dante-engine" target="_blank">Dante-Engine</a>，致敬各位作者为开源脚手架领域作出的贡献
   - e.g. 脱胎于 ELADMIN 项目开源的 QueryHelper 组件
-  - e.g. 基于 RuoYi-Vue-Plus 项目封装的 SaToken 相关认证鉴权配置
-  - e.g. 基于 Dante-Engine 项目封装的 Redisson 相关配置
+  - e.g. 扩展于 RuoYi-Vue-Plus 项目封装的 SaToken 相关认证鉴权配置
+  - e.g. 扩展于 Dante-Engine 项目封装的 Redisson 相关配置
 - 感谢项目使用或未使用到的每一款开源组件，致敬各位开源先驱 :fire:
 
 ## License
