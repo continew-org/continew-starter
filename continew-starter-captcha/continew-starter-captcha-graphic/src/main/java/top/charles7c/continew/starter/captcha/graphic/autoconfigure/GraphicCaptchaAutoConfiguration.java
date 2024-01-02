@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 /**
  * 图形验证码自动配置
@@ -31,7 +32,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 @Slf4j
 @AutoConfiguration
 @EnableConfigurationProperties(GraphicCaptchaProperties.class)
-@ConditionalOnProperty(prefix = "continew-starter.captcha.graphic", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_GRAPHIC, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class GraphicCaptchaAutoConfiguration {
 
     @PostConstruct

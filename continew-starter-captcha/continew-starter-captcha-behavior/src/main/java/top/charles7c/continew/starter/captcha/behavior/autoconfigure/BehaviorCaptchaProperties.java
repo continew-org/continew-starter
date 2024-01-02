@@ -21,6 +21,7 @@ import com.anji.captcha.service.CaptchaCacheService;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.captcha.behavior.enums.StorageType;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 import java.awt.*;
 
@@ -31,7 +32,7 @@ import java.awt.*;
  * @since 1.1.0
  */
 @Data
-@ConfigurationProperties(prefix = "continew-starter.captcha.behavior")
+@ConfigurationProperties(PropertiesConstants.CAPTCHA_BEHAVIOR)
 public class BehaviorCaptchaProperties {
 
     /**

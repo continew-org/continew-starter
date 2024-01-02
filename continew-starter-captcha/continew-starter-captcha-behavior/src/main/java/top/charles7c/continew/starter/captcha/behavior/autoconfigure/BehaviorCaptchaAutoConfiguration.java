@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +51,7 @@ import java.util.Properties;
 @Slf4j
 @AutoConfiguration
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "continew-starter.captcha.behavior", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_BEHAVIOR, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(BehaviorCaptchaProperties.class)
 public class BehaviorCaptchaAutoConfiguration {
 

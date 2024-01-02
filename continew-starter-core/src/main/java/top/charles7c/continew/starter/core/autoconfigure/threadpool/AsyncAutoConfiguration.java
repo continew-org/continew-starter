@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.exception.BaseException;
 
 import java.util.Arrays;
@@ -42,7 +43,7 @@ import java.util.concurrent.ScheduledExecutorService;
 @Lazy
 @AutoConfiguration
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "continew-starter.thread-pool", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.THREAD_POOL, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableAsync(proxyTargetClass = true)
 public class AsyncAutoConfiguration implements AsyncConfigurer {
 

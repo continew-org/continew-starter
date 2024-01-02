@@ -26,6 +26,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.Map;
@@ -42,7 +43,7 @@ import java.util.Map;
 @AutoConfiguration
 @RequiredArgsConstructor
 @EnableConfigurationProperties(LocalStorageProperties.class)
-@ConditionalOnProperty(name = "continew-starter.storage.local.enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.STORAGE_LOCAL, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
 
     private final LocalStorageProperties properties;

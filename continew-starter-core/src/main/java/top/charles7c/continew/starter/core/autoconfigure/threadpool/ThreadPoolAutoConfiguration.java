@@ -26,6 +26,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.util.ExceptionUtils;
 
 import java.util.concurrent.ScheduledExecutorService;
@@ -42,7 +43,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 @Slf4j
 @Lazy
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "continew-starter.thread-pool", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.THREAD_POOL, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(ThreadPoolProperties.class)
 public class ThreadPoolAutoConfiguration {
 

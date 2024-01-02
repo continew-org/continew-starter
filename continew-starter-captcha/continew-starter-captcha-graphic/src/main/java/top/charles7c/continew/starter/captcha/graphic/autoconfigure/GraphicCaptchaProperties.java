@@ -22,6 +22,7 @@ import com.wf.captcha.base.Captcha;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.captcha.graphic.enums.GraphicCaptchaType;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 import java.awt.*;
 
@@ -32,7 +33,7 @@ import java.awt.*;
  * @since 1.0.0
  */
 @Data
-@ConfigurationProperties(prefix = "continew-starter.captcha.graphic")
+@ConfigurationProperties(PropertiesConstants.CAPTCHA_GRAPHIC)
 public class GraphicCaptchaProperties {
 
     /**
