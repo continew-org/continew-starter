@@ -33,6 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+import top.charles7c.continew.starter.core.util.ClassUtils;
 import top.charles7c.continew.starter.core.util.ExceptionUtils;
 import top.charles7c.continew.starter.core.util.ReflectUtils;
 import top.charles7c.continew.starter.core.util.validate.CheckUtils;
@@ -67,15 +68,10 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     @Autowired
     protected M baseMapper;
 
-    private final Class<T> entityClass;
-    private final Class<L> listClass;
-    private final Class<D> detailClass;
-
-    protected BaseServiceImpl() {
-        this.entityClass = (Class<T>) ClassUtil.getTypeArgument(this.getClass(), 1);
-        this.listClass = (Class<L>) ClassUtil.getTypeArgument(this.getClass(), 2);
-        this.detailClass = (Class<D>) ClassUtil.getTypeArgument(this.getClass(), 3);
-    }
+    private final Class<?>[] typeArguments = ClassUtils.getTypeArguments(this.getClass());
+    protected final Class<T> entityClass = this.currentEntityClass();
+    protected final Class<L> listClass = this.currentListClass();
+    protected final Class<D> detailClass = this.currentDetailClass();
 
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
@@ -226,14 +222,41 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @param detailObj 待填充详情信息
      */
     public void fillDetail(Object detailObj) {
-        if (detailObj instanceof BaseDetailResp detail) {
-            this.fill(detail);
-            Long updateUser = detail.getUpdateUser();
+        if (detailObj instanceof BaseDetailResp detailResp) {
+            this.fill(detailResp);
+            Long updateUser = detailResp.getUpdateUser();
             if (null == updateUser) {
                 return;
             }
             CommonUserService userService = SpringUtil.getBean(CommonUserService.class);
-            detail.setUpdateUserString(ExceptionUtils.exToNull(() -> userService.getNicknameById(updateUser)));
+            detailResp.setUpdateUserString(ExceptionUtils.exToNull(() -> userService.getNicknameById(updateUser)));
         }
+    }
+
+    /**
+     * 获取当前实体类型
+     *
+     * @return 当前实体类型
+     */
+    protected Class<T> currentEntityClass() {
+        return (Class<T>) this.typeArguments[1];
+    }
+
+    /**
+     * 获取当前列表信息类型
+     *
+     * @return 当前列表信息类型
+     */
+    protected Class<L> currentListClass() {
+        return (Class<L>) this.typeArguments[2];
+    }
+
+    /**
+     * 获取当前详情信息类型
+     *
+     * @return 当前详情信息类型
+     */
+    protected Class<D> currentDetailClass() {
+        return (Class<D>) this.typeArguments[3];
     }
 }
