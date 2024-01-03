@@ -18,6 +18,12 @@
 <a href="https://gitee.com/Charles7c/continew-starter" target="_blank">
 <img src="https://gitee.com/Charles7c/continew-starter/badge/fork.svg?theme=white" alt="Gitee forks" />
 </a>
+<a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<img src="https://img.shields.io/badge/Spring Boot-3.1.7-%236CB52D.svg" alt="Release" />
+</a>
+<a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<img src="https://img.shields.io/badge/Java-17-%236CB52D.svg" alt="Release" />
+</a>
 
 ## 简介
 
@@ -233,7 +239,7 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 - 感谢 <a href="https://www.jetbrains.com/" target="_blank">JetBrains</a> 提供的 <a href="https://www.jetbrains.com/shop/eform/opensource" target="_blank">非商业开源软件开发授权</a> 
 - 感谢 <a href="https://github.com/baomidou/mybatis-plus" target="_blank">MyBatis Plus</a>、<a href="https://github.com/dromara/sa-token" target="_blank">Sa-Token</a> 、<a href="https://github.com/xiaoymin/knife4j" target="_blank">Knife4j</a>、<a href="https://github.com/dromara/hutool" target="_blank">Hutool</a> 等国产开源组件作者为国内开源世界作出的贡献
 - 感谢 <a href="https://github.com/elunez/eladmin" target="_blank">ELADMIN</a>、<a href="https://github.com/dromara/RuoYi-Vue-Plus" target="_blank">RuoYi-Vue-Plus</a>、<a href="https://gitee.com/herodotus/dante-engine" target="_blank">Dante-Engine</a>，致敬各位作者为开源脚手架领域作出的贡献
-  - e.g. 脱胎于 ELADMIN 项目开源的 QueryHelper 组件
+  - e.g. 扩展于 ELADMIN 项目开源的 QueryHelper 组件
   - e.g. 扩展于 RuoYi-Vue-Plus 项目封装的 SaToken 相关认证鉴权配置
   - e.g. 扩展于 Dante-Engine 项目封装的 Redisson 相关配置
 - 感谢项目使用或未使用到的每一款开源组件，致敬各位开源先驱 :fire:
