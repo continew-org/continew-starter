@@ -27,11 +27,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
+import top.charles7c.continew.starter.log.common.enums.Include;
+import top.charles7c.continew.starter.log.httptracepro.autoconfigure.LogProperties;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * 日志过滤器
@@ -47,6 +50,8 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class LogFilter extends OncePerRequestFilter implements Ordered {
 
+    private final LogProperties logProperties;
+
     @Override
     public int getOrder() {
         return Ordered.LOWEST_PRECEDENCE - 10;
@@ -59,18 +64,28 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
             filterChain.doFilter(request, response);
             return;
         }
-        // 包装输入、输出流，可重复读取
-        if (!(request instanceof ContentCachingRequestWrapper)) {
+        // 包装输入流，可重复读取
+        if (isRequestWrapper(request)) {
             request = new ContentCachingRequestWrapper(request);
         }
-        if (!(response instanceof ContentCachingResponseWrapper)) {
+        // 包装输出流，可重复读取
+        boolean isResponseWrapper = isResponseWrapper(response);
+        if (isResponseWrapper) {
             response = new ContentCachingResponseWrapper(response);
         }
         filterChain.doFilter(request, response);
         // 更新响应（不操作这一步，会导致接口响应空白）
-        updateResponse(response);
+        if (isResponseWrapper) {
+            updateResponse(response);
+        }
     }
 
+    /**
+     * 请求是否有效
+     *
+     * @param request 请求对象
+     * @return true：是；false：否
+     */
     private boolean isRequestValid(HttpServletRequest request) {
         try {
             new URI(request.getRequestURL().toString());
@@ -80,6 +95,36 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
         }
     }
 
+    /**
+     * 是否需要包装输入流
+     *
+     * @param request 请求对象
+     * @return true：是；false：否
+     */
+    private boolean isRequestWrapper(HttpServletRequest request) {
+        Set<Include> includeSet = logProperties.getInclude();
+        return !(request instanceof ContentCachingRequestWrapper)
+                && (includeSet.contains(Include.REQUEST_BODY) || includeSet.contains(Include.REQUEST_PARAM));
+    }
+
+    /**
+     * 是否需要包装输出流
+     *
+     * @param response 响应对象
+     * @return true：是；false：否
+     */
+    private boolean isResponseWrapper(HttpServletResponse response) {
+        Set<Include> includeSet = logProperties.getInclude();
+        return !(response instanceof ContentCachingResponseWrapper)
+                && (includeSet.contains(Include.RESPONSE_BODY) || includeSet.contains(Include.RESPONSE_PARAM));
+    }
+
+    /**
+     * 更新响应
+     *
+     * @param response 响应对象
+     * @throws IOException /
+     */
     private void updateResponse(HttpServletResponse response) throws IOException {
         ContentCachingResponseWrapper responseWrapper =
                 WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);

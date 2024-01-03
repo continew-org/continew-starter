@@ -49,8 +49,8 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class LogInterceptor implements HandlerInterceptor {
 
-    private final LogDao dao;
-    private final LogProperties properties;
+    private final LogDao logDao;
+    private final LogProperties logProperties;
     private final TransmittableThreadLocal<LogRecord.Started> timestampTtl = new TransmittableThreadLocal<>();
 
     @Override
@@ -58,7 +58,7 @@ public class LogInterceptor implements HandlerInterceptor {
                              @NonNull Object handler) {
         Clock timestamp = Clock.systemUTC();
         if (this.isRequestRecord(handler, request)) {
-            if (Boolean.TRUE.equals(properties.getIsPrint())) {
+            if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
                 log.info("[{}] {}", request.getMethod(), request.getRequestURI());
             }
             LogRecord.Started startedLogRecord = LogRecord.start(timestamp, new RecordableServletHttpRequest(request));
@@ -75,7 +75,7 @@ public class LogInterceptor implements HandlerInterceptor {
             return;
         }
         timestampTtl.remove();
-        Set<Include> includeSet = properties.getInclude();
+        Set<Include> includeSet = logProperties.getInclude();
         try {
             LogRecord finishedLogRecord = startedLogRecord.finish(new RecordableServletHttpResponse(response, response.getStatus()), includeSet);
             HandlerMethod handlerMethod = (HandlerMethod) handler;
@@ -87,11 +87,11 @@ public class LogInterceptor implements HandlerInterceptor {
             if (includeSet.contains(Include.MODULE)) {
                 this.logModule(finishedLogRecord, handlerMethod);
             }
-            if (Boolean.TRUE.equals(properties.getIsPrint())) {
+            if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
                 LogResponse logResponse = finishedLogRecord.getResponse();
                 log.info("[{}] {} {} {}ms", request.getMethod(), request.getRequestURI(), logResponse.getStatus(), finishedLogRecord.getTimeTaken().toMillis());
             }
-            dao.add(finishedLogRecord);
+            logDao.add(finishedLogRecord);
         } catch (Exception ex) {
             log.error("Logging http log occurred an error: {}.", ex.getMessage(), ex);
         }

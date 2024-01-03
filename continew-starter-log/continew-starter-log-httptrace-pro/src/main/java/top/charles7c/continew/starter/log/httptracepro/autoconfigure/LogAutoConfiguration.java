@@ -45,11 +45,11 @@ import top.charles7c.continew.starter.log.httptracepro.handler.LogInterceptor;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class LogAutoConfiguration implements WebMvcConfigurer {
 
-    private final LogProperties properties;
+    private final LogProperties logProperties;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LogInterceptor(logDao(), properties));
+        registry.addInterceptor(new LogInterceptor(logDao(), logProperties));
     }
 
     /**
@@ -58,7 +58,7 @@ public class LogAutoConfiguration implements WebMvcConfigurer {
     @Bean
     @ConditionalOnMissingBean
     public LogFilter logFilter() {
-        return new LogFilter();
+        return new LogFilter(logProperties);
     }
 
     /**
