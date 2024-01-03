@@ -20,7 +20,7 @@ import cn.hutool.core.lang.tree.Tree;
 import jakarta.servlet.http.HttpServletResponse;
 import top.charles7c.continew.starter.extension.crud.model.query.PageQuery;
 import top.charles7c.continew.starter.extension.crud.model.query.SortQuery;
-import top.charles7c.continew.starter.extension.crud.model.resp.PageDataResp;
+import top.charles7c.continew.starter.extension.crud.model.resp.PageResp;
 
 import java.util.List;
 
@@ -43,7 +43,7 @@ public interface BaseService<L, D, Q, C extends BaseReq> {
      * @param pageQuery 分页查询条件
      * @return 分页列表信息
      */
-    PageDataResp<L> page(Q query, PageQuery pageQuery);
+    PageResp<L> page(Q query, PageQuery pageQuery);
 
     /**
      * 查询树列表

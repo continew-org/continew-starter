@@ -41,7 +41,7 @@ import top.charles7c.continew.starter.data.mybatis.plus.query.QueryHelper;
 import top.charles7c.continew.starter.extension.crud.annotation.TreeField;
 import top.charles7c.continew.starter.extension.crud.model.query.PageQuery;
 import top.charles7c.continew.starter.extension.crud.model.query.SortQuery;
-import top.charles7c.continew.starter.extension.crud.model.resp.PageDataResp;
+import top.charles7c.continew.starter.extension.crud.model.resp.PageResp;
 import top.charles7c.continew.starter.extension.crud.util.TreeUtils;
 import top.charles7c.continew.starter.file.excel.util.ExcelUtils;
 
@@ -78,12 +78,12 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     @Override
-    public PageDataResp<L> page(Q query, PageQuery pageQuery) {
+    public PageResp<L> page(Q query, PageQuery pageQuery) {
         QueryWrapper<T> queryWrapper = QueryHelper.build(query);
         IPage<T> page = baseMapper.selectPage(pageQuery.toPage(), queryWrapper);
-        PageDataResp<L> pageDataResp = PageDataResp.build(page, listClass);
-        pageDataResp.getList().forEach(this::fill);
-        return pageDataResp;
+        PageResp<L> pageResp = PageResp.build(page, listClass);
+        pageResp.getList().forEach(this::fill);
+        return pageResp;
     }
 
     @Override
