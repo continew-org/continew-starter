@@ -115,16 +115,17 @@ e.g. 跨域配置
 
 ```yaml
 --- ### 跨域配置
-cors:
-  enabled: true
-  # 配置允许跨域的域名
-  allowed-origins: '*'
-  # 配置允许跨域的请求方式
-  allowed-methods: '*'
-  # 配置允许跨域的请求头
-  allowed-headers: '*'
-  # 配置允许跨域的响应头
-  exposed-headers: '*'
+continew-starter:
+  cors:
+    enabled: true
+    # 配置允许跨域的域名
+    allowed-origins: '*'
+    # 配置允许跨域的请求方式
+    allowed-methods: '*'
+    # 配置允许跨域的请求头
+    allowed-headers: '*'
+    # 配置允许跨域的响应头
+    exposed-headers: '*'
 ```
 
 <details>
