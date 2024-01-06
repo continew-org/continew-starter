@@ -114,6 +114,6 @@ public class MybatisPlusAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.info("[ContiNew Starter] - Auto Configuration 'MyBatis Plus' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'MyBatis Plus' completed initialization.");
     }
 }

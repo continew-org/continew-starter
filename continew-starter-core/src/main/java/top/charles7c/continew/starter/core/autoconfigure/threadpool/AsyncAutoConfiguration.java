@@ -54,7 +54,7 @@ public class AsyncAutoConfiguration implements AsyncConfigurer {
      */
     @Override
     public Executor getAsyncExecutor() {
-        log.info("[ContiNew Starter] - Auto Configuration 'AsyncConfigurer' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'AsyncConfigurer' completed initialization.");
         return scheduledExecutorService;
     }
 

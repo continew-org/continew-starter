@@ -68,7 +68,7 @@ public class ThreadPoolAutoConfiguration {
         executor.setKeepAliveSeconds(properties.getKeepAliveSeconds());
         // 配置当池内线程数已达到上限的时候，该如何处理新任务：不在新线程中执行任务，而是由调用者所在的线程来执行
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        log.info("[ContiNew Starter] - Auto Configuration 'ThreadPoolTaskExecutor' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'ThreadPoolTaskExecutor' completed initialization.");
         return executor;
     }
 
@@ -87,7 +87,7 @@ public class ThreadPoolAutoConfiguration {
                 ExceptionUtils.printException(runnable, throwable);
             }
         };
-        log.info("[ContiNew Starter] - Auto Configuration 'ScheduledExecutorService' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'ScheduledExecutorService' completed initialization.");
         return executor;
     }
 }

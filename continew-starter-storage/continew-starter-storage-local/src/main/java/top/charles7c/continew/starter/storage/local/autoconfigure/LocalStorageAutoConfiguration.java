@@ -70,6 +70,6 @@ public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void postConstruct() {
-        log.info("[ContiNew Starter] - Auto Configuration 'Storage-Local' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Storage-Local' completed initialization.");
     }
 }

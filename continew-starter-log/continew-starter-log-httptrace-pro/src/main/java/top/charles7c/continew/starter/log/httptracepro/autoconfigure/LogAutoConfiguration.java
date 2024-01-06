@@ -72,6 +72,6 @@ public class LogAutoConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void postConstruct() {
-        log.info("[ContiNew Starter] - Auto Configuration 'Log-HttpTracePro' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Log-HttpTracePro' completed initialization.");
     }
 }
