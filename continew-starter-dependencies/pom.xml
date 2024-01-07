@@ -65,6 +65,7 @@
         <aj-captcha.version>1.3.0</aj-captcha.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <easy-excel.version>3.3.3</easy-excel.version>
+        <nashorn.version>15.4</nashorn.version>
         <x-file-storage.version>2.0.0</x-file-storage.version>
         <aws-s3.version>1.12.626</aws-s3.version>
         <knife4j.version>4.4.0</knife4j.version>
@@ -164,6 +165,13 @@
                 <groupId>com.github.whvcse</groupId>
                 <artifactId>easy-captcha</artifactId>
                 <version>${easy-captcha.version}</version>
+            </dependency>
+
+            <!-- Js 引擎（一个纯编译的 JavaScript 引擎） -->
+            <dependency>
+                <groupId>org.openjdk.nashorn</groupId>
+                <artifactId>nashorn-core</artifactId>
+                <version>${nashorn.version}</version>
             </dependency>
 
             <!-- Easy Excel（一个基于 Java 的、快速、简洁、解决大文件内存溢出的 Excel 处理工具） -->

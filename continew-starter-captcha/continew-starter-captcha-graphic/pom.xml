@@ -21,5 +21,11 @@
             <groupId>com.github.whvcse</groupId>
             <artifactId>easy-captcha</artifactId>
         </dependency>
+
+        <!-- Js 引擎（一个纯编译的 JavaScript 引擎） -->
+        <dependency>
+            <groupId>org.openjdk.nashorn</groupId>
+            <artifactId>nashorn-core</artifactId>
+        </dependency>
     </dependencies>
 </project>
