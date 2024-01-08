@@ -132,6 +132,9 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
         // 设置排序
         this.sort(queryWrapper, sortQuery);
         List<T> entityList = baseMapper.selectList(queryWrapper);
+        if (entityClass == targetClass) {
+            return (List<E>) entityList;
+        }
         return BeanUtil.copyToList(entityList, targetClass);
     }
 
