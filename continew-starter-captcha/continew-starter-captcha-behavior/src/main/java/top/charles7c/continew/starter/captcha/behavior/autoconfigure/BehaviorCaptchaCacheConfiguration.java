@@ -53,7 +53,8 @@ abstract class BehaviorCaptchaCacheConfiguration {
     @ConditionalOnProperty(name = PropertiesConstants.CAPTCHA_BEHAVIOR + ".cache-type", havingValue = "redis")
     static class Redis {
         static {
-            CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name().toLowerCase(), new BehaviorCaptchaCacheServiceImpl());
+            CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name()
+                .toLowerCase(), new BehaviorCaptchaCacheServiceImpl());
             log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Redis' completed initialization.");
         }
     }
@@ -72,7 +73,8 @@ abstract class BehaviorCaptchaCacheConfiguration {
 
         @PostConstruct
         public void postConstruct() {
-            CaptchaServiceFactory.cacheService.put(StorageType.CUSTOM.name().toLowerCase(), SpringUtil.getBean(CaptchaCacheService.class));
+            CaptchaServiceFactory.cacheService.put(StorageType.CUSTOM.name().toLowerCase(), SpringUtil
+                .getBean(CaptchaCacheService.class));
             log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Custom' completed initialization.");
         }
     }

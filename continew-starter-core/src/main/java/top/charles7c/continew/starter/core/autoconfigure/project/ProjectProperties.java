@@ -81,8 +81,9 @@ public class ProjectProperties {
     public static final boolean IP_ADDR_LOCAL_PARSE_ENABLED;
 
     static {
-        IP_ADDR_LOCAL_PARSE_ENABLED = SpringUtil.getProperty("project.ip-addr-local-parse-enabled", boolean.class, false)
-                || SpringUtil.getProperty("project.ipAddrLocalParseEnabled", boolean.class, false);
+        IP_ADDR_LOCAL_PARSE_ENABLED = SpringUtil
+            .getProperty("project.ip-addr-local-parse-enabled", boolean.class, false) || SpringUtil
+                .getProperty("project.ipAddrLocalParseEnabled", boolean.class, false);
     }
 
     /**

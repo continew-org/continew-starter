@@ -78,9 +78,9 @@ public class ThreadPoolAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ScheduledExecutorService scheduledExecutorService(ThreadPoolProperties properties) {
-        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(ObjectUtil.defaultIfNull(properties.getCorePoolSize(), corePoolSize),
-                ThreadUtil.newNamedThreadFactory("schedule-pool-%d", true),
-                new ThreadPoolExecutor.CallerRunsPolicy()) {
+        ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(ObjectUtil.defaultIfNull(properties
+            .getCorePoolSize(), corePoolSize), ThreadUtil
+                .newNamedThreadFactory("schedule-pool-%d", true), new ThreadPoolExecutor.CallerRunsPolicy()) {
             @Override
             protected void afterExecute(Runnable runnable, Throwable throwable) {
                 super.afterExecute(runnable, throwable);

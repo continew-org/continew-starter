@@ -86,7 +86,9 @@ public class RedissonAutoConfiguration {
                     // 下方配置如果为空，则使用 Redis 的配置
                     if (CollUtil.isEmpty(sentinelServersConfig.getSentinelAddresses())) {
                         List<String> nodeList = redisProperties.getSentinel().getNodes();
-                        nodeList.stream().map(node -> protocol + node).forEach(sentinelServersConfig::addSentinelAddress);
+                        nodeList.stream()
+                            .map(node -> protocol + node)
+                            .forEach(sentinelServersConfig::addSentinelAddress);
                     }
                     if (StrUtil.isBlank(sentinelServersConfig.getPassword())) {
                         sentinelServersConfig.setPassword(redisProperties.getPassword());
@@ -107,7 +109,8 @@ public class RedissonAutoConfiguration {
                         singleServerConfig.setPassword(redisProperties.getPassword());
                     }
                     if (StrUtil.isBlank(singleServerConfig.getAddress())) {
-                        singleServerConfig.setAddress(protocol + redisProperties.getHost() + StringConstants.COLON + redisProperties.getPort());
+                        singleServerConfig.setAddress(protocol + redisProperties
+                            .getHost() + StringConstants.COLON + redisProperties.getPort());
                     }
                 }
             }

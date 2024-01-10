@@ -42,8 +42,9 @@ public class TreeUtils {
     /**
      * 默认字段配置对象（根据前端树结构灵活调整名称）
      */
-    public static final TreeNodeConfig DEFAULT_CONFIG =
-            TreeNodeConfig.DEFAULT_CONFIG.setNameKey("title").setIdKey("key").setWeightKey("sort");
+    public static final TreeNodeConfig DEFAULT_CONFIG = TreeNodeConfig.DEFAULT_CONFIG.setNameKey("title")
+        .setIdKey("key")
+        .setWeightKey("sort");
 
     /**
      * 树构建
@@ -72,7 +73,7 @@ public class TreeUtils {
         if (CollUtil.isEmpty(list)) {
             return new ArrayList<>(0);
         }
-        E parentId = (E) ReflectUtil.getFieldValue(list.get(0), treeNodeConfig.getParentIdKey());
+        E parentId = (E)ReflectUtil.getFieldValue(list.get(0), treeNodeConfig.getParentIdKey());
         return TreeUtil.build(list, parentId, treeNodeConfig, nodeParser);
     }
 
@@ -84,8 +85,11 @@ public class TreeUtils {
      */
     public static TreeNodeConfig genTreeNodeConfig(TreeField treeField) {
         CheckUtils.throwIfNull(treeField, "请添加并配置 @TreeField 树结构信息");
-        return new TreeNodeConfig().setIdKey(treeField.value()).setParentIdKey(treeField.parentIdKey())
-                .setNameKey(treeField.nameKey()).setWeightKey(treeField.weightKey()).setChildrenKey(treeField.childrenKey())
-                .setDeep(treeField.deep() < 0 ? null : treeField.deep());
+        return new TreeNodeConfig().setIdKey(treeField.value())
+            .setParentIdKey(treeField.parentIdKey())
+            .setNameKey(treeField.nameKey())
+            .setWeightKey(treeField.weightKey())
+            .setChildrenKey(treeField.childrenKey())
+            .setDeep(treeField.deep() < 0 ? null : treeField.deep());
     }
 }

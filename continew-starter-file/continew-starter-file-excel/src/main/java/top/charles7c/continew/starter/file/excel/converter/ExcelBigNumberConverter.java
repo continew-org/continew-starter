@@ -55,7 +55,8 @@ public class ExcelBigNumberConverter implements Converter<Long> {
      * 转换为 Java 数据（读取 Excel）
      */
     @Override
-    public Long convertToJavaData(ReadCellData<?> cellData, ExcelContentProperty contentProperty,
+    public Long convertToJavaData(ReadCellData<?> cellData,
+                                  ExcelContentProperty contentProperty,
                                   GlobalConfiguration globalConfiguration) {
         return Convert.toLong(cellData.getData());
     }
@@ -64,7 +65,8 @@ public class ExcelBigNumberConverter implements Converter<Long> {
      * 转换为 Excel 数据（写入 Excel）
      */
     @Override
-    public WriteCellData<Object> convertToExcelData(Long value, ExcelContentProperty contentProperty,
+    public WriteCellData<Object> convertToExcelData(Long value,
+                                                    ExcelContentProperty contentProperty,
                                                     GlobalConfiguration globalConfiguration) {
         if (null != value) {
             String str = Long.toString(value);

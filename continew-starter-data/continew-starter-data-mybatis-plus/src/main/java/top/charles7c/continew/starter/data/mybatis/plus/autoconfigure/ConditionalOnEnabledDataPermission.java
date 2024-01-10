@@ -27,7 +27,8 @@ import java.lang.annotation.*;
  * @since 1.1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
 @ConditionalOnProperty(prefix = "mybatis-plus.extension.data-permission", name = "enabled", havingValue = "true")
-public @interface ConditionalOnEnabledDataPermission {}
+public @interface ConditionalOnEnabledDataPermission {
+}

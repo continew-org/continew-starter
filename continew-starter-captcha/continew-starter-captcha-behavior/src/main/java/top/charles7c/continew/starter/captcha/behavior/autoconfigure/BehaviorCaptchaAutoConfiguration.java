@@ -62,8 +62,7 @@ public class BehaviorCaptchaAutoConfiguration {
      */
     @Configuration
     @Import({BehaviorCaptchaCacheConfiguration.Redis.class, BehaviorCaptchaCacheConfiguration.Custom.class})
-    protected static class BehaviorCaptchaCacheAutoConfiguration {
-    }
+    protected static class BehaviorCaptchaCacheAutoConfiguration {}
 
     /**
      * 行为验证码服务接口
@@ -94,8 +93,8 @@ public class BehaviorCaptchaAutoConfiguration {
         config.put(Const.CAPTCHA_FONT_SIZE, properties.getFontSize());
         config.put(Const.CAPTCHA_FONT_STYLE, properties.getFontStyle());
         config.put(Const.CAPTCHA_WORD_COUNT, 4);
-        if (StrUtil.startWith(properties.getJigsawBaseMapPath(), "classpath:")
-                || StrUtil.startWith(properties.getPicClickBaseMapPath(), "classpath:")) {
+        if (StrUtil.startWith(properties.getJigsawBaseMapPath(), "classpath:") || StrUtil.startWith(properties
+            .getPicClickBaseMapPath(), "classpath:")) {
             // 自定义 resources 目录下初始化底图
             config.put(Const.CAPTCHA_INIT_ORIGINAL, true);
             initializeBaseMap(properties.getJigsawBaseMapPath(), properties.getPicClickBaseMapPath());
@@ -110,9 +109,8 @@ public class BehaviorCaptchaAutoConfiguration {
      * @param picClick 点选验证码底图路径
      */
     private static void initializeBaseMap(String jigsaw, String picClick) {
-        ImageUtils.cacheBootImage(getResourcesImagesFile(jigsaw + "/original/*.png"),
-                getResourcesImagesFile(jigsaw + "/slidingBlock/*.png"),
-                getResourcesImagesFile(picClick + "/*.png"));
+        ImageUtils
+            .cacheBootImage(getResourcesImagesFile(jigsaw + "/original/*.png"), getResourcesImagesFile(jigsaw + "/slidingBlock/*.png"), getResourcesImagesFile(picClick + "/*.png"));
     }
 
     /**

@@ -22,7 +22,6 @@ import org.redisson.config.SentinelServersConfig;
 import org.redisson.config.SingleServerConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-
 /**
  * Redisson 配置属性
  *

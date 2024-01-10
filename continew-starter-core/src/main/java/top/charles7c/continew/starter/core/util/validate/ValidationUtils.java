@@ -147,7 +147,9 @@ public class ValidationUtils extends Validator {
      * @param template 异常信息模板，被替换的部分用 {} 表示，如果模板为 null，返回 "null"
      * @param params   参数值
      */
-    public static void throwIfNotEqualIgnoreCase(CharSequence str1, CharSequence str2, String template,
+    public static void throwIfNotEqualIgnoreCase(CharSequence str1,
+                                                 CharSequence str2,
+                                                 String template,
                                                  Object... params) {
         throwIfNotEqualIgnoreCase(str1, str2, StrUtil.format(template, params), EXCEPTION_TYPE);
     }

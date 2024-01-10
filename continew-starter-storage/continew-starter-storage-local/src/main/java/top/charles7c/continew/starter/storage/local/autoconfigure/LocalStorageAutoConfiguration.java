@@ -31,7 +31,6 @@ import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.Map;
 
-
 /**
  * 本地文件自动配置
  *
@@ -59,8 +58,10 @@ public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
                 throw new IllegalArgumentException(String.format("Path pattern [%s] location is null.", pathPattern));
             }
             registry.addResourceHandler(StrUtil.appendIfMissing(pathPattern, StringConstants.PATH_PATTERN))
-                    .addResourceLocations(!location.startsWith("file:") ? String.format("file:%s", this.format(location)) : this.format(location))
-                    .setCachePeriod(0);
+                .addResourceLocations(!location.startsWith("file:")
+                    ? String.format("file:%s", this.format(location))
+                    : this.format(location))
+                .setCachePeriod(0);
         }
     }
 

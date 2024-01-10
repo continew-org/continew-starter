@@ -51,18 +51,18 @@ public class GlobalErrorHandler extends BasicErrorController {
     @Resource
     private ObjectMapper objectMapper;
 
-    public GlobalErrorHandler(ErrorAttributes errorAttributes, ServerProperties serverProperties,
+    public GlobalErrorHandler(ErrorAttributes errorAttributes,
+                              ServerProperties serverProperties,
                               List<ErrorViewResolver> errorViewResolvers) {
         super(errorAttributes, serverProperties.getError(), errorViewResolvers);
     }
 
     @Override
     public ModelAndView errorHtml(HttpServletRequest request, HttpServletResponse response) {
-        Map<String, Object> errorAttributeMap =
-                super.getErrorAttributes(request, super.getErrorAttributeOptions(request, MediaType.TEXT_HTML));
-        String path = (String) errorAttributeMap.get("path");
+        Map<String, Object> errorAttributeMap = super.getErrorAttributes(request, super.getErrorAttributeOptions(request, MediaType.TEXT_HTML));
+        String path = (String)errorAttributeMap.get("path");
         HttpStatus status = super.getStatus(request);
-        R<Object> result = R.fail(status.value(), (String) errorAttributeMap.get("error"));
+        R<Object> result = R.fail(status.value(), (String)errorAttributeMap.get("error"));
         result.setData(path);
         try {
             response.setStatus(HttpStatus.OK.value());
@@ -77,11 +77,10 @@ public class GlobalErrorHandler extends BasicErrorController {
 
     @Override
     public ResponseEntity<Map<String, Object>> error(HttpServletRequest request) {
-        Map<String, Object> errorAttributeMap =
-                super.getErrorAttributes(request, super.getErrorAttributeOptions(request, MediaType.ALL));
-        String path = (String) errorAttributeMap.get("path");
+        Map<String, Object> errorAttributeMap = super.getErrorAttributes(request, super.getErrorAttributeOptions(request, MediaType.ALL));
+        String path = (String)errorAttributeMap.get("path");
         HttpStatus status = super.getStatus(request);
-        R<Object> result = R.fail(status.value(), (String) errorAttributeMap.get("error"));
+        R<Object> result = R.fail(status.value(), (String)errorAttributeMap.get("error"));
         result.setData(path);
         log.error("请求地址 [{}]，发生错误，错误信息：{}。", path, JSONUtil.toJsonStr(errorAttributeMap));
         return new ResponseEntity<>(BeanUtil.beanToMap(result), HttpStatus.OK);

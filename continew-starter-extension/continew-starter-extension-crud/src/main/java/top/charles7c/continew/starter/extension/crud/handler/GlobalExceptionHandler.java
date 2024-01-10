@@ -68,8 +68,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ConstraintViolationException.class)
     public R constraintViolationException(ConstraintViolationException e, HttpServletRequest request) {
         log.warn("请求地址 [{}]，参数验证失败。", request.getRequestURI(), e);
-        String errorMsg =
-            CollUtil.join(e.getConstraintViolations(), StringConstants.CHINESE_COMMA, ConstraintViolation::getMessage);
+        String errorMsg = CollUtil.join(e
+            .getConstraintViolations(), StringConstants.CHINESE_COMMA, ConstraintViolation::getMessage);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
     }
 
@@ -79,8 +79,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BindException.class)
     public R handleBindException(BindException e, HttpServletRequest request) {
         log.warn("请求地址 [{}]，参数验证失败。", request.getRequestURI(), e);
-        String errorMsg = CollUtil.join(e.getAllErrors(), StringConstants.CHINESE_COMMA,
-            DefaultMessageSourceResolvable::getDefaultMessage);
+        String errorMsg = CollUtil.join(e
+            .getAllErrors(), StringConstants.CHINESE_COMMA, DefaultMessageSourceResolvable::getDefaultMessage);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
     }
 
@@ -90,8 +90,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public R handleMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request) {
         log.warn("请求地址 [{}]，参数验证失败。", request.getRequestURI(), e);
-        String errorMsg = ExceptionUtils
-            .exToNull(() -> Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage());
+        String errorMsg = ExceptionUtils.exToNull(() -> Objects.requireNonNull(e.getBindingResult().getFieldError())
+            .getDefaultMessage());
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
     }
 
@@ -100,7 +100,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public R handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e,
-        HttpServletRequest request) {
+                                                       HttpServletRequest request) {
         String errorMsg = StrUtil.format("参数名：[{}]，期望参数类型：[{}]", e.getName(), e.getParameter().getParameterType());
         log.warn("请求地址 [{}]，参数转换失败，{}。", request.getRequestURI(), errorMsg, e);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);

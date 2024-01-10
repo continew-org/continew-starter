@@ -58,7 +58,8 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
     }
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         if (!isRequestValid(request)) {
             filterChain.doFilter(request, response);
@@ -103,8 +104,8 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
      */
     private boolean isRequestWrapper(HttpServletRequest request) {
         Set<Include> includeSet = logProperties.getInclude();
-        return !(request instanceof ContentCachingRequestWrapper)
-                && (includeSet.contains(Include.REQUEST_BODY) || includeSet.contains(Include.REQUEST_PARAM));
+        return !(request instanceof ContentCachingRequestWrapper) && (includeSet
+            .contains(Include.REQUEST_BODY) || includeSet.contains(Include.REQUEST_PARAM));
     }
 
     /**
@@ -115,8 +116,8 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
      */
     private boolean isResponseWrapper(HttpServletResponse response) {
         Set<Include> includeSet = logProperties.getInclude();
-        return !(response instanceof ContentCachingResponseWrapper)
-                && (includeSet.contains(Include.RESPONSE_BODY) || includeSet.contains(Include.RESPONSE_PARAM));
+        return !(response instanceof ContentCachingResponseWrapper) && (includeSet
+            .contains(Include.RESPONSE_BODY) || includeSet.contains(Include.RESPONSE_PARAM));
     }
 
     /**
@@ -126,8 +127,8 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
      * @throws IOException /
      */
     private void updateResponse(HttpServletResponse response) throws IOException {
-        ContentCachingResponseWrapper responseWrapper =
-                WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
+        ContentCachingResponseWrapper responseWrapper = WebUtils
+            .getNativeResponse(response, ContentCachingResponseWrapper.class);
         Objects.requireNonNull(responseWrapper).copyBodyToResponse();
     }
 }

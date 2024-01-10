@@ -62,8 +62,8 @@ public class SortQuery implements Serializable {
             // e.g "sort=createTime,desc&sort=name,asc"
             for (String s : sort) {
                 List<String> sortList = StrUtil.splitTrim(s, StringConstants.COMMA);
-                Sort.Order order =
-                        new Sort.Order(Sort.Direction.valueOf(sortList.get(1).toUpperCase()), sortList.get(0));
+                Sort.Order order = new Sort.Order(Sort.Direction.valueOf(sortList.get(1).toUpperCase()), sortList
+                    .get(0));
                 orders.add(order);
             }
         } else {

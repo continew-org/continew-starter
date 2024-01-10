@@ -66,8 +66,10 @@ public class AsyncAutoConfiguration implements AsyncConfigurer {
         return (throwable, method, objects) -> {
             throwable.printStackTrace();
             StringBuilder sb = new StringBuilder();
-            sb.append("Exception message: ").append(throwable.getMessage()).append(", Method name: ")
-                    .append(method.getName());
+            sb.append("Exception message: ")
+                .append(throwable.getMessage())
+                .append(", Method name: ")
+                .append(method.getName());
             if (ArrayUtil.isNotEmpty(objects)) {
                 sb.append(", Parameter value: ").append(Arrays.toString(objects));
             }

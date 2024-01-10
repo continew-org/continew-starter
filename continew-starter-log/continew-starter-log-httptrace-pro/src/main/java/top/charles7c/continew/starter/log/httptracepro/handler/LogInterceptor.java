@@ -54,7 +54,8 @@ public class LogInterceptor implements HandlerInterceptor {
     private final TransmittableThreadLocal<LogRecord.Started> timestampTtl = new TransmittableThreadLocal<>();
 
     @Override
-    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+    public boolean preHandle(@NonNull HttpServletRequest request,
+                             @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
         Clock timestamp = Clock.systemUTC();
         if (this.isRequestRecord(handler, request)) {
@@ -68,8 +69,10 @@ public class LogInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-                                @NonNull Object handler, Exception e) {
+    public void afterCompletion(@NonNull HttpServletRequest request,
+                                @NonNull HttpServletResponse response,
+                                @NonNull Object handler,
+                                Exception e) {
         LogRecord.Started startedLogRecord = timestampTtl.get();
         if (null == startedLogRecord) {
             return;
@@ -77,8 +80,9 @@ public class LogInterceptor implements HandlerInterceptor {
         timestampTtl.remove();
         Set<Include> includeSet = logProperties.getInclude();
         try {
-            LogRecord finishedLogRecord = startedLogRecord.finish(new RecordableServletHttpResponse(response, response.getStatus()), includeSet);
-            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            LogRecord finishedLogRecord = startedLogRecord.finish(new RecordableServletHttpResponse(response, response
+                .getStatus()), includeSet);
+            HandlerMethod handlerMethod = (HandlerMethod)handler;
             // 记录日志描述
             if (includeSet.contains(Include.DESCRIPTION)) {
                 this.logDescription(finishedLogRecord, handlerMethod);
@@ -89,7 +93,8 @@ public class LogInterceptor implements HandlerInterceptor {
             }
             if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
                 LogResponse logResponse = finishedLogRecord.getResponse();
-                log.info("[{}] {} {} {}ms", request.getMethod(), request.getRequestURI(), logResponse.getStatus(), finishedLogRecord.getTimeTaken().toMillis());
+                log.info("[{}] {} {} {}ms", request.getMethod(), request.getRequestURI(), logResponse
+                    .getStatus(), finishedLogRecord.getTimeTaken().toMillis());
             }
             logDao.add(finishedLogRecord);
         } catch (Exception ex) {
@@ -131,7 +136,7 @@ public class LogInterceptor implements HandlerInterceptor {
             return;
         }
         Log classLog = handlerMethod.getBeanType().getDeclaredAnnotation(Log.class);
-        if(null != classLog && StrUtil.isNotBlank(classLog.module())) {
+        if (null != classLog && StrUtil.isNotBlank(classLog.module())) {
             logRecord.setModule(classLog.module());
             return;
         }

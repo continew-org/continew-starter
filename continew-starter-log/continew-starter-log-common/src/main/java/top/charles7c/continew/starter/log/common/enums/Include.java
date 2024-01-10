@@ -84,8 +84,7 @@ public enum Include {
     /**
      * 响应参数（默认）
      */
-    RESPONSE_PARAM,
-    ;
+    RESPONSE_PARAM,;
 
     private static final Set<Include> DEFAULT_INCLUDES;
 

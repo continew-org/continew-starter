@@ -62,8 +62,7 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO, L, D, Q, C extends BaseReq>
-        implements BaseService<L, D, Q, C> {
+public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO, L, D, Q, C extends BaseReq> implements BaseService<L, D, Q, C> {
 
     @Autowired
     protected M baseMapper;
@@ -104,10 +103,10 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
             tree.setWeight(ReflectUtil.invoke(node, StrUtil.genGetter(treeField.weightKey())));
             if (!isSimple) {
                 List<Field> fieldList = ReflectUtils.getNonStaticFields(listClass);
-                fieldList.removeIf(f -> StrUtil.containsAnyIgnoreCase(f.getName(), treeField.value(),
-                        treeField.parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
-                fieldList
-                        .forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, StrUtil.genGetter(f.getName()))));
+                fieldList.removeIf(f -> StrUtil.containsAnyIgnoreCase(f.getName(), treeField.value(), treeField
+                    .parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
+                fieldList.forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, StrUtil.genGetter(f
+                    .getName()))));
             }
         });
     }
@@ -133,7 +132,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
         this.sort(queryWrapper, sortQuery);
         List<T> entityList = baseMapper.selectList(queryWrapper);
         if (entityClass == targetClass) {
-            return (List<E>) entityList;
+            return (List<E>)entityList;
         }
         return BeanUtil.copyToList(entityList, targetClass);
     }
@@ -242,7 +241,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @return 当前实体类型
      */
     protected Class<T> currentEntityClass() {
-        return (Class<T>) this.typeArguments[1];
+        return (Class<T>)this.typeArguments[1];
     }
 
     /**
@@ -251,7 +250,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @return 当前列表信息类型
      */
     protected Class<L> currentListClass() {
-        return (Class<L>) this.typeArguments[2];
+        return (Class<L>)this.typeArguments[2];
     }
 
     /**
@@ -260,6 +259,6 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @return 当前详情信息类型
      */
     protected Class<D> currentDetailClass() {
-        return (Class<D>) this.typeArguments[3];
+        return (Class<D>)this.typeArguments[3];
     }
 }

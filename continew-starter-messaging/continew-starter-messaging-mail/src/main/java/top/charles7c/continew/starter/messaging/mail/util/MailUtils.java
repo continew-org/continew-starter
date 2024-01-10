@@ -94,8 +94,10 @@ public class MailUtils {
      * @param files   附件列表
      * @throws MessagingException /
      */
-    public static void sendHtml(Collection<String> tos, String subject, String content, File... files)
-            throws MessagingException {
+    public static void sendHtml(Collection<String> tos,
+                                String subject,
+                                String content,
+                                File... files) throws MessagingException {
         send(tos, null, null, subject, content, true, files);
     }
 
@@ -109,7 +111,10 @@ public class MailUtils {
      * @param files   附件列表
      * @throws MessagingException /
      */
-    public static void sendHtml(Collection<String> tos, Collection<String> ccs, String subject, String content,
+    public static void sendHtml(Collection<String> tos,
+                                Collection<String> ccs,
+                                String subject,
+                                String content,
                                 File... files) throws MessagingException {
         send(tos, ccs, null, subject, content, true, files);
     }
@@ -125,8 +130,12 @@ public class MailUtils {
      * @param files   附件列表
      * @throws MessagingException /
      */
-    public static void sendHtml(Collection<String> tos, Collection<String> ccs, Collection<String> bccs, String subject,
-                                String content, File... files) throws MessagingException {
+    public static void sendHtml(Collection<String> tos,
+                                Collection<String> ccs,
+                                Collection<String> bccs,
+                                String subject,
+                                String content,
+                                File... files) throws MessagingException {
         send(tos, ccs, bccs, subject, content, true, files);
     }
 
@@ -142,12 +151,17 @@ public class MailUtils {
      * @param files   附件列表
      * @throws MessagingException /
      */
-    public static void send(Collection<String> tos, Collection<String> ccs, Collection<String> bccs, String subject,
-                            String content, boolean isHtml, File... files) throws MessagingException {
+    public static void send(Collection<String> tos,
+                            Collection<String> ccs,
+                            Collection<String> bccs,
+                            String subject,
+                            String content,
+                            boolean isHtml,
+                            File... files) throws MessagingException {
         Assert.isTrue(CollUtil.isEmpty(tos), "请至少指定一名收件人");
         MimeMessage mimeMessage = MAIL_SENDER.createMimeMessage();
-        MimeMessageHelper messageHelper =
-                new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8.displayName());
+        MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8
+            .displayName());
 
         // 设置基本信息
         messageHelper.setFrom(SpringUtil.getProperty("spring.mail.username"));

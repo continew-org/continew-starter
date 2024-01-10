@@ -54,8 +54,7 @@ public enum GraphicCaptchaType {
     /**
      * 特殊类型
      */
-    SPEC(SpecCaptcha.class),
-    ;
+    SPEC(SpecCaptcha.class),;
 
     /**
      * 验证码实现

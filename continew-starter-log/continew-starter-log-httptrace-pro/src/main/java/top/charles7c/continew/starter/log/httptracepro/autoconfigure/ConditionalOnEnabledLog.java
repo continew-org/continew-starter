@@ -28,7 +28,8 @@ import java.lang.annotation.*;
  * @since 1.1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
 @ConditionalOnProperty(prefix = PropertiesConstants.LOG, name = PropertiesConstants.ENABLED, havingValue = "true")
-public @interface ConditionalOnEnabledLog {}
+public @interface ConditionalOnEnabledLog {
+}

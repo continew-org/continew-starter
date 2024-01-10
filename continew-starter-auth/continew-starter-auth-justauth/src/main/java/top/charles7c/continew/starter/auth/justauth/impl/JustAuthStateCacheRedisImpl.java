@@ -40,8 +40,7 @@ public class JustAuthStateCacheRedisImpl implements AuthStateCache {
     @Override
     public void cache(String key, String value) {
         // 参考：在 JustAuth 中，内置了一个基于 map 的 state 缓存器，默认缓存有效期为 3 分钟
-        RedisUtils.set(RedisUtils.formatKey(KEY_PREFIX, key), value,
-                Duration.ofMinutes(3));
+        RedisUtils.set(RedisUtils.formatKey(KEY_PREFIX, key), value, Duration.ofMinutes(3));
     }
 
     /**
@@ -53,8 +52,7 @@ public class JustAuthStateCacheRedisImpl implements AuthStateCache {
      */
     @Override
     public void cache(String key, String value, long timeout) {
-        RedisUtils.set(RedisUtils.formatKey(KEY_PREFIX, key), value,
-                Duration.ofMillis(timeout));
+        RedisUtils.set(RedisUtils.formatKey(KEY_PREFIX, key), value, Duration.ofMillis(timeout));
     }
 
     /**

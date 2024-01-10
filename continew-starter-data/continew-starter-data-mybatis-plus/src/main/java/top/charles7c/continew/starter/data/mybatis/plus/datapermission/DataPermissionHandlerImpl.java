@@ -59,14 +59,14 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
     @Override
     public Expression getSqlSegment(Expression where, String mappedStatementId) {
         try {
-            Class<?> clazz =
-                Class.forName(mappedStatementId.substring(0, mappedStatementId.lastIndexOf(StringConstants.DOT)));
+            Class<?> clazz = Class.forName(mappedStatementId.substring(0, mappedStatementId
+                .lastIndexOf(StringConstants.DOT)));
             String methodName = mappedStatementId.substring(mappedStatementId.lastIndexOf(StringConstants.DOT) + 1);
             Method[] methodArr = clazz.getMethods();
             for (Method method : methodArr) {
                 DataPermission dataPermission = method.getAnnotation(DataPermission.class);
-                if (null != dataPermission
-                    && (method.getName().equals(methodName) || (method.getName() + "_COUNT").equals(methodName))) {
+                if (null != dataPermission && (method.getName().equals(methodName) || (method.getName() + "_COUNT")
+                    .equals(methodName))) {
                     if (dataPermissionFilter.isFilter()) {
                         return buildDataScopeFilter(dataPermission, where);
                     }
@@ -81,10 +81,8 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
     /**
      * 构建数据范围过滤条件
      *
-     * @param dataPermission
-     *            数据权限
-     * @param where
-     *            当前查询条件
+     * @param dataPermission 数据权限
+     * @param where          当前查询条件
      * @return 构建后查询条件
      */
     private Expression buildDataScopeFilter(DataPermission dataPermission, Expression where) {
@@ -112,7 +110,8 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
                 equalsTo.setRightExpression(new LongValue(currentUser.getDeptId()));
                 Function function = new Function();
                 function.setName("find_in_set");
-                function.setParameters(new ExpressionList(new LongValue(currentUser.getDeptId()), new Column("ancestors")));
+                function.setParameters(new ExpressionList(new LongValue(currentUser
+                    .getDeptId()), new Column("ancestors")));
                 select.setWhere(new OrExpression(equalsTo, function));
                 subSelect.setSelectBody(select);
                 // 构建父查询
@@ -158,10 +157,8 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
     /**
      * 构建 Column
      *
-     * @param tableAlias
-     *            表别名
-     * @param columnName
-     *            字段名称
+     * @param tableAlias 表别名
+     * @param columnName 字段名称
      * @return 带表别名字段
      */
     private Column buildColumn(String tableAlias, String columnName) {
