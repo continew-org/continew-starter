@@ -104,15 +104,16 @@ public class LogInterceptor implements HandlerInterceptor {
      * @param handlerMethod 处理器方法
      */
     private void logDescription(LogRecord logRecord, HandlerMethod handlerMethod) {
-        // 例如：@Operation(summary="新增部门") -> 新增部门
-        Operation methodOperation = handlerMethod.getMethodAnnotation(Operation.class);
-        if (null != methodOperation) {
-            logRecord.setDescription(StrUtil.blankToDefault(methodOperation.summary(), "请在该接口方法上指定日志描述"));
-        }
         // 例如：@Log("新增部门") -> 新增部门
         Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
         if (null != methodLog && StrUtil.isNotBlank(methodLog.value())) {
             logRecord.setDescription(methodLog.value());
+            return;
+        }
+        // 例如：@Operation(summary="新增部门") -> 新增部门
+        Operation methodOperation = handlerMethod.getMethodAnnotation(Operation.class);
+        if (null != methodOperation) {
+            logRecord.setDescription(StrUtil.blankToDefault(methodOperation.summary(), "请在该接口方法上指定日志描述"));
         }
     }
 
@@ -123,20 +124,22 @@ public class LogInterceptor implements HandlerInterceptor {
      * @param handlerMethod 处理器方法
      */
     private void logModule(LogRecord logRecord, HandlerMethod handlerMethod) {
+        // 例如：@Log(module = "部门管理") -> 部门管理
+        Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
+        if (null != methodLog && StrUtil.isNotBlank(methodLog.module())) {
+            logRecord.setModule(methodLog.module());
+            return;
+        }
+        Log classLog = handlerMethod.getBeanType().getDeclaredAnnotation(Log.class);
+        if(null != classLog && StrUtil.isNotBlank(classLog.module())) {
+            logRecord.setModule(classLog.module());
+            return;
+        }
         // 例如：@Tag(name = "部门管理") -> 部门管理
         Tag classTag = handlerMethod.getBeanType().getDeclaredAnnotation(Tag.class);
         if (null != classTag) {
             String name = classTag.name();
             logRecord.setModule(StrUtil.blankToDefault(name, "请在该接口类上指定所属模块"));
-        }
-        // 例如：@Log(module = "部门管理") -> 部门管理
-        Log classLog = handlerMethod.getBeanType().getDeclaredAnnotation(Log.class);
-        if (null != classLog && StrUtil.isNotBlank(classLog.module())) {
-            logRecord.setModule(classLog.module());
-        }
-        Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
-        if (null != methodLog && StrUtil.isNotBlank(methodLog.module())) {
-            logRecord.setModule(methodLog.module());
         }
     }
 
