@@ -32,7 +32,7 @@ import top.charles7c.continew.starter.extension.crud.annotation.CrudRequestMappi
 import top.charles7c.continew.starter.extension.crud.enums.Api;
 import top.charles7c.continew.starter.extension.crud.model.query.PageQuery;
 import top.charles7c.continew.starter.extension.crud.model.query.SortQuery;
-import top.charles7c.continew.starter.extension.crud.model.resp.PageDataResp;
+import top.charles7c.continew.starter.extension.crud.model.resp.PageResp;
 import top.charles7c.continew.starter.extension.crud.model.resp.R;
 
 import java.util.List;
@@ -64,10 +64,9 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Operation(summary = "分页查询列表", description = "分页查询列表")
     @ResponseBody
     @GetMapping
-    public R<PageDataResp<L>> page(Q query, @Validated PageQuery pageQuery) {
+    public R<PageResp<L>> page(Q query, @Validated PageQuery pageQuery) {
         this.checkPermission(Api.LIST);
-        PageDataResp<L> pageData = baseService.page(query, pageQuery);
-        return R.ok(pageData);
+        return R.ok(baseService.page(query, pageQuery));
     }
 
     /**
@@ -82,8 +81,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @GetMapping("/tree")
     public R<List<Tree<Long>>> tree(Q query, SortQuery sortQuery) {
         this.checkPermission(Api.LIST);
-        List<Tree<Long>> list = baseService.tree(query, sortQuery, false);
-        return R.ok(list);
+        return R.ok(baseService.tree(query, sortQuery, false));
     }
 
     /**
@@ -98,8 +96,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @GetMapping("/list")
     public R<List<L>> list(Q query, SortQuery sortQuery) {
         this.checkPermission(Api.LIST);
-        List<L> list = baseService.list(query, sortQuery);
-        return R.ok(list);
+        return R.ok(baseService.list(query, sortQuery));
     }
 
     /**
@@ -114,8 +111,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @GetMapping("/{id}")
     public R<D> get(@PathVariable Long id) {
         this.checkPermission(Api.LIST);
-        D detail = baseService.get(id);
-        return R.ok(detail);
+        return R.ok(baseService.get(id));
     }
 
     /**
@@ -129,8 +125,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @PostMapping
     public R<Long> add(@Validated(ValidateGroup.Crud.Add.class) @RequestBody C req) {
         this.checkPermission(Api.ADD);
-        Long id = baseService.add(req);
-        return R.ok("新增成功", id);
+        return R.ok("新增成功", baseService.add(req));
     }
 
     /**

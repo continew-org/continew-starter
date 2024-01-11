@@ -16,7 +16,7 @@
     <description>ContiNew Starter 缓存模块 - Redisson</description>
 
     <dependencies>
-        <!-- Redisson（不仅仅是一个 Redis Java 客户端） -->
+        <!-- Redisson（不仅仅是一个 Redis Java 客户端，Redisson 充分的利用了 Redis 键值数据库提供的一系列优势，为使用者提供了一系列具有分布式特性的常用工具：分布式锁、限流器等） -->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson-spring-boot-starter</artifactId>

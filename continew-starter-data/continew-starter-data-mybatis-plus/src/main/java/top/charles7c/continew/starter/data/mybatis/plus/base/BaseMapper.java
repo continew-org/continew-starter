@@ -107,6 +107,6 @@ public interface BaseMapper<T> extends com.baomidou.mybatisplus.core.mapper.Base
      * @return 实体类 Class 对象
      */
     default Class<T> currentEntityClass() {
-        return (Class<T>) ClassUtil.getTypeArgument(this.getClass(), 0);
+        return (Class<T>)ClassUtil.getTypeArgument(this.getClass(), 0);
     }
 }

@@ -72,7 +72,7 @@ public class JacksonAutoConfiguration {
             javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(timeFormatter));
             builder.timeZone(TimeZone.getDefault());
             builder.modules(javaTimeModule);
-            log.info("[ContiNew Starter] - Auto Configuration 'Jackson' completed initialization.");
+            log.debug("[ContiNew Starter] - Auto Configuration 'Jackson' completed initialization.");
         };
     }
 }

@@ -35,6 +35,6 @@ public class MailAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.info("[ContiNew Starter] - Auto Configuration 'Mail' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Mail' completed initialization.");
     }
 }

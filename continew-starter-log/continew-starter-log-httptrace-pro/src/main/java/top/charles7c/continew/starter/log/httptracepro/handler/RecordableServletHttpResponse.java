@@ -56,7 +56,8 @@ public final class RecordableServletHttpResponse implements RecordableHttpRespon
 
     @Override
     public String getBody() {
-        ContentCachingResponseWrapper wrapper = WebUtils.getNativeResponse(response, ContentCachingResponseWrapper.class);
+        ContentCachingResponseWrapper wrapper = WebUtils
+            .getNativeResponse(response, ContentCachingResponseWrapper.class);
         if (null != wrapper) {
             return StrUtil.utf8Str(wrapper.getContentAsByteArray());
         }
@@ -66,8 +67,6 @@ public final class RecordableServletHttpResponse implements RecordableHttpRespon
     @Override
     public Map<String, Object> getParam() {
         String body = this.getBody();
-        return StrUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body)
-                ? JSONUtil.toBean(body, Map.class)
-                : null;
+        return StrUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body) ? JSONUtil.toBean(body, Map.class) : null;
     }
 }

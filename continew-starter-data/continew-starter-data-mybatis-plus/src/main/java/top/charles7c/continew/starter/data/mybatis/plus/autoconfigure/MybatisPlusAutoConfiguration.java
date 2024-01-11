@@ -39,7 +39,6 @@ import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
 import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionFilter;
 import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionHandlerImpl;
 
-
 /**
  * MyBatis Plus 自动配置
  *
@@ -63,9 +62,11 @@ public class MybatisPlusAutoConfiguration {
     public MybatisPlusInterceptor mybatisPlusInterceptor(MyBatisPlusExtensionProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         // 数据权限插件
-        MyBatisPlusExtensionProperties.DataPermissionProperties dataPermissionProperties = properties.getDataPermission();
+        MyBatisPlusExtensionProperties.DataPermissionProperties dataPermissionProperties = properties
+            .getDataPermission();
         if (null != dataPermissionProperties && dataPermissionProperties.isEnabled()) {
-            interceptor.addInnerInterceptor(new DataPermissionInterceptor(SpringUtil.getBean(DataPermissionHandler.class)));
+            interceptor.addInnerInterceptor(new DataPermissionInterceptor(SpringUtil
+                .getBean(DataPermissionHandler.class)));
         }
         // 分页插件
         MyBatisPlusExtensionProperties.PaginationProperties paginationProperties = properties.getPagination();
@@ -105,8 +106,8 @@ public class MybatisPlusAutoConfiguration {
     private PaginationInnerInterceptor paginationInnerInterceptor(MyBatisPlusExtensionProperties.PaginationProperties paginationProperties) {
         // 对于单一数据库类型来说，都建议配置该值，避免每次分页都去抓取数据库类型
         PaginationInnerInterceptor paginationInnerInterceptor = null != paginationProperties.getDbType()
-                ? new PaginationInnerInterceptor(paginationProperties.getDbType())
-                : new PaginationInnerInterceptor();
+            ? new PaginationInnerInterceptor(paginationProperties.getDbType())
+            : new PaginationInnerInterceptor();
         paginationInnerInterceptor.setOverflow(paginationProperties.isOverflow());
         paginationInnerInterceptor.setMaxLimit(paginationProperties.getMaxLimit());
         return paginationInnerInterceptor;
@@ -114,6 +115,6 @@ public class MybatisPlusAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.info("[ContiNew Starter] - Auto Configuration 'MyBatis Plus' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'MyBatis Plus' completed initialization.");
     }
 }

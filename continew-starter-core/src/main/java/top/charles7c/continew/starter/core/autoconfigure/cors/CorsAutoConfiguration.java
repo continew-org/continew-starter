@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
 /**
@@ -39,7 +40,7 @@ import top.charles7c.continew.starter.core.constant.StringConstants;
 @Lazy
 @AutoConfiguration
 @ConditionalOnWebApplication
-@ConditionalOnProperty(prefix = "continew-starter.cors", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.CORS, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(CorsProperties.class)
 public class CorsAutoConfiguration {
 
@@ -70,7 +71,7 @@ public class CorsAutoConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration(StringConstants.PATH_PATTERN, config);
         CorsFilter corsFilter = new CorsFilter(source);
-        log.info("[ContiNew Starter] - Auto Configuration 'CorsFilter' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'CorsFilter' completed initialization.");
         return corsFilter;
     }
 }

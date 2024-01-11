@@ -120,6 +120,6 @@ public class ServletUtils {
     }
 
     private static ServletRequestAttributes getServletRequestAttributes() {
-        return (ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes());
+        return (ServletRequestAttributes)Objects.requireNonNull(RequestContextHolder.getRequestAttributes());
     }
 }

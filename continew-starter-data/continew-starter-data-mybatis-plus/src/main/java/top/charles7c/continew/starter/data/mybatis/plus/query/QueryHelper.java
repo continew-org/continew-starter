@@ -90,8 +90,8 @@ public class QueryHelper {
             // 解析查询条件
             parse(queryAnnotation, field.getName(), fieldValue, queryWrapper);
         } catch (BadRequestException e) {
-            log.error("Build query occurred an validation error: {}. Query: {}, Field: {}.", e.getMessage(), query,
-                    field, e);
+            log.error("Build query occurred an validation error: {}. Query: {}, Field: {}.", e
+                .getMessage(), query, field, e);
             throw e;
         } catch (Exception e) {
             log.error("Build query occurred an error: {}. Query: {}, Field: {}.", e.getMessage(), query, field, e);
@@ -109,7 +109,9 @@ public class QueryHelper {
      * @param queryWrapper    MyBatis Plus 查询条件封装对象
      * @param <R>             查询数据类型
      */
-    private static <R> void parse(Query queryAnnotation, String fieldName, Object fieldValue,
+    private static <R> void parse(Query queryAnnotation,
+                                  String fieldName,
+                                  Object fieldValue,
                                   QueryWrapper<R> queryWrapper) {
         // 解析多属性模糊查询
         // 如果设置了多属性模糊查询，分割属性进行条件拼接
@@ -137,7 +139,7 @@ public class QueryHelper {
             case GREATER_THAN_OR_EQUAL -> queryWrapper.ge(columnName, fieldValue);
             case LESS_THAN_OR_EQUAL -> queryWrapper.le(columnName, fieldValue);
             case BETWEEN -> {
-                List<Object> between = new ArrayList<>((List<Object>) fieldValue);
+                List<Object> between = new ArrayList<>((List<Object>)fieldValue);
                 ValidationUtils.throwIf(between.size() != 2, "[{}] 必须是一个范围", fieldName);
                 queryWrapper.between(columnName, between.get(0), between.get(1));
             }
@@ -146,11 +148,11 @@ public class QueryHelper {
             case RIGHT_LIKE -> queryWrapper.likeRight(columnName, fieldValue);
             case IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", fieldName);
-                queryWrapper.in(columnName, (List<Object>) fieldValue);
+                queryWrapper.in(columnName, (List<Object>)fieldValue);
             }
             case NOT_IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", fieldName);
-                queryWrapper.notIn(columnName, (List<Object>) fieldValue);
+                queryWrapper.notIn(columnName, (List<Object>)fieldValue);
             }
             case IS_NULL -> queryWrapper.isNull(columnName);
             case IS_NOT_NULL -> queryWrapper.isNotNull(columnName);

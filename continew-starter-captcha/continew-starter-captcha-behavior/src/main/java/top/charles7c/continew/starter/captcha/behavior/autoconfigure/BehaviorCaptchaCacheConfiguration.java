@@ -33,6 +33,7 @@ import org.springframework.context.annotation.Bean;
 import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 import top.charles7c.continew.starter.captcha.behavior.enums.StorageType;
 import top.charles7c.continew.starter.captcha.behavior.impl.BehaviorCaptchaCacheServiceImpl;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 /**
  * 行为验证码缓存配置
@@ -49,10 +50,11 @@ abstract class BehaviorCaptchaCacheConfiguration {
      */
     @ConditionalOnClass(RedisClient.class)
     @AutoConfigureBefore(RedissonAutoConfiguration.class)
-    @ConditionalOnProperty(name = "continew-starter.captcha.behavior.cache-type", havingValue = "redis")
+    @ConditionalOnProperty(name = PropertiesConstants.CAPTCHA_BEHAVIOR + ".cache-type", havingValue = "redis")
     static class Redis {
         static {
-            CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name().toLowerCase(), new BehaviorCaptchaCacheServiceImpl());
+            CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name()
+                .toLowerCase(), new BehaviorCaptchaCacheServiceImpl());
             log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Redis' completed initialization.");
         }
     }
@@ -60,7 +62,7 @@ abstract class BehaviorCaptchaCacheConfiguration {
     /**
      * 自定义缓存实现类-自定义
      */
-    @ConditionalOnProperty(name = "continew-starter.captcha.behavior.cache-type", havingValue = "custom")
+    @ConditionalOnProperty(name = PropertiesConstants.CAPTCHA_BEHAVIOR + ".cache-type", havingValue = "custom")
     static class Custom {
 
         @Bean
@@ -71,7 +73,8 @@ abstract class BehaviorCaptchaCacheConfiguration {
 
         @PostConstruct
         public void postConstruct() {
-            CaptchaServiceFactory.cacheService.put(StorageType.CUSTOM.name().toLowerCase(), SpringUtil.getBean(CaptchaCacheService.class));
+            CaptchaServiceFactory.cacheService.put(StorageType.CUSTOM.name().toLowerCase(), SpringUtil
+                .getBean(CaptchaCacheService.class));
             log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Custom' completed initialization.");
         }
     }

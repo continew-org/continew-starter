@@ -84,8 +84,7 @@ public enum QueryType {
     /**
      * 非空查询，例如：WHERE `email` IS NOT NULL
      */
-    IS_NOT_NULL(14, "IS NOT NULL"),
-    ;
+    IS_NOT_NULL(14, "IS NOT NULL"),;
 
     private final Integer value;
     private final String description;

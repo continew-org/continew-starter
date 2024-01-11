@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.log.common.model;
 
-
 import lombok.Data;
 import top.charles7c.continew.starter.log.common.enums.Include;
 

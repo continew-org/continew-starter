@@ -26,10 +26,10 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.Map;
-
 
 /**
  * 本地文件自动配置
@@ -42,7 +42,7 @@ import java.util.Map;
 @AutoConfiguration
 @RequiredArgsConstructor
 @EnableConfigurationProperties(LocalStorageProperties.class)
-@ConditionalOnProperty(name = "continew-starter.storage.local.enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.STORAGE_LOCAL, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
 
     private final LocalStorageProperties properties;
@@ -58,8 +58,10 @@ public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
                 throw new IllegalArgumentException(String.format("Path pattern [%s] location is null.", pathPattern));
             }
             registry.addResourceHandler(StrUtil.appendIfMissing(pathPattern, StringConstants.PATH_PATTERN))
-                    .addResourceLocations(!location.startsWith("file:") ? String.format("file:%s", this.format(location)) : this.format(location))
-                    .setCachePeriod(0);
+                .addResourceLocations(!location.startsWith("file:")
+                    ? String.format("file:%s", this.format(location))
+                    : this.format(location))
+                .setCachePeriod(0);
         }
     }
 
@@ -69,6 +71,6 @@ public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void postConstruct() {
-        log.info("[ContiNew Starter] - Auto Configuration 'Storage-Local' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Storage-Local' completed initialization.");
     }
 }

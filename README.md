@@ -4,7 +4,7 @@
 <img src="https://img.shields.io/badge/License-LGPL--3.0-blue.svg" alt="License" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/RELEASE-v1.1.0-%23ff3f59.svg" alt="Release" />
+<img src="https://img.shields.io/badge/RELEASE-v1.1.1-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/github/stars/Charles7c/continew-starter?style=social" alt="GitHub stars" />
@@ -18,14 +18,20 @@
 <a href="https://gitee.com/Charles7c/continew-starter" target="_blank">
 <img src="https://gitee.com/Charles7c/continew-starter/badge/fork.svg?theme=white" alt="Gitee forks" />
 </a>
+<a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<img src="https://img.shields.io/badge/Spring Boot-3.1.7-%236CB52D.svg" alt="Release" />
+</a>
+<a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<img src="https://img.shields.io/badge/Java-17-%236CB52D.svg" alt="Release" />
+</a>
 
 ## 简介
 
-ContiNew Starter（Continue New Starter）是一种特殊类型的 Spring Boot Starter，其作用与常规的 Starter 类似，基于“约定优于配置”的理念，再次精简常规配置，提供一个更为完整的配置解决方案，帮助开发人员更加快速的集成常用第三方库或工具到 Spring Boot Web 应用程序中。
+ContiNew Starter（Continue New Starter）基于“约定优于配置”的理念，再次精简常规配置，提供一个更为完整的配置解决方案，帮助开发人员更加快速的集成常用第三方库或工具到 Spring Boot Web 应用程序中。
 
-ContiNew Starter 包含了一系列经过企业实践优化和配置的依赖包（如 MyBatis-Plus、SaToken），可轻松集成到应用中，从而避免开发人员手动引入依赖的麻烦，为 Spring Boot Web 项目的灵活快速构建提供支持。
+ContiNew Starter 包含了一系列经过企业实践优化的依赖包（如 MyBatis-Plus、SaToken），可轻松集成到应用中，为开发人员减少手动引入依赖及配置的麻烦，为 Spring Boot Web 项目的灵活快速构建提供支持。
 
-> ContiNew Starter 源自 [ContiNew Admin](https://github.com/Charles7c/continew-admin) 后台管理框架/脚手架项目。在 ContiNew Admin 发展到一定程度时，作者发现新手用户上手时需要关注过多的脚手架通用基础能力，而且如果想要在一个全新项目中使用这些基础能力，“迁移”起来也很麻烦。于是，ContiNew Starter 应运而生，作者在 ContiNew Admin 2.x 版本时，将项目中的通用基础能力进行了抽离和深度优化。这样，无论是在 ContiNew Admin 中使用，还是单独使用这些基础能力，都可以更加轻松。
+> ContiNew Starter 源自 [ContiNew Admin](https://github.com/Charles7c/continew-admin) 中后台管理框架/脚手架项目。在 ContiNew Admin 发展到一定程度时，作者发现新手用户上手时需要关注过多的脚手架通用基础能力，而且如果想要在一个全新项目中使用这些基础能力，“迁移”起来也很麻烦。于是，ContiNew Starter 应运而生，作者在 ContiNew Admin 2.x 版本时，将项目中的通用基础能力进行了抽离和深度优化。这样，无论是在 ContiNew Admin 中使用，还是单独使用这些基础能力，都可以更加轻松。
 
 ## 解决痛点
 
@@ -109,16 +115,17 @@ e.g. 跨域配置
 
 ```yaml
 --- ### 跨域配置
-cors:
-  enabled: true
-  # 配置允许跨域的域名
-  allowed-origins: '*'
-  # 配置允许跨域的请求方式
-  allowed-methods: '*'
-  # 配置允许跨域的请求头
-  allowed-headers: '*'
-  # 配置允许跨域的响应头
-  exposed-headers: '*'
+continew-starter:
+  cors:
+    enabled: true
+    # 配置允许跨域的域名
+    allowed-origins: '*'
+    # 配置允许跨域的请求方式
+    allowed-methods: '*'
+    # 配置允许跨域的请求头
+    allowed-headers: '*'
+    # 配置允许跨域的响应头
+    exposed-headers: '*'
 ```
 
 <details>
@@ -192,12 +199,12 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 
 请记住，如果您有任何疑问或需要帮助，我们将随时提供支持。
 
-> **IMPORTANT**
+> [!IMPORTANT]
 > 欢迎大家为 ContiNew Starter 贡献代码，我们非常感谢您的支持！为了更好地管理项目，维护者有一些要求：
 >
-> 1. 请确保代码、配置文件的结构和命名规范良好，完善的代码注释，并遵循阿里巴巴的 <a href="https://github.com/Charles7c/continew-starter/blob/dev/code-style/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C(%E9%BB%84%E5%B1%B1%E7%89%88).pdf" target="_blank">《Java开发手册(黄山版)》</a> 中的代码规范，保证代码质量和可维护性
+> 1. 请确保代码、配置文件的结构和命名规范良好，完善的代码注释，并遵循阿里巴巴的 <a href="https://github.com/Charles7c/continew-starter/blob/dev/.style/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C(%E9%BB%84%E5%B1%B1%E7%89%88).pdf" target="_blank">《Java开发手册(黄山版)》</a> 中的代码规范，保证代码质量和可维护性
 > 2. 在提交代码前，请按照 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) 编写 commit 的 message（建议在 IntelliJ IDEA 中下载并安装 Git Commit Template 插件，以便按照规范进行 commit）
-> 3. 提交代码之前，请关闭所有代码窗口，执行 mvn compile 命令，编译通过后，不要再打开查看任何代码窗口，直接提交即可
+> 3. 提交代码之前，请关闭所有代码窗口，执行 `mvn compile` 命令（代码格式化插件会在项目编译时对全局代码进行格式修正），编译通过后，不要再打开查看任何代码窗口，直接提交即可
 
 ## 反馈交流
 
@@ -233,7 +240,7 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 - 感谢 <a href="https://www.jetbrains.com/" target="_blank">JetBrains</a> 提供的 <a href="https://www.jetbrains.com/shop/eform/opensource" target="_blank">非商业开源软件开发授权</a> 
 - 感谢 <a href="https://github.com/baomidou/mybatis-plus" target="_blank">MyBatis Plus</a>、<a href="https://github.com/dromara/sa-token" target="_blank">Sa-Token</a> 、<a href="https://github.com/xiaoymin/knife4j" target="_blank">Knife4j</a>、<a href="https://github.com/dromara/hutool" target="_blank">Hutool</a> 等国产开源组件作者为国内开源世界作出的贡献
 - 感谢 <a href="https://github.com/elunez/eladmin" target="_blank">ELADMIN</a>、<a href="https://github.com/dromara/RuoYi-Vue-Plus" target="_blank">RuoYi-Vue-Plus</a>、<a href="https://gitee.com/herodotus/dante-engine" target="_blank">Dante-Engine</a>，致敬各位作者为开源脚手架领域作出的贡献
-  - e.g. 脱胎于 ELADMIN 项目开源的 QueryHelper 组件
+  - e.g. 扩展于 ELADMIN 项目开源的 QueryHelper 组件
   - e.g. 扩展于 RuoYi-Vue-Plus 项目封装的 SaToken 相关认证鉴权配置
   - e.g. 扩展于 Dante-Engine 项目封装的 Redisson 相关配置
 - 感谢项目使用或未使用到的每一款开源组件，致敬各位开源先驱 :fire:

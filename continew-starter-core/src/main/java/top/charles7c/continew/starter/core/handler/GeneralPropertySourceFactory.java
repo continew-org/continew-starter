@@ -27,7 +27,11 @@ import org.springframework.lang.Nullable;
 import java.io.IOException;
 
 /**
- * 通用配置文件读取工厂（DefaultPropertySourceFactory 仅支持 properties 配置文件读取，详见：<a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-yaml-shortcomings">YAML Shortcomings</a>）
+ * 通用配置文件读取工厂
+ * <p>
+ * DefaultPropertySourceFactory 仅支持 properties
+ * 配置文件读取，详见：<ahref="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-yaml-shortcomings">YAMLShortcomings</a>
+ * </p>
  *
  * @author Charles7c
  * @since 1.0.0
@@ -35,7 +39,8 @@ import java.io.IOException;
 public class GeneralPropertySourceFactory extends DefaultPropertySourceFactory {
 
     @Override
-    public PropertySource<?> createPropertySource(@Nullable String name, EncodedResource encodedResource) throws IOException {
+    public PropertySource<?> createPropertySource(@Nullable String name,
+                                                  EncodedResource encodedResource) throws IOException {
         Resource resource = encodedResource.getResource();
         String resourceName = resource.getFilename();
         if (StrUtil.isNotBlank(resourceName) && StrUtil.endWithAny(resourceName, ".yml", ".yaml")) {

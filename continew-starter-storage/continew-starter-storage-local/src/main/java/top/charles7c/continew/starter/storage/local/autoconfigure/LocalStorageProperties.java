@@ -19,6 +19,7 @@ package top.charles7c.continew.starter.storage.local.autoconfigure;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.unit.DataSize;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +31,7 @@ import java.util.Map;
  * @since 1.1.0
  */
 @Data
-@ConfigurationProperties(prefix = "continew-starter.storage.local")
+@ConfigurationProperties(PropertiesConstants.STORAGE_LOCAL)
 public class LocalStorageProperties {
 
     /**

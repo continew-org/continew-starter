@@ -18,6 +18,7 @@ package top.charles7c.continew.starter.core.autoconfigure.cors;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.ArrayList;
@@ -31,7 +32,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @Data
-@ConfigurationProperties(prefix = "continew-starter.cors")
+@ConfigurationProperties(PropertiesConstants.CORS)
 public class CorsProperties {
 
     /**

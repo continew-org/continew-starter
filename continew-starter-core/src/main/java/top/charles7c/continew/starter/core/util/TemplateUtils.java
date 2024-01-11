@@ -56,8 +56,8 @@ public class TemplateUtils {
      * @return 渲染后的内容
      */
     public static String render(String parentPath, String templatePath, Map<?, ?> bindingMap) {
-        TemplateEngine engine =
-                TemplateUtil.createEngine(new TemplateConfig(parentPath, TemplateConfig.ResourceMode.CLASSPATH));
+        TemplateEngine engine = TemplateUtil
+            .createEngine(new TemplateConfig(parentPath, TemplateConfig.ResourceMode.CLASSPATH));
         Template template = engine.getTemplate(templatePath);
         return template.render(bindingMap);
     }

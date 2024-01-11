@@ -90,8 +90,8 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     public Map<String, Object> getParam() {
         String body = this.getBody();
         return StrUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body)
-                ? JSONUtil.toBean(body, Map.class)
-                : Collections.unmodifiableMap(request.getParameterMap());
+            ? JSONUtil.toBean(body, Map.class)
+            : Collections.unmodifiableMap(request.getParameterMap());
     }
 
     private StringBuffer appendQueryString(String queryString) {

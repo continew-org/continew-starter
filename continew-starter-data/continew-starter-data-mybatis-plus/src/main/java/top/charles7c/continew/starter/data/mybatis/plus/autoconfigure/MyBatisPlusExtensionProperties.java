@@ -20,7 +20,6 @@ import com.baomidou.mybatisplus.annotation.DbType;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-
 /**
  * MyBatis Plus 扩展配置属性
  *

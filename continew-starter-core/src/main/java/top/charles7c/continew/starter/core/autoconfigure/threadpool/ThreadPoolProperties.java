@@ -18,6 +18,7 @@ package top.charles7c.continew.starter.core.autoconfigure.threadpool;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 /**
  * 线程池配置属性
@@ -27,7 +28,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @since 1.0.0
  */
 @Data
-@ConfigurationProperties(prefix = "continew-starter.thread-pool")
+@ConfigurationProperties(PropertiesConstants.THREAD_POOL)
 public class ThreadPoolProperties {
 
     /**

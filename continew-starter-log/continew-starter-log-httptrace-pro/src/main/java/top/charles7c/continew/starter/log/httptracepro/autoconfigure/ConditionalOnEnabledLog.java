@@ -17,6 +17,7 @@
 package top.charles7c.continew.starter.log.httptracepro.autoconfigure;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 import java.lang.annotation.*;
 
@@ -27,7 +28,8 @@ import java.lang.annotation.*;
  * @since 1.1.0
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ ElementType.TYPE, ElementType.METHOD })
+@Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
-@ConditionalOnProperty(prefix = "continew-starter.log", name = "enabled", havingValue = "true")
-public @interface ConditionalOnEnabledLog {}
+@ConditionalOnProperty(prefix = PropertiesConstants.LOG, name = PropertiesConstants.ENABLED, havingValue = "true")
+public @interface ConditionalOnEnabledLog {
+}

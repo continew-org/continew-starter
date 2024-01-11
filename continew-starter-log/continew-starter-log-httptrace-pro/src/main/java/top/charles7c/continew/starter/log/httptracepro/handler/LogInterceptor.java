@@ -49,16 +49,17 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class LogInterceptor implements HandlerInterceptor {
 
-    private final LogDao dao;
-    private final LogProperties properties;
+    private final LogDao logDao;
+    private final LogProperties logProperties;
     private final TransmittableThreadLocal<LogRecord.Started> timestampTtl = new TransmittableThreadLocal<>();
 
     @Override
-    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+    public boolean preHandle(@NonNull HttpServletRequest request,
+                             @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
         Clock timestamp = Clock.systemUTC();
         if (this.isRequestRecord(handler, request)) {
-            if (Boolean.TRUE.equals(properties.getIsPrint())) {
+            if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
                 log.info("[{}] {}", request.getMethod(), request.getRequestURI());
             }
             LogRecord.Started startedLogRecord = LogRecord.start(timestamp, new RecordableServletHttpRequest(request));
@@ -68,17 +69,20 @@ public class LogInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
-                                @NonNull Object handler, Exception e) {
+    public void afterCompletion(@NonNull HttpServletRequest request,
+                                @NonNull HttpServletResponse response,
+                                @NonNull Object handler,
+                                Exception e) {
         LogRecord.Started startedLogRecord = timestampTtl.get();
         if (null == startedLogRecord) {
             return;
         }
         timestampTtl.remove();
-        Set<Include> includeSet = properties.getInclude();
+        Set<Include> includeSet = logProperties.getInclude();
         try {
-            LogRecord finishedLogRecord = startedLogRecord.finish(new RecordableServletHttpResponse(response, response.getStatus()), includeSet);
-            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            LogRecord finishedLogRecord = startedLogRecord.finish(new RecordableServletHttpResponse(response, response
+                .getStatus()), includeSet);
+            HandlerMethod handlerMethod = (HandlerMethod)handler;
             // 记录日志描述
             if (includeSet.contains(Include.DESCRIPTION)) {
                 this.logDescription(finishedLogRecord, handlerMethod);
@@ -87,11 +91,12 @@ public class LogInterceptor implements HandlerInterceptor {
             if (includeSet.contains(Include.MODULE)) {
                 this.logModule(finishedLogRecord, handlerMethod);
             }
-            if (Boolean.TRUE.equals(properties.getIsPrint())) {
+            if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
                 LogResponse logResponse = finishedLogRecord.getResponse();
-                log.info("[{}] {} {} {}ms", request.getMethod(), request.getRequestURI(), logResponse.getStatus(), finishedLogRecord.getTimeTaken().toMillis());
+                log.info("[{}] {} {} {}ms", request.getMethod(), request.getRequestURI(), logResponse
+                    .getStatus(), finishedLogRecord.getTimeTaken().toMillis());
             }
-            dao.add(finishedLogRecord);
+            logDao.add(finishedLogRecord);
         } catch (Exception ex) {
             log.error("Logging http log occurred an error: {}.", ex.getMessage(), ex);
         }
@@ -104,15 +109,16 @@ public class LogInterceptor implements HandlerInterceptor {
      * @param handlerMethod 处理器方法
      */
     private void logDescription(LogRecord logRecord, HandlerMethod handlerMethod) {
-        // 例如：@Operation(summary="新增部门") -> 新增部门
-        Operation methodOperation = handlerMethod.getMethodAnnotation(Operation.class);
-        if (null != methodOperation) {
-            logRecord.setDescription(StrUtil.blankToDefault(methodOperation.summary(), "请在该接口方法上指定日志描述"));
-        }
         // 例如：@Log("新增部门") -> 新增部门
         Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
         if (null != methodLog && StrUtil.isNotBlank(methodLog.value())) {
             logRecord.setDescription(methodLog.value());
+            return;
+        }
+        // 例如：@Operation(summary="新增部门") -> 新增部门
+        Operation methodOperation = handlerMethod.getMethodAnnotation(Operation.class);
+        if (null != methodOperation) {
+            logRecord.setDescription(StrUtil.blankToDefault(methodOperation.summary(), "请在该接口方法上指定日志描述"));
         }
     }
 
@@ -123,20 +129,22 @@ public class LogInterceptor implements HandlerInterceptor {
      * @param handlerMethod 处理器方法
      */
     private void logModule(LogRecord logRecord, HandlerMethod handlerMethod) {
+        // 例如：@Log(module = "部门管理") -> 部门管理
+        Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
+        if (null != methodLog && StrUtil.isNotBlank(methodLog.module())) {
+            logRecord.setModule(methodLog.module());
+            return;
+        }
+        Log classLog = handlerMethod.getBeanType().getDeclaredAnnotation(Log.class);
+        if (null != classLog && StrUtil.isNotBlank(classLog.module())) {
+            logRecord.setModule(classLog.module());
+            return;
+        }
         // 例如：@Tag(name = "部门管理") -> 部门管理
         Tag classTag = handlerMethod.getBeanType().getDeclaredAnnotation(Tag.class);
         if (null != classTag) {
             String name = classTag.name();
             logRecord.setModule(StrUtil.blankToDefault(name, "请在该接口类上指定所属模块"));
-        }
-        // 例如：@Log(module = "部门管理") -> 部门管理
-        Log classLog = handlerMethod.getBeanType().getDeclaredAnnotation(Log.class);
-        if (null != classLog && StrUtil.isNotBlank(classLog.module())) {
-            logRecord.setModule(classLog.module());
-        }
-        Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
-        if (null != methodLog && StrUtil.isNotBlank(methodLog.module())) {
-            logRecord.setModule(methodLog.module());
         }
     }
 

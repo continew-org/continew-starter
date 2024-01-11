@@ -36,7 +36,7 @@ import java.util.List;
  */
 @Data
 @Schema(description = "分页信息")
-public class PageDataResp<L> implements Serializable {
+public class PageResp<L> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -62,14 +62,14 @@ public class PageDataResp<L> implements Serializable {
      * @param <L>         目标列表数据类型
      * @return 分页信息
      */
-    public static <T, L> PageDataResp<L> build(IPage<T> page, Class<L> targetClass) {
+    public static <T, L> PageResp<L> build(IPage<T> page, Class<L> targetClass) {
         if (null == page) {
             return empty();
         }
-        PageDataResp<L> pageDataResp = new PageDataResp<>();
-        pageDataResp.setList(BeanUtil.copyToList(page.getRecords(), targetClass));
-        pageDataResp.setTotal(page.getTotal());
-        return pageDataResp;
+        PageResp<L> pageResp = new PageResp<>();
+        pageResp.setList(BeanUtil.copyToList(page.getRecords(), targetClass));
+        pageResp.setTotal(page.getTotal());
+        return pageResp;
     }
 
     /**
@@ -79,14 +79,14 @@ public class PageDataResp<L> implements Serializable {
      * @param <L>  列表数据类型
      * @return 分页信息
      */
-    public static <L> PageDataResp<L> build(IPage<L> page) {
+    public static <L> PageResp<L> build(IPage<L> page) {
         if (null == page) {
             return empty();
         }
-        PageDataResp<L> pageDataResp = new PageDataResp<>();
-        pageDataResp.setList(page.getRecords());
-        pageDataResp.setTotal(page.getTotal());
-        return pageDataResp;
+        PageResp<L> pageResp = new PageResp<>();
+        pageResp.setList(page.getRecords());
+        pageResp.setTotal(page.getTotal());
+        return pageResp;
     }
 
     /**
@@ -98,23 +98,23 @@ public class PageDataResp<L> implements Serializable {
      * @param <L>  列表数据类型
      * @return 分页信息
      */
-    public static <L> PageDataResp<L> build(int page, int size, List<L> list) {
+    public static <L> PageResp<L> build(int page, int size, List<L> list) {
         if (CollUtil.isEmpty(list)) {
             return empty();
         }
-        PageDataResp<L> pageDataResp = new PageDataResp<>();
-        pageDataResp.setTotal(list.size());
+        PageResp<L> pageResp = new PageResp<>();
+        pageResp.setTotal(list.size());
         // 对列表数据进行分页
         int fromIndex = (page - 1) * size;
         int toIndex = page * size + size;
         if (fromIndex > list.size()) {
-            pageDataResp.setList(new ArrayList<>(0));
+            pageResp.setList(new ArrayList<>(0));
         } else if (toIndex >= list.size()) {
-            pageDataResp.setList(list.subList(fromIndex, list.size()));
+            pageResp.setList(list.subList(fromIndex, list.size()));
         } else {
-            pageDataResp.setList(list.subList(fromIndex, toIndex));
+            pageResp.setList(list.subList(fromIndex, toIndex));
         }
-        return pageDataResp;
+        return pageResp;
     }
 
     /**
@@ -123,9 +123,9 @@ public class PageDataResp<L> implements Serializable {
      * @param <L> 列表数据类型
      * @return 分页信息
      */
-    private static <L> PageDataResp<L> empty() {
-        PageDataResp<L> pageDataResp = new PageDataResp<>();
-        pageDataResp.setList(new ArrayList<>(0));
-        return pageDataResp;
+    private static <L> PageResp<L> empty() {
+        PageResp<L> pageResp = new PageResp<>();
+        pageResp.setList(new ArrayList<>(0));
+        return pageResp;
     }
 }

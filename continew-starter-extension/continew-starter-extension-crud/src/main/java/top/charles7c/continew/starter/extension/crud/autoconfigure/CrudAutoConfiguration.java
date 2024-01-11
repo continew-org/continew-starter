@@ -50,15 +50,14 @@ public class CrudAutoConfiguration extends DelegatingWebMvcConfiguration {
     @Bean
     @Primary
     @Override
-    public RequestMappingHandlerMapping requestMappingHandlerMapping(
-            @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
-            @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-            @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
+    public RequestMappingHandlerMapping requestMappingHandlerMapping(@Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
+                                                                     @Qualifier("mvcConversionService") FormattingConversionService conversionService,
+                                                                     @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
         return super.requestMappingHandlerMapping(contentNegotiationManager, conversionService, resourceUrlProvider);
     }
 
     @PostConstruct
     public void postConstruct() {
-        log.info("[ContiNew Starter] - Auto Configuration 'Extension-CRUD' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Extension-CRUD' completed initialization.");
     }
 }

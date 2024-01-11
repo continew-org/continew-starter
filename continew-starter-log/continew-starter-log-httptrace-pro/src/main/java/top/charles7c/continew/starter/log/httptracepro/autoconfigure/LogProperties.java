@@ -18,6 +18,7 @@ package top.charles7c.continew.starter.log.httptracepro.autoconfigure;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.log.common.enums.Include;
 
 import java.util.HashSet;
@@ -30,7 +31,7 @@ import java.util.Set;
  * @since 1.1.0
  */
 @Data
-@ConfigurationProperties(prefix = "continew-starter.log")
+@ConfigurationProperties(PropertiesConstants.LOG)
 public class LogProperties {
 
     /**

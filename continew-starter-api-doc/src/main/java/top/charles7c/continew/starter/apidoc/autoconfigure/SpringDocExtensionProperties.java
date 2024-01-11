@@ -21,7 +21,6 @@ import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
-
 /**
  * API 文档扩展配置属性
  *

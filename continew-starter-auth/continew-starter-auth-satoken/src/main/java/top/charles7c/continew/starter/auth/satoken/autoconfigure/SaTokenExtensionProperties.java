@@ -23,7 +23,6 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import top.charles7c.continew.starter.auth.satoken.properties.SaTokenDaoProperties;
 import top.charles7c.continew.starter.auth.satoken.properties.SaTokenSecurityProperties;
 
-
 /**
  * SaToken 扩展配置属性
  *
