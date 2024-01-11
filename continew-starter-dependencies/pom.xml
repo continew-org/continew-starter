@@ -55,6 +55,7 @@
 
     <properties>
         <revision>1.2.0-SNAPSHOT</revision>
+        <crane4j.version>2.3.1</crane4j.version>
         <just-auth.version>1.16.6</just-auth.version>
         <sa-token.version>1.37.0</sa-token.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
@@ -76,6 +77,13 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Crane4j（一个基于注解的，用于完成一切 “根据 A 的 key 值拿到 B，再把 B 的属性映射到 A” 这类需求的字段填充框架） -->
+            <dependency>
+                <groupId>cn.crane4j</groupId>
+                <artifactId>crane4j-spring-boot-starter</artifactId>
+                <version>${crane4j.version}</version>
+            </dependency>
+
             <!-- Just Auth（开箱即用的整合第三方登录的开源组件，脱离繁琐的第三方登录 SDK，让登录变得 So easy!） -->
             <dependency>
                 <groupId>me.zhyd.oauth</groupId>
