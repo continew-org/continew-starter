@@ -16,6 +16,7 @@
 
 package top.charles7c.continew.starter.extension.crud.base;
 
+import cn.crane4j.core.support.OperateTemplate;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
@@ -34,7 +35,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import top.charles7c.continew.starter.core.util.ClassUtils;
-import top.charles7c.continew.starter.core.util.ExceptionUtils;
 import top.charles7c.continew.starter.core.util.ReflectUtils;
 import top.charles7c.continew.starter.core.util.validate.CheckUtils;
 import top.charles7c.continew.starter.data.mybatis.plus.base.BaseMapper;
@@ -137,26 +137,11 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
         return BeanUtil.copyToList(entityList, targetClass);
     }
 
-    /**
-     * 设置排序
-     *
-     * @param queryWrapper 查询 Wrapper
-     * @param sortQuery    排序查询条件
-     */
-    protected void sort(QueryWrapper<T> queryWrapper, SortQuery sortQuery) {
-        Sort sort = Opt.ofNullable(sortQuery).orElseGet(SortQuery::new).getSort();
-        for (Sort.Order order : sort) {
-            if (null != order) {
-                queryWrapper.orderBy(true, order.isAscending(), StrUtil.toUnderlineCase(order.getProperty()));
-            }
-        }
-    }
-
     @Override
     public D get(Long id) {
         T entity = this.getById(id);
         D detail = BeanUtil.copyProperties(entity, detailClass);
-        this.fillDetail(detail);
+        this.fill(detail);
         return detail;
     }
 
@@ -186,8 +171,18 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     @Override
     public void export(Q query, SortQuery sortQuery, HttpServletResponse response) {
         List<D> list = this.list(query, sortQuery, detailClass);
-        list.forEach(this::fillDetail);
+        list.forEach(this::fill);
         ExcelUtils.export(list, "导出数据", detailClass, response);
+    }
+
+    /**
+     * 填充数据
+     *
+     * @param obj 待填充信息
+     */
+    protected void fill(Object obj) {
+        OperateTemplate operateTemplate = SpringUtil.getBean(OperateTemplate.class);
+        operateTemplate.execute(obj);
     }
 
     /**
@@ -203,35 +198,17 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     /**
-     * 填充数据
+     * 设置排序
      *
-     * @param baseObj 待填充列表信息
+     * @param queryWrapper 查询 Wrapper
+     * @param sortQuery    排序查询条件
      */
-    protected void fill(Object baseObj) {
-        if (baseObj instanceof BaseResp baseResp) {
-            Long createUser = baseResp.getCreateUser();
-            if (null == createUser) {
-                return;
+    protected void sort(QueryWrapper<T> queryWrapper, SortQuery sortQuery) {
+        Sort sort = Opt.ofNullable(sortQuery).orElseGet(SortQuery::new).getSort();
+        for (Sort.Order order : sort) {
+            if (null != order) {
+                queryWrapper.orderBy(true, order.isAscending(), StrUtil.toUnderlineCase(order.getProperty()));
             }
-            CommonUserService userService = SpringUtil.getBean(CommonUserService.class);
-            baseResp.setCreateUserString(ExceptionUtils.exToNull(() -> userService.getNicknameById(createUser)));
-        }
-    }
-
-    /**
-     * 填充详情数据
-     *
-     * @param detailObj 待填充详情信息
-     */
-    public void fillDetail(Object detailObj) {
-        if (detailObj instanceof BaseDetailResp detailResp) {
-            this.fill(detailResp);
-            Long updateUser = detailResp.getUpdateUser();
-            if (null == updateUser) {
-                return;
-            }
-            CommonUserService userService = SpringUtil.getBean(CommonUserService.class);
-            detailResp.setUpdateUserString(ExceptionUtils.exToNull(() -> userService.getNicknameById(updateUser)));
         }
     }
 

@@ -16,6 +16,8 @@
 
 package top.charles7c.continew.starter.extension.crud.base;
 
+import cn.crane4j.annotation.Assemble;
+import cn.crane4j.annotation.Mapping;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -42,6 +44,7 @@ public class BaseDetailResp extends BaseResp {
      * 修改人
      */
     @JsonIgnore
+    @Assemble(container = "userNickname", props = @Mapping(ref = "updateUserString"))
     private Long updateUser;
 
     /**

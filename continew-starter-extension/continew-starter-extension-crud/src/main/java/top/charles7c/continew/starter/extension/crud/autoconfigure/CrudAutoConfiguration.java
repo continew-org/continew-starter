@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.web.accept.ContentNegotiationManager;
@@ -37,6 +38,7 @@ import top.charles7c.continew.starter.extension.crud.handler.CrudRequestMappingH
  */
 @Slf4j
 @AutoConfiguration
+@Import({UserNicknameContainer.class})
 public class CrudAutoConfiguration extends DelegatingWebMvcConfiguration {
 
     /**

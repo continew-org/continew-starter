@@ -55,9 +55,8 @@
 
     <properties>
         <revision>1.2.0-SNAPSHOT</revision>
-        <crane4j.version>2.3.1</crane4j.version>
-        <just-auth.version>1.16.6</just-auth.version>
         <sa-token.version>1.37.0</sa-token.version>
+        <just-auth.version>1.16.6</just-auth.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <dynamic-datasource.version>4.2.0</dynamic-datasource.version>
         <p6spy.version>3.9.1</p6spy.version>
@@ -69,6 +68,7 @@
         <nashorn.version>15.4</nashorn.version>
         <x-file-storage.version>2.0.0</x-file-storage.version>
         <aws-s3.version>1.12.626</aws-s3.version>
+        <crane4j.version>2.3.1</crane4j.version>
         <knife4j.version>4.4.0</knife4j.version>
         <ttl.version>2.14.4</ttl.version>
         <ip2region.version>3.1.6</ip2region.version>
@@ -77,11 +77,24 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Crane4j（一个基于注解的，用于完成一切 “根据 A 的 key 值拿到 B，再把 B 的属性映射到 A” 这类需求的字段填充框架） -->
+            <!-- Sa-Token（轻量级 Java 权限认证框架，让鉴权变得简单、优雅） -->
             <dependency>
-                <groupId>cn.crane4j</groupId>
-                <artifactId>crane4j-spring-boot-starter</artifactId>
-                <version>${crane4j.version}</version>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-spring-boot3-starter</artifactId>
+                <version>${sa-token.version}</version>
+            </dependency>
+
+            <!-- Sa-Token 整合 JWT -->
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-jwt</artifactId>
+                <version>${sa-token.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>cn.hutool</groupId>
+                        <artifactId>hutool-all</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- Just Auth（开箱即用的整合第三方登录的开源组件，脱离繁琐的第三方登录 SDK，让登录变得 So easy!） -->
@@ -102,26 +115,6 @@
                     <exclusion>
                         <groupId>me.zhyd.oauth</groupId>
                         <artifactId>JustAuth</artifactId>
-                    </exclusion>
-                </exclusions>
-            </dependency>
-
-            <!-- Sa-Token（轻量级 Java 权限认证框架，让鉴权变得简单、优雅） -->
-            <dependency>
-                <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-spring-boot3-starter</artifactId>
-                <version>${sa-token.version}</version>
-            </dependency>
-
-            <!-- Sa-Token 整合 JWT -->
-            <dependency>
-                <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-jwt</artifactId>
-                <version>${sa-token.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>cn.hutool</groupId>
-                        <artifactId>hutool-all</artifactId>
                     </exclusion>
                 </exclusions>
             </dependency>
@@ -175,7 +168,7 @@
                 <version>${easy-captcha.version}</version>
             </dependency>
 
-            <!-- Js 引擎（一个纯编译的 JavaScript 引擎） -->
+            <!-- JS 引擎（一个纯编译的 JavaScript 引擎） -->
             <dependency>
                 <groupId>org.openjdk.nashorn</groupId>
                 <artifactId>nashorn-core</artifactId>
@@ -201,6 +194,13 @@
                 <groupId>com.amazonaws</groupId>
                 <artifactId>aws-java-sdk-s3</artifactId>
                 <version>${aws-s3.version}</version>
+            </dependency>
+
+            <!-- Crane4j（一个基于注解的，用于完成一切 “根据 A 的 key 值拿到 B，再把 B 的属性映射到 A” 这类需求的字段填充框架） -->
+            <dependency>
+                <groupId>cn.crane4j</groupId>
+                <artifactId>crane4j-spring-boot-starter</artifactId>
+                <version>${crane4j.version}</version>
             </dependency>
 
             <!-- Knife4j（前身是 swagger-bootstrap-ui，集 Swagger2 和 OpenAPI3 为一体的增强解决方案） -->

@@ -16,6 +16,8 @@
 
 package top.charles7c.continew.starter.extension.crud.base;
 
+import cn.crane4j.annotation.Assemble;
+import cn.crane4j.annotation.Mapping;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -47,6 +49,7 @@ public class BaseResp implements Serializable {
      * 创建人
      */
     @JsonIgnore
+    @Assemble(container = "userNickname", props = @Mapping(ref = "createUserString"))
     private Long createUser;
 
     /**
