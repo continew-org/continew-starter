@@ -5,26 +5,21 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>top.charles7c.continew</groupId>
-        <artifactId>continew-starter</artifactId>
+        <artifactId>continew-starter-cache</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-cache</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>continew-starter-cache-springcache</artifactId>
+    <packaging>jar</packaging>
 
     <name>${project.artifactId}</name>
-    <description>ContiNew Starter 缓存模块</description>
-
-    <modules>
-        <module>continew-starter-cache-redisson</module>
-        <module>continew-starter-cache-springcache</module>
-    </modules>
+    <description>ContiNew Starter 缓存模块 - Spring Cache</description>
 
     <dependencies>
-        <!-- 核心模块 -->
+        <!-- 缓存模块 - Redisson -->
         <dependency>
             <groupId>top.charles7c.continew</groupId>
-            <artifactId>continew-starter-core</artifactId>
+            <artifactId>continew-starter-cache-redisson</artifactId>
         </dependency>
     </dependencies>
 </project>

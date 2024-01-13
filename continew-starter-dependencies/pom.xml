@@ -262,6 +262,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 缓存模块 - Spring Cache -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-cache-springcache</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 缓存模块 - Redisson -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
