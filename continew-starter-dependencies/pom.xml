@@ -60,6 +60,7 @@
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
         <dynamic-datasource.version>4.2.0</dynamic-datasource.version>
         <p6spy.version>3.9.1</p6spy.version>
+        <jetcache.version>2.7.4</jetcache.version>
         <redisson.version>3.25.2</redisson.version>
         <sms4j.version>3.0.4</sms4j.version>
         <aj-captcha.version>1.3.0</aj-captcha.version>
@@ -138,6 +139,33 @@
                 <groupId>p6spy</groupId>
                 <artifactId>p6spy</artifactId>
                 <version>${p6spy.version}</version>
+            </dependency>
+
+            <!-- JetCache（一个基于 Java 的缓存系统封装，提供统一的 API 和注解来简化缓存的使用。提供了比 SpringCache 更加强大的注解，可以原生的支持 TTL、两级缓存、分布式自动刷新，还提供了 Cache 接口用于手工缓存操作） -->
+            <dependency>
+                <groupId>com.alicp.jetcache</groupId>
+                <artifactId>jetcache-autoconfigure</artifactId>
+                <version>${jetcache.version}</version>
+            </dependency>
+
+            <!-- JetCache 注解 -->
+            <dependency>
+                <groupId>com.alicp.jetcache</groupId>
+                <artifactId>jetcache-anno</artifactId>
+                <version>${jetcache.version}</version>
+            </dependency>
+
+            <!-- JetCache Redisson 适配 -->
+            <dependency>
+                <groupId>com.alicp.jetcache</groupId>
+                <artifactId>jetcache-redisson</artifactId>
+                <version>${jetcache.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.redisson</groupId>
+                        <artifactId>redisson</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
 
             <!-- Redisson（不仅仅是一个 Redis Java 客户端） -->
@@ -259,6 +287,13 @@
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
                 <artifactId>continew-starter-data-mybatis-plus</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 缓存模块 - JetCache -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-cache-jetcache</artifactId>
                 <version>${revision}</version>
             </dependency>
 

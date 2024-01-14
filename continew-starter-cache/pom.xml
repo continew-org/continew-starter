@@ -18,6 +18,7 @@
     <modules>
         <module>continew-starter-cache-redisson</module>
         <module>continew-starter-cache-springcache</module>
+        <module>continew-starter-cache-jetcache</module>
     </modules>
 
     <dependencies>
