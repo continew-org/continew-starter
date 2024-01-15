@@ -146,26 +146,31 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public Long add(C req) {
-        if (null == req) {
-            return 0L;
-        }
+        this.beforeAdd(req);
         T entity = BeanUtil.copyProperties(req, entityClass);
         baseMapper.insert(entity);
+        this.afterAdd(req, entity);
         return entity.getId();
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void update(C req, Long id) {
+        this.beforeUpdate(req, id);
         T entity = this.getById(id);
         BeanUtil.copyProperties(req, entity, CopyOptions.create().ignoreNullValue());
         baseMapper.updateById(entity);
+        this.afterUpdate(req, entity);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
+        this.beforeDelete(ids);
         baseMapper.deleteBatchIds(ids);
+        this.afterDelete(ids);
     }
 
     @Override
@@ -210,6 +215,57 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
                 queryWrapper.orderBy(true, order.isAscending(), StrUtil.toUnderlineCase(order.getProperty()));
             }
         }
+    }
+
+    /**
+     * 新增前置处理
+     *
+     * @param req 创建信息
+     */
+    protected void beforeAdd(C req) {
+    }
+
+    /**
+     * 修改前置处理
+     *
+     * @param req 修改信息
+     * @param id  ID
+     */
+    protected void beforeUpdate(C req, Long id) {
+    }
+
+    /**
+     * 删除前置处理
+     *
+     * @param ids ID 列表
+     */
+    protected void beforeDelete(List<Long> ids) {
+    }
+
+    /**
+     * 新增后置处理
+     *
+     * @param req    创建信息
+     * @param entity 实体信息
+     */
+    protected void afterAdd(C req, T entity) {
+    }
+
+    /**
+     * 修改后置处理
+     *
+     * @param req    修改信息
+     * @param entity 实体信息
+     */
+    protected void afterUpdate(C req, T entity) {
+    }
+
+    /**
+     * 删除后置处理
+     *
+     * @param ids ID 列表
+     */
+    private void afterDelete(List<Long> ids) {
     }
 
     /**
