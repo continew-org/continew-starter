@@ -14,26 +14,22 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.base;
+package top.charles7c.continew.starter.extension.crud.constant;
 
-import cn.crane4j.annotation.ContainerMethod;
-import cn.crane4j.annotation.MappingType;
-import top.charles7c.continew.starter.extension.crud.constant.ContainerConstants;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 /**
- * 公共用户业务接口
+ * 数据源容器相关常量（Crane4j 数据填充组件使用）
  *
  * @author Charles7c
- * @since 1.0.0
+ * @since 1.2.0
  */
-public interface CommonUserService {
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
+public class ContainerConstants {
 
     /**
-     * 根据 ID 查询昵称
-     *
-     * @param id ID
-     * @return 昵称
+     * 用户昵称
      */
-    @ContainerMethod(namespace = ContainerConstants.USER_NICKNAME, type = MappingType.NONE)
-    String getNicknameById(Long id);
+    public static final String USER_NICKNAME = "UserNickname";
 }

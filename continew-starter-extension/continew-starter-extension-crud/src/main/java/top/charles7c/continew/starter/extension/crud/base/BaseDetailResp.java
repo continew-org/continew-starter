@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import top.charles7c.continew.starter.extension.crud.constant.ContainerConstants;
 
 import java.io.Serial;
 import java.time.LocalDateTime;
@@ -44,7 +45,7 @@ public class BaseDetailResp extends BaseResp {
      * 修改人
      */
     @JsonIgnore
-    @Assemble(container = "userNickname", props = @Mapping(ref = "updateUserString"))
+    @Assemble(container = ContainerConstants.USER_NICKNAME, props = @Mapping(ref = "updateUserString"))
     private Long updateUser;
 
     /**
