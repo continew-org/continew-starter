@@ -41,10 +41,10 @@ import java.util.List;
  * 控制器基类
  *
  * @param <S> 业务接口
- * @param <L> 列表信息
- * @param <D> 详情信息
+ * @param <L> 列表类型
+ * @param <D> 详情类型
  * @param <Q> 查询条件
- * @param <C> 创建或修改信息
+ * @param <C> 创建或修改类型
  * @author Charles7c
  * @since 1.0.0
  */

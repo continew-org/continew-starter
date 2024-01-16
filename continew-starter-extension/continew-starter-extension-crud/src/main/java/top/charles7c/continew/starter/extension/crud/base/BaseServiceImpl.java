@@ -20,7 +20,6 @@ import cn.crane4j.core.support.OperateTemplate;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
@@ -46,6 +45,7 @@ import top.charles7c.continew.starter.extension.crud.model.resp.PageResp;
 import top.charles7c.continew.starter.extension.crud.util.TreeUtils;
 import top.charles7c.continew.starter.file.excel.util.ExcelUtils;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,15 +54,15 @@ import java.util.List;
  * 业务实现基类
  *
  * @param <M> Mapper 接口
- * @param <T> 实体类
- * @param <L> 列表信息
- * @param <D> 详情信息
+ * @param <T> 实体类型
+ * @param <L> 列表类型
+ * @param <D> 详情类型
  * @param <Q> 查询条件
- * @param <C> 创建或修改信息
+ * @param <C> 创建或修改类型
  * @author Charles7c
  * @since 1.0.0
  */
-public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO, L, D, Q, C extends BaseReq> implements BaseService<L, D, Q, C> {
+public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO, L, D, Q, C extends BaseReq> implements BaseService<L, D, Q, C>, IService<T> {
 
     @Autowired
     protected M baseMapper;
@@ -139,8 +139,8 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
 
     @Override
     public D get(Long id) {
-        T entity = this.getById(id);
-        D detail = BeanUtil.copyProperties(entity, detailClass);
+        T entity = this.getById(id, false);
+        D detail = BeanUtil.toBean(entity, detailClass);
         this.fill(detail);
         return detail;
     }
@@ -180,26 +180,22 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
         ExcelUtils.export(list, "导出数据", detailClass, response);
     }
 
+    @Override
+    public T getById(Serializable id) {
+        return this.getById(id, true);
+    }
+
     /**
      * 填充数据
      *
      * @param obj 待填充信息
      */
     protected void fill(Object obj) {
+        if (null == obj) {
+            return;
+        }
         OperateTemplate operateTemplate = SpringUtil.getBean(OperateTemplate.class);
         operateTemplate.execute(obj);
-    }
-
-    /**
-     * 根据 ID 查询
-     *
-     * @param id ID
-     * @return 实体信息
-     */
-    protected T getById(Object id) {
-        T entity = baseMapper.selectById(Convert.toStr(id));
-        CheckUtils.throwIfNotExists(entity, ClassUtil.getClassName(entityClass, true), "ID", id);
-        return entity;
     }
 
     /**
@@ -215,6 +211,21 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
                 queryWrapper.orderBy(true, order.isAscending(), StrUtil.toUnderlineCase(order.getProperty()));
             }
         }
+    }
+
+    /**
+     * 根据 ID 查询
+     *
+     * @param id            ID
+     * @param isCheckExists 是否检查存在
+     * @return 实体信息
+     */
+    protected T getById(Serializable id, boolean isCheckExists) {
+        T entity = baseMapper.selectById(id);
+        if (isCheckExists) {
+            CheckUtils.throwIfNotExists(entity, ClassUtil.getClassName(entityClass, true), "ID", id);
+        }
+        return entity;
     }
 
     /**
