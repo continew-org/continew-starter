@@ -19,6 +19,7 @@ package top.charles7c.continew.starter.log.httptracepro.handler;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
+import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -169,12 +170,20 @@ public class LogInterceptor implements HandlerInterceptor {
         if (null != methodOperation && methodOperation.hidden()) {
             return false;
         }
+        Hidden methodHidden = handlerMethod.getMethodAnnotation(Hidden.class);
+        if (null != methodHidden) {
+            return false;
+        }
+        Class<?> handlerBeanType = handlerMethod.getBeanType();
+        if (null != handlerBeanType.getDeclaredAnnotation(Hidden.class)) {
+            return false;
+        }
         // 如果接口方法或类上有 @Log 注解，且要求忽略该接口，则不记录日志
         Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
         if (null != methodLog && methodLog.ignore()) {
             return false;
         }
-        Log classLog = handlerMethod.getBeanType().getDeclaredAnnotation(Log.class);
+        Log classLog = handlerBeanType.getDeclaredAnnotation(Log.class);
         return null == classLog || !classLog.ignore();
     }
 }
