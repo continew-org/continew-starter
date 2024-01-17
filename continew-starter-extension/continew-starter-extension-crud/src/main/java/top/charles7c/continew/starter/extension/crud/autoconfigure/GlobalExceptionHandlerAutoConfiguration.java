@@ -16,11 +16,11 @@
 
 package top.charles7c.continew.starter.extension.crud.autoconfigure;
 
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import top.charles7c.continew.starter.extension.crud.handler.GlobalErrorHandler;
 import top.charles7c.continew.starter.extension.crud.handler.GlobalExceptionHandler;
@@ -32,9 +32,13 @@ import top.charles7c.continew.starter.extension.crud.handler.GlobalExceptionHand
  * @since 1.0.0
  */
 @Slf4j
-@AutoConfiguration
+@Configuration(proxyBeanMethods = false)
 @Import({GlobalExceptionHandler.class, GlobalErrorHandler.class})
 @ConditionalOnMissingBean(BasicErrorController.class)
-@ComponentScan("top.charles7c.continew.starter.extension.crud.handler")
 public class GlobalExceptionHandlerAutoConfiguration {
+
+    @PostConstruct
+    public void postConstruct() {
+        log.debug("[ContiNew Starter] - Auto Configuration 'Extension-Global Exception Handler' completed " + "initialization.");
+    }
 }

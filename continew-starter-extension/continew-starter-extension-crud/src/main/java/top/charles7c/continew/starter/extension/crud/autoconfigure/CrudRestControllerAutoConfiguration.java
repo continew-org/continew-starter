@@ -19,8 +19,8 @@ package top.charles7c.continew.starter.extension.crud.autoconfigure;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.format.support.FormattingConversionService;
 import org.springframework.web.accept.ContentNegotiationManager;
@@ -30,14 +30,14 @@ import org.springframework.web.servlet.resource.ResourceUrlProvider;
 import top.charles7c.continew.starter.extension.crud.handler.CrudRequestMappingHandlerMapping;
 
 /**
- * CRUD 自动配置
+ * CRUD REST Controller 自动配置
  *
  * @author Charles7c
  * @since 1.0.0
  */
 @Slf4j
-@AutoConfiguration
-public class CrudAutoConfiguration extends DelegatingWebMvcConfiguration {
+@Configuration
+public class CrudRestControllerAutoConfiguration extends DelegatingWebMvcConfiguration {
 
     /**
      * CRUD 请求映射器处理器映射器（覆盖默认 RequestMappingHandlerMapping）
@@ -58,6 +58,6 @@ public class CrudAutoConfiguration extends DelegatingWebMvcConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Extension-CRUD' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Extension-CRUD REST Controller' completed initialization.");
     }
 }
