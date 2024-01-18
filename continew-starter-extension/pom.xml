@@ -11,8 +11,6 @@
 
     <artifactId>continew-starter-extension</artifactId>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 扩展模块</description>
 
     <modules>

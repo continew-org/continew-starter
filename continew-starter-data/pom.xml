@@ -11,8 +11,6 @@
 
     <artifactId>continew-starter-data</artifactId>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 数据访问模块</description>
 
     <modules>

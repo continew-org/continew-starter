@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-file-excel</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 文件处理模块 - Excel</description>
 
     <dependencies>

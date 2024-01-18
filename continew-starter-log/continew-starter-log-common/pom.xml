@@ -10,8 +10,5 @@
     </parent>
 
     <artifactId>continew-starter-log-common</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 日志模块 - 公共模块</description>
 </project>

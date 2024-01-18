@@ -10,8 +10,5 @@
     </parent>
 
     <artifactId>continew-starter-storage-local</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 存储模块 - 本地存储</description>
 </project>

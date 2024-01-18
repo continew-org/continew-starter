@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-captcha-graphic</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 验证码模块 - 图形验证码</description>
 
     <dependencies>

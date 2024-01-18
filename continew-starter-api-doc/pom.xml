@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-api-doc</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter API 文档模块</description>
 
     <dependencies>

@@ -11,8 +11,6 @@
 
     <artifactId>continew-starter-json</artifactId>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter JSON 模块</description>
 
     <modules>

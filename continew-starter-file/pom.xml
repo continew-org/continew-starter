@@ -11,8 +11,6 @@
 
     <artifactId>continew-starter-file</artifactId>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 文件处理模块</description>
 
     <modules>

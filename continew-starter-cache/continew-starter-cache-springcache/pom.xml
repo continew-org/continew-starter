@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-cache-springcache</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 缓存模块 - Spring Cache</description>
 
     <dependencies>

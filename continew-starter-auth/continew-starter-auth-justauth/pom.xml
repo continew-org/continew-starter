@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-auth-justauth</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 认证模块 - JustAuth</description>
 
     <dependencies>

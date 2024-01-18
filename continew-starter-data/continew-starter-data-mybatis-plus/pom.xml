@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-data-mybatis-plus</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 数据访问模块 - MyBatis Plus</description>
 
     <dependencies>

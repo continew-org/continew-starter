@@ -12,8 +12,6 @@
 
     <artifactId>continew-starter</artifactId>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>
         ContiNew Starter（Continue New Starter）基于“约定优于配置”的理念，
         再次精简常规配置，提供一个更为完整的配置解决方案，帮助开发人员更加快速的集成常用第三方库或工具到 Spring Boot Web 应用程序中。

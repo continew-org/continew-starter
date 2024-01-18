@@ -14,8 +14,6 @@
     <artifactId>continew-starter-dependencies</artifactId>
     <version>${revision}</version>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 依赖模块</description>
     <url>https://github.com/Charles7c/continew-starter</url>
     <licenses>

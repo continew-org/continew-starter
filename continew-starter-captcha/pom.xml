@@ -11,8 +11,6 @@
 
     <artifactId>continew-starter-captcha</artifactId>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 验证码模块</description>
 
     <modules>

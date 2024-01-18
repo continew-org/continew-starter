@@ -11,8 +11,6 @@
 
     <artifactId>continew-starter-messaging</artifactId>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 消息模块</description>
 
     <modules>

@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-extension-crud</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 扩展模块 - CRUD（增删改查）</description>
 
     <dependencies>

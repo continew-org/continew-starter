@@ -11,8 +11,6 @@
 
     <artifactId>continew-starter-log</artifactId>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 日志模块</description>
 
     <modules>

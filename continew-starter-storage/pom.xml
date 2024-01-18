@@ -11,8 +11,6 @@
 
     <artifactId>continew-starter-storage</artifactId>
     <packaging>pom</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 存储模块</description>
 
     <modules>

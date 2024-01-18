@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-log-httptrace-pro</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 日志模块 - HttpTracePro（Spring Boot Actuator HttpTrace 重置增强版）</description>
 
     <dependencies>

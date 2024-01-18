@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-messaging-mail</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 消息模块 - 邮件</description>
 
     <dependencies>

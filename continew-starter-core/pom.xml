@@ -10,9 +10,6 @@
     </parent>
 
     <artifactId>continew-starter-core</artifactId>
-    <packaging>jar</packaging>
-
-    <name>${project.artifactId}</name>
     <description>ContiNew Starter 核心模块</description>
 
     <dependencies>
