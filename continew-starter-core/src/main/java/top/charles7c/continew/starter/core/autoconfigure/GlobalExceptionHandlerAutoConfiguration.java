@@ -20,7 +20,6 @@ import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import top.charles7c.continew.starter.core.exception.GlobalErrorHandler;
@@ -36,7 +35,6 @@ import top.charles7c.continew.starter.core.exception.GlobalExceptionHandler;
 @Configuration(proxyBeanMethods = false)
 @Import({GlobalExceptionHandler.class, GlobalErrorHandler.class})
 @ConditionalOnMissingBean(BasicErrorController.class)
-@ComponentScan("top.charles7c.continew.starter.**.exception")
 public class GlobalExceptionHandlerAutoConfiguration {
 
     @PostConstruct

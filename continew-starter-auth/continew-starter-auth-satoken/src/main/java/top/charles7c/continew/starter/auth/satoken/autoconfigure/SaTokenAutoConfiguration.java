@@ -29,10 +29,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.*;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.charles7c.continew.starter.core.constant.StringConstants;
@@ -47,6 +44,7 @@ import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
 @Slf4j
 @AutoConfiguration
 @RequiredArgsConstructor
+@ComponentScan("top.charles7c.continew.starter.auth.satoken.exception")
 @EnableConfigurationProperties(SaTokenExtensionProperties.class)
 @ConditionalOnProperty(prefix = "sa-token.extension", name = "enabled", havingValue = "true")
 @PropertySource(value = "classpath:default-auth-satoken.yml", factory = GeneralPropertySourceFactory.class)
