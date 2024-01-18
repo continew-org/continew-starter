@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.annotation;
+package top.charles7c.continew.starter.core.annotation;
 
 import org.springframework.context.annotation.Import;
-import top.charles7c.continew.starter.extension.crud.autoconfigure.GlobalExceptionHandlerAutoConfiguration;
+import top.charles7c.continew.starter.core.autoconfigure.GlobalExceptionHandlerAutoConfiguration;
 
 import java.lang.annotation.*;
 

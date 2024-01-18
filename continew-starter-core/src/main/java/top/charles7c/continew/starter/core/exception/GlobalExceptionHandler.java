@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.handler;
+package top.charles7c.continew.starter.core.exception;
 
-import cn.dev33.satoken.exception.NotLoginException;
-import cn.dev33.satoken.exception.NotPermissionException;
-import cn.dev33.satoken.exception.NotRoleException;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.StrUtil;
@@ -36,10 +33,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import top.charles7c.continew.starter.core.constant.StringConstants;
-import top.charles7c.continew.starter.core.exception.BadRequestException;
-import top.charles7c.continew.starter.core.exception.BusinessException;
+import top.charles7c.continew.starter.core.model.R;
 import top.charles7c.continew.starter.core.util.ExceptionUtils;
-import top.charles7c.continew.starter.extension.crud.model.resp.R;
 
 import java.util.Objects;
 
@@ -115,38 +110,6 @@ public class GlobalExceptionHandler {
         String sizeLimit = StrUtil.subBetween(e.getMessage(), "The maximum size ", " for");
         String errorMsg = String.format("请上传小于 %sMB 的文件", NumberUtil.parseLong(sizeLimit) / 1024 / 1024);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
-    }
-
-    /**
-     * 认证异常-登录认证
-     */
-    @ExceptionHandler(NotLoginException.class)
-    public R handleNotLoginException(NotLoginException e, HttpServletRequest request) {
-        log.error("请求地址 [{}]，认证失败，无法访问系统资源。", request.getRequestURI(), e);
-        String errorMsg = switch (e.getType()) {
-            case NotLoginException.KICK_OUT -> "您已被踢下线。";
-            case NotLoginException.BE_REPLACED_MESSAGE -> "您已被顶下线。";
-            default -> "您的登录状态已过期，请重新登录。";
-        };
-        return R.fail(HttpStatus.UNAUTHORIZED.value(), errorMsg);
-    }
-
-    /**
-     * 认证异常-权限认证
-     */
-    @ExceptionHandler(NotPermissionException.class)
-    public R handleNotPermissionException(NotPermissionException e, HttpServletRequest request) {
-        log.error("请求地址 [{}]，权限码校验失败。", request.getRequestURI(), e);
-        return R.fail(HttpStatus.FORBIDDEN.value(), "没有访问权限，请联系管理员授权");
-    }
-
-    /**
-     * 认证异常-角色认证
-     */
-    @ExceptionHandler(NotRoleException.class)
-    public R handleNotRoleException(NotRoleException e, HttpServletRequest request) {
-        log.error("请求地址 [{}]，角色权限校验失败。", request.getRequestURI(), e);
-        return R.fail(HttpStatus.FORBIDDEN.value(), "没有访问权限，请联系管理员授权");
     }
 
     /**

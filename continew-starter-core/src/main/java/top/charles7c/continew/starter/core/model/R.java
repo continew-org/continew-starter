@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.model.resp;
+package top.charles7c.continew.starter.core.model;
 
 import cn.hutool.core.date.DateUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -39,6 +39,9 @@ public class R<T> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    private static final int SUCCESS_CODE = HttpStatus.OK.value();
+    private static final int FAIL_CODE = HttpStatus.INTERNAL_SERVER_ERROR.value();
 
     /**
      * 是否成功
@@ -70,15 +73,6 @@ public class R<T> implements Serializable {
     @Schema(description = "时间戳", example = "1691453288")
     private long timestamp = DateUtil.currentSeconds();
 
-    /**
-     * 成功状态码
-     */
-    private static final int SUCCESS_CODE = HttpStatus.OK.value();
-    /**
-     * 失败状态码
-     */
-    private static final int FAIL_CODE = HttpStatus.INTERNAL_SERVER_ERROR.value();
-
     private R(boolean success, int code, String msg, T data) {
         this.success = success;
         this.code = code;
@@ -86,38 +80,102 @@ public class R<T> implements Serializable {
         this.data = data;
     }
 
+    /**
+     * 操作成功
+     *
+     * @param <T> 响应数据类型
+     * @return R /
+     */
     public static <T> R<T> ok() {
         return new R<>(true, SUCCESS_CODE, "操作成功", null);
     }
 
+    /**
+     * 操作成功
+     *
+     * @param data 响应数据
+     * @param <T>  响应数据类型
+     * @return R /
+     */
     public static <T> R<T> ok(T data) {
         return new R<>(true, SUCCESS_CODE, "操作成功", data);
     }
 
+    /**
+     * 操作成功
+     *
+     * @param msg 业务状态信息
+     * @param <T> 响应数据类型
+     * @return R /
+     */
     public static <T> R<T> ok(String msg) {
         return new R<>(true, SUCCESS_CODE, msg, null);
     }
 
+    /**
+     * 操作成功
+     *
+     * @param msg  业务状态信息
+     * @param data 响应数据
+     * @param <T>  响应数据类型
+     * @return R /
+     */
     public static <T> R<T> ok(String msg, T data) {
         return new R<>(true, SUCCESS_CODE, msg, data);
     }
 
+    /**
+     * 操作失败
+     *
+     * @param <T> 响应数据类型
+     * @return R /
+     */
     public static <T> R<T> fail() {
         return new R<>(false, FAIL_CODE, "操作失败", null);
     }
 
+    /**
+     * 操作失败
+     *
+     * @param msg 业务状态信息
+     * @param <T> 响应数据类型
+     * @return R /
+     */
     public static <T> R<T> fail(String msg) {
         return new R<>(false, FAIL_CODE, msg, null);
     }
 
+    /**
+     * 操作失败
+     *
+     * @param data 响应数据
+     * @param <T>  响应数据类型
+     * @return R /
+     */
     public static <T> R<T> fail(T data) {
         return new R<>(false, FAIL_CODE, "操作失败", data);
     }
 
+    /**
+     * 操作失败
+     *
+     * @param msg  业务状态信息
+     * @param data 响应数据
+     * @param <T>  响应数据类型
+     * @return R /
+     */
     public static <T> R<T> fail(String msg, T data) {
         return new R<>(false, FAIL_CODE, msg, data);
     }
 
+    /**
+     * 操作失败
+     *
+     * @param code 业务状态码
+     * @param msg  业务状态信息
+     * @param <T>  响应数据类型
+     * @return R /
+     */
     public static <T> R<T> fail(int code, String msg) {
         return new R<>(false, code, msg, null);
     }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.handler;
+package top.charles7c.continew.starter.core.exception;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONUtil;
@@ -32,7 +32,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import top.charles7c.continew.starter.extension.crud.model.resp.R;
+import top.charles7c.continew.starter.core.model.R;
 
 import java.io.IOException;
 import java.util.List;
