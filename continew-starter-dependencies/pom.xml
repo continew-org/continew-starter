@@ -54,6 +54,7 @@
     </scm>
 
     <properties>
+        <!-- 项目版本号 -->
         <revision>1.2.0-SNAPSHOT</revision>
         <sa-token.version>1.37.0</sa-token.version>
         <just-auth.version>1.16.6</just-auth.version>
@@ -74,6 +75,9 @@
         <ttl.version>2.14.4</ttl.version>
         <ip2region.version>3.1.6</ip2region.version>
         <hutool.version>5.8.24</hutool.version>
+        <!-- Maven Plugin Versions -->
+        <flatten.version>1.5.0</flatten.version>
+        <spotless.version>2.40.0</spotless.version>
     </properties>
 
     <dependencyManagement>
@@ -392,11 +396,10 @@
 
     <build>
         <plugins>
-            <!-- 扁平化 Maven 插件（统一版本号） -->
+            <!-- 统一版本号插件 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.5.0</version>
                 <inherited>false</inherited>
                 <executions>
                     <execution>
@@ -524,6 +527,22 @@
                 </executions>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- 统一版本号插件 -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>flatten-maven-plugin</artifactId>
+                    <version>${flatten.version}</version>
+                </plugin>
+                <!-- 代码格式化插件 -->
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>${spotless.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <profiles>

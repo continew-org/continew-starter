@@ -98,7 +98,6 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <version>2.40.0</version>
                 <executions>
                     <execution>
                         <phase>compile</phase>
@@ -119,11 +118,10 @@
                     </java>
                 </configuration>
             </plugin>
-            <!-- 扁平化 Maven 插件（统一版本号） -->
+            <!-- 统一版本号插件 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.5.0</version>
                 <configuration>
                     <updatePomFile>true</updatePomFile>
                     <flattenMode>oss</flattenMode>
@@ -141,7 +139,7 @@
                         </goals>
                     </execution>
                     <execution>
-                        <id>flatten.clean</id>
+                        <id>flatten-clean</id>
                         <phase>clean</phase>
                         <goals>
                             <goal>clean</goal>
