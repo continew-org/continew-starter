@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.core.autoconfigure.project;
 
-import cn.hutool.extra.spring.SpringUtil;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -74,17 +73,6 @@ public class ProjectProperties {
      * 是否为生产环境
      */
     private boolean production = false;
-
-    /**
-     * 是否启用本地解析 IP 归属地
-     */
-    public static final boolean IP_ADDR_LOCAL_PARSE_ENABLED;
-
-    static {
-        IP_ADDR_LOCAL_PARSE_ENABLED = SpringUtil
-            .getProperty("project.ip-addr-local-parse-enabled", boolean.class, false) || SpringUtil
-                .getProperty("project.ipAddrLocalParseEnabled", boolean.class, false);
-    }
 
     /**
      * 联系人配置属性

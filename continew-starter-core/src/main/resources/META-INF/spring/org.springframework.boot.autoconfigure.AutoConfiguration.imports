@@ -1,4 +1,4 @@
 top.charles7c.continew.starter.core.autoconfigure.project.ProjectAutoConfiguration
 top.charles7c.continew.starter.core.autoconfigure.threadpool.ThreadPoolAutoConfiguration
 top.charles7c.continew.starter.core.autoconfigure.threadpool.AsyncAutoConfiguration
-top.charles7c.continew.starter.core.autoconfigure.cors.CorsAutoConfiguration
+top.charles7c.continew.starter.web.autoconfigure.cors.CorsAutoConfiguration

@@ -22,8 +22,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
 import top.charles7c.continew.starter.core.constant.StringConstants;
-import top.charles7c.continew.starter.core.util.ServletUtils;
 import top.charles7c.continew.starter.log.common.model.RecordableHttpResponse;
+import top.charles7c.continew.starter.web.util.ServletUtils;
 
 import java.util.*;
 

@@ -33,7 +33,7 @@ import org.springframework.context.annotation.*;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.charles7c.continew.starter.core.constant.StringConstants;
-import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
+import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
 
 /**
  * Sa-Token 自动配置

@@ -29,7 +29,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
-import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
+import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.charles7c.continew.starter.json.jackson.serializer.BigNumberSerializer;
 
 import java.math.BigInteger;

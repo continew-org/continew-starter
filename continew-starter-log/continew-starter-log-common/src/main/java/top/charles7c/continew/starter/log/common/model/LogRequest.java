@@ -21,8 +21,8 @@ import lombok.Data;
 import org.springframework.http.HttpHeaders;
 import top.charles7c.continew.starter.core.util.ExceptionUtils;
 import top.charles7c.continew.starter.core.util.IpUtils;
-import top.charles7c.continew.starter.core.util.ServletUtils;
 import top.charles7c.continew.starter.log.common.enums.Include;
+import top.charles7c.continew.starter.web.util.ServletUtils;
 
 import java.net.URI;
 import java.util.Map;

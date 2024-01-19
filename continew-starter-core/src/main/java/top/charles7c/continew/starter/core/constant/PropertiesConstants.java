@@ -39,14 +39,19 @@ public class PropertiesConstants {
     public static final String ENABLED = "enabled";
 
     /**
-     * 跨域配置
-     */
-    public static final String CORS = CONTINEW_STARTER + ".cors";
-
-    /**
      * 线程池配置
      */
     public static final String THREAD_POOL = CONTINEW_STARTER + ".thread-pool";
+
+    /**
+     * Web 配置
+     */
+    public static final String WEB = CONTINEW_STARTER + ".web";
+
+    /**
+     * 跨域配置
+     */
+    public static final String CORS = WEB + ".cors";
 
     /**
      * 日志配置

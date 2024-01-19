@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.core.handler;
+package top.charles7c.continew.starter.core.util;
 
 import cn.hutool.core.util.StrUtil;
 import org.springframework.boot.env.YamlPropertySourceLoader;

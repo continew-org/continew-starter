@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.core.autoconfigure.cors;
+package top.charles7c.continew.starter.web.autoconfigure.cors;
 
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;

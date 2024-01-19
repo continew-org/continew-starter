@@ -18,5 +18,11 @@
             <groupId>top.charles7c.continew</groupId>
             <artifactId>continew-starter-cache-redisson</artifactId>
         </dependency>
+
+        <!-- Hutool 加密解密模块（封装 JDK 中加密解密算法） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-crypto</artifactId>
+        </dependency>
     </dependencies>
 </project>

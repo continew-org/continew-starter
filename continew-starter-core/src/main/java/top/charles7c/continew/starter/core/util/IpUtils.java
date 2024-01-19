@@ -21,15 +21,11 @@ import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HtmlUtil;
-import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dreamlu.mica.ip2region.core.Ip2regionSearcher;
 import net.dreamlu.mica.ip2region.core.IpInfo;
-import top.charles7c.continew.starter.core.autoconfigure.project.ProjectProperties;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.Set;
@@ -45,46 +41,12 @@ import java.util.Set;
 public class IpUtils {
 
     /**
-     * 太平洋网开放 API：查询 IP 归属地
-     */
-    private static final String IP_URL = "http://whois.pconline.com.cn/ipJson.jsp?ip=%s&json=true";
-
-    /**
-     * 查询 IP 归属地
-     *
-     * @param ip IP 地址
-     * @return IP 归属地
-     */
-    public static String getAddress(String ip) {
-        if (ProjectProperties.IP_ADDR_LOCAL_PARSE_ENABLED) {
-            return getAddressByLocal(ip);
-        } else {
-            return getAddressByHttp(ip);
-        }
-    }
-
-    /**
-     * 查询 IP 归属地（网络解析）
-     *
-     * @param ip IP 地址
-     * @return IP 归属地
-     */
-    public static String getAddressByHttp(String ip) {
-        if (isInnerIp(ip)) {
-            return "内网IP";
-        }
-        String api = String.format(IP_URL, ip);
-        JSONObject object = JSONUtil.parseObj(HttpUtil.get(api));
-        return object.get("addr", String.class);
-    }
-
-    /**
      * 查询 IP 归属地（本地库解析）
      *
      * @param ip IP 地址
      * @return IP 归属地
      */
-    public static String getAddressByLocal(String ip) {
+    public static String getAddress(String ip) {
         if (isInnerIp(ip)) {
             return "内网IP";
         }

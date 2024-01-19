@@ -35,7 +35,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
+import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionFilter;
 import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionHandlerImpl;
 

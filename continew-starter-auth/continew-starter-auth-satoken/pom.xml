@@ -25,9 +25,10 @@
             <artifactId>sa-token-jwt</artifactId>
         </dependency>
 
+        <!-- Web 模块 -->
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-jwt</artifactId>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-web</artifactId>
         </dependency>
     </dependencies>
 </project>

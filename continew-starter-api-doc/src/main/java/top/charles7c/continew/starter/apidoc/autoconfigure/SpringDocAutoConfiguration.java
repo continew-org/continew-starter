@@ -38,7 +38,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.charles7c.continew.starter.core.autoconfigure.project.ProjectProperties;
-import top.charles7c.continew.starter.core.handler.GeneralPropertySourceFactory;
+import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import java.util.List;
 import java.util.Map;

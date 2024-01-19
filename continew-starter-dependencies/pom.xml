@@ -92,12 +92,6 @@
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-jwt</artifactId>
                 <version>${sa-token.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>cn.hutool</groupId>
-                        <artifactId>hutool-jwt</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- Just Auth（开箱即用的整合第三方登录的开源组件，脱离繁琐的第三方登录 SDK，让登录变得 So easy!） -->
@@ -111,10 +105,6 @@
                 <artifactId>justauth-spring-boot-starter</artifactId>
                 <version>1.4.0</version>
                 <exclusions>
-                    <exclusion>
-                        <groupId>cn.hutool</groupId>
-                        <artifactId>hutool-core</artifactId>
-                    </exclusion>
                     <exclusion>
                         <groupId>me.zhyd.oauth</groupId>
                         <artifactId>JustAuth</artifactId>
@@ -182,12 +172,6 @@
                 <groupId>org.dromara.sms4j</groupId>
                 <artifactId>sms4j-spring-boot-starter</artifactId>
                 <version>${sms4j.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>cn.hutool</groupId>
-                        <artifactId>hutool-crypto</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- AJ-Captcha（行为验证码，包含滑动拼图、文字点选两种方式，UI支持弹出和嵌入两种方式） -->
@@ -223,12 +207,6 @@
                 <groupId>org.dromara.x-file-storage</groupId>
                 <artifactId>x-file-storage-spring</artifactId>
                 <version>${x-file-storage.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>cn.hutool</groupId>
-                        <artifactId>hutool-core</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- Amazon S3（Amazon Simple Storage Service，亚马逊简单存储服务，通用存储协议 S3，兼容主流云厂商对象存储） -->
@@ -243,12 +221,6 @@
                 <groupId>cn.crane4j</groupId>
                 <artifactId>crane4j-spring-boot-starter</artifactId>
                 <version>${crane4j.version}</version>
-                <exclusions>
-                    <exclusion>
-                        <groupId>cn.hutool</groupId>
-                        <artifactId>hutool-core</artifactId>
-                    </exclusion>
-                </exclusions>
             </dependency>
 
             <!-- Knife4j（前身是 swagger-bootstrap-ui，集 Swagger2 和 OpenAPI3 为一体的增强解决方案） -->
@@ -282,7 +254,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
@@ -406,6 +377,13 @@
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
                 <artifactId>continew-starter-json-jackson</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- Web 模块 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-web</artifactId>
                 <version>${revision}</version>
             </dependency>
 

@@ -13,6 +13,12 @@
     <description>ContiNew Starter JSON 模块 - Jackson</description>
 
     <dependencies>
+        <!-- Spring Boot JSON 模块 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-json</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
