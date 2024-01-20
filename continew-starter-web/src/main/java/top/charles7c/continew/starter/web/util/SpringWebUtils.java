@@ -33,13 +33,13 @@ import top.charles7c.continew.starter.core.constant.StringConstants;
 import java.util.Map;
 
 /**
- * Spring 工具类
+ * Spring Web 工具类
  *
  * @author Charles7c
  * @since 1.1.1
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class SpringUtils {
+public class SpringWebUtils {
 
     /**
      * 取消注册静态资源映射
