@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.auth.satoken.handler;
+package top.charles7c.continew.starter.auth.satoken.core;
 
 import cn.dev33.satoken.dao.SaTokenDao;
 import cn.dev33.satoken.util.SaFoxUtil;

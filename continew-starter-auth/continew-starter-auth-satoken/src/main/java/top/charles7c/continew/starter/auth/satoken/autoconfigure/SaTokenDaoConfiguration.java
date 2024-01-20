@@ -27,7 +27,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import top.charles7c.continew.starter.auth.satoken.handler.SaTokenDaoRedisImpl;
+import top.charles7c.continew.starter.auth.satoken.core.SaTokenDaoRedisImpl;
 import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 
 /**

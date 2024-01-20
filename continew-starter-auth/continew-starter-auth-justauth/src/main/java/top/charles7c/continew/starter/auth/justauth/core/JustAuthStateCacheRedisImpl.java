@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.auth.justauth.impl;
+package top.charles7c.continew.starter.auth.justauth.core;
 
 import me.zhyd.oauth.cache.AuthStateCache;
 import top.charles7c.continew.starter.cache.redisson.util.RedisUtils;

@@ -24,7 +24,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import top.charles7c.continew.starter.auth.justauth.impl.JustAuthStateCacheRedisImpl;
+import top.charles7c.continew.starter.auth.justauth.core.JustAuthStateCacheRedisImpl;
 
 /**
  * JustAuth 自动配置

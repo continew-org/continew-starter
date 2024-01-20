@@ -32,7 +32,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 import top.charles7c.continew.starter.captcha.behavior.enums.StorageType;
-import top.charles7c.continew.starter.captcha.behavior.impl.BehaviorCaptchaCacheServiceImpl;
+import top.charles7c.continew.starter.captcha.behavior.core.BehaviorCaptchaCacheServiceImpl;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 /**
