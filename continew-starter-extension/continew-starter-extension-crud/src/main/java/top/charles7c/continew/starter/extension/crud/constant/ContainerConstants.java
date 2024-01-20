@@ -16,20 +16,16 @@
 
 package top.charles7c.continew.starter.extension.crud.constant;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 /**
  * 数据源容器相关常量（Crane4j 数据填充组件使用）
  *
  * @author Charles7c
  * @since 1.2.0
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ContainerConstants {
+public interface ContainerConstants {
 
     /**
      * 用户昵称
      */
-    public static final String USER_NICKNAME = "UserNickname";
+    String USER_NICKNAME = "UserNickname";
 }
