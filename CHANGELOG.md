@@ -1,4 +1,34 @@
-## [v1.1.1](https://github.com/Charles7c/continew-starter/compare/v1.1.0...v1.1.1) (2024-01-11)
+## [v1.2.0](https://github.com/Charles7c/continew-starter/compare/v1.1.1...v1.2.0) (2024-01-20)
+
+### ✨ 新特性
+
+* 【extension/crud】新增 Easy Excel 枚举接口转换器 ([8936268](https://github.com/Charles7c/continew-starter/commit/8936268038b4f554d00f738a2311b560bda205d8))
+* 【extension/crud】适配 Crane4j 数据填充组件 ([5d26f34](https://github.com/Charles7c/continew-starter/commit/5d26f343da7c467905fd08dfd06aaa2c50e8bcce))
+* 【extension/crud】新增钩子方法，用于增强增、删、改方法 ([43dba72](https://github.com/Charles7c/continew-starter/commit/43dba72cee9cb148a53ec2df23b0ac2854a0a42d))
+* 【extension/crud】新增 IService 通用业务接口 ([926c92c](https://github.com/Charles7c/continew-starter/commit/926c92cc321e5da9279400741986f71173a3eda3))
+* 【extension/crud】新增启用注解，便于灵活控制启用/关闭 CRUD REST API、全局异常处理器增强 ([9398d68](https://github.com/Charles7c/continew-starter/commit/9398d686bbd3b87a2a82e273a5bda37d05ca6f30))
+* 【cache/springcache】新增 Spring Cache 自动配置 ([e090083](https://github.com/Charles7c/continew-starter/commit/e090083ba26342aaf8378206949d6350f4f1444f))
+* 【cache/jetcache】新增 JetCache 自动配置 ([156b02b](https://github.com/Charles7c/continew-starter/commit/156b02b3d77fa9f0476c23182d35df030a3ea66a))
+* 【web】新增 Web 模块，从核心模块拆分 Web 相关自动配置 ([9cf76fe](https://github.com/Charles7c/continew-starter/commit/9cf76fe61f2368244a501c1c036c0a55502f5c0a))
+
+### 💎 功能优化
+
+- 新增部分 Maven 插件版本锁定 ([be14bca](https://github.com/Charles7c/continew-starter/commit/be14bca2ca6ba5a808f7feebaafcf9356d338643))
+- 移除部分无用 Maven 配置 ([6d9e8b4](https://github.com/Charles7c/continew-starter/commit/6d9e8b43ebe8d891ab459a2c2f21e06936abdc1d))
+- 全局统一 Hutool 版本，精简各模块 Hutool 依赖 ([Gitee PR#6](https://gitee.com/Charles7c/continew-starter/pulls/6))
+- 调整部分类的所在包 ([b4b40b4](https://github.com/Charles7c/continew-starter/commit/b4b40b4cb929824e44bc7ad8737cbe73b283b34d))
+
+### 🐛 问题修复
+
+- 【log/httptrace-pro】修复隐藏接口仍然被记录请求日志的问题 ([f3ad2c4](https://github.com/Charles7c/continew-starter/commit/f3ad2c48a9511ef611d414596539e838adef8e45))
+
+### 💥 破坏性变更
+
+- 【extension/crud】移动全局异常处理器到 Web 模块 ([ec0ebd0](https://github.com/Charles7c/continew-starter/commit/ec0ebd00e49a2e67daa97d4a4f531f49acd5d89d))
+
+## [v1.1.2](https://github.com/Charles7c/continew-starter/compare/v1.1.0...v1.1.2) (2024-01-11)
+
+> 由于发布 `v1.1.1` 至 Maven 仓库时出现异常，且按其规则无法修改错误数据，改为递增版本号为 `v1.1.2` 并发布。
 
 ### ✨ 新特性
 
