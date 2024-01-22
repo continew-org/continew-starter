@@ -35,10 +35,7 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.core.exception.BadRequestException;
 import top.charles7c.continew.starter.core.exception.BusinessException;
-import top.charles7c.continew.starter.core.util.ExceptionUtils;
 import top.charles7c.continew.starter.web.model.R;
-
-import java.util.Objects;
 
 /**
  * 全局异常处理器
@@ -87,8 +84,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public R handleMethodArgumentNotValidException(MethodArgumentNotValidException e, HttpServletRequest request) {
         log.warn("请求地址 [{}]，参数验证失败。", request.getRequestURI(), e);
-        String errorMsg = ExceptionUtils.exToNull(() -> Objects.requireNonNull(e.getBindingResult().getFieldError())
-            .getDefaultMessage());
+        String errorMsg = CollUtil.join(e
+            .getAllErrors(), StringConstants.CHINESE_COMMA, DefaultMessageSourceResolvable::getDefaultMessage);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
     }
 

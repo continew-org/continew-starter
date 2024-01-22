@@ -17,11 +17,18 @@
 package top.charles7c.continew.starter.web.autoconfigure.exception;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.validator.HibernateValidator;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
 import top.charles7c.continew.starter.web.core.exception.GlobalErrorHandler;
 import top.charles7c.continew.starter.web.core.exception.GlobalExceptionHandler;
 
@@ -36,6 +43,25 @@ import top.charles7c.continew.starter.web.core.exception.GlobalExceptionHandler;
 @Import({GlobalExceptionHandler.class, GlobalErrorHandler.class})
 @ConditionalOnMissingBean(BasicErrorController.class)
 public class GlobalExceptionHandlerAutoConfiguration {
+
+    /**
+     * Validator 失败立即返回模式配置
+     *
+     * <p>
+     * 默认情况下会校验完所有字段，然后才抛出异常。
+     * </p>
+     */
+    @Bean
+    public Validator validator(AutowireCapableBeanFactory beanFactory) {
+        ValidatorFactory validatorFactory = Validation.byProvider(HibernateValidator.class)
+            .configure()
+            .failFast(true)
+            .constraintValidatorFactory(new SpringConstraintValidatorFactory(beanFactory))
+            .buildValidatorFactory();
+        try (validatorFactory) {
+            return validatorFactory.getValidator();
+        }
+    }
 
     @PostConstruct
     public void postConstruct() {
