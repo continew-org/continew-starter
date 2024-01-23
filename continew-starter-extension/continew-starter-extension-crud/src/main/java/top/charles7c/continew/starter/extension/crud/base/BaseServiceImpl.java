@@ -20,6 +20,7 @@ import cn.crane4j.core.support.OperateTemplate;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
@@ -33,9 +34,11 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
+import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.core.util.ClassUtils;
 import top.charles7c.continew.starter.core.util.ReflectUtils;
 import top.charles7c.continew.starter.core.util.validate.CheckUtils;
+import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
 import top.charles7c.continew.starter.data.mybatis.plus.base.BaseMapper;
 import top.charles7c.continew.starter.data.mybatis.plus.query.QueryHelper;
 import top.charles7c.continew.starter.extension.crud.annotation.TreeField;
@@ -48,7 +51,9 @@ import top.charles7c.continew.starter.file.excel.util.ExcelUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 业务实现基类
@@ -71,6 +76,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     protected final Class<T> entityClass = this.currentEntityClass();
     protected final Class<L> listClass = this.currentListClass();
     protected final Class<D> detailClass = this.currentDetailClass();
+    private final Field[] entityFields = this.entityClass.getDeclaredFields();
 
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
@@ -208,7 +214,19 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
         Sort sort = Opt.ofNullable(sortQuery).orElseGet(SortQuery::new).getSort();
         for (Sort.Order order : sort) {
             if (null != order) {
-                queryWrapper.orderBy(true, order.isAscending(), StrUtil.toUnderlineCase(order.getProperty()));
+                String property = order.getProperty();
+                String checkProperty;
+                // 携带表别名,获取.后面的字段名
+                if (property.contains(StringConstants.DOT)) {
+                    checkProperty = CollectionUtil.getLast(StrUtil.split(property, StringConstants.DOT));
+                } else {
+                    checkProperty = property;
+                }
+                Optional<Field> optional = Arrays.stream(entityFields)
+                    .filter(field -> checkProperty.equals(field.getName()))
+                    .findFirst();
+                ValidationUtils.throwIf(optional.isEmpty(), "无效的排序字段 [{}]。", property);
+                queryWrapper.orderBy(true, order.isAscending(), StrUtil.toUnderlineCase(property));
             }
         }
     }
