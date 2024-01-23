@@ -76,11 +76,13 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     protected final Class<T> entityClass = this.currentEntityClass();
     protected final Class<L> listClass = this.currentListClass();
     protected final Class<D> detailClass = this.currentDetailClass();
+    protected final Class<Q> queryClass = this.currentQueryClass();
     private final Field[] entityFields = this.entityClass.getDeclaredFields();
+    private final List<Field> queryFields = ReflectUtils.getNonStaticFields(queryClass);
 
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
-        QueryWrapper<T> queryWrapper = QueryHelper.build(query);
+        QueryWrapper<T> queryWrapper = handleQueryWrapper(query);
         IPage<T> page = baseMapper.selectPage(pageQuery.toPage(), queryWrapper);
         PageResp<L> pageResp = PageResp.build(page, listClass);
         pageResp.getList().forEach(this::fill);
@@ -133,7 +135,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @return 列表信息
      */
     protected <E> List<E> list(Q query, SortQuery sortQuery, Class<E> targetClass) {
-        QueryWrapper<T> queryWrapper = QueryHelper.build(query);
+        QueryWrapper<T> queryWrapper = handleQueryWrapper(query);
         // 设置排序
         this.sort(queryWrapper, sortQuery);
         List<T> entityList = baseMapper.selectList(queryWrapper);
@@ -247,6 +249,22 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     /**
+     * 获取当前详情信息类型
+     *
+     * @return 当前详情信息类型
+     */
+    protected QueryWrapper<T> handleQueryWrapper(Q query) {
+        QueryWrapper<T> queryWrapper = new QueryWrapper<>();
+        // 没有查询条件，直接返回
+        if (null == query) {
+            return queryWrapper;
+        }
+        // 获取查询条件中所有的字段
+        queryFields.forEach(field -> QueryHelper.buildQuery(query, field, queryWrapper));
+        return queryWrapper;
+    }
+
+    /**
      * 新增前置处理
      *
      * @param req 创建信息
@@ -322,5 +340,14 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      */
     protected Class<D> currentDetailClass() {
         return (Class<D>)this.typeArguments[3];
+    }
+
+    /**
+     * 获取当前查询类型
+     *
+     * @return 当前查询类型
+     */
+    protected Class<Q> currentQueryClass() {
+        return (Class<Q>)this.typeArguments[4];
     }
 }

@@ -31,20 +31,15 @@ import java.lang.annotation.*;
 public @interface Query {
 
     /**
-     * 属性名（默认和使用该注解的属性的名称一致）
+     * 属性名数组
+     * columns为空 走实体类的字段，并且根据queryType来查询;
+     * columns不为空且columns长度为1，走columns[0]的字段，并且根据queryType来查询；
+     * columns不为空且columns长度大于1，走columns的所有字段， 并且根据queryType来查询； columns之间的处理是OR操作。
      */
-    String property() default "";
+    String[] columns() default {};
 
     /**
      * 查询类型（等值查询、模糊查询、范围查询等）
      */
     QueryType type() default QueryType.EQUAL;
-
-    /**
-     * 多属性模糊查询，仅支持 String 类型属性
-     * <p>
-     * 例如：@Query(blurry = {"username", "email"}) 表示根据用户名和邮箱模糊查询
-     * </p>
-     */
-    String[] blurry() default {};
 }
