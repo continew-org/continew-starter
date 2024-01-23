@@ -21,8 +21,9 @@ import java.lang.annotation.*;
 /**
  * 查询注解
  *
- * @author Zheng Jie（<a href="https://gitee.com/elunez/eladmin">ELADMIN</a>）
  * @author Charles7c
+ * @author Jasmine
+ * @author Zheng Jie（<a href="https://gitee.com/elunez/eladmin">ELADMIN</a>）
  * @since 1.0.0
  */
 @Target(ElementType.FIELD)
@@ -31,15 +32,17 @@ import java.lang.annotation.*;
 public @interface Query {
 
     /**
-     * 属性名数组
-     * columns为空 走实体类的字段，并且根据queryType来查询;
-     * columns不为空且columns长度为1，走columns[0]的字段，并且根据queryType来查询；
-     * columns不为空且columns长度大于1，走columns的所有字段， 并且根据queryType来查询； columns之间的处理是OR操作。
+     * 列名
+     *
+     * <p>
+     * columns 为空时，默认取值字段名（自动转换为下划线命名）；<br>
+     * columns 不为空且 columns 长度大于 1，多个列查询条件之间为或关系（OR）。
+     * </p>
      */
     String[] columns() default {};
 
     /**
      * 查询类型（等值查询、模糊查询、范围查询等）
      */
-    QueryType type() default QueryType.EQUAL;
+    QueryType type() default QueryType.EQ;
 }

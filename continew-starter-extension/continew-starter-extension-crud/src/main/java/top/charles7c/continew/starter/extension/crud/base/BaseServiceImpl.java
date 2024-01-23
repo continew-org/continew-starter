@@ -51,7 +51,6 @@ import top.charles7c.continew.starter.file.excel.util.ExcelUtils;
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -77,8 +76,8 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     protected final Class<L> listClass = this.currentListClass();
     protected final Class<D> detailClass = this.currentDetailClass();
     protected final Class<Q> queryClass = this.currentQueryClass();
-    private final Field[] entityFields = this.entityClass.getDeclaredFields();
-    private final List<Field> queryFields = ReflectUtils.getNonStaticFields(queryClass);
+    private final List<Field> entityFields = ReflectUtils.getNonStaticFields(this.entityClass);
+    private final List<Field> queryFields = ReflectUtils.getNonStaticFields(this.queryClass);
 
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
@@ -194,46 +193,6 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     /**
-     * 填充数据
-     *
-     * @param obj 待填充信息
-     */
-    protected void fill(Object obj) {
-        if (null == obj) {
-            return;
-        }
-        OperateTemplate operateTemplate = SpringUtil.getBean(OperateTemplate.class);
-        operateTemplate.execute(obj);
-    }
-
-    /**
-     * 设置排序
-     *
-     * @param queryWrapper 查询 Wrapper
-     * @param sortQuery    排序查询条件
-     */
-    protected void sort(QueryWrapper<T> queryWrapper, SortQuery sortQuery) {
-        Sort sort = Opt.ofNullable(sortQuery).orElseGet(SortQuery::new).getSort();
-        for (Sort.Order order : sort) {
-            if (null != order) {
-                String property = order.getProperty();
-                String checkProperty;
-                // 携带表别名,获取.后面的字段名
-                if (property.contains(StringConstants.DOT)) {
-                    checkProperty = CollectionUtil.getLast(StrUtil.split(property, StringConstants.DOT));
-                } else {
-                    checkProperty = property;
-                }
-                Optional<Field> optional = Arrays.stream(entityFields)
-                    .filter(field -> checkProperty.equals(field.getName()))
-                    .findFirst();
-                ValidationUtils.throwIf(optional.isEmpty(), "无效的排序字段 [{}]。", property);
-                queryWrapper.orderBy(true, order.isAscending(), StrUtil.toUnderlineCase(property));
-            }
-        }
-    }
-
-    /**
      * 根据 ID 查询
      *
      * @param id            ID
@@ -249,9 +208,49 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     /**
-     * 获取当前详情信息类型
+     * 设置排序
      *
-     * @return 当前详情信息类型
+     * @param queryWrapper 查询条件封装对象
+     * @param sortQuery    排序查询条件
+     */
+    protected void sort(QueryWrapper<T> queryWrapper, SortQuery sortQuery) {
+        Sort sort = Opt.ofNullable(sortQuery).orElseGet(SortQuery::new).getSort();
+        for (Sort.Order order : sort) {
+            if (null != order) {
+                String property = order.getProperty();
+                String checkProperty;
+                // 携带表别名则获取 . 后面的字段名
+                if (property.contains(StringConstants.DOT)) {
+                    checkProperty = CollectionUtil.getLast(StrUtil.split(property, StringConstants.DOT));
+                } else {
+                    checkProperty = property;
+                }
+                Optional<Field> optional = entityFields.stream()
+                    .filter(field -> checkProperty.equals(field.getName()))
+                    .findFirst();
+                ValidationUtils.throwIf(optional.isEmpty(), "无效的排序字段 [{}]", property);
+                queryWrapper.orderBy(true, order.isAscending(), StrUtil.toUnderlineCase(property));
+            }
+        }
+    }
+
+    /**
+     * 填充数据
+     *
+     * @param obj 待填充信息
+     */
+    protected void fill(Object obj) {
+        if (null == obj) {
+            return;
+        }
+        OperateTemplate operateTemplate = SpringUtil.getBean(OperateTemplate.class);
+        operateTemplate.execute(obj);
+    }
+
+    /**
+     * 封装查询条件
+     *
+     * @return 查询条件封装对象
      */
     protected QueryWrapper<T> handleQueryWrapper(Q query) {
         QueryWrapper<T> queryWrapper = new QueryWrapper<>();
@@ -259,8 +258,8 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
         if (null == query) {
             return queryWrapper;
         }
-        // 获取查询条件中所有的字段
-        queryFields.forEach(field -> QueryHelper.buildQuery(query, field, queryWrapper));
+        // 解析并拼接查询条件
+        queryFields.forEach(field -> QueryHelper.buildWrapper(query, field, queryWrapper));
         return queryWrapper;
     }
 
@@ -343,9 +342,9 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     /**
-     * 获取当前查询类型
+     * 获取当前查询条件类型
      *
-     * @return 当前查询类型
+     * @return 当前查询条件类型
      */
     protected Class<Q> currentQueryClass() {
         return (Class<Q>)this.typeArguments[4];

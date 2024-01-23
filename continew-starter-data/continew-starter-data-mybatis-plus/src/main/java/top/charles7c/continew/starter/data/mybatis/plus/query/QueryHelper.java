@@ -16,10 +16,10 @@
 
 package top.charles7c.continew.starter.data.mybatis.plus.query;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.ArrayUtils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,13 +30,13 @@ import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 查询助手
  *
- * @author Zheng Jie（<a href="https://gitee.com/elunez/eladmin">ELADMIN</a>）
  * @author Charles7c
+ * @author Jasmine
+ * @author Zheng Jie（<a href="https://gitee.com/elunez/eladmin">ELADMIN</a>）
  * @since 1.0.0
  */
 @Slf4j
@@ -44,12 +44,12 @@ import java.util.Objects;
 public class QueryHelper {
 
     /**
-     * 根据查询条件构建 MyBatis Plus 查询条件封装对象
+     * 根据查询条件构建查询条件封装对象
      *
      * @param query 查询条件
      * @param <Q>   查询条件数据类型
      * @param <R>   查询数据类型
-     * @return MyBatis Plus 查询条件封装对象
+     * @return 查询条件封装对象
      */
     public static <Q, R> QueryWrapper<R> build(Q query) {
         QueryWrapper<R> queryWrapper = new QueryWrapper<>();
@@ -57,87 +57,80 @@ public class QueryHelper {
         if (null == query) {
             return queryWrapper;
         }
-        // 获取查询条件中所有的字段
+        // 解析并拼接查询条件
         List<Field> fieldList = ReflectUtils.getNonStaticFields(query.getClass());
-        fieldList.forEach(field -> buildQuery(query, field, queryWrapper));
+        fieldList.forEach(field -> buildWrapper(query, field, queryWrapper));
         return queryWrapper;
     }
 
     /**
-     * 构建 MyBatis Plus 查询条件封装对象
+     * 构建查询条件封装对象
      *
      * @param query        查询条件
      * @param field        字段
-     * @param queryWrapper MyBatis Plus 查询条件封装对象
+     * @param queryWrapper 查询条件封装对象
      * @param <Q>          查询条件数据类型
      * @param <R>          查询数据类型
      */
-    public static <Q, R> void buildQuery(Q query, Field field, QueryWrapper<R> queryWrapper) {
+    public static <Q, R> void buildWrapper(Q query, Field field, QueryWrapper<R> queryWrapper) {
         boolean accessible = field.canAccess(query);
         try {
             field.setAccessible(true);
-
-            String fieldName = field.getName();
-            String columnName = StrUtil.toUnderlineCase(fieldName);
-
             // 如果字段值为空，直接返回
             Object fieldValue = field.get(query);
             if (ObjectUtil.isEmpty(fieldValue)) {
                 return;
             }
-
-            // 获取 Query 注解信息
+            // 建议：数据库规范中列建议采用下划线连接法命名，程序规范中变量建议采用驼峰法命名
+            String fieldName = field.getName();
+            String columnName = StrUtil.toUnderlineCase(fieldName);
+            // 没有 @Query 注解，默认等值查询
             Query queryAnnotation = field.getAnnotation(Query.class);
-            // 没有@Query注解，默认走实体类的字段 EQ精确 查询；
-            if (Objects.isNull(queryAnnotation)) {
+            if (null == queryAnnotation) {
                 queryWrapper.eq(columnName, fieldValue);
                 return;
             }
-
+            // 解析单列查询
             String[] columns = queryAnnotation.columns();
-            if (ArrayUtils.isEmpty(columns)) {
-                columnName = StrUtil.toUnderlineCase(columnName);
-            } else if (columns.length == 1) {
-                columnName = StrUtil.toUnderlineCase(columns[0]);
-            } else {
-                QueryType queryType = queryAnnotation.type();
-                queryWrapper.and(wrapper -> {
-                    for (String column : columns) {
-                        String underline = StrUtil.toUnderlineCase(column);
-                        // 解析多属性查询
-                        switch (queryType) {
-                            case EQUAL -> queryWrapper.or().eq(underline, fieldValue);
-                            case NOT_EQUAL -> queryWrapper.or().ne(underline, fieldValue);
-                            case GREATER_THAN -> queryWrapper.or().gt(underline, fieldValue);
-                            case LESS_THAN -> queryWrapper.or().lt(underline, fieldValue);
-                            case GREATER_THAN_OR_EQUAL -> queryWrapper.or().ge(underline, fieldValue);
-                            case LESS_THAN_OR_EQUAL -> queryWrapper.or().le(underline, fieldValue);
-                            case BETWEEN -> {
-                                List<Object> between = new ArrayList<>((List<Object>)fieldValue);
-                                ValidationUtils.throwIf(between.size() != 2, "[{}] 必须是一个范围", fieldName);
-                                queryWrapper.or().between(underline, between.get(0), between.get(1));
-                            }
-                            case LEFT_LIKE -> queryWrapper.or().likeLeft(underline, fieldValue);
-                            case INNER_LIKE -> queryWrapper.or().like(underline, fieldValue);
-                            case RIGHT_LIKE -> queryWrapper.or().likeRight(underline, fieldValue);
-                            case IN -> {
-                                ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", fieldName);
-                                queryWrapper.or().in(underline, (List<Object>)fieldValue);
-                            }
-                            case NOT_IN -> {
-                                ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", fieldName);
-                                queryWrapper.or().notIn(underline, (List<Object>)fieldValue);
-                            }
-                            case IS_NULL -> queryWrapper.or().isNull(underline);
-                            case IS_NOT_NULL -> queryWrapper.or().isNotNull(underline);
-                            default -> throw new IllegalArgumentException(String.format("暂不支持 [%s] 查询类型", queryType));
-                        }
-                    }
-                });
+            final int columnLength = ArrayUtil.length(columns);
+            if (columnLength == 0 || columnLength == 1) {
+                columnName = columnLength == 1 ? columns[0] : columnName;
+                parse(queryAnnotation.type(), columnName, fieldValue, queryWrapper);
                 return;
             }
-            // 解析查询条件
-            parse(queryAnnotation.type(), columnName, fieldValue, queryWrapper);
+            // 解析多列查询
+            QueryType queryType = queryAnnotation.type();
+            queryWrapper.nested(wrapper -> {
+                for (String column : columns) {
+                    switch (queryType) {
+                        case EQ -> queryWrapper.or().eq(column, fieldValue);
+                        case NE -> queryWrapper.or().ne(column, fieldValue);
+                        case GT -> queryWrapper.or().gt(column, fieldValue);
+                        case GE -> queryWrapper.or().ge(column, fieldValue);
+                        case LT -> queryWrapper.or().lt(column, fieldValue);
+                        case LE -> queryWrapper.or().le(column, fieldValue);
+                        case BETWEEN -> {
+                            List<Object> between = new ArrayList<>((List<Object>)fieldValue);
+                            ValidationUtils.throwIf(between.size() != 2, "[{}] 必须是一个范围", fieldName);
+                            queryWrapper.or().between(column, between.get(0), between.get(1));
+                        }
+                        case LIKE -> queryWrapper.or().like(column, fieldValue);
+                        case LIKE_LEFT -> queryWrapper.or().likeLeft(column, fieldValue);
+                        case LIKE_RIGHT -> queryWrapper.or().likeRight(column, fieldValue);
+                        case IN -> {
+                            ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", fieldName);
+                            queryWrapper.or().in(column, (List<Object>)fieldValue);
+                        }
+                        case NOT_IN -> {
+                            ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", fieldName);
+                            queryWrapper.or().notIn(column, (List<Object>)fieldValue);
+                        }
+                        case IS_NULL -> queryWrapper.or().isNull(column);
+                        case IS_NOT_NULL -> queryWrapper.or().isNotNull(column);
+                        default -> throw new IllegalArgumentException(String.format("暂不支持 [%s] 查询类型", queryType));
+                    }
+                }
+            });
         } catch (BadRequestException e) {
             log.error("Build query occurred an validation error: {}. Query: {}, Field: {}.", e
                 .getMessage(), query, field, e);
@@ -155,30 +148,28 @@ public class QueryHelper {
      * @param queryType    查询类型
      * @param columnName   驼峰字段名
      * @param fieldValue   字段值
-     * @param queryWrapper MyBatis Plus 查询条件封装对象
+     * @param queryWrapper 查询条件封装对象
      * @param <R>          查询数据类型
      */
     private static <R> void parse(QueryType queryType,
                                   String columnName,
                                   Object fieldValue,
                                   QueryWrapper<R> queryWrapper) {
-        // 解析单个属性查询
-        // 注意：数据库规范中列采用下划线连接法命名，程序规范中变量采用驼峰法命名
         switch (queryType) {
-            case EQUAL -> queryWrapper.eq(columnName, fieldValue);
-            case NOT_EQUAL -> queryWrapper.ne(columnName, fieldValue);
-            case GREATER_THAN -> queryWrapper.gt(columnName, fieldValue);
-            case LESS_THAN -> queryWrapper.lt(columnName, fieldValue);
-            case GREATER_THAN_OR_EQUAL -> queryWrapper.ge(columnName, fieldValue);
-            case LESS_THAN_OR_EQUAL -> queryWrapper.le(columnName, fieldValue);
+            case EQ -> queryWrapper.eq(columnName, fieldValue);
+            case NE -> queryWrapper.ne(columnName, fieldValue);
+            case GT -> queryWrapper.gt(columnName, fieldValue);
+            case GE -> queryWrapper.ge(columnName, fieldValue);
+            case LT -> queryWrapper.lt(columnName, fieldValue);
+            case LE -> queryWrapper.le(columnName, fieldValue);
             case BETWEEN -> {
                 List<Object> between = new ArrayList<>((List<Object>)fieldValue);
                 ValidationUtils.throwIf(between.size() != 2, "[{}] 必须是一个范围", columnName);
                 queryWrapper.between(columnName, between.get(0), between.get(1));
             }
-            case LEFT_LIKE -> queryWrapper.likeLeft(columnName, fieldValue);
-            case INNER_LIKE -> queryWrapper.like(columnName, fieldValue);
-            case RIGHT_LIKE -> queryWrapper.likeRight(columnName, fieldValue);
+            case LIKE -> queryWrapper.like(columnName, fieldValue);
+            case LIKE_LEFT -> queryWrapper.likeLeft(columnName, fieldValue);
+            case LIKE_RIGHT -> queryWrapper.likeRight(columnName, fieldValue);
             case IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
                 queryWrapper.in(columnName, (List<Object>)fieldValue);

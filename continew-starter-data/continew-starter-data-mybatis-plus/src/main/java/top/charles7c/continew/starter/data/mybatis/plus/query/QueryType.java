@@ -30,62 +30,72 @@ import lombok.RequiredArgsConstructor;
 public enum QueryType {
 
     /**
-     * 等值查询，例如：WHERE `age` = 18
+     * 等于 =，例如：WHERE `age` = 18
      */
-    EQUAL(1, "="),
+    EQ,
+
     /**
-     * 非等值查询，例如：WHERE `age` != 18
+     * 不等于 !=，例如：WHERE `age` != 18
      */
-    NOT_EQUAL(2, "!="),
+    NE,
+
     /**
-     * 大于查询，例如：WHERE `age` > 18
+     * 大于 >，例如：WHERE `age` > 18
      */
-    GREATER_THAN(3, ">"),
+    GT,
+
     /**
-     * 小于查询，例如：WHERE `age` < 18
+     * 大于等于 >= ，例如：WHERE `age` >= 18
      */
-    LESS_THAN(4, "<"),
+    GE,
+
     /**
-     * 大于等于查询，例如：WHERE `age` >= 18
+     * 小于 <，例如：WHERE `age` < 18
      */
-    GREATER_THAN_OR_EQUAL(5, ">="),
+    LT,
+
     /**
-     * 小于等于查询，例如：WHERE `age` <= 18
+     * 小于等于 <=，例如：WHERE `age` <= 18
      */
-    LESS_THAN_OR_EQUAL(6, "<="),
+    LE,
+
     /**
      * 范围查询，例如：WHERE `age` BETWEEN 10 AND 18
      */
-    BETWEEN(7, "BETWEEN"),
+    BETWEEN,
+
     /**
-     * 左模糊查询，例如：WHERE `nickname` LIKE '%s'
+     * LIKE '%值%'，例如：WHERE `nickname` LIKE '%s%'
      */
-    LEFT_LIKE(8, "LIKE '%s'"),
+    LIKE,
+
     /**
-     * 中模糊查询，例如：WHERE `nickname` LIKE '%s%'
+     * LIKE '%值'，例如：WHERE `nickname` LIKE '%s'
      */
-    INNER_LIKE(9, "LIKE '%s%'"),
+    LIKE_LEFT,
+
     /**
-     * 右模糊查询，例如：WHERE `nickname` LIKE 's%'
+     * LIKE '值%'，例如：WHERE `nickname` LIKE 's%'
      */
-    RIGHT_LIKE(10, "LIKE 's%'"),
+    LIKE_RIGHT,
+
     /**
      * 包含查询，例如：WHERE `age` IN (10, 20, 30)
      */
-    IN(11, "IN"),
+    IN,
+
     /**
      * 不包含查询，例如：WHERE `age` NOT IN (20, 30)
      */
-    NOT_IN(12, "NOT IN"),
+    NOT_IN,
+
     /**
      * 空查询，例如：WHERE `email` IS NULL
      */
-    IS_NULL(13, "IS NULL"),
+    IS_NULL,
+
     /**
      * 非空查询，例如：WHERE `email` IS NOT NULL
      */
-    IS_NOT_NULL(14, "IS NOT NULL"),;
-
-    private final Integer value;
-    private final String description;
+    IS_NOT_NULL,;
 }
