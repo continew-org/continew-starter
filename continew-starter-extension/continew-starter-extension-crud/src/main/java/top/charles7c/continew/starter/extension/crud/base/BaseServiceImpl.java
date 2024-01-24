@@ -40,7 +40,7 @@ import top.charles7c.continew.starter.core.util.ReflectUtils;
 import top.charles7c.continew.starter.core.util.validate.CheckUtils;
 import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
 import top.charles7c.continew.starter.data.mybatis.plus.base.BaseMapper;
-import top.charles7c.continew.starter.data.mybatis.plus.query.QueryHelper;
+import top.charles7c.continew.starter.data.mybatis.plus.query.QueryWrapperHelper;
 import top.charles7c.continew.starter.extension.crud.annotation.TreeField;
 import top.charles7c.continew.starter.extension.crud.model.query.PageQuery;
 import top.charles7c.continew.starter.extension.crud.model.query.SortQuery;
@@ -81,7 +81,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
 
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
-        QueryWrapper<T> queryWrapper = handleQueryWrapper(query);
+        QueryWrapper<T> queryWrapper = this.handleQueryWrapper(query);
         IPage<T> page = baseMapper.selectPage(pageQuery.toPage(), queryWrapper);
         PageResp<L> pageResp = PageResp.build(page, listClass);
         pageResp.getList().forEach(this::fill);
@@ -134,7 +134,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @return 列表信息
      */
     protected <E> List<E> list(Q query, SortQuery sortQuery, Class<E> targetClass) {
-        QueryWrapper<T> queryWrapper = handleQueryWrapper(query);
+        QueryWrapper<T> queryWrapper = this.handleQueryWrapper(query);
         // 设置排序
         this.sort(queryWrapper, sortQuery);
         List<T> entityList = baseMapper.selectList(queryWrapper);
@@ -248,19 +248,14 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     /**
-     * 封装查询条件
+     * 处理查询条件
      *
-     * @return 查询条件封装对象
+     * @return QueryWrapper
      */
     protected QueryWrapper<T> handleQueryWrapper(Q query) {
         QueryWrapper<T> queryWrapper = new QueryWrapper<>();
-        // 没有查询条件，直接返回
-        if (null == query) {
-            return queryWrapper;
-        }
         // 解析并拼接查询条件
-        queryFields.forEach(field -> QueryHelper.buildWrapper(query, field, queryWrapper));
-        return queryWrapper;
+        return QueryWrapperHelper.build(query, queryFields, queryWrapper);
     }
 
     /**

@@ -23,7 +23,6 @@ import java.lang.annotation.*;
  *
  * @author Charles7c
  * @author Jasmine
- * @author Zheng Jie（<a href="https://gitee.com/elunez/eladmin">ELADMIN</a>）
  * @since 1.0.0
  */
 @Target(ElementType.FIELD)
@@ -32,7 +31,7 @@ import java.lang.annotation.*;
 public @interface Query {
 
     /**
-     * 列名
+     * 列名（注意：列名是数据库字段名，而不是实体类字段名。如果命名是数据库关键字的，请使用转义符包裹）
      *
      * <p>
      * columns 为空时，默认取值字段名（自动转换为下划线命名）；<br>
