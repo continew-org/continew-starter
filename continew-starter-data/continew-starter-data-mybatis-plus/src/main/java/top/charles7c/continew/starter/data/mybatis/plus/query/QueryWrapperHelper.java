@@ -30,8 +30,8 @@ import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -96,28 +96,32 @@ public class QueryWrapperHelper {
      * @param <R>   查询数据类型
      * @return QueryWrapper Consumer
      */
-    public static <Q, R> List<Consumer<QueryWrapper<R>>> buildWrapperConsumer(Q query, Field field) {
-        List<Consumer<QueryWrapper<R>>> consumers = new ArrayList<>();
+    private static <Q, R> List<Consumer<QueryWrapper<R>>> buildWrapperConsumer(Q query, Field field) {
         boolean accessible = field.canAccess(query);
         try {
             field.setAccessible(true);
             // 如果字段值为空，直接返回
             Object fieldValue = field.get(query);
             if (ObjectUtil.isEmpty(fieldValue)) {
-                return consumers;
+                return Collections.emptyList();
+            }
+            // 设置了 @QueryIgnore 注解，直接忽略
+            QueryIgnore queryIgnoreAnnotation = field.getAnnotation(QueryIgnore.class);
+            if (null != queryIgnoreAnnotation && queryIgnoreAnnotation.value()) {
+                return Collections.emptyList();
             }
             // 建议：数据库表列建议采用下划线连接法命名，程序变量建议采用驼峰法命名
             String fieldName = field.getName();
             // 没有 @Query 注解，默认等值查询
             Query queryAnnotation = field.getAnnotation(Query.class);
-            if (Objects.isNull(queryAnnotation)) {
-                consumers.add(q -> q.eq(StrUtil.toUnderlineCase(fieldName), fieldValue));
-                return consumers;
+            if (null == queryAnnotation) {
+                return Collections.singletonList(q -> q.eq(StrUtil.toUnderlineCase(fieldName), fieldValue));
             }
             // 解析单列查询
             QueryType queryType = queryAnnotation.type();
             String[] columns = queryAnnotation.columns();
             final int columnLength = ArrayUtil.length(columns);
+            List<Consumer<QueryWrapper<R>>> consumers = new ArrayList<>(columnLength);
             if (columnLength <= 1) {
                 String columnName = columnLength == 1 ? columns[0] : StrUtil.toUnderlineCase(fieldName);
                 parse(queryType, columnName, fieldValue, consumers);
@@ -127,6 +131,7 @@ public class QueryWrapperHelper {
             for (String column : columns) {
                 parse(queryType, column, fieldValue, consumers);
             }
+            return consumers;
         } catch (BadRequestException e) {
             log.error("Build query wrapper occurred an validation error: {}. Query: {}, Field: {}.", e
                 .getMessage(), query, field, e);
@@ -137,7 +142,7 @@ public class QueryWrapperHelper {
         } finally {
             field.setAccessible(accessible);
         }
-        return consumers;
+        return Collections.emptyList();
     }
 
     /**
