@@ -16,16 +16,16 @@
 
 package top.charles7c.continew.starter.core.exception;
 
-import lombok.NoArgsConstructor;
-
 /**
  * 自定义异常基类
  *
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor
 public class BaseException extends RuntimeException {
+
+    public BaseException() {
+    }
 
     public BaseException(String message) {
         super(message);

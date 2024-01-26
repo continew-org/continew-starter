@@ -16,16 +16,16 @@
 
 package top.charles7c.continew.starter.core.exception;
 
-import lombok.NoArgsConstructor;
-
 /**
  * 自定义验证异常-错误请求
  *
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor
 public class BadRequestException extends BaseException {
+
+    public BadRequestException() {
+    }
 
     public BadRequestException(String message) {
         super(message);

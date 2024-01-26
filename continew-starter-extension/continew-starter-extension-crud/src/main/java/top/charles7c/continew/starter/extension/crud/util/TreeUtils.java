@@ -22,8 +22,6 @@ import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.lang.tree.parser.NodeParser;
 import cn.hutool.core.util.ReflectUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import top.charles7c.continew.starter.core.util.validate.CheckUtils;
 import top.charles7c.continew.starter.extension.crud.annotation.TreeField;
 
@@ -36,8 +34,10 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TreeUtils {
+
+    private TreeUtils() {
+    }
 
     /**
      * 默认字段配置对象（根据前端树结构灵活调整名称）

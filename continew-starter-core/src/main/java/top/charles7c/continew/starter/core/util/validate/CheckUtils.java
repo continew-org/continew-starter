@@ -17,8 +17,6 @@
 package top.charles7c.continew.starter.core.util.validate;
 
 import cn.hutool.core.util.StrUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.core.exception.BusinessException;
@@ -33,10 +31,12 @@ import java.util.function.BooleanSupplier;
  * @since 1.0.0
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class CheckUtils extends Validator {
 
     private static final Class<BusinessException> EXCEPTION_TYPE = BusinessException.class;
+
+    private CheckUtils() {
+    }
 
     /**
      * 如果不存在，抛出异常

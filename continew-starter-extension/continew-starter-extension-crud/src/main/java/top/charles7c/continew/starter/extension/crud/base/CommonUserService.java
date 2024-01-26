@@ -18,7 +18,7 @@ package top.charles7c.continew.starter.extension.crud.base;
 
 import cn.crane4j.annotation.ContainerMethod;
 import cn.crane4j.annotation.MappingType;
-import top.charles7c.continew.starter.extension.crud.constant.ContainerConstants;
+import top.charles7c.continew.starter.extension.crud.constant.ContainerPool;
 
 /**
  * 公共用户业务接口
@@ -34,6 +34,6 @@ public interface CommonUserService {
      * @param id ID
      * @return 昵称
      */
-    @ContainerMethod(namespace = ContainerConstants.USER_NICKNAME, type = MappingType.NONE)
+    @ContainerMethod(namespace = ContainerPool.USER_NICKNAME, type = MappingType.NONE)
     String getNicknameById(Long id);
 }

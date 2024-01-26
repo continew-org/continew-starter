@@ -18,8 +18,6 @@ package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 
 import cn.dev33.satoken.dao.SaTokenDao;
 import cn.hutool.core.util.ReflectUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.client.RedisClient;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -37,7 +35,6 @@ import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoC
  * @since 1.0.0
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 abstract class SaTokenDaoConfiguration {
 
     /**

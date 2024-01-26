@@ -16,16 +16,16 @@
 
 package top.charles7c.continew.starter.core.exception;
 
-import lombok.NoArgsConstructor;
-
 /**
  * 业务异常
  *
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor
 public class BusinessException extends BaseException {
+
+    public BusinessException() {
+    }
 
     public BusinessException(String message) {
         super(message);

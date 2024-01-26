@@ -16,8 +16,6 @@
 
 package top.charles7c.continew.starter.core.util;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
@@ -33,8 +31,10 @@ import java.util.function.Consumer;
  * @since 1.0.0
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExceptionUtils {
+
+    private ExceptionUtils() {
+    }
 
     /**
      * 打印线程异常信息

@@ -21,8 +21,6 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.anji.captcha.service.CaptchaCacheService;
 import com.anji.captcha.service.impl.CaptchaServiceFactory;
 import jakarta.annotation.PostConstruct;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.client.RedisClient;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
@@ -42,7 +40,6 @@ import top.charles7c.continew.starter.core.constant.PropertiesConstants;
  * @since 1.1.0
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 abstract class BehaviorCaptchaCacheConfiguration {
 
     /**

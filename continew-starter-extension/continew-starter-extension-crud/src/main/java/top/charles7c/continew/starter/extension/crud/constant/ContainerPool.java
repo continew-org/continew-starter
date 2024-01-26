@@ -22,10 +22,10 @@ package top.charles7c.continew.starter.extension.crud.constant;
  * @author Charles7c
  * @since 1.2.0
  */
-public interface ContainerConstants {
+public class ContainerPool {
 
     /**
      * 用户昵称
      */
-    String USER_NICKNAME = "UserNickname";
+    public static final String USER_NICKNAME = "UserNickname";
 }

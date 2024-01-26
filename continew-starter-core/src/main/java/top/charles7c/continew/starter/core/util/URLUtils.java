@@ -17,8 +17,6 @@
 package top.charles7c.continew.starter.core.util;
 
 import cn.hutool.http.HttpUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 /**
  * URL（Uniform Resource Locator）统一资源定位符相关工具类
@@ -26,8 +24,10 @@ import lombok.NoArgsConstructor;
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class URLUtils {
+
+    private URLUtils() {
+    }
 
     /**
      * 提供的 URL 是否为 HTTP URL（协议包括："http"，"https"）

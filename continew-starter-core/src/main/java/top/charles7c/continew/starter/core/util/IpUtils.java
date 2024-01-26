@@ -21,8 +21,6 @@ import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HtmlUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.dreamlu.mica.ip2region.core.Ip2regionSearcher;
 import net.dreamlu.mica.ip2region.core.IpInfo;
@@ -37,8 +35,10 @@ import java.util.Set;
  * @since 1.0.0
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class IpUtils {
+
+    private IpUtils() {
+    }
 
     /**
      * 查询 IP 归属地（本地库解析）

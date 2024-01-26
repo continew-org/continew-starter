@@ -22,8 +22,6 @@ import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
 import cn.hutool.db.meta.Column;
 import cn.hutool.db.meta.MetaUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -37,8 +35,10 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MetaUtils {
+
+    private MetaUtils() {
+    }
 
     /**
      * 获取所有表信息

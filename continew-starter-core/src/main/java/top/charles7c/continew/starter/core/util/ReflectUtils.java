@@ -17,8 +17,6 @@
 package top.charles7c.continew.starter.core.util;
 
 import cn.hutool.core.util.ReflectUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -32,8 +30,10 @@ import java.util.stream.Collectors;
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ReflectUtils {
+
+    private ReflectUtils() {
+    }
 
     /**
      * 获得一个类中所有非静态字段名列表，包括其父类中的字段<br>

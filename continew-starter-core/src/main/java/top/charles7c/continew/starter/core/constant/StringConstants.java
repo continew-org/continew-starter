@@ -17,8 +17,6 @@
 package top.charles7c.continew.starter.core.constant;
 
 import cn.hutool.core.text.StrPool;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 /**
  * 字符串相关常量
@@ -26,8 +24,10 @@ import lombok.NoArgsConstructor;
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StringConstants implements StrPool {
+
+    private StringConstants() {
+    }
 
     /**
      * 空字符串

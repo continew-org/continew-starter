@@ -18,9 +18,7 @@ package top.charles7c.continew.starter.web.model;
 
 import cn.hutool.core.date.DateUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 import java.io.Serial;
@@ -33,7 +31,6 @@ import java.io.Serializable;
  * @since 1.0.0
  */
 @Data
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Schema(description = "响应信息")
 public class R<T> implements Serializable {
 
@@ -72,6 +69,9 @@ public class R<T> implements Serializable {
      */
     @Schema(description = "时间戳", example = "1691453288")
     private long timestamp = DateUtil.currentSeconds();
+
+    private R() {
+    }
 
     private R(boolean success, int code, String msg, T data) {
         this.success = success;

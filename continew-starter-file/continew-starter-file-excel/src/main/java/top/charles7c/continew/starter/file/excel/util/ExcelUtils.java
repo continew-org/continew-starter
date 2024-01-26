@@ -22,8 +22,6 @@ import cn.hutool.core.util.URLUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import top.charles7c.continew.starter.core.exception.BaseException;
 import top.charles7c.continew.starter.file.excel.converter.ExcelBigNumberConverter;
@@ -38,8 +36,10 @@ import java.util.List;
  * @since 1.0.0
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ExcelUtils {
+
+    private ExcelUtils() {
+    }
 
     /**
      * 导出

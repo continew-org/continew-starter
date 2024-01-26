@@ -20,8 +20,6 @@ import cn.hutool.extra.template.Template;
 import cn.hutool.extra.template.TemplateConfig;
 import cn.hutool.extra.template.TemplateEngine;
 import cn.hutool.extra.template.TemplateUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 
 import java.util.Map;
 
@@ -31,10 +29,12 @@ import java.util.Map;
  * @author Charles7c
  * @since 1.0.0
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class TemplateUtils {
 
     private static final String DEFAULT_TEMPLATE_PARENT_PATH = "templates";
+
+    private TemplateUtils() {
+    }
 
     /**
      * 渲染模板

@@ -23,9 +23,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import top.charles7c.continew.starter.core.constant.StringConstants;
@@ -43,10 +41,12 @@ import java.util.List;
  * @since 1.0.0
  */
 @Data
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MailUtils {
 
     private static final JavaMailSender MAIL_SENDER = SpringUtil.getBean(JavaMailSender.class);
+
+    private MailUtils() {
+    }
 
     /**
      * 发送文本邮件给单个人
@@ -162,12 +162,10 @@ public class MailUtils {
         MimeMessage mimeMessage = MAIL_SENDER.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8
             .displayName());
-
         // 设置基本信息
         messageHelper.setFrom(SpringUtil.getProperty("spring.mail.username"));
         messageHelper.setSubject(subject);
         messageHelper.setText(content, isHtml);
-
         // 设置收信人
         // 抄送人
         if (CollUtil.isNotEmpty(ccs)) {
@@ -179,14 +177,12 @@ public class MailUtils {
         }
         // 收件人
         messageHelper.setTo(tos.toArray(String[]::new));
-
         // 设置附件
         if (ArrayUtil.isNotEmpty(files)) {
             for (File file : files) {
                 messageHelper.addAttachment(file.getName(), file);
             }
         }
-
         // 发送邮件
         MAIL_SENDER.send(mimeMessage);
     }
@@ -201,7 +197,6 @@ public class MailUtils {
         if (StrUtil.isBlank(addresses)) {
             return new ArrayList<>(0);
         }
-
         List<String> result;
         if (StrUtil.contains(addresses, StringConstants.COMMA)) {
             result = StrUtil.splitTrim(addresses, StringConstants.COMMA);

@@ -24,7 +24,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Range;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Sort;
@@ -39,7 +38,6 @@ import java.io.Serial;
  */
 @Data
 @ParameterObject
-@NoArgsConstructor
 @Schema(description = "分页查询条件")
 public class PageQuery extends SortQuery {
 
@@ -67,6 +65,9 @@ public class PageQuery extends SortQuery {
     @Schema(description = "每页条数", example = "10")
     @Range(min = 1, max = 1000, message = "每页条数（取值范围 {min}-{max}）")
     private Integer size = DEFAULT_SIZE;
+
+    public PageQuery() {
+    }
 
     /**
      * 基于分页查询条件转换为 MyBatis Plus 分页条件

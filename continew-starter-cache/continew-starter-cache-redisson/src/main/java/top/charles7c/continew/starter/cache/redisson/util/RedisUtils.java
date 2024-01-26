@@ -17,9 +17,7 @@
 package top.charles7c.continew.starter.cache.redisson.util;
 
 import cn.hutool.extra.spring.SpringUtil;
-import lombok.AccessLevel;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.redisson.api.*;
 import org.redisson.config.Config;
 import top.charles7c.continew.starter.core.constant.StringConstants;
@@ -36,10 +34,12 @@ import java.util.stream.Stream;
  * @since 1.0.0
  */
 @Data
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RedisUtils {
 
     private static final RedissonClient CLIENT = SpringUtil.getBean(RedissonClient.class);
+
+    private RedisUtils() {
+    }
 
     /**
      * 设置缓存

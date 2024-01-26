@@ -19,8 +19,6 @@ package top.charles7c.continew.starter.core.util.validate;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.function.BooleanSupplier;
@@ -32,8 +30,10 @@ import java.util.function.BooleanSupplier;
  * @since 1.0.0
  */
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Validator {
+
+    protected Validator() {
+    }
 
     /**
      * 如果为空，抛出异常

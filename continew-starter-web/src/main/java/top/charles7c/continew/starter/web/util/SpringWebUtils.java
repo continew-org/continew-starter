@@ -20,8 +20,6 @@ import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.servlet.ServletContext;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.servlet.HandlerMapping;
@@ -38,8 +36,10 @@ import java.util.Map;
  * @author Charles7c
  * @since 1.1.1
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SpringWebUtils {
+
+    private SpringWebUtils() {
+    }
 
     /**
      * 取消注册静态资源映射

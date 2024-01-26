@@ -16,17 +16,16 @@
 
 package top.charles7c.continew.starter.core.constant;
 
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
-
 /**
  * 配置属性相关常量
  *
  * @author Charles7c
  * @since 1.1.1
  */
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PropertiesConstants {
+
+    private PropertiesConstants() {
+    }
 
     /**
      * ContiNew Starter
