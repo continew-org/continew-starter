@@ -1,0 +1,38 @@
+name: Analysis Code Quality
+
+on:
+  # 推送时执行
+  push:
+    branches: [dev]
+  # 可手动执行
+  workflow_dispatch:
+
+jobs:
+  # Qodana 扫描
+  qodana-scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@master
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}  # to check out the actual pull request commit, not the merge commit
+          fetch-depth: 0 # a full history is required for pull request analysis
+      - name: Scan
+        uses: JetBrains/qodana-action@v2023.3
+        env:
+          QODANA_TOKEN: ${{ secrets.QODANA_TOKEN }}
+  # Sonar 扫描
+  sonar-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
