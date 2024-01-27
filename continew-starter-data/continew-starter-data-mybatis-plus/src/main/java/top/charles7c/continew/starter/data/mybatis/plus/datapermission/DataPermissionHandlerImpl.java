@@ -87,9 +87,6 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      */
     private Expression buildDataScopeFilter(DataPermission dataPermission, Expression where) {
         Expression expression = null;
-        String tableAlias = dataPermission.tableAlias();
-        String id = dataPermission.id();
-        String deptId = dataPermission.deptId();
         DataPermissionCurrentUser currentUser = dataPermissionFilter.getCurrentUser();
         Set<DataPermissionCurrentUser.CurrentUserRole> roles = currentUser.getRoles();
         for (DataPermissionCurrentUser.CurrentUserRole role : roles) {
@@ -97,60 +94,125 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
             if (DataScope.ALL.equals(dataScope)) {
                 return where;
             }
-            if (DataScope.DEPT_AND_CHILD.equals(dataScope)) {
-                // 构建子查询
-                // 语句示例：select t1.* from table as t1 where t1.`dept_id` in (select `id` from `sys_dept` where `id` = xxx or find_in_set(xxx, `ancestors`));
-                SubSelect subSelect = new SubSelect();
-                PlainSelect select = new PlainSelect();
-                select.setSelectItems(Collections.singletonList(new SelectExpressionItem(new Column(id))));
-                select.setFromItem(new Table(dataPermission.deptTableAlias()));
-                EqualsTo equalsTo = new EqualsTo();
-                equalsTo.setLeftExpression(new Column(id));
-                equalsTo.setRightExpression(new LongValue(currentUser.getDeptId()));
-                Function function = new Function();
-                function.setName("find_in_set");
-                function.setParameters(new ExpressionList(new LongValue(currentUser
-                    .getDeptId()), new Column("ancestors")));
-                select.setWhere(new OrExpression(equalsTo, function));
-                subSelect.setSelectBody(select);
-                // 构建父查询
-                InExpression inExpression = new InExpression();
-                inExpression.setLeftExpression(this.buildColumn(tableAlias, deptId));
-                inExpression.setRightExpression(subSelect);
-                expression = null != expression ? new OrExpression(expression, inExpression) : inExpression;
-            } else if (DataScope.DEPT.equals(dataScope)) {
-                // 语句示例：select t1.* from table as t1 where t1.`dept_id` = xxx;
-                EqualsTo equalsTo = new EqualsTo();
-                equalsTo.setLeftExpression(this.buildColumn(tableAlias, deptId));
-                equalsTo.setRightExpression(new LongValue(currentUser.getDeptId()));
-                expression = null != expression ? new OrExpression(expression, equalsTo) : equalsTo;
-            } else if (DataScope.SELF.equals(dataScope)) {
-                // 语句示例：select t1.* from table as t1 where t1.`create_user` = xxx;
-                EqualsTo equalsTo = new EqualsTo();
-                equalsTo.setLeftExpression(this.buildColumn(tableAlias, dataPermission.userId()));
-                equalsTo.setRightExpression(new LongValue(currentUser.getUserId()));
-                expression = null != expression ? new OrExpression(expression, equalsTo) : equalsTo;
-            } else if (DataScope.CUSTOM.equals(dataScope)) {
-                // 构建子查询
-                // 语句示例：select t1.* from table as t1 where t1.`dept_id` in (select `dept_id` from `sys_role_dept` where
-                // `role_id` = xxx);
-                SubSelect subSelect = new SubSelect();
-                PlainSelect select = new PlainSelect();
-                select.setSelectItems(Collections.singletonList(new SelectExpressionItem(new Column(deptId))));
-                select.setFromItem(new Table(dataPermission.roleDeptTableAlias()));
-                EqualsTo equalsTo = new EqualsTo();
-                equalsTo.setLeftExpression(new Column(dataPermission.roleId()));
-                equalsTo.setRightExpression(new LongValue(role.getRoleId()));
-                select.setWhere(equalsTo);
-                subSelect.setSelectBody(select);
-                // 构建父查询
-                InExpression inExpression = new InExpression();
-                inExpression.setLeftExpression(this.buildColumn(tableAlias, deptId));
-                inExpression.setRightExpression(subSelect);
-                expression = null != expression ? new OrExpression(expression, inExpression) : inExpression;
+            switch (dataScope) {
+                case DEPT_AND_CHILD -> expression = this
+                    .buildDeptAndChildExpression(dataPermission, currentUser, expression);
+                case DEPT -> expression = this.buildDeptExpression(dataPermission, currentUser, expression);
+                case SELF -> expression = this.buildSelfExpression(dataPermission, currentUser, expression);
+                case CUSTOM -> expression = this.buildCustomExpression(dataPermission, role, expression);
             }
         }
         return null != where ? new AndExpression(where, new Parenthesis(expression)) : expression;
+    }
+
+    /**
+     * 构建本部门及以下数据权限表达式
+     *
+     * <p>
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.`dept_id` in (select `id` from `sys_dept` where `id` =
+     * xxx or find_in_set(xxx, `ancestors`));
+     * </p>
+     *
+     * @param dataPermission 数据权限
+     * @param currentUser    当前用户
+     * @param expression     处理前的表达式
+     * @return 处理完后的表达式
+     */
+    private Expression buildDeptAndChildExpression(DataPermission dataPermission,
+                                                   DataPermissionCurrentUser currentUser,
+                                                   Expression expression) {
+        SubSelect subSelect = new SubSelect();
+        PlainSelect select = new PlainSelect();
+        select.setSelectItems(Collections.singletonList(new SelectExpressionItem(new Column(dataPermission.id()))));
+        select.setFromItem(new Table(dataPermission.deptTableAlias()));
+        EqualsTo equalsTo = new EqualsTo();
+        equalsTo.setLeftExpression(new Column(dataPermission.id()));
+        equalsTo.setRightExpression(new LongValue(currentUser.getDeptId()));
+        Function function = new Function();
+        function.setName("find_in_set");
+        function.setParameters(new ExpressionList(new LongValue(currentUser.getDeptId()), new Column("ancestors")));
+        select.setWhere(new OrExpression(equalsTo, function));
+        subSelect.setSelectBody(select);
+        // 构建父查询
+        InExpression inExpression = new InExpression();
+        inExpression.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
+        inExpression.setRightExpression(subSelect);
+        return null != expression ? new OrExpression(expression, inExpression) : inExpression;
+    }
+
+    /**
+     * 构建本部门数据权限表达式
+     *
+     * <p>
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.`dept_id` = xxx;
+     * </p>
+     *
+     * @param dataPermission 数据权限
+     * @param currentUser    当前用户
+     * @param expression     处理前的表达式
+     * @return 处理完后的表达式
+     */
+    private Expression buildDeptExpression(DataPermission dataPermission,
+                                           DataPermissionCurrentUser currentUser,
+                                           Expression expression) {
+        EqualsTo equalsTo = new EqualsTo();
+        equalsTo.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
+        equalsTo.setRightExpression(new LongValue(currentUser.getDeptId()));
+        return null != expression ? new OrExpression(expression, equalsTo) : equalsTo;
+    }
+
+    /**
+     * 构建仅本人数据权限表达式
+     *
+     * <p>
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.`create_user` = xxx;
+     * </p>
+     *
+     * @param dataPermission 数据权限
+     * @param currentUser    当前用户
+     * @param expression     处理前的表达式
+     * @return 处理完后的表达式
+     */
+    //
+    private Expression buildSelfExpression(DataPermission dataPermission,
+                                           DataPermissionCurrentUser currentUser,
+                                           Expression expression) {
+        EqualsTo equalsTo = new EqualsTo();
+        equalsTo.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.userId()));
+        equalsTo.setRightExpression(new LongValue(currentUser.getUserId()));
+        return null != expression ? new OrExpression(expression, equalsTo) : equalsTo;
+    }
+
+    /**
+     * 构建自定义数据权限表达式
+     *
+     * <p>
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.`dept_id` in (select `dept_id` from `sys_role_dept`
+     * where `role_id` = xxx);
+     * </p>
+     *
+     * @param dataPermission 数据权限
+     * @param role           当前用户角色
+     * @param expression     处理前的表达式
+     * @return 处理完后的表达式
+     */
+    private Expression buildCustomExpression(DataPermission dataPermission,
+                                             DataPermissionCurrentUser.CurrentUserRole role,
+                                             Expression expression) {
+        SubSelect subSelect = new SubSelect();
+        PlainSelect select = new PlainSelect();
+        select.setSelectItems(Collections.singletonList(new SelectExpressionItem(new Column(dataPermission.deptId()))));
+        select.setFromItem(new Table(dataPermission.roleDeptTableAlias()));
+        EqualsTo equalsTo = new EqualsTo();
+        equalsTo.setLeftExpression(new Column(dataPermission.roleId()));
+        equalsTo.setRightExpression(new LongValue(role.getRoleId()));
+        select.setWhere(equalsTo);
+        subSelect.setSelectBody(select);
+        // 构建父查询
+        InExpression inExpression = new InExpression();
+        inExpression.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
+        inExpression.setRightExpression(subSelect);
+        return null != expression ? new OrExpression(expression, inExpression) : inExpression;
     }
 
     /**
