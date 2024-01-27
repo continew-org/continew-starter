@@ -24,7 +24,7 @@ package top.charles7c.continew.starter.extension.crud.constant;
  */
 public class ContainerPool {
 
-    private ContainerPool() {
+    protected ContainerPool() {
     }
 
     /**
