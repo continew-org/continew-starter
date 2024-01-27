@@ -25,6 +25,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import top.charles7c.continew.starter.extension.crud.constant.ContainerPool;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
@@ -37,6 +38,7 @@ import java.time.LocalDateTime;
 @Data
 public class BaseResp implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**

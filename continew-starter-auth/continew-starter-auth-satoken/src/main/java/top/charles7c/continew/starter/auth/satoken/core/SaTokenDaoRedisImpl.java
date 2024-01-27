@@ -77,10 +77,8 @@ public class SaTokenDaoRedisImpl implements SaTokenDao {
         // 判断是否想要设置为永久
         if (timeout == SaTokenDao.NEVER_EXPIRE) {
             long expire = getTimeout(key);
-            if (expire == SaTokenDao.NEVER_EXPIRE) {
-                // 如果其已经被设置为永久，则不作任何处理
-            } else {
-                // 如果尚未被设置为永久，那么再次 set 一次
+            // 如果其已经被设置为永久，则不作任何处理。如果尚未被设置为永久，那么再次 set 一次
+            if (expire != SaTokenDao.NEVER_EXPIRE) {
                 this.set(key, this.get(key), timeout);
             }
             return;
@@ -123,8 +121,7 @@ public class SaTokenDaoRedisImpl implements SaTokenDao {
 
     @Override
     public long getObjectTimeout(String key) {
-        long timeout = RedisUtils.getTimeToLive(key);
-        return timeout < 0 ? timeout : timeout / 1000;
+        return this.getTimeout(key);
     }
 
     @Override
@@ -132,10 +129,8 @@ public class SaTokenDaoRedisImpl implements SaTokenDao {
         // 判断是否想要设置为永久
         if (timeout == SaTokenDao.NEVER_EXPIRE) {
             long expire = getObjectTimeout(key);
-            if (expire == SaTokenDao.NEVER_EXPIRE) {
-                // 如果其已经被设置为永久，则不作任何处理
-            } else {
-                // 如果尚未被设置为永久，那么再次 set 一次
+            // 如果其已经被设置为永久，则不作任何处理。如果尚未被设置为永久，那么再次 set 一次
+            if (expire != SaTokenDao.NEVER_EXPIRE) {
                 this.setObject(key, this.getObject(key), timeout);
             }
             return;

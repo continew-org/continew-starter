@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Range;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Sort;
@@ -38,6 +39,7 @@ import java.io.Serial;
  */
 @Data
 @ParameterObject
+@EqualsAndHashCode(callSuper = true)
 @Schema(description = "分页查询条件")
 public class PageQuery extends SortQuery {
 
