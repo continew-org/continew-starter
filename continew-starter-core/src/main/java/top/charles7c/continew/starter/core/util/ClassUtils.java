@@ -29,6 +29,9 @@ import java.lang.reflect.Type;
  */
 public class ClassUtils {
 
+    private ClassUtils() {
+    }
+
     /**
      * 获得给定类的所有泛型参数
      *

@@ -98,9 +98,8 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
                 return where;
             }
             if (DataScope.DEPT_AND_CHILD.equals(dataScope)) {
-                // select t1.* from table as t1 where t1.`dept_id` in (select `id` from `sys_dept` where `id` = xxx or
-                // find_in_set(xxx, `ancestors`));
                 // 构建子查询
+                // 语句示例：select t1.* from table as t1 where t1.`dept_id` in (select `id` from `sys_dept` where `id` = xxx or find_in_set(xxx, `ancestors`));
                 SubSelect subSelect = new SubSelect();
                 PlainSelect select = new PlainSelect();
                 select.setSelectItems(Collections.singletonList(new SelectExpressionItem(new Column(id))));
@@ -120,21 +119,21 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
                 inExpression.setRightExpression(subSelect);
                 expression = null != expression ? new OrExpression(expression, inExpression) : inExpression;
             } else if (DataScope.DEPT.equals(dataScope)) {
-                // select t1.* from table as t1 where t1.`dept_id` = xxx;
+                // 语句示例：select t1.* from table as t1 where t1.`dept_id` = xxx;
                 EqualsTo equalsTo = new EqualsTo();
                 equalsTo.setLeftExpression(this.buildColumn(tableAlias, deptId));
                 equalsTo.setRightExpression(new LongValue(currentUser.getDeptId()));
                 expression = null != expression ? new OrExpression(expression, equalsTo) : equalsTo;
             } else if (DataScope.SELF.equals(dataScope)) {
-                // select t1.* from table as t1 where t1.`create_user` = xxx;
+                // 语句示例：select t1.* from table as t1 where t1.`create_user` = xxx;
                 EqualsTo equalsTo = new EqualsTo();
                 equalsTo.setLeftExpression(this.buildColumn(tableAlias, dataPermission.userId()));
                 equalsTo.setRightExpression(new LongValue(currentUser.getUserId()));
                 expression = null != expression ? new OrExpression(expression, equalsTo) : equalsTo;
             } else if (DataScope.CUSTOM.equals(dataScope)) {
-                // select t1.* from table as t1 where t1.`dept_id` in (select `dept_id` from `sys_role_dept` where
-                // `role_id` = xxx);
                 // 构建子查询
+                // 语句示例：select t1.* from table as t1 where t1.`dept_id` in (select `dept_id` from `sys_role_dept` where
+                // `role_id` = xxx);
                 SubSelect subSelect = new SubSelect();
                 PlainSelect select = new PlainSelect();
                 select.setSelectItems(Collections.singletonList(new SelectExpressionItem(new Column(deptId))));

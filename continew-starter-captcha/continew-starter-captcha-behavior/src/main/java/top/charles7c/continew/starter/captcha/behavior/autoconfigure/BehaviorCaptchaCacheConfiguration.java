@@ -42,6 +42,9 @@ import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 @Slf4j
 abstract class BehaviorCaptchaCacheConfiguration {
 
+    private BehaviorCaptchaCacheConfiguration() {
+    }
+
     /**
      * 自定义缓存实现类-Redis
      */
@@ -49,7 +52,8 @@ abstract class BehaviorCaptchaCacheConfiguration {
     @AutoConfigureBefore(RedissonAutoConfiguration.class)
     @ConditionalOnProperty(name = PropertiesConstants.CAPTCHA_BEHAVIOR + ".cache-type", havingValue = "redis")
     static class Redis {
-        static {
+        @PostConstruct
+        public void postConstruct() {
             CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name()
                 .toLowerCase(), new BehaviorCaptchaCacheServiceImpl());
             log.debug("[ContiNew Starter] - Auto Configuration 'Behavior-CaptchaCache-Redis' completed initialization.");
@@ -61,7 +65,6 @@ abstract class BehaviorCaptchaCacheConfiguration {
      */
     @ConditionalOnProperty(name = PropertiesConstants.CAPTCHA_BEHAVIOR + ".cache-type", havingValue = "custom")
     static class Custom {
-
         @Bean
         @ConditionalOnMissingBean
         public CaptchaCacheService captchaCacheService(BehaviorCaptchaProperties properties) {

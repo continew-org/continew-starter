@@ -68,9 +68,6 @@ public class PageQuery extends SortQuery {
     @Range(min = 1, max = 1000, message = "每页条数（取值范围 {min}-{max}）")
     private Integer size = DEFAULT_SIZE;
 
-    public PageQuery() {
-    }
-
     /**
      * 基于分页查询条件转换为 MyBatis Plus 分页条件
      *

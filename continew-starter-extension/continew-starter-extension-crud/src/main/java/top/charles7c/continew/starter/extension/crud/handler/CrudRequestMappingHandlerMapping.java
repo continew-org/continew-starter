@@ -63,9 +63,9 @@ public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMappi
     private RequestMappingInfo getMappingForMethodWrapper(@NonNull Method method,
                                                           @NonNull Class<?> handlerType,
                                                           CrudRequestMapping crudRequestMapping) {
-        RequestMappingInfo info = this.createRequestMappingInfo(method);
+        RequestMappingInfo info = this.buildRequestMappingInfo(method);
         if (null != info) {
-            RequestMappingInfo typeInfo = this.createRequestMappingInfo(handlerType);
+            RequestMappingInfo typeInfo = this.buildRequestMappingInfo(handlerType);
             if (null != typeInfo) {
                 info = typeInfo.combine(info);
             }
@@ -79,11 +79,11 @@ public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMappi
         return info;
     }
 
-    private RequestMappingInfo createRequestMappingInfo(AnnotatedElement element) {
+    private RequestMappingInfo buildRequestMappingInfo(AnnotatedElement element) {
         RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
         RequestCondition<?> condition = (element instanceof Class<?> clazz
             ? getCustomTypeCondition(clazz)
             : getCustomMethodCondition((Method)element));
-        return (requestMapping != null ? createRequestMappingInfo(requestMapping, condition) : null);
+        return (requestMapping != null ? super.createRequestMappingInfo(requestMapping, condition) : null);
     }
 }

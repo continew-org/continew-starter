@@ -24,7 +24,6 @@ import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.time.Duration;
 import java.util.Collection;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -138,7 +137,7 @@ public class RedisUtils {
      */
     public static Collection<String> keys(final String keyPattern) {
         Stream<String> stream = CLIENT.getKeys().getKeysStreamByPattern(getNameMapper().map(keyPattern));
-        return stream.map(key -> getNameMapper().unmap(key)).collect(Collectors.toList());
+        return stream.map(key -> getNameMapper().unmap(key)).toList();
     }
 
     /**

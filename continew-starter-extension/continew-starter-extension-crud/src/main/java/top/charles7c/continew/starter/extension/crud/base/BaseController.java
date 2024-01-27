@@ -153,7 +153,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Parameter(name = "ids", description = "ID 列表", example = "1,2", in = ParameterIn.PATH)
     @ResponseBody
     @DeleteMapping("/{ids}")
-    public R delete(@PathVariable List<Long> ids) {
+    public R<Void> delete(@PathVariable List<Long> ids) {
         this.checkPermission(Api.DELETE);
         baseService.delete(ids);
         return R.ok("删除成功");
