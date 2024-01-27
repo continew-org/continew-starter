@@ -17,6 +17,7 @@
 package top.charles7c.continew.starter.data.mybatis.plus.autoconfigure;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 import java.lang.annotation.*;
 
@@ -29,6 +30,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Documented
-@ConditionalOnProperty(prefix = "mybatis-plus.extension.data-permission", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "mybatis-plus.extension.data-permission", name = PropertiesConstants.ENABLED, havingValue = "true")
 public @interface ConditionalOnEnabledDataPermission {
 }

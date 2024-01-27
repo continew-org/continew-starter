@@ -100,6 +100,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
                 case DEPT -> expression = this.buildDeptExpression(dataPermission, currentUser, expression);
                 case SELF -> expression = this.buildSelfExpression(dataPermission, currentUser, expression);
                 case CUSTOM -> expression = this.buildCustomExpression(dataPermission, role, expression);
+                default -> throw new IllegalArgumentException(String.format("暂不支持 [%s] 数据权限", dataScope));
             }
         }
         return null != where ? new AndExpression(where, new Parenthesis(expression)) : expression;

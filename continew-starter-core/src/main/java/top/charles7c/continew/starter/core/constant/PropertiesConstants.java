@@ -43,6 +43,16 @@ public class PropertiesConstants {
     public static final String THREAD_POOL = CONTINEW_STARTER + ".thread-pool";
 
     /**
+     * Spring Doc 配置
+     */
+    public static final String SPRINGDOC = "springdoc";
+
+    /**
+     * Spring Doc Swagger UI 配置
+     */
+    public static final String SPRINGDOC_SWAGGER_UI = SPRINGDOC + ".swagger-ui";
+
+    /**
      * Web 配置
      */
     public static final String WEB = CONTINEW_STARTER + ".web";

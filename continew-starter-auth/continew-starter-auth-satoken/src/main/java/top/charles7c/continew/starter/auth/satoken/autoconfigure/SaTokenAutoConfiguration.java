@@ -32,6 +32,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.*;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
 
@@ -46,7 +47,7 @@ import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
 @RequiredArgsConstructor
 @ComponentScan("top.charles7c.continew.starter.auth.satoken.exception")
 @EnableConfigurationProperties(SaTokenExtensionProperties.class)
-@ConditionalOnProperty(prefix = "sa-token.extension", name = "enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = "sa-token.extension", name = PropertiesConstants.ENABLED, havingValue = "true")
 @PropertySource(value = "classpath:default-auth-satoken.yml", factory = GeneralPropertySourceFactory.class)
 public class SaTokenAutoConfiguration implements WebMvcConfigurer {
 

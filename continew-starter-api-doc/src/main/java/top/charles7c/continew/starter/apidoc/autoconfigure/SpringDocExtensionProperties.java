@@ -20,6 +20,7 @@ import io.swagger.v3.oas.models.Components;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 /**
  * API 文档扩展配置属性
@@ -28,7 +29,7 @@ import org.springframework.boot.context.properties.NestedConfigurationProperty;
  * @since 1.0.1
  */
 @Data
-@ConfigurationProperties(prefix = "springdoc")
+@ConfigurationProperties(prefix = PropertiesConstants.SPRINGDOC)
 public class SpringDocExtensionProperties {
 
     /**

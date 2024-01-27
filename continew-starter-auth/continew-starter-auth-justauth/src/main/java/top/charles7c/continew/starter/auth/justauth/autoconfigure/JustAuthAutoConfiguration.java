@@ -25,6 +25,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import top.charles7c.continew.starter.auth.justauth.core.JustAuthStateCacheRedisImpl;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 /**
  * JustAuth 自动配置
@@ -34,7 +35,7 @@ import top.charles7c.continew.starter.auth.justauth.core.JustAuthStateCacheRedis
  */
 @Slf4j
 @AutoConfiguration(before = com.xkcoding.justauth.autoconfigure.JustAuthAutoConfiguration.class)
-@ConditionalOnProperty(prefix = "justauth", value = "enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "justauth", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class JustAuthAutoConfiguration {
 
     /**
@@ -42,7 +43,7 @@ public class JustAuthAutoConfiguration {
      */
     @Bean
     @ConditionalOnClass(RedisClient.class)
-    @ConditionalOnProperty(prefix = "justauth.cache", value = "type", havingValue = "redis")
+    @ConditionalOnProperty(prefix = "justauth.cache", name = "type", havingValue = "redis")
     public AuthStateCache authStateCache() {
         JustAuthStateCacheRedisImpl impl = new JustAuthStateCacheRedisImpl();
         log.debug("[ContiNew Starter] - Auto Configuration 'JustAuth-AuthStateCache-Redis' completed initialization.");

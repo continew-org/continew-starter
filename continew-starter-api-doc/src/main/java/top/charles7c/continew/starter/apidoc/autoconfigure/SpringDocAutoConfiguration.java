@@ -38,6 +38,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.charles7c.continew.starter.core.autoconfigure.project.ProjectProperties;
+import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import java.util.List;
@@ -53,7 +54,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @EnableWebMvc
 @AutoConfiguration
-@ConditionalOnProperty(name = "springdoc.swagger-ui.enabled", havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.SPRINGDOC_SWAGGER_UI, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(SpringDocExtensionProperties.class)
 @PropertySource(value = "classpath:default-api-doc.yml", factory = GeneralPropertySourceFactory.class)
 public class SpringDocAutoConfiguration implements WebMvcConfigurer {
