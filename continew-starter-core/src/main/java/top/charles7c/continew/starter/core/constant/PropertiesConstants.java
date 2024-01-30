@@ -91,4 +91,9 @@ public class PropertiesConstants {
      * 行为验证码配置
      */
     public static final String CAPTCHA_BEHAVIOR = CAPTCHA + ".behavior";
+
+    /**
+     * 密码编解码配置
+     */
+    public static final String PASSWORD_ENCODER = CONTINEW_STARTER + ".password-encoder";
 }

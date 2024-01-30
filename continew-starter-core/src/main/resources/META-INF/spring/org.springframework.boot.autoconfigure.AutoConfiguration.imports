@@ -1,3 +1,4 @@
 top.charles7c.continew.starter.core.autoconfigure.project.ProjectAutoConfiguration
 top.charles7c.continew.starter.core.autoconfigure.threadpool.ThreadPoolAutoConfiguration
 top.charles7c.continew.starter.core.autoconfigure.threadpool.AsyncAutoConfiguration
+top.charles7c.continew.starter.core.autoconfigure.password.PasswordEncoderAutoConfiguration
