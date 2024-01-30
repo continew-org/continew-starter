@@ -70,6 +70,7 @@
         <aws-s3.version>1.12.626</aws-s3.version>
         <crane4j.version>2.4.0</crane4j.version>
         <knife4j.version>4.4.0</knife4j.version>
+        <tlog.version>1.5.1</tlog.version>
         <ttl.version>2.14.4</ttl.version>
         <ip2region.version>3.1.6</ip2region.version>
         <hutool.version>5.8.24</hutool.version>
@@ -231,6 +232,13 @@
                 <version>${knife4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- TLog（轻量级的分布式日志标记追踪神器） -->
+            <dependency>
+                <groupId>com.yomahub</groupId>
+                <artifactId>tlog-web-spring-boot-starter</artifactId>
+                <version>${tlog.version}</version>
             </dependency>
 
             <!-- TTL（线程间传递 ThreadLocal，异步执行时上下文传递的解决方案） -->
