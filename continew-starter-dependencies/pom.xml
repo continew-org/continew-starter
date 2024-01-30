@@ -76,6 +76,7 @@
         <!-- Maven Plugin Versions -->
         <flatten.version>1.5.0</flatten.version>
         <spotless.version>2.40.0</spotless.version>
+        <sonar.version>3.9.1.2184</sonar.version>
     </properties>
 
     <dependencyManagement>
@@ -543,6 +544,12 @@
                     <artifactId>spotless-maven-plugin</artifactId>
                     <version>${spotless.version}</version>
                 </plugin>
+                <!-- Sonar 代码质量分析插件 -->
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonar.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -603,6 +610,36 @@
                     <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
                 </repository>
             </distributionManagement>
+        </profile>
+        <!-- Sonar 代码质量分析 -->
+        <profile>
+            <id>sonar</id>
+            <properties>
+                <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+                <sonar.organization>charles7c</sonar.organization>
+                <sonar.projectKey>Charles7c_continew-starter</sonar.projectKey>
+                <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
+            </properties>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                        <version>${sonar.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sonar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

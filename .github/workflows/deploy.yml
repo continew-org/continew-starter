@@ -29,10 +29,29 @@ jobs:
   sonar-scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@master
         with:
           fetch-depth: 0
-      - name: Scan
-        uses: SonarSource/sonarcloud-github-action@master
+      - name: Setup Java
+        uses: actions/setup-java@master
+        with:
+          distribution: 'adopt'
+          java-version: 17
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
+      - name: Analyze
+        run: mvn -B verify -Psonar
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

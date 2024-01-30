@@ -6,6 +6,15 @@
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/badge/SNAPSHOT-v1.3.0-%23ff3f59.svg" alt="Release" />
 </a>
+<a href="https://sonarcloud.io/summary/new_code?id=Charles7c_continew-starter" target="_blank">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=Charles7c_continew-starter&metric=alert_status" alt="Sonar Status" />
+</a>
+<a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<img src="https://img.shields.io/badge/Spring Boot-3.1.7-%236CB52D.svg" alt="Spring Boot" />
+</a>
+<a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<img src="https://img.shields.io/badge/Java-17-%236CB52D.svg" alt="Java" />
+</a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/github/stars/Charles7c/continew-starter?style=social" alt="GitHub stars" />
 </a>
@@ -17,12 +26,6 @@
 </a>
 <a href="https://gitee.com/Charles7c/continew-starter" target="_blank">
 <img src="https://gitee.com/Charles7c/continew-starter/badge/fork.svg?theme=white" alt="Gitee forks" />
-</a>
-<a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/Spring Boot-3.1.7-%236CB52D.svg" alt="Release" />
-</a>
-<a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/Java-17-%236CB52D.svg" alt="Release" />
 </a>
 
 ## 简介
