@@ -65,6 +65,6 @@ public class GlobalExceptionHandlerAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Extension-Global Exception Handler' completed " + "initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Extension-Global Exception Handler' completed initialization.");
     }
 }

@@ -16,35 +16,27 @@
 
 package top.charles7c.continew.starter.core.autoconfigure.password;
 
-/**
- * @author Jasmine
- * @version 1.0
- * @description
- * @see PasswordEncoderProperties
- * @since 2024-01-30 17:19:19
- */
-
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * 项目配置属性
+ * 密码编解码配置属性
  *
- * @author Charles7c
- * @since 1.0.0
+ * @author Jasmine
+ * @since 1.3.0
  */
 @Data
 @ConfigurationProperties(PropertiesConstants.PASSWORD_ENCODER)
 public class PasswordEncoderProperties {
 
     /**
-     * 是否启用
+     * 是否启用密码编解码配置
      */
-    private Boolean enabled;
+    private boolean enabled = false;
 
     /**
-     * 启动的算法
+     * 启用的算法 ID
      */
     private String encodingId;
 }

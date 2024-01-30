@@ -18,6 +18,7 @@ package top.charles7c.continew.starter.core.autoconfigure.password;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -28,8 +29,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.*;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
-import org.springframework.util.StringUtils;
-import top.charles7c.continew.starter.core.autoconfigure.project.ProjectProperties;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 import java.util.HashMap;
@@ -37,10 +36,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 密码配置类,默认编解码器使用的是BCryptPasswordEncoder
- * 编码后的密码是遵循一定规则的{idForEncode}encodePassword,前缀{}包含了编码的方式再拼接上该方式编码后的密码串。
- * 可以添加自定义的编解码，也可以修改默认的编解码器，只需修改默认的encodingId。
- * 优点：如果有一天我们对密码编码规则进行替换或者轮转。现有的用户不会受到影响。只要修改默认的DelegatingPasswordEncoder的idForEncode
+ * 密码编解码自动配置
+ *
+ * <p>
+ * 密码配置类，默认编解码器使用的是 BCryptPasswordEncoder <br />
+ * 编码后的密码是遵循一定规则的 {idForEncode}encodePassword，前缀 {} 包含了编码的方式再拼接上该方式编码后的密码串。<br />
+ * 可以添加自定义的编解码，也可以修改默认的编解码器，只需修改默认的 encodingId。<br />
+ * 优点：如果有一天我们对密码编码规则进行替换或者轮转，现有的用户不会受到影响，只要修改 DelegatingPasswordEncoder 的 idForEncode 即可。
+ * </p>
  *
  * @author Jasmine
  * @since 1.3.0
@@ -54,7 +57,8 @@ public class PasswordEncoderAutoConfiguration {
     private final PasswordEncoderProperties properties;
     private final List<PasswordEncoder> passwordEncoderList;
 
-    public PasswordEncoderAutoConfiguration(PasswordEncoderProperties properties, List<PasswordEncoder> passwordEncoderList) {
+    public PasswordEncoderAutoConfiguration(PasswordEncoderProperties properties,
+                                            List<PasswordEncoder> passwordEncoderList) {
         this.properties = properties;
         this.passwordEncoderList = passwordEncoderList;
     }
@@ -68,7 +72,7 @@ public class PasswordEncoderAutoConfiguration {
     @Bean
     public PasswordEncoder passwordEncoder() {
         String encodingId = "bcrypt";
-        if(StrUtil.isNotBlank(properties.getEncodingId())) {
+        if (StrUtil.isNotBlank(properties.getEncodingId())) {
             encodingId = properties.getEncodingId();
         }
 
@@ -84,15 +88,21 @@ public class PasswordEncoderAutoConfiguration {
         encoders.put("scrypt@SpringSecurity_v5_8", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
         encoders.put("SHA-1", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-1"));
         encoders
-                .put("SHA-256", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-256"));
+            .put("SHA-256", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-256"));
         encoders.put("sha256", new org.springframework.security.crypto.password.StandardPasswordEncoder());
         encoders.put("argon2", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2());
         encoders.put("argon2@SpringSecurity_v5_8", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
-
         // 添加自定义的密码编解码器
-        if(CollUtil.isNotEmpty(passwordEncoderList)) {
-            passwordEncoderList.forEach(passwordEncoder-> encoders.put(passwordEncoder.getClass().getSimpleName().toLowerCase(), passwordEncoder));
+        if (CollUtil.isNotEmpty(passwordEncoderList)) {
+            passwordEncoderList.forEach(passwordEncoder -> encoders.put(passwordEncoder.getClass()
+                .getSimpleName()
+                .toLowerCase(), passwordEncoder));
         }
         return new DelegatingPasswordEncoder(encodingId, encoders);
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        log.debug("[ContiNew Starter] - Auto Configuration 'PasswordEncoder' completed initialization.");
     }
 }

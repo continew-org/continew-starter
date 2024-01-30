@@ -43,8 +43,8 @@ import java.util.concurrent.ScheduledExecutorService;
 @Lazy
 @AutoConfiguration
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = PropertiesConstants.THREAD_POOL, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableAsync(proxyTargetClass = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.THREAD_POOL, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class AsyncAutoConfiguration implements AsyncConfigurer {
 
     private final ScheduledExecutorService scheduledExecutorService;
