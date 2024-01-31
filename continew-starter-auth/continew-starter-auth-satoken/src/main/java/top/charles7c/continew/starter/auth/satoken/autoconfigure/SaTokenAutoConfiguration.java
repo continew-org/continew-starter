@@ -18,6 +18,7 @@ package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.jwt.StpLogicJwtForSimple;
+import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpLogic;
 import cn.dev33.satoken.stp.StpUtil;
@@ -59,9 +60,9 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         // 注册 Sa-Token 拦截器，校验规则为 StpUtil.checkLogin() 登录校验
-        registry.addInterceptor(new SaInterceptor(handle -> StpUtil.checkLogin()))
-            .addPathPatterns(StringConstants.PATH_PATTERN)
-            .excludePathPatterns(properties.getSecurity().getExcludes());
+        registry.addInterceptor(new SaInterceptor(handle -> SaRouter.match(StringConstants.PATH_PATTERN)
+            .notMatch(properties.getSecurity().getExcludes())
+            .check(r -> StpUtil.checkLogin()))).addPathPatterns(StringConstants.PATH_PATTERN);
     }
 
     /**
