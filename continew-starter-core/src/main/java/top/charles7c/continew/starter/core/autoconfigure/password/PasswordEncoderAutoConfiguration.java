@@ -30,6 +30,7 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.*;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
+import top.charles7c.continew.starter.core.util.validate.CheckUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -55,12 +56,9 @@ import java.util.Map;
 public class PasswordEncoderAutoConfiguration {
 
     private final PasswordEncoderProperties properties;
-    private final List<PasswordEncoder> passwordEncoderList;
 
-    public PasswordEncoderAutoConfiguration(PasswordEncoderProperties properties,
-                                            List<PasswordEncoder> passwordEncoderList) {
+    public PasswordEncoderAutoConfiguration(PasswordEncoderProperties properties) {
         this.properties = properties;
-        this.passwordEncoderList = passwordEncoderList;
     }
 
     /**
@@ -70,7 +68,7 @@ public class PasswordEncoderAutoConfiguration {
      * @see PasswordEncoderFactories
      */
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public PasswordEncoder passwordEncoder(List<PasswordEncoder> passwordEncoderList) {
         String encodingId = "bcrypt";
         if (StrUtil.isNotBlank(properties.getEncodingId())) {
             encodingId = properties.getEncodingId();
@@ -98,6 +96,7 @@ public class PasswordEncoderAutoConfiguration {
                 .getSimpleName()
                 .toLowerCase(), passwordEncoder));
         }
+        CheckUtils.throwIf(!encoders.keySet().contains(encodingId), "所填 [{}] 密码编码器不存在！", encodingId);
         return new DelegatingPasswordEncoder(encodingId, encoders);
     }
 
