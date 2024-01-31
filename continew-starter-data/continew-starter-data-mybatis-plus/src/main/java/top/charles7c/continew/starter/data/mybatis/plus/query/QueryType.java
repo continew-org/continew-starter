@@ -16,17 +16,12 @@
 
 package top.charles7c.continew.starter.data.mybatis.plus.query;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 /**
  * 查询类型枚举
  *
  * @author Charles7c
  * @since 1.0.0
  */
-@Getter
-@RequiredArgsConstructor
 public enum QueryType {
 
     /**

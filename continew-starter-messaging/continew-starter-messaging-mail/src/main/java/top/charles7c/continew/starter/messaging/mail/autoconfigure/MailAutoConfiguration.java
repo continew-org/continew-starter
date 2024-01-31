@@ -17,7 +17,8 @@
 package top.charles7c.continew.starter.messaging.mail.autoconfigure;
 
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.PropertySource;
 import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
@@ -28,10 +29,11 @@ import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @AutoConfiguration
 @PropertySource(value = "classpath:default-messaging-mail.yml", factory = GeneralPropertySourceFactory.class)
 public class MailAutoConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(MailAutoConfiguration.class);
 
     @PostConstruct
     public void postConstruct() {

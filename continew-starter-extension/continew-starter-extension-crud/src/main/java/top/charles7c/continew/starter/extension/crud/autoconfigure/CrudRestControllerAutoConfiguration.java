@@ -17,7 +17,8 @@
 package top.charles7c.continew.starter.extension.crud.autoconfigure;
 
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -35,9 +36,10 @@ import top.charles7c.continew.starter.extension.crud.handler.CrudRequestMappingH
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @Configuration
 public class CrudRestControllerAutoConfiguration extends DelegatingWebMvcConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(CrudRestControllerAutoConfiguration.class);
 
     /**
      * CRUD 请求映射器处理器映射器（覆盖默认 RequestMappingHandlerMapping）

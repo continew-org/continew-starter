@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.cache.redisson.autoconfigure;
 
-import lombok.Data;
 import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.SentinelServersConfig;
 import org.redisson.config.SingleServerConfig;
@@ -29,7 +28,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 @ConfigurationProperties(prefix = "spring.data.redisson")
 public class RedissonProperties {
 
@@ -76,5 +74,50 @@ public class RedissonProperties {
          * 哨兵
          */
         SENTINEL
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Mode getMode() {
+        return mode;
+    }
+
+    public void setMode(Mode mode) {
+        this.mode = mode;
+    }
+
+    public SingleServerConfig getSingleServerConfig() {
+        return singleServerConfig;
+    }
+
+    public void setSingleServerConfig(SingleServerConfig singleServerConfig) {
+        this.singleServerConfig = singleServerConfig;
+    }
+
+    public ClusterServersConfig getClusterServersConfig() {
+        return clusterServersConfig;
+    }
+
+    public void setClusterServersConfig(ClusterServersConfig clusterServersConfig) {
+        this.clusterServersConfig = clusterServersConfig;
+    }
+
+    public SentinelServersConfig getSentinelServersConfig() {
+        return sentinelServersConfig;
+    }
+
+    public void setSentinelServersConfig(SentinelServersConfig sentinelServersConfig) {
+        this.sentinelServersConfig = sentinelServersConfig;
+    }
+
+    @Override
+    public String toString() {
+        return "RedissonProperties{" + "enabled=" + enabled + ", mode=" + mode + ", singleServerConfig=" + singleServerConfig + ", clusterServersConfig=" + clusterServersConfig + ", sentinelServersConfig=" + sentinelServersConfig + '}';
     }
 }

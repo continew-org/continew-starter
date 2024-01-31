@@ -18,7 +18,8 @@ package top.charles7c.continew.starter.core.autoconfigure.threadpool;
 
 import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ObjectUtil;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -40,12 +41,12 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author Lion Li（<a href="https://gitee.com/dromara/RuoYi-Vue-Plus">RuoYi-Vue-Plus</a>）
  * @since 1.0.0
  */
-@Slf4j
 @Lazy
 @AutoConfiguration
 @ConditionalOnProperty(prefix = PropertiesConstants.THREAD_POOL, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(ThreadPoolProperties.class)
 public class ThreadPoolAutoConfiguration {
+    private static final Logger log = LoggerFactory.getLogger(ThreadPoolAutoConfiguration.class);
 
     /**
      * 核心（最小）线程数 = CPU 核心数 + 1

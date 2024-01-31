@@ -22,7 +22,8 @@ import cn.hutool.core.util.URLUtil;
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import top.charles7c.continew.starter.core.exception.BaseException;
 import top.charles7c.continew.starter.file.excel.converter.ExcelBigNumberConverter;
 
@@ -35,8 +36,9 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 public class ExcelUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(ExcelUtils.class);
 
     private ExcelUtils() {
     }

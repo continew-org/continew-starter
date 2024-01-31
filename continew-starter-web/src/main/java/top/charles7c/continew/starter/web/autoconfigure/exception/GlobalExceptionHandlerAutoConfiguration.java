@@ -20,8 +20,9 @@ import jakarta.annotation.PostConstruct;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.HibernateValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
@@ -38,11 +39,12 @@ import top.charles7c.continew.starter.web.core.exception.GlobalExceptionHandler;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @Configuration(proxyBeanMethods = false)
 @Import({GlobalExceptionHandler.class, GlobalErrorHandler.class})
 @ConditionalOnMissingBean(BasicErrorController.class)
 public class GlobalExceptionHandlerAutoConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandlerAutoConfiguration.class);
 
     /**
      * Validator 失败立即返回模式配置

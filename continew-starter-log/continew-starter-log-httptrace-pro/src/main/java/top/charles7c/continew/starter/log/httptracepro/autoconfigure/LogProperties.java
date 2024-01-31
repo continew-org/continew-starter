@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.log.httptracepro.autoconfigure;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.log.common.enums.Include;
@@ -30,7 +29,6 @@ import java.util.Set;
  * @author Charles7c
  * @since 1.1.0
  */
-@Data
 @ConfigurationProperties(PropertiesConstants.LOG)
 public class LogProperties {
 
@@ -48,4 +46,33 @@ public class LogProperties {
      * 包含信息
      */
     private Set<Include> include = new HashSet<>(Include.defaultIncludes());
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Boolean getIsPrint() {
+        return isPrint;
+    }
+
+    public void setIsPrint(Boolean print) {
+        isPrint = print;
+    }
+
+    public Set<Include> getInclude() {
+        return include;
+    }
+
+    public void setInclude(Set<Include> include) {
+        this.include = include;
+    }
+
+    @Override
+    public String toString() {
+        return "LogProperties{" + "enabled=" + enabled + ", isPrint=" + isPrint + ", include=" + include + '}';
+    }
 }

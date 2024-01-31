@@ -20,12 +20,11 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import net.sf.jsqlparser.expression.Expression;
@@ -50,11 +49,14 @@ import net.sf.jsqlparser.statement.select.SubSelect;
  * @author Charles7c
  * @since 1.1.0
  */
-@Slf4j
-@RequiredArgsConstructor
 public class DataPermissionHandlerImpl implements DataPermissionHandler {
 
+    private static final Logger log = LoggerFactory.getLogger(DataPermissionHandlerImpl.class);
     private final DataPermissionFilter dataPermissionFilter;
+
+    public DataPermissionHandlerImpl(DataPermissionFilter dataPermissionFilter) {
+        this.dataPermissionFilter = dataPermissionFilter;
+    }
 
     @Override
     public Expression getSqlSegment(Expression where, String mappedStatementId) {

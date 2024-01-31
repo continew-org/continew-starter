@@ -16,7 +16,8 @@
 
 package top.charles7c.continew.starter.core.util;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.util.concurrent.CancellationException;
@@ -30,8 +31,8 @@ import java.util.function.Consumer;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 public class ExceptionUtils {
+    private static final Logger log = LoggerFactory.getLogger(ExceptionUtils.class);
 
     private ExceptionUtils() {
     }

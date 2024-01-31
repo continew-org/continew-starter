@@ -20,7 +20,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -34,7 +33,6 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 @Schema(description = "分页信息")
 public class PageResp<L> implements Serializable {
 
@@ -127,5 +125,26 @@ public class PageResp<L> implements Serializable {
         PageResp<L> pageResp = new PageResp<>();
         pageResp.setList(new ArrayList<>(0));
         return pageResp;
+    }
+
+    public List<L> getList() {
+        return list;
+    }
+
+    public void setList(List<L> list) {
+        this.list = list;
+    }
+
+    public long getTotal() {
+        return total;
+    }
+
+    public void setTotal(long total) {
+        this.total = total;
+    }
+
+    @Override
+    public String toString() {
+        return "PageResp{" + "list=" + list + ", total=" + total + '}';
     }
 }

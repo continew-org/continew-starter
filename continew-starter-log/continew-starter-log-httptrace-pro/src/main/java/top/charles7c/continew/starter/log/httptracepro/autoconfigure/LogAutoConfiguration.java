@@ -17,8 +17,8 @@
 package top.charles7c.continew.starter.log.httptracepro.autoconfigure;
 
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -37,15 +37,18 @@ import top.charles7c.continew.starter.log.httptracepro.handler.LogInterceptor;
  * @author Charles7c
  * @since 1.1.0
  */
-@Slf4j
 @Configuration
 @ConditionalOnEnabledLog
-@RequiredArgsConstructor
 @EnableConfigurationProperties(LogProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class LogAutoConfiguration implements WebMvcConfigurer {
 
+    private static final Logger log = LoggerFactory.getLogger(LogAutoConfiguration.class);
     private final LogProperties logProperties;
+
+    public LogAutoConfiguration(LogProperties logProperties) {
+        this.logProperties = logProperties;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

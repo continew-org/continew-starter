@@ -16,15 +16,12 @@
 
 package top.charles7c.continew.starter.captcha.behavior.enums;
 
-import lombok.Getter;
-
 /**
  * 缓存类型枚举
  *
  * @author Bull-BCLS
  * @since 1.1.0
  */
-@Getter
 public enum StorageType {
 
     /**

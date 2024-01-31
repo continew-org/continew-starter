@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.core.autoconfigure.password;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
@@ -26,7 +25,6 @@ import top.charles7c.continew.starter.core.constant.PropertiesConstants;
  * @author Jasmine
  * @since 1.3.0
  */
-@Data
 @ConfigurationProperties(PropertiesConstants.PASSWORD_ENCODER)
 public class PasswordEncoderProperties {
 
@@ -39,4 +37,25 @@ public class PasswordEncoderProperties {
      * 启用的算法 ID
      */
     private String encodingId;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getEncodingId() {
+        return encodingId;
+    }
+
+    public void setEncodingId(String encodingId) {
+        this.encodingId = encodingId;
+    }
+
+    @Override
+    public String toString() {
+        return "PasswordEncoderProperties{" + "enabled=" + enabled + ", encodingId='" + encodingId + '\'' + '}';
+    }
 }

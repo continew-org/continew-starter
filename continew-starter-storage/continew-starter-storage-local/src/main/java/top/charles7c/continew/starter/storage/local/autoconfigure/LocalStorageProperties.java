@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.storage.local.autoconfigure;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.util.unit.DataSize;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
@@ -30,7 +29,6 @@ import java.util.Map;
  * @author Charles7c
  * @since 1.1.0
  */
-@Data
 @ConfigurationProperties(PropertiesConstants.STORAGE_LOCAL)
 public class LocalStorageProperties {
 
@@ -47,7 +45,6 @@ public class LocalStorageProperties {
     /**
      * 本地存储映射
      */
-    @Data
     public static class LocalStorageMapping {
 
         /**
@@ -64,5 +61,55 @@ public class LocalStorageProperties {
          * 单文件上传大小限制
          */
         private DataSize maxFileSize = DataSize.ofMegabytes(1);
+
+        public String getPathPattern() {
+            return pathPattern;
+        }
+
+        public void setPathPattern(String pathPattern) {
+            this.pathPattern = pathPattern;
+        }
+
+        public String getLocation() {
+            return location;
+        }
+
+        public void setLocation(String location) {
+            this.location = location;
+        }
+
+        public DataSize getMaxFileSize() {
+            return maxFileSize;
+        }
+
+        public void setMaxFileSize(DataSize maxFileSize) {
+            this.maxFileSize = maxFileSize;
+        }
+
+        @Override
+        public String toString() {
+            return "LocalStorageMapping{" + "pathPattern='" + pathPattern + '\'' + ", location='" + location + '\'' + ", maxFileSize=" + maxFileSize + '}';
+        }
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Map<String, LocalStorageMapping> getMapping() {
+        return mapping;
+    }
+
+    public void setMapping(Map<String, LocalStorageMapping> mapping) {
+        this.mapping = mapping;
+    }
+
+    @Override
+    public String toString() {
+        return "LocalStorageProperties{" + "enabled=" + enabled + ", mapping=" + mapping + '}';
     }
 }

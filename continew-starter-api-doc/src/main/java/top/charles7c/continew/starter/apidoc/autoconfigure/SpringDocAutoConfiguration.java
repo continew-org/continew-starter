@@ -25,7 +25,8 @@ import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -51,13 +52,13 @@ import java.util.concurrent.TimeUnit;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @EnableWebMvc
 @AutoConfiguration
 @ConditionalOnProperty(prefix = PropertiesConstants.SPRINGDOC_SWAGGER_UI, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(SpringDocExtensionProperties.class)
 @PropertySource(value = "classpath:default-api-doc.yml", factory = GeneralPropertySourceFactory.class)
 public class SpringDocAutoConfiguration implements WebMvcConfigurer {
+    private static final Logger log = LoggerFactory.getLogger(SpringDocAutoConfiguration.class);
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

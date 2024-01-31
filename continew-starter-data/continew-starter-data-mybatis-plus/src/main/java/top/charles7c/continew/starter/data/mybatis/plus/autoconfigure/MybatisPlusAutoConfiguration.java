@@ -26,8 +26,9 @@ import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerIntercep
 import com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -46,7 +47,6 @@ import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermi
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @AutoConfiguration
 @MapperScan("${mybatis-plus.extension.mapper-package}")
 @EnableTransactionManagement(proxyTargetClass = true)
@@ -54,6 +54,8 @@ import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermi
 @ConditionalOnProperty(prefix = "mybatis-plus.extension", name = PropertiesConstants.ENABLED, havingValue = "true")
 @PropertySource(value = "classpath:default-data-mybatis-plus.yml", factory = GeneralPropertySourceFactory.class)
 public class MybatisPlusAutoConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(MybatisPlusAutoConfiguration.class);
 
     /**
      * MyBatis Plus 插件配置

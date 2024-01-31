@@ -20,7 +20,8 @@ import cn.dev33.satoken.exception.NotLoginException;
 import cn.dev33.satoken.exception.NotPermissionException;
 import cn.dev33.satoken.exception.NotRoleException;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -32,9 +33,10 @@ import top.charles7c.continew.starter.web.model.R;
  * @author Charles7c
  * @since 1.2.0
  */
-@Slf4j
 @RestControllerAdvice
 public class GlobalSaTokenExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalSaTokenExceptionHandler.class);
 
     /**
      * 认证异常-登录认证

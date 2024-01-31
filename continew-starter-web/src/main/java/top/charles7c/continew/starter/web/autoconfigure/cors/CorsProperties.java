@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.web.autoconfigure.cors;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.constant.StringConstants;
@@ -31,7 +30,6 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 @ConfigurationProperties(PropertiesConstants.CORS)
 public class CorsProperties {
 
@@ -61,4 +59,49 @@ public class CorsProperties {
     private List<String> exposedHeaders = new ArrayList<>();
 
     private static final List<String> ALL = Collections.singletonList(StringConstants.ASTERISK);
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public List<String> getAllowedOrigins() {
+        return allowedOrigins;
+    }
+
+    public void setAllowedOrigins(List<String> allowedOrigins) {
+        this.allowedOrigins = allowedOrigins;
+    }
+
+    public List<String> getAllowedMethods() {
+        return allowedMethods;
+    }
+
+    public void setAllowedMethods(List<String> allowedMethods) {
+        this.allowedMethods = allowedMethods;
+    }
+
+    public List<String> getAllowedHeaders() {
+        return allowedHeaders;
+    }
+
+    public void setAllowedHeaders(List<String> allowedHeaders) {
+        this.allowedHeaders = allowedHeaders;
+    }
+
+    public List<String> getExposedHeaders() {
+        return exposedHeaders;
+    }
+
+    public void setExposedHeaders(List<String> exposedHeaders) {
+        this.exposedHeaders = exposedHeaders;
+    }
+
+    @Override
+    public String toString() {
+        return "CorsProperties{" + "enabled=" + enabled + ", allowedOrigins=" + allowedOrigins + ", allowedMethods=" + allowedMethods + ", allowedHeaders=" + allowedHeaders + ", exposedHeaders=" + exposedHeaders + '}';
+    }
 }

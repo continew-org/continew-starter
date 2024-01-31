@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.auth.satoken.properties;
 
 import cn.dev33.satoken.dao.SaTokenDao;
-import lombok.Data;
 import top.charles7c.continew.starter.auth.satoken.enums.SaTokenDaoType;
 
 /**
@@ -26,7 +25,6 @@ import top.charles7c.continew.starter.auth.satoken.enums.SaTokenDaoType;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 public class SaTokenDaoProperties {
 
     /**
@@ -38,4 +36,25 @@ public class SaTokenDaoProperties {
      * 自定义持久层实现类（当 type 为 CUSTOM 时必填）
      */
     private Class<? extends SaTokenDao> impl;
+
+    public SaTokenDaoType getType() {
+        return type;
+    }
+
+    public void setType(SaTokenDaoType type) {
+        this.type = type;
+    }
+
+    public Class<? extends SaTokenDao> getImpl() {
+        return impl;
+    }
+
+    public void setImpl(Class<? extends SaTokenDao> impl) {
+        this.impl = impl;
+    }
+
+    @Override
+    public String toString() {
+        return "SaTokenDaoProperties{" + "type=" + type + ", impl=" + impl + '}';
+    }
 }

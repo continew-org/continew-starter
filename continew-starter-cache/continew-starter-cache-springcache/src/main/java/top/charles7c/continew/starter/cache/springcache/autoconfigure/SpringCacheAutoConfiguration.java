@@ -23,8 +23,8 @@ import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.cache.CacheProperties;
 import org.springframework.cache.annotation.CachingConfigurer;
@@ -45,13 +45,17 @@ import java.util.Map;
  * @author Charles7c
  * @since 1.2.0
  */
-@Slf4j
 @AutoConfiguration
-@RequiredArgsConstructor
 @PropertySource(value = "classpath:default-cache-springcache.yml", factory = GeneralPropertySourceFactory.class)
 public class SpringCacheAutoConfiguration implements CachingConfigurer {
 
+    private static final Logger log = LoggerFactory.getLogger(SpringCacheAutoConfiguration.class);
+
     private final ObjectMapper objectMapper;
+
+    public SpringCacheAutoConfiguration(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     /**
      * Redis 缓存配置

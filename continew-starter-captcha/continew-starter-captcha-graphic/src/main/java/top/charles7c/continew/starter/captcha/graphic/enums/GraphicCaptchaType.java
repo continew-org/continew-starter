@@ -18,8 +18,6 @@ package top.charles7c.continew.starter.captcha.graphic.enums;
 
 import com.wf.captcha.*;
 import com.wf.captcha.base.Captcha;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 /**
  * 图形验证码类型枚举
@@ -27,8 +25,6 @@ import lombok.RequiredArgsConstructor;
  * @author Charles7c
  * @since 1.0.0
  */
-@Getter
-@RequiredArgsConstructor
 public enum GraphicCaptchaType {
 
     /**
@@ -60,4 +56,12 @@ public enum GraphicCaptchaType {
      * 验证码实现
      */
     private final Class<? extends Captcha> captchaImpl;
+
+    GraphicCaptchaType(Class<? extends Captcha> captchaImpl) {
+        this.captchaImpl = captchaImpl;
+    }
+
+    public Class<? extends Captcha> getCaptchaImpl() {
+        return captchaImpl;
+    }
 }

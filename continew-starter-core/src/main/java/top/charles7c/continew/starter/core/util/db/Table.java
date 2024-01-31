@@ -16,9 +16,6 @@
 
 package top.charles7c.continew.starter.core.util.db;
 
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -29,8 +26,6 @@ import java.time.LocalDateTime;
  * @author Charles7c
  * @since 1.0.0
  */
-@Getter
-@Setter
 public class Table implements Serializable {
 
     @Serial
@@ -68,5 +63,58 @@ public class Table implements Serializable {
 
     public Table(String tableName) {
         this.tableName = tableName;
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getEngine() {
+        return engine;
+    }
+
+    public void setEngine(String engine) {
+        this.engine = engine;
+    }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    @Override
+    public String toString() {
+        return "Table{" + "tableName='" + tableName + '\'' + ", comment='" + comment + '\'' + ", engine='" + engine + '\'' + ", charset='" + charset + '\'' + ", createTime=" + createTime + ", updateTime=" + updateTime + '}';
     }
 }

@@ -23,7 +23,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import lombok.Data;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import top.charles7c.continew.starter.core.constant.StringConstants;
@@ -40,7 +39,6 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 public class MailUtils {
 
     private static final JavaMailSender MAIL_SENDER = SpringUtil.getBean(JavaMailSender.class);
@@ -207,4 +205,5 @@ public class MailUtils {
         }
         return result;
     }
+
 }

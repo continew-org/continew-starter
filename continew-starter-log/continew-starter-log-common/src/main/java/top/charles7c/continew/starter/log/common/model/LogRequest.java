@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.log.common.model;
 
 import cn.hutool.core.util.StrUtil;
-import lombok.Data;
 import org.springframework.http.HttpHeaders;
 import top.charles7c.continew.starter.core.util.ExceptionUtils;
 import top.charles7c.continew.starter.core.util.IpUtils;
@@ -34,7 +33,6 @@ import java.util.Set;
  * @author Charles7c
  * @since 1.1.0
  */
-@Data
 public class LogRequest {
 
     /**
@@ -98,5 +96,82 @@ public class LogRequest {
             this.browser = (includes.contains(Include.BROWSER)) ? ServletUtils.getBrowser(userAgentString) : null;
             this.os = (includes.contains(Include.OS)) ? ServletUtils.getOs(userAgentString) : null;
         }
+    }
+
+    public String getMethod() {
+        return method;
+    }
+
+    public void setMethod(String method) {
+        this.method = method;
+    }
+
+    public URI getUrl() {
+        return url;
+    }
+
+    public void setUrl(URI url) {
+        this.url = url;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
+    }
+
+    public String getBody() {
+        return body;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public Map<String, Object> getParam() {
+        return param;
+    }
+
+    public void setParam(Map<String, Object> param) {
+        this.param = param;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getBrowser() {
+        return browser;
+    }
+
+    public void setBrowser(String browser) {
+        this.browser = browser;
+    }
+
+    public String getOs() {
+        return os;
+    }
+
+    public void setOs(String os) {
+        this.os = os;
+    }
+
+    @Override
+    public String toString() {
+        return "LogRequest{" + "method='" + method + '\'' + ", url=" + url + ", ip='" + ip + '\'' + ", headers=" + headers + ", body='" + body + '\'' + ", param=" + param + ", address='" + address + '\'' + ", browser='" + browser + '\'' + ", os='" + os + '\'' + '}';
     }
 }

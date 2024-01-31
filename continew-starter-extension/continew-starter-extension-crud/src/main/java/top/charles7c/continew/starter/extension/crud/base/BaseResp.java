@@ -22,7 +22,6 @@ import com.alibaba.excel.annotation.ExcelProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 import top.charles7c.continew.starter.extension.crud.constant.ContainerPool;
 
 import java.io.Serial;
@@ -35,7 +34,6 @@ import java.time.LocalDateTime;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 public class BaseResp implements Serializable {
 
     @Serial
@@ -75,4 +73,49 @@ public class BaseResp implements Serializable {
     @Schema(description = "是否禁用修改", example = "true")
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Boolean disabled;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(Long createUser) {
+        this.createUser = createUser;
+    }
+
+    public String getCreateUserString() {
+        return createUserString;
+    }
+
+    public void setCreateUserString(String createUserString) {
+        this.createUserString = createUserString;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public Boolean getDisabled() {
+        return disabled;
+    }
+
+    public void setDisabled(Boolean disabled) {
+        this.disabled = disabled;
+    }
+
+    @Override
+    public String toString() {
+        return "BaseResp{" + "id=" + id + ", createUser=" + createUser + ", createUserString='" + createUserString + '\'' + ", createTime=" + createTime + ", disabled=" + disabled + '}';
+    }
 }

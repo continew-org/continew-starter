@@ -16,19 +16,24 @@
 
 package top.charles7c.continew.starter.auth.satoken.properties;
 
-import lombok.Data;
-
 /**
  * SaToken 安全配置属性
  *
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 public class SaTokenSecurityProperties {
 
     /**
      * 排除（放行）路径配置
      */
     private String[] excludes = new String[0];
+
+    public String[] getExcludes() {
+        return excludes;
+    }
+
+    public void setExcludes(String[] excludes) {
+        this.excludes = excludes;
+    }
 }

@@ -24,8 +24,8 @@ import com.anji.captcha.service.CaptchaService;
 import com.anji.captcha.service.impl.CaptchaServiceFactory;
 import com.anji.captcha.util.ImageUtils;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -48,14 +48,17 @@ import java.util.Properties;
  * @author Bull-BCLS
  * @since 1.1.0
  */
-@Slf4j
 @AutoConfiguration
-@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_BEHAVIOR, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(BehaviorCaptchaProperties.class)
 public class BehaviorCaptchaAutoConfiguration {
 
+    private static final Logger log = LoggerFactory.getLogger(BehaviorCaptchaAutoConfiguration.class);
     private final BehaviorCaptchaProperties properties;
+
+    public BehaviorCaptchaAutoConfiguration(BehaviorCaptchaProperties properties) {
+        this.properties = properties;
+    }
 
     /**
      * 自定义缓存实现配置

@@ -19,7 +19,6 @@ package top.charles7c.continew.starter.captcha.graphic.autoconfigure;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.wf.captcha.base.Captcha;
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.captcha.graphic.enums.GraphicCaptchaType;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
@@ -32,7 +31,6 @@ import java.awt.*;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 @ConfigurationProperties(PropertiesConstants.CAPTCHA_GRAPHIC)
 public class GraphicCaptchaProperties {
 
@@ -86,5 +84,66 @@ public class GraphicCaptchaProperties {
             return captcha;
         }
         return null;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public GraphicCaptchaType getType() {
+        return type;
+    }
+
+    public void setType(GraphicCaptchaType type) {
+        this.type = type;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
+
+    public String getFontName() {
+        return fontName;
+    }
+
+    public void setFontName(String fontName) {
+        this.fontName = fontName;
+    }
+
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
+    }
+
+    @Override
+    public String toString() {
+        return "GraphicCaptchaProperties{" + "enabled=" + enabled + ", type=" + type + ", length=" + length + ", width=" + width + ", height=" + height + ", fontName='" + fontName + '\'' + ", fontSize=" + fontSize + '}';
     }
 }

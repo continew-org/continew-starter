@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.core.autoconfigure.threadpool;
 
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
@@ -27,7 +26,6 @@ import top.charles7c.continew.starter.core.constant.PropertiesConstants;
  * @author Lion Li（<a href="https://gitee.com/dromara/RuoYi-Vue-Plus">RuoYi-Vue-Plus</a>）
  * @since 1.0.0
  */
-@Data
 @ConfigurationProperties(PropertiesConstants.THREAD_POOL)
 public class ThreadPoolProperties {
 
@@ -55,4 +53,49 @@ public class ThreadPoolProperties {
      * 活跃时间（单位：秒）
      */
     private int keepAliveSeconds = 300;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Integer getCorePoolSize() {
+        return corePoolSize;
+    }
+
+    public void setCorePoolSize(Integer corePoolSize) {
+        this.corePoolSize = corePoolSize;
+    }
+
+    public Integer getMaxPoolSize() {
+        return maxPoolSize;
+    }
+
+    public void setMaxPoolSize(Integer maxPoolSize) {
+        this.maxPoolSize = maxPoolSize;
+    }
+
+    public int getQueueCapacity() {
+        return queueCapacity;
+    }
+
+    public void setQueueCapacity(int queueCapacity) {
+        this.queueCapacity = queueCapacity;
+    }
+
+    public int getKeepAliveSeconds() {
+        return keepAliveSeconds;
+    }
+
+    public void setKeepAliveSeconds(int keepAliveSeconds) {
+        this.keepAliveSeconds = keepAliveSeconds;
+    }
+
+    @Override
+    public String toString() {
+        return "ThreadPoolProperties{" + "enabled=" + enabled + ", corePoolSize=" + corePoolSize + ", maxPoolSize=" + maxPoolSize + ", queueCapacity=" + queueCapacity + ", keepAliveSeconds=" + keepAliveSeconds + '}';
+    }
 }

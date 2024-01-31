@@ -16,9 +16,6 @@
 
 package top.charles7c.continew.starter.data.mybatis.plus.datapermission;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.util.Set;
 
 /**
@@ -27,7 +24,6 @@ import java.util.Set;
  * @author Charles7c
  * @since 1.1.0
  */
-@Data
 public class DataPermissionCurrentUser {
 
     /**
@@ -48,8 +44,6 @@ public class DataPermissionCurrentUser {
     /**
      * 当前用户角色信息
      */
-    @Data
-    @AllArgsConstructor
     public static class CurrentUserRole {
 
         /**
@@ -61,5 +55,63 @@ public class DataPermissionCurrentUser {
          * 数据权限
          */
         private DataScope dataScope;
+
+        public CurrentUserRole() {
+        }
+
+        public CurrentUserRole(String roleId, DataScope dataScope) {
+            this.roleId = roleId;
+            this.dataScope = dataScope;
+        }
+
+        public String getRoleId() {
+            return roleId;
+        }
+
+        public void setRoleId(String roleId) {
+            this.roleId = roleId;
+        }
+
+        public DataScope getDataScope() {
+            return dataScope;
+        }
+
+        public void setDataScope(DataScope dataScope) {
+            this.dataScope = dataScope;
+        }
+
+        @Override
+        public String toString() {
+            return "CurrentUserRole{" + "roleId='" + roleId + '\'' + ", dataScope=" + dataScope + '}';
+        }
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public Set<CurrentUserRole> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<CurrentUserRole> roles) {
+        this.roles = roles;
+    }
+
+    public String getDeptId() {
+        return deptId;
+    }
+
+    public void setDeptId(String deptId) {
+        this.deptId = deptId;
+    }
+
+    @Override
+    public String toString() {
+        return "DataPermissionCurrentUser{" + "userId='" + userId + '\'' + ", roles=" + roles + ", deptId='" + deptId + '\'' + '}';
     }
 }

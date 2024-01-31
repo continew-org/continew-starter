@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 
 import cn.dev33.satoken.stp.StpInterface;
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import top.charles7c.continew.starter.auth.satoken.properties.SaTokenDaoProperties;
@@ -29,7 +28,6 @@ import top.charles7c.continew.starter.auth.satoken.properties.SaTokenSecurityPro
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 @ConfigurationProperties(prefix = "sa-token.extension")
 public class SaTokenExtensionProperties {
 
@@ -54,4 +52,41 @@ public class SaTokenExtensionProperties {
      */
     @NestedConfigurationProperty
     private SaTokenSecurityProperties security;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Class<? extends StpInterface> getPermissionImpl() {
+        return permissionImpl;
+    }
+
+    public void setPermissionImpl(Class<? extends StpInterface> permissionImpl) {
+        this.permissionImpl = permissionImpl;
+    }
+
+    public SaTokenDaoProperties getDao() {
+        return dao;
+    }
+
+    public void setDao(SaTokenDaoProperties dao) {
+        this.dao = dao;
+    }
+
+    public SaTokenSecurityProperties getSecurity() {
+        return security;
+    }
+
+    public void setSecurity(SaTokenSecurityProperties security) {
+        this.security = security;
+    }
+
+    @Override
+    public String toString() {
+        return "SaTokenExtensionProperties{" + "enabled=" + enabled + ", permissionImpl=" + permissionImpl + ", dao=" + dao + ", security=" + security + '}';
+    }
 }

@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.core.autoconfigure.project;
 
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
@@ -28,7 +27,6 @@ import org.springframework.context.annotation.Import;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @AutoConfiguration
 @ComponentScan("cn.hutool.extra.spring")
 @Import(cn.hutool.extra.spring.SpringUtil.class)

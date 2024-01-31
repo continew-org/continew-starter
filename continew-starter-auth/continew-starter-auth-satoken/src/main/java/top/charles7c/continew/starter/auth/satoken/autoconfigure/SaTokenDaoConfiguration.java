@@ -18,8 +18,9 @@ package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 
 import cn.dev33.satoken.dao.SaTokenDao;
 import cn.hutool.core.util.ReflectUtil;
-import lombok.extern.slf4j.Slf4j;
 import org.redisson.client.RedisClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -34,8 +35,9 @@ import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoC
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 abstract class SaTokenDaoConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(SaTokenDaoConfiguration.class);
 
     private SaTokenDaoConfiguration() {
     }

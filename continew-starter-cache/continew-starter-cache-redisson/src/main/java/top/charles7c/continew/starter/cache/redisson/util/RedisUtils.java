@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.cache.redisson.util;
 
 import cn.hutool.extra.spring.SpringUtil;
-import lombok.Data;
 import org.redisson.api.*;
 import org.redisson.config.Config;
 import top.charles7c.continew.starter.core.constant.StringConstants;
@@ -32,7 +31,6 @@ import java.util.stream.Stream;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 public class RedisUtils {
 
     private static final RedissonClient CLIENT = SpringUtil.getBean(RedissonClient.class);
@@ -180,4 +178,5 @@ public class RedisUtils {
         }
         return config.useSingleServer().getNameMapper();
     }
+
 }

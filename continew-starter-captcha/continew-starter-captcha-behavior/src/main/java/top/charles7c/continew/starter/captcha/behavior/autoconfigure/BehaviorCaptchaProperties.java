@@ -18,7 +18,6 @@ package top.charles7c.continew.starter.captcha.behavior.autoconfigure;
 
 import com.anji.captcha.model.common.CaptchaTypeEnum;
 import com.anji.captcha.service.CaptchaCacheService;
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.captcha.behavior.enums.StorageType;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
@@ -31,7 +30,6 @@ import java.awt.*;
  * @author Bull-BCLS
  * @since 1.1.0
  */
-@Data
 @ConfigurationProperties(PropertiesConstants.CAPTCHA_BEHAVIOR)
 public class BehaviorCaptchaProperties {
 
@@ -149,4 +147,193 @@ public class BehaviorCaptchaProperties {
      * 点选字体大小（默认：25）
      */
     private int fontSize = 25;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public Boolean getEnableAes() {
+        return enableAes;
+    }
+
+    public void setEnableAes(Boolean enableAes) {
+        this.enableAes = enableAes;
+    }
+
+    public CaptchaTypeEnum getType() {
+        return type;
+    }
+
+    public void setType(CaptchaTypeEnum type) {
+        this.type = type;
+    }
+
+    public StorageType getCacheType() {
+        return cacheType;
+    }
+
+    public void setCacheType(StorageType cacheType) {
+        this.cacheType = cacheType;
+    }
+
+    public Class<? extends CaptchaCacheService> getCacheImpl() {
+        return cacheImpl;
+    }
+
+    public void setCacheImpl(Class<? extends CaptchaCacheService> cacheImpl) {
+        this.cacheImpl = cacheImpl;
+    }
+
+    public String getJigsawBaseMapPath() {
+        return jigsawBaseMapPath;
+    }
+
+    public void setJigsawBaseMapPath(String jigsawBaseMapPath) {
+        this.jigsawBaseMapPath = jigsawBaseMapPath;
+    }
+
+    public String getSlipOffset() {
+        return slipOffset;
+    }
+
+    public void setSlipOffset(String slipOffset) {
+        this.slipOffset = slipOffset;
+    }
+
+    public String getPicClickBaseMapPath() {
+        return picClickBaseMapPath;
+    }
+
+    public void setPicClickBaseMapPath(String picClickBaseMapPath) {
+        this.picClickBaseMapPath = picClickBaseMapPath;
+    }
+
+    public String getFontType() {
+        return fontType;
+    }
+
+    public void setFontType(String fontType) {
+        this.fontType = fontType;
+    }
+
+    public Integer getHistoryDataClearEnable() {
+        return historyDataClearEnable;
+    }
+
+    public void setHistoryDataClearEnable(Integer historyDataClearEnable) {
+        this.historyDataClearEnable = historyDataClearEnable;
+    }
+
+    public Integer getReqFrequencyLimitEnable() {
+        return reqFrequencyLimitEnable;
+    }
+
+    public void setReqFrequencyLimitEnable(Integer reqFrequencyLimitEnable) {
+        this.reqFrequencyLimitEnable = reqFrequencyLimitEnable;
+    }
+
+    public int getReqGetLockLimit() {
+        return reqGetLockLimit;
+    }
+
+    public void setReqGetLockLimit(int reqGetLockLimit) {
+        this.reqGetLockLimit = reqGetLockLimit;
+    }
+
+    public int getReqGetLockSeconds() {
+        return reqGetLockSeconds;
+    }
+
+    public void setReqGetLockSeconds(int reqGetLockSeconds) {
+        this.reqGetLockSeconds = reqGetLockSeconds;
+    }
+
+    public int getReqGetMinuteLimit() {
+        return reqGetMinuteLimit;
+    }
+
+    public void setReqGetMinuteLimit(int reqGetMinuteLimit) {
+        this.reqGetMinuteLimit = reqGetMinuteLimit;
+    }
+
+    public int getReqCheckMinuteLimit() {
+        return reqCheckMinuteLimit;
+    }
+
+    public void setReqCheckMinuteLimit(int reqCheckMinuteLimit) {
+        this.reqCheckMinuteLimit = reqCheckMinuteLimit;
+    }
+
+    public int getReqVerifyMinuteLimit() {
+        return reqVerifyMinuteLimit;
+    }
+
+    public void setReqVerifyMinuteLimit(int reqVerifyMinuteLimit) {
+        this.reqVerifyMinuteLimit = reqVerifyMinuteLimit;
+    }
+
+    public String getCacheNumber() {
+        return cacheNumber;
+    }
+
+    public void setCacheNumber(String cacheNumber) {
+        this.cacheNumber = cacheNumber;
+    }
+
+    public String getTimingClear() {
+        return timingClear;
+    }
+
+    public void setTimingClear(String timingClear) {
+        this.timingClear = timingClear;
+    }
+
+    public String getWaterMark() {
+        return waterMark;
+    }
+
+    public void setWaterMark(String waterMark) {
+        this.waterMark = waterMark;
+    }
+
+    public String getWaterFont() {
+        return waterFont;
+    }
+
+    public void setWaterFont(String waterFont) {
+        this.waterFont = waterFont;
+    }
+
+    public String getInterferenceOptions() {
+        return interferenceOptions;
+    }
+
+    public void setInterferenceOptions(String interferenceOptions) {
+        this.interferenceOptions = interferenceOptions;
+    }
+
+    public int getFontStyle() {
+        return fontStyle;
+    }
+
+    public void setFontStyle(int fontStyle) {
+        this.fontStyle = fontStyle;
+    }
+
+    public int getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(int fontSize) {
+        this.fontSize = fontSize;
+    }
+
+    @Override
+    public String toString() {
+        return "BehaviorCaptchaProperties{" + "enabled=" + enabled + ", enableAes=" + enableAes + ", type=" + type + ", cacheType=" + cacheType + ", cacheImpl=" + cacheImpl + ", jigsawBaseMapPath='" + jigsawBaseMapPath + '\'' + ", slipOffset='" + slipOffset + '\'' + ", picClickBaseMapPath='" + picClickBaseMapPath + '\'' + ", fontType='" + fontType + '\'' + ", historyDataClearEnable=" + historyDataClearEnable + ", reqFrequencyLimitEnable=" + reqFrequencyLimitEnable + ", reqGetLockLimit=" + reqGetLockLimit + ", reqGetLockSeconds=" + reqGetLockSeconds + ", reqGetMinuteLimit=" + reqGetMinuteLimit + ", reqCheckMinuteLimit=" + reqCheckMinuteLimit + ", reqVerifyMinuteLimit=" + reqVerifyMinuteLimit + ", cacheNumber='" + cacheNumber + '\'' + ", timingClear='" + timingClear + '\'' + ", waterMark='" + waterMark + '\'' + ", waterFont='" + waterFont + '\'' + ", interferenceOptions='" + interferenceOptions + '\'' + ", fontStyle=" + fontStyle + ", fontSize=" + fontSize + '}';
+    }
 }

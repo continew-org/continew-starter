@@ -20,7 +20,8 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.IdUtil;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -33,8 +34,8 @@ import java.time.LocalDateTime;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 public class FileUploadUtils {
+    private static final Logger log = LoggerFactory.getLogger(FileUploadUtils.class);
 
     private FileUploadUtils() {
     }

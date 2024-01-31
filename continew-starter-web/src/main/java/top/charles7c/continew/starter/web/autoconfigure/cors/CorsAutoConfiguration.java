@@ -16,7 +16,8 @@
 
 package top.charles7c.continew.starter.web.autoconfigure.cors;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,13 +37,13 @@ import top.charles7c.continew.starter.core.constant.StringConstants;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @Lazy
 @AutoConfiguration
 @ConditionalOnWebApplication
 @ConditionalOnProperty(prefix = PropertiesConstants.CORS, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(CorsProperties.class)
 public class CorsAutoConfiguration {
+    private static final Logger log = LoggerFactory.getLogger(CorsAutoConfiguration.class);
 
     /**
      * 跨域过滤器

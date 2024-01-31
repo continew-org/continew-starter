@@ -20,14 +20,14 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.Config;
 import org.redisson.config.SentinelServersConfig;
 import org.redisson.config.SingleServerConfig;
 import org.redisson.spring.starter.RedissonAutoConfigurationCustomizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -45,16 +45,24 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @AutoConfiguration
-@RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "spring.data.redisson", name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(RedissonProperties.class)
 public class RedissonAutoConfiguration {
 
+    private static final Logger log = LoggerFactory.getLogger(RedissonAutoConfiguration.class);
+
     private final RedissonProperties properties;
     private final RedisProperties redisProperties;
     private final ObjectMapper objectMapper;
+
+    public RedissonAutoConfiguration(RedissonProperties properties,
+                                     RedisProperties redisProperties,
+                                     ObjectMapper objectMapper) {
+        this.properties = properties;
+        this.redisProperties = redisProperties;
+        this.objectMapper = objectMapper;
+    }
 
     @Bean
     public RedissonAutoConfigurationCustomizer redissonAutoConfigurationCustomizer() {

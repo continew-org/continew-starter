@@ -19,13 +19,13 @@ package top.charles7c.continew.starter.extension.crud.model.query;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 import org.springframework.data.domain.Sort;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -34,7 +34,6 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 @Schema(description = "排序查询条件")
 public class SortQuery implements Serializable {
 
@@ -72,5 +71,14 @@ public class SortQuery implements Serializable {
             orders.add(order);
         }
         return Sort.by(orders);
+    }
+
+    public void setSort(String[] sort) {
+        this.sort = sort;
+    }
+
+    @Override
+    public String toString() {
+        return "SortQuery{" + "sort=" + Arrays.toString(sort) + '}';
     }
 }

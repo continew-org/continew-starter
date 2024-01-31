@@ -19,7 +19,8 @@ package top.charles7c.continew.starter.core.autoconfigure.password;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -49,11 +50,11 @@ import java.util.Map;
  * @author Jasmine
  * @since 1.3.0
  */
-@Slf4j
 @AutoConfiguration
 @EnableConfigurationProperties(PasswordEncoderProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.PASSWORD_ENCODER, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class PasswordEncoderAutoConfiguration {
+    private static final Logger log = LoggerFactory.getLogger(PasswordEncoderAutoConfiguration.class);
 
     private final PasswordEncoderProperties properties;
 

@@ -16,12 +16,13 @@
 
 package top.charles7c.continew.starter.data.mybatis.plus.query;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import lombok.extern.slf4j.Slf4j;
 import top.charles7c.continew.starter.core.exception.BadRequestException;
 import top.charles7c.continew.starter.core.util.ReflectUtils;
 import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
@@ -39,8 +40,9 @@ import java.util.function.Consumer;
  * @author Jasmine
  * @since 1.0.0
  */
-@Slf4j
 public class QueryWrapperHelper {
+
+    private static final Logger log = LoggerFactory.getLogger(QueryWrapperHelper.class);
 
     private QueryWrapperHelper() {
     }

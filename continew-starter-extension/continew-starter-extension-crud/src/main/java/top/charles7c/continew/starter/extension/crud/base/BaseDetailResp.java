@@ -21,8 +21,6 @@ import cn.crane4j.annotation.Mapping;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import top.charles7c.continew.starter.extension.crud.constant.ContainerPool;
 
 import java.io.Serial;
@@ -34,8 +32,6 @@ import java.time.LocalDateTime;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
-@EqualsAndHashCode(callSuper = true)
 public class BaseDetailResp extends BaseResp {
 
     @Serial
@@ -61,4 +57,33 @@ public class BaseDetailResp extends BaseResp {
     @Schema(description = "修改时间", example = "2023-08-08 08:08:08", type = "string")
     @ExcelProperty(value = "修改时间", order = Integer.MAX_VALUE - 1)
     private LocalDateTime updateTime;
+
+    public Long getUpdateUser() {
+        return updateUser;
+    }
+
+    public void setUpdateUser(Long updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public String getUpdateUserString() {
+        return updateUserString;
+    }
+
+    public void setUpdateUserString(String updateUserString) {
+        this.updateUserString = updateUserString;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    @Override
+    public String toString() {
+        return "BaseDetailResp{" + "updateUser=" + updateUser + ", updateUserString='" + updateUserString + '\'' + ", updateTime=" + updateTime + "} " + super.toString();
+    }
 }

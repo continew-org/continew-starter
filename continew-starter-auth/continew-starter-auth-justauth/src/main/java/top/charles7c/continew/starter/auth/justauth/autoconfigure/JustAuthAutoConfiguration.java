@@ -17,9 +17,10 @@
 package top.charles7c.continew.starter.auth.justauth.autoconfigure;
 
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import me.zhyd.oauth.cache.AuthStateCache;
 import org.redisson.client.RedisClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -33,10 +34,11 @@ import top.charles7c.continew.starter.core.constant.PropertiesConstants;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @AutoConfiguration(before = com.xkcoding.justauth.autoconfigure.JustAuthAutoConfiguration.class)
 @ConditionalOnProperty(prefix = "justauth", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class JustAuthAutoConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(JustAuthAutoConfiguration.class);
 
     /**
      * 自定义 State 缓存实现

@@ -18,7 +18,6 @@ package top.charles7c.continew.starter.web.model;
 
 import cn.hutool.core.date.DateUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Data;
 import org.springframework.http.HttpStatus;
 
 import java.io.Serial;
@@ -30,7 +29,6 @@ import java.io.Serializable;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 @Schema(description = "响应信息")
 public class R<T> implements Serializable {
 
@@ -178,5 +176,50 @@ public class R<T> implements Serializable {
      */
     public static <T> R<T> fail(int code, String msg) {
         return new R<>(false, code, msg, null);
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public T getData() {
+        return data;
+    }
+
+    public void setData(T data) {
+        this.data = data;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "R{" + "success=" + success + ", code=" + code + ", msg='" + msg + '\'' + ", data=" + data + ", timestamp=" + timestamp + '}';
     }
 }

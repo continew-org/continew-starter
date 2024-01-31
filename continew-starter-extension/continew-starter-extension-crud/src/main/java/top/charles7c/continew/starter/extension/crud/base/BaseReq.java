@@ -16,8 +16,6 @@
 
 package top.charles7c.continew.starter.extension.crud.base;
 
-import lombok.Data;
-
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -27,7 +25,6 @@ import java.io.Serializable;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 public class BaseReq implements Serializable {
 
     @Serial

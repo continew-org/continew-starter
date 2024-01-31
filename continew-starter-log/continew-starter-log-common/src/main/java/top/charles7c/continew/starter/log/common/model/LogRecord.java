@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.log.common.model;
 
-import lombok.Data;
 import top.charles7c.continew.starter.log.common.enums.Include;
 
 import java.time.Clock;
@@ -33,7 +32,6 @@ import java.util.Set;
  * @author Charles7c
  * @since 1.1.0
  */
-@Data
 public class LogRecord {
 
     /**
@@ -133,5 +131,54 @@ public class LogRecord {
             Duration duration = Duration.between(this.timestamp, Instant.now(clock));
             return new LogRecord(this.timestamp, logRequest, logResponse, duration);
         }
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getModule() {
+        return module;
+    }
+
+    public void setModule(String module) {
+        this.module = module;
+    }
+
+    public LogRequest getRequest() {
+        return request;
+    }
+
+    public void setRequest(LogRequest request) {
+        this.request = request;
+    }
+
+    public LogResponse getResponse() {
+        return response;
+    }
+
+    public void setResponse(LogResponse response) {
+        this.response = response;
+    }
+
+    public Duration getTimeTaken() {
+        return timeTaken;
+    }
+
+    public void setTimeTaken(Duration timeTaken) {
+        this.timeTaken = timeTaken;
+    }
+
+    public Instant getTimestamp() {
+        return timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "LogRecord{" + "description='" + description + '\'' + ", module='" + module + '\'' + ", request=" + request + ", response=" + response + ", timeTaken=" + timeTaken + ", timestamp=" + timestamp + '}';
     }
 }

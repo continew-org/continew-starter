@@ -19,7 +19,8 @@ package top.charles7c.continew.starter.core.util.validate;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.util.StrUtil;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.function.BooleanSupplier;
 
@@ -29,8 +30,8 @@ import java.util.function.BooleanSupplier;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 public class Validator {
+    private static final Logger log = LoggerFactory.getLogger(Validator.class);
 
     protected Validator() {
     }

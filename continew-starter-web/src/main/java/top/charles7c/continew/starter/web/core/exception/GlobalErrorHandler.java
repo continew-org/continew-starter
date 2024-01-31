@@ -22,7 +22,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
 import org.springframework.boot.autoconfigure.web.servlet.error.ErrorViewResolver;
@@ -44,9 +45,10 @@ import java.util.Map;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @RestController
 public class GlobalErrorHandler extends BasicErrorController {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalErrorHandler.class);
 
     @Resource
     private ObjectMapper objectMapper;

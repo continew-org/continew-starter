@@ -17,8 +17,8 @@
 package top.charles7c.continew.starter.core.autoconfigure.threadpool;
 
 import cn.hutool.core.util.ArrayUtil;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -39,15 +39,18 @@ import java.util.concurrent.ScheduledExecutorService;
  * @author Lion Li（<a href="https://gitee.com/dromara/RuoYi-Vue-Plus">RuoYi-Vue-Plus</a>）
  * @since 1.0.0
  */
-@Slf4j
 @Lazy
 @AutoConfiguration
-@RequiredArgsConstructor
 @EnableAsync(proxyTargetClass = true)
 @ConditionalOnProperty(prefix = PropertiesConstants.THREAD_POOL, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class AsyncAutoConfiguration implements AsyncConfigurer {
+    private static final Logger log = LoggerFactory.getLogger(AsyncAutoConfiguration.class);
 
     private final ScheduledExecutorService scheduledExecutorService;
+
+    public AsyncAutoConfiguration(ScheduledExecutorService scheduledExecutorService) {
+        this.scheduledExecutorService = scheduledExecutorService;
+    }
 
     /**
      * 异步任务 @Async 执行时，使用 Java 内置线程池

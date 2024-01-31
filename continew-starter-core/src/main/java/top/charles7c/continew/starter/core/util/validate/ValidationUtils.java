@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.core.util.validate;
 
 import cn.hutool.core.util.StrUtil;
-import lombok.extern.slf4j.Slf4j;
 import top.charles7c.continew.starter.core.exception.BadRequestException;
 
 import java.util.function.BooleanSupplier;
@@ -29,7 +28,6 @@ import java.util.function.BooleanSupplier;
  * @see BadRequestException
  * @since 1.0.0
  */
-@Slf4j
 public class ValidationUtils extends Validator {
 
     private static final Class<BadRequestException> EXCEPTION_TYPE = BadRequestException.class;

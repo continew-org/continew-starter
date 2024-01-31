@@ -24,8 +24,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
@@ -46,13 +46,17 @@ import java.util.Set;
  * @author Charles7c
  * @since 1.1.0
  */
-@Slf4j
-@RequiredArgsConstructor
 public class LogInterceptor implements HandlerInterceptor {
 
+    private static final Logger log = LoggerFactory.getLogger(LogInterceptor.class);
     private final LogDao logDao;
     private final LogProperties logProperties;
     private final TransmittableThreadLocal<LogRecord.Started> timestampTtl = new TransmittableThreadLocal<>();
+
+    public LogInterceptor(LogDao logDao, LogProperties logProperties) {
+        this.logDao = logDao;
+        this.logProperties = logProperties;
+    }
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request,

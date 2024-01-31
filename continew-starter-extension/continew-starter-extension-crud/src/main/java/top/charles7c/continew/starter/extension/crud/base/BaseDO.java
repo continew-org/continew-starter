@@ -19,7 +19,6 @@ package top.charles7c.continew.starter.extension.crud.base;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -31,7 +30,6 @@ import java.time.LocalDateTime;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 public class BaseDO implements Serializable {
 
     @Serial
@@ -66,4 +64,49 @@ public class BaseDO implements Serializable {
      */
     @TableField(fill = FieldFill.UPDATE)
     private LocalDateTime updateTime;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(Long createUser) {
+        this.createUser = createUser;
+    }
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public Long getUpdateUser() {
+        return updateUser;
+    }
+
+    public void setUpdateUser(Long updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
+
+    @Override
+    public String toString() {
+        return "BaseDO{" + "id=" + id + ", createUser=" + createUser + ", createTime=" + createTime + ", updateUser=" + updateUser + ", updateTime=" + updateTime + '}';
+    }
 }

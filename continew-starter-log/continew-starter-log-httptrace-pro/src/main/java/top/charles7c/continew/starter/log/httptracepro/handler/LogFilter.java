@@ -20,7 +20,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import org.springframework.core.Ordered;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -47,10 +46,13 @@ import java.util.Set;
  * @author Charles7c
  * @since 1.1.0
  */
-@RequiredArgsConstructor
 public class LogFilter extends OncePerRequestFilter implements Ordered {
 
     private final LogProperties logProperties;
+
+    public LogFilter(LogProperties logProperties) {
+        this.logProperties = logProperties;
+    }
 
     @Override
     public int getOrder() {

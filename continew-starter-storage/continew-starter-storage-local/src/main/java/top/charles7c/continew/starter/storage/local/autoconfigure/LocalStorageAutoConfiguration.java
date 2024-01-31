@@ -18,8 +18,8 @@ package top.charles7c.continew.starter.storage.local.autoconfigure;
 
 import cn.hutool.core.util.StrUtil;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -37,15 +37,18 @@ import java.util.Map;
  * @author Charles7c
  * @since 1.1.0
  */
-@Slf4j
 @EnableWebMvc
 @AutoConfiguration
-@RequiredArgsConstructor
 @EnableConfigurationProperties(LocalStorageProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.STORAGE_LOCAL, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
 
+    private static final Logger log = LoggerFactory.getLogger(LocalStorageAutoConfiguration.class);
     private final LocalStorageProperties properties;
+
+    public LocalStorageAutoConfiguration(LocalStorageProperties properties) {
+        this.properties = properties;
+    }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {

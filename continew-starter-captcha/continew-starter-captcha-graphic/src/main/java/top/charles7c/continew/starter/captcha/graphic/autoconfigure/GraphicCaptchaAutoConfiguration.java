@@ -17,7 +17,8 @@
 package top.charles7c.continew.starter.captcha.graphic.autoconfigure;
 
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -29,11 +30,12 @@ import top.charles7c.continew.starter.core.constant.PropertiesConstants;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @AutoConfiguration
 @EnableConfigurationProperties(GraphicCaptchaProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_GRAPHIC, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class GraphicCaptchaAutoConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(GraphicCaptchaAutoConfiguration.class);
 
     @PostConstruct
     public void postConstruct() {

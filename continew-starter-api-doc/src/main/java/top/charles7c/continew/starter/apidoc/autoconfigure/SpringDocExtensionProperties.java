@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.apidoc.autoconfigure;
 
 import io.swagger.v3.oas.models.Components;
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
@@ -28,7 +27,6 @@ import top.charles7c.continew.starter.core.constant.PropertiesConstants;
  * @author Charles7c
  * @since 1.0.1
  */
-@Data
 @ConfigurationProperties(prefix = PropertiesConstants.SPRINGDOC)
 public class SpringDocExtensionProperties {
 
@@ -37,4 +35,17 @@ public class SpringDocExtensionProperties {
      */
     @NestedConfigurationProperty
     private Components components;
+
+    public Components getComponents() {
+        return components;
+    }
+
+    public void setComponents(Components components) {
+        this.components = components;
+    }
+
+    @Override
+    public String toString() {
+        return "SpringDocExtensionProperties{" + "components=" + components + '}';
+    }
 }

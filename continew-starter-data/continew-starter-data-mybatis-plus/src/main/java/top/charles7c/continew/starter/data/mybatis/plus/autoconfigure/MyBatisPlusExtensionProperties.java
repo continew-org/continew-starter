@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.data.mybatis.plus.autoconfigure;
 
 import com.baomidou.mybatisplus.annotation.DbType;
-import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 /**
@@ -26,7 +25,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 @ConfigurationProperties(prefix = "mybatis-plus.extension")
 public class MyBatisPlusExtensionProperties {
 
@@ -56,7 +54,6 @@ public class MyBatisPlusExtensionProperties {
     /**
      * 数据权限插件配置属性
      */
-    @Data
     public static class DataPermissionProperties {
 
         /**
@@ -64,12 +61,23 @@ public class MyBatisPlusExtensionProperties {
          */
         private boolean enabled = false;
 
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        @Override
+        public String toString() {
+            return "DataPermissionProperties{" + "enabled=" + enabled + '}';
+        }
     }
 
     /**
      * 分页插件配置属性
      */
-    @Data
     public static class PaginationProperties {
 
         /**
@@ -91,5 +99,79 @@ public class MyBatisPlusExtensionProperties {
          * 单页分页条数限制（默认：-1 表示无限制）
          */
         private Long maxLimit = -1L;
+
+        public boolean isEnabled() {
+            return enabled;
+        }
+
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
+        public DbType getDbType() {
+            return dbType;
+        }
+
+        public void setDbType(DbType dbType) {
+            this.dbType = dbType;
+        }
+
+        public boolean isOverflow() {
+            return overflow;
+        }
+
+        public void setOverflow(boolean overflow) {
+            this.overflow = overflow;
+        }
+
+        public Long getMaxLimit() {
+            return maxLimit;
+        }
+
+        public void setMaxLimit(Long maxLimit) {
+            this.maxLimit = maxLimit;
+        }
+
+        @Override
+        public String toString() {
+            return "PaginationProperties{" + "enabled=" + enabled + ", dbType=" + dbType + ", overflow=" + overflow + ", maxLimit=" + maxLimit + '}';
+        }
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public String getMapperPackage() {
+        return mapperPackage;
+    }
+
+    public void setMapperPackage(String mapperPackage) {
+        this.mapperPackage = mapperPackage;
+    }
+
+    public DataPermissionProperties getDataPermission() {
+        return dataPermission;
+    }
+
+    public void setDataPermission(DataPermissionProperties dataPermission) {
+        this.dataPermission = dataPermission;
+    }
+
+    public PaginationProperties getPagination() {
+        return pagination;
+    }
+
+    public void setPagination(PaginationProperties pagination) {
+        this.pagination = pagination;
+    }
+
+    @Override
+    public String toString() {
+        return "MyBatisPlusExtensionProperties{" + "enabled=" + enabled + ", mapperPackage='" + mapperPackage + '\'' + ", dataPermission=" + dataPermission + ", pagination=" + pagination + '}';
     }
 }

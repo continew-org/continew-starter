@@ -21,8 +21,9 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.anji.captcha.service.CaptchaCacheService;
 import com.anji.captcha.service.impl.CaptchaServiceFactory;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
 import org.redisson.client.RedisClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -39,8 +40,9 @@ import top.charles7c.continew.starter.core.constant.PropertiesConstants;
  * @author Bull-BCLS
  * @since 1.1.0
  */
-@Slf4j
 abstract class BehaviorCaptchaCacheConfiguration {
+
+    private static final Logger log = LoggerFactory.getLogger(BehaviorCaptchaCacheConfiguration.class);
 
     private BehaviorCaptchaCacheConfiguration() {
     }

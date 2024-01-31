@@ -23,8 +23,6 @@ import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Min;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
 import org.hibernate.validator.constraints.Range;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Sort;
@@ -37,9 +35,7 @@ import java.io.Serial;
  * @author Charles7c
  * @since 1.0.0
  */
-@Data
 @ParameterObject
-@EqualsAndHashCode(callSuper = true)
 @Schema(description = "分页查询条件")
 public class PageQuery extends SortQuery {
 
@@ -86,5 +82,26 @@ public class PageQuery extends SortQuery {
             }
         }
         return mybatisPage;
+    }
+
+    public Integer getPage() {
+        return page;
+    }
+
+    public void setPage(Integer page) {
+        this.page = page;
+    }
+
+    public Integer getSize() {
+        return size;
+    }
+
+    public void setSize(Integer size) {
+        this.size = size;
+    }
+
+    @Override
+    public String toString() {
+        return "PageQuery{" + "page=" + page + ", size=" + size + "} " + super.toString();
     }
 }

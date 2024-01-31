@@ -23,8 +23,8 @@ import cn.dev33.satoken.stp.StpLogic;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ReflectUtil;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -42,16 +42,19 @@ import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
  * @author Charles7c
  * @since 1.0.0
  */
-@Slf4j
 @AutoConfiguration
-@RequiredArgsConstructor
 @ComponentScan("top.charles7c.continew.starter.auth.satoken.exception")
 @EnableConfigurationProperties(SaTokenExtensionProperties.class)
 @ConditionalOnProperty(prefix = "sa-token.extension", name = PropertiesConstants.ENABLED, havingValue = "true")
 @PropertySource(value = "classpath:default-auth-satoken.yml", factory = GeneralPropertySourceFactory.class)
 public class SaTokenAutoConfiguration implements WebMvcConfigurer {
 
+    private static final Logger log = LoggerFactory.getLogger(SaTokenAutoConfiguration.class);
     private final SaTokenExtensionProperties properties;
+
+    public SaTokenAutoConfiguration(SaTokenExtensionProperties properties) {
+        this.properties = properties;
+    }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
