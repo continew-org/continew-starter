@@ -34,9 +34,9 @@ public class PasswordEncoderProperties {
     private boolean enabled = false;
 
     /**
-     * 启用的算法 ID
+     * 默认启用的编码器 ID（默认：BCryptPasswordEncoder）
      */
-    private String encodingId;
+    private String encodingId = "bcrypt";
 
     public boolean isEnabled() {
         return enabled;

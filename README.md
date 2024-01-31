@@ -3,8 +3,14 @@
 <a href="https://github.com/Charles7c/continew-starter/blob/dev/LICENSE" target="_blank">
 <img src="https://img.shields.io/badge/License-LGPL--3.0-blue.svg" alt="License" />
 </a>
+<a href="https://central.sonatype.com/search?q=continew-starter" target="_blank">
+<img src="https://img.shields.io/maven-central/v/top.charles7c.continew/continew-starter.svg?label=Maven%20Central" alt="Release" />
+</a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/badge/SNAPSHOT-v1.3.0-%23ff3f59.svg" alt="Release" />
+</a>
+<a href="https://app.codacy.com/gh/Charles7c/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank">
+<img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy Badge" />
 </a>
 <a href="https://sonarcloud.io/summary/new_code?id=Charles7c_continew-starter" target="_blank">
 <img src="https://sonarcloud.io/api/project_badges/measure?project=Charles7c_continew-starter&metric=alert_status" alt="Sonar Status" />

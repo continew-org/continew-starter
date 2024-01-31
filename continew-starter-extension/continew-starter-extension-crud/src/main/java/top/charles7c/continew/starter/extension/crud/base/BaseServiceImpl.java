@@ -20,7 +20,6 @@ import cn.crane4j.core.support.OperateTemplate;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
@@ -221,7 +220,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
                 String checkProperty;
                 // 携带表别名则获取 . 后面的字段名
                 if (property.contains(StringConstants.DOT)) {
-                    checkProperty = CollectionUtil.getLast(StrUtil.split(property, StringConstants.DOT));
+                    checkProperty = CollUtil.getLast(StrUtil.split(property, StringConstants.DOT));
                 } else {
                     checkProperty = property;
                 }

@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.core.autoconfigure.password;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 密码编解码自动配置
+ * 密码编码器自动配置
  *
  * <p>
  * 密码配置类，默认编解码器使用的是 BCryptPasswordEncoder <br />
@@ -63,20 +62,15 @@ public class PasswordEncoderAutoConfiguration {
     }
 
     /**
-     * 密码加密解密
+     * 密码编码器
      *
      * @see DelegatingPasswordEncoder
      * @see PasswordEncoderFactories
      */
     @Bean
     public PasswordEncoder passwordEncoder(List<PasswordEncoder> passwordEncoderList) {
-        String encodingId = "bcrypt";
-        if (StrUtil.isNotBlank(properties.getEncodingId())) {
-            encodingId = properties.getEncodingId();
-        }
-
         Map<String, PasswordEncoder> encoders = new HashMap<>();
-        encoders.put(encodingId, new BCryptPasswordEncoder());
+        encoders.put("bcrypt", new BCryptPasswordEncoder());
         encoders.put("ldap", new org.springframework.security.crypto.password.LdapShaPasswordEncoder());
         encoders.put("MD4", new org.springframework.security.crypto.password.Md4PasswordEncoder());
         encoders.put("MD5", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("MD5"));
@@ -97,7 +91,8 @@ public class PasswordEncoderAutoConfiguration {
                 .getSimpleName()
                 .toLowerCase(), passwordEncoder));
         }
-        CheckUtils.throwIf(!encoders.keySet().contains(encodingId), "所填 [{}] 密码编码器不存在！", encodingId);
+        String encodingId = properties.getEncodingId();
+        CheckUtils.throwIf(!encoders.containsKey(encodingId), "{} is not found in idToPasswordEncoder.", encodingId);
         return new DelegatingPasswordEncoder(encodingId, encoders);
     }
 
