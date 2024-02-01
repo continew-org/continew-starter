@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.base;
+package top.charles7c.continew.starter.extension.crud.model.req;
 
 import java.io.Serial;
 import java.io.Serializable;

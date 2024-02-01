@@ -14,24 +14,26 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.base;
+package top.charles7c.continew.starter.extension.crud.service;
 
-import java.io.Serializable;
+import cn.crane4j.annotation.ContainerMethod;
+import cn.crane4j.annotation.MappingType;
+import top.charles7c.continew.starter.extension.crud.constant.ContainerPool;
 
 /**
- * 通用业务接口
+ * 公共用户业务接口
  *
- * @param <T> 实体类型
  * @author Charles7c
- * @since 1.2.0
+ * @since 1.0.0
  */
-public interface IService<T> {
+public interface CommonUserService {
 
     /**
-     * 根据 ID 查询
+     * 根据 ID 查询昵称
      *
      * @param id ID
-     * @return 实体信息
+     * @return 昵称
      */
-    T getById(Serializable id);
+    @ContainerMethod(namespace = ContainerPool.USER_NICKNAME, type = MappingType.NONE)
+    String getNicknameById(Long id);
 }

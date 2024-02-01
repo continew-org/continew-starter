@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.base;
+package top.charles7c.continew.starter.extension.crud.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.lang.tree.Tree;
@@ -28,10 +28,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.extension.crud.annotation.CrudRequestMapping;
+import top.charles7c.continew.starter.extension.crud.util.ValidateGroup;
 import top.charles7c.continew.starter.extension.crud.enums.Api;
 import top.charles7c.continew.starter.extension.crud.model.query.PageQuery;
 import top.charles7c.continew.starter.extension.crud.model.query.SortQuery;
+import top.charles7c.continew.starter.extension.crud.model.req.BaseReq;
 import top.charles7c.continew.starter.extension.crud.model.resp.PageResp;
+import top.charles7c.continew.starter.extension.crud.service.BaseService;
 import top.charles7c.continew.starter.web.model.R;
 
 import java.util.List;

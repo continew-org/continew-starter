@@ -28,7 +28,6 @@ import org.springframework.web.accept.ContentNegotiationManager;
 import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceUrlProvider;
-import top.charles7c.continew.starter.extension.crud.handler.CrudRequestMappingHandlerMapping;
 
 /**
  * CRUD REST Controller 自动配置

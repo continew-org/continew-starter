@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.handler;
+package top.charles7c.continew.starter.extension.crud.autoconfigure;
 
 import cn.hutool.core.util.ArrayUtil;
 import org.springframework.core.annotation.AnnotatedElementUtils;

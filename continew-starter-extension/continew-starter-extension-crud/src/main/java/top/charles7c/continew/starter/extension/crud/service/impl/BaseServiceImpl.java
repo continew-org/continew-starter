@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.base;
+package top.charles7c.continew.starter.extension.crud.service.impl;
 
 import cn.crane4j.core.support.OperateTemplate;
 import cn.hutool.core.bean.BeanUtil;
@@ -41,9 +41,13 @@ import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
 import top.charles7c.continew.starter.data.mybatis.plus.base.BaseMapper;
 import top.charles7c.continew.starter.data.mybatis.plus.query.QueryWrapperHelper;
 import top.charles7c.continew.starter.extension.crud.annotation.TreeField;
+import top.charles7c.continew.starter.extension.crud.model.entity.BaseDO;
+import top.charles7c.continew.starter.extension.crud.model.req.BaseReq;
+import top.charles7c.continew.starter.extension.crud.service.IService;
 import top.charles7c.continew.starter.extension.crud.model.query.PageQuery;
 import top.charles7c.continew.starter.extension.crud.model.query.SortQuery;
 import top.charles7c.continew.starter.extension.crud.model.resp.PageResp;
+import top.charles7c.continew.starter.extension.crud.service.BaseService;
 import top.charles7c.continew.starter.extension.crud.util.TreeUtils;
 import top.charles7c.continew.starter.file.excel.util.ExcelUtils;
 

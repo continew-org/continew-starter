@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.base;
+package top.charles7c.continew.starter.extension.crud.model.resp;
 
 import cn.crane4j.annotation.Assemble;
 import cn.crane4j.annotation.Mapping;
