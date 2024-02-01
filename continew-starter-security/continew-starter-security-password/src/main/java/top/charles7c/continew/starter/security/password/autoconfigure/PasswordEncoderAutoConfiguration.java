@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.core.autoconfigure.password;
+package top.charles7c.continew.starter.security.password.autoconfigure;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ import java.util.Map;
  * </p>
  *
  * @author Jasmine
+ * @author Charles7c
  * @since 1.3.0
  */
 @AutoConfiguration
@@ -71,25 +73,15 @@ public class PasswordEncoderAutoConfiguration {
     public PasswordEncoder passwordEncoder(List<PasswordEncoder> passwordEncoderList) {
         Map<String, PasswordEncoder> encoders = new HashMap<>();
         encoders.put("bcrypt", new BCryptPasswordEncoder());
-        encoders.put("ldap", new org.springframework.security.crypto.password.LdapShaPasswordEncoder());
-        encoders.put("MD4", new org.springframework.security.crypto.password.Md4PasswordEncoder());
-        encoders.put("MD5", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("MD5"));
-        encoders.put("noop", org.springframework.security.crypto.password.NoOpPasswordEncoder.getInstance());
-        encoders.put("pbkdf2", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_5());
-        encoders.put("pbkdf2@SpringSecurity_v5_8", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
-        encoders.put("scrypt", SCryptPasswordEncoder.defaultsForSpringSecurity_v4_1());
-        encoders.put("scrypt@SpringSecurity_v5_8", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
-        encoders.put("SHA-1", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-1"));
-        encoders
-            .put("SHA-256", new org.springframework.security.crypto.password.MessageDigestPasswordEncoder("SHA-256"));
-        encoders.put("sha256", new org.springframework.security.crypto.password.StandardPasswordEncoder());
-        encoders.put("argon2", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_2());
-        encoders.put("argon2@SpringSecurity_v5_8", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+        encoders.put("pbkdf2", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+        encoders.put("scrypt", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
+        encoders.put("argon2", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
         // 添加自定义的密码编解码器
         if (CollUtil.isNotEmpty(passwordEncoderList)) {
-            passwordEncoderList.forEach(passwordEncoder -> encoders.put(passwordEncoder.getClass()
-                .getSimpleName()
-                .toLowerCase(), passwordEncoder));
+            passwordEncoderList.forEach(passwordEncoder -> {
+                String simpleName = passwordEncoder.getClass().getSimpleName();
+                encoders.put(StrUtil.removeSuffix(simpleName, "PasswordEncoder").toLowerCase(), passwordEncoder);
+            });
         }
         String encodingId = properties.getEncodingId();
         CheckUtils.throwIf(!encoders.containsKey(encodingId), "{} is not found in idToPasswordEncoder.", encodingId);
@@ -98,6 +90,6 @@ public class PasswordEncoderAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'PasswordEncoder' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Security-PasswordEncoder' completed initialization.");
     }
 }

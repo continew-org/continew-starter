@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.core.autoconfigure.password;
+package top.charles7c.continew.starter.security.password.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
