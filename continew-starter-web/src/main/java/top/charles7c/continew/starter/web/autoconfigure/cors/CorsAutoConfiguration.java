@@ -72,7 +72,7 @@ public class CorsAutoConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration(StringConstants.PATH_PATTERN, config);
         CorsFilter corsFilter = new CorsFilter(source);
-        log.debug("[ContiNew Starter] - Auto Configuration 'CorsFilter' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Web-CorsFilter' completed initialization.");
         return corsFilter;
     }
 }

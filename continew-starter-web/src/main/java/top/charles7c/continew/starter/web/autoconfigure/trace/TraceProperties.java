@@ -14,29 +14,36 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.security.password.autoconfigure;
+package top.charles7c.continew.starter.web.autoconfigure.trace;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * 密码编解码配置属性
+ * 链路跟踪配置属性
  *
- * @author Jasmine
+ * @author Charles7c
  * @since 1.3.0
  */
-@ConfigurationProperties(PropertiesConstants.PASSWORD)
-public class PasswordEncoderProperties {
+@ConfigurationProperties(PropertiesConstants.TRACE)
+public class TraceProperties {
 
     /**
-     * 是否启用密码编解码配置
+     * 是否启用链路跟踪配置
      */
     private boolean enabled = false;
 
     /**
-     * 默认启用的编码器 ID（默认：BCryptPasswordEncoder）
+     * 响应头名称
      */
-    private String encodingId = "bcrypt";
+    private String headerName = "traceId";
+
+    /**
+     * TLog 配置
+     */
+    @NestedConfigurationProperty
+    private TLogProperties tlog;
 
     public boolean isEnabled() {
         return enabled;
@@ -46,16 +53,24 @@ public class PasswordEncoderProperties {
         this.enabled = enabled;
     }
 
-    public String getEncodingId() {
-        return encodingId;
+    public String getHeaderName() {
+        return headerName;
     }
 
-    public void setEncodingId(String encodingId) {
-        this.encodingId = encodingId;
+    public void setHeaderName(String headerName) {
+        this.headerName = headerName;
+    }
+
+    public TLogProperties getTlog() {
+        return tlog;
+    }
+
+    public void setTlog(TLogProperties tlog) {
+        this.tlog = tlog;
     }
 
     @Override
     public String toString() {
-        return "PasswordEncoderProperties{" + "enabled=" + enabled + ", encodingId='" + encodingId + '\'' + '}';
+        return "TraceProperties{" + "enabled=" + enabled + ", headerName='" + headerName + '\'' + ", tlog=" + tlog + '}';
     }
 }

@@ -63,4 +63,9 @@ public class StringConstants implements StrPool {
      * 路径模式
      */
     public static final String PATH_PATTERN = "/**";
+
+    /**
+     * 路径模式（仅匹配当前目录）
+     */
+    public static final String PATH_PATTERN_CURRENT_DIR = "/*";
 }

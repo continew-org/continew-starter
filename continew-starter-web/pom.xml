@@ -45,6 +45,12 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
+        <!-- TLog（轻量级的分布式日志标记追踪神器） -->
+        <dependency>
+            <groupId>com.yomahub</groupId>
+            <artifactId>tlog-web-spring-boot-starter</artifactId>
+        </dependency>
+
         <!-- API 文档模块 -->
         <dependency>
             <groupId>top.charles7c.continew</groupId>

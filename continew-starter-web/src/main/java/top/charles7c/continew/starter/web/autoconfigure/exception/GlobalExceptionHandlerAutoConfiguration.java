@@ -30,8 +30,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
-import top.charles7c.continew.starter.web.core.exception.GlobalErrorHandler;
-import top.charles7c.continew.starter.web.core.exception.GlobalExceptionHandler;
 
 /**
  * 全局异常处理器自动配置
@@ -67,6 +65,6 @@ public class GlobalExceptionHandlerAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Extension-Global Exception Handler' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Web-Global Exception Handler' completed initialization.");
     }
 }

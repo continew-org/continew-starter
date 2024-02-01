@@ -53,6 +53,16 @@ public class PropertiesConstants {
     public static final String SPRINGDOC_SWAGGER_UI = SPRINGDOC + ".swagger-ui";
 
     /**
+     * 安全配置
+     */
+    public static final String SECURITY = CONTINEW_STARTER + ".security";
+
+    /**
+     * 密码编解码配置
+     */
+    public static final String PASSWORD = SECURITY + ".password";
+
+    /**
      * Web 配置
      */
     public static final String WEB = CONTINEW_STARTER + ".web";
@@ -61,6 +71,11 @@ public class PropertiesConstants {
      * 跨域配置
      */
     public static final String CORS = WEB + ".cors";
+
+    /**
+     * 链路配置
+     */
+    public static final String TRACE = WEB + ".trace";
 
     /**
      * 日志配置
@@ -91,9 +106,4 @@ public class PropertiesConstants {
      * 行为验证码配置
      */
     public static final String CAPTCHA_BEHAVIOR = CAPTCHA + ".behavior";
-
-    /**
-     * 密码编解码配置
-     */
-    public static final String PASSWORD_ENCODER = CONTINEW_STARTER + ".password-encoder";
 }
