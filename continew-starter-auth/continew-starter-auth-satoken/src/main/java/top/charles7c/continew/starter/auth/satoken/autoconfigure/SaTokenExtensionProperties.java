@@ -16,11 +16,9 @@
 
 package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 
-import cn.dev33.satoken.stp.StpInterface;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import top.charles7c.continew.starter.auth.satoken.properties.SaTokenDaoProperties;
-import top.charles7c.continew.starter.auth.satoken.properties.SaTokenSecurityProperties;
+import top.charles7c.continew.starter.auth.satoken.autoconfigure.dao.SaTokenDaoProperties;
 
 /**
  * SaToken 扩展配置属性
@@ -37,15 +35,16 @@ public class SaTokenExtensionProperties {
     private boolean enabled = false;
 
     /**
-     * 权限认证实现
-     */
-    private Class<? extends StpInterface> permissionImpl;
-
-    /**
      * 持久层配置
      */
     @NestedConfigurationProperty
     private SaTokenDaoProperties dao;
+
+    /**
+     * 权限认证配置
+     */
+    @NestedConfigurationProperty
+    private SaTokenPermissionProperties permission;
 
     /**
      * 安全配置
@@ -61,20 +60,20 @@ public class SaTokenExtensionProperties {
         this.enabled = enabled;
     }
 
-    public Class<? extends StpInterface> getPermissionImpl() {
-        return permissionImpl;
-    }
-
-    public void setPermissionImpl(Class<? extends StpInterface> permissionImpl) {
-        this.permissionImpl = permissionImpl;
-    }
-
     public SaTokenDaoProperties getDao() {
         return dao;
     }
 
     public void setDao(SaTokenDaoProperties dao) {
         this.dao = dao;
+    }
+
+    public SaTokenPermissionProperties getPermission() {
+        return permission;
+    }
+
+    public void setPermission(SaTokenPermissionProperties permission) {
+        this.permission = permission;
     }
 
     public SaTokenSecurityProperties getSecurity() {
@@ -87,6 +86,6 @@ public class SaTokenExtensionProperties {
 
     @Override
     public String toString() {
-        return "SaTokenExtensionProperties{" + "enabled=" + enabled + ", permissionImpl=" + permissionImpl + ", dao=" + dao + ", security=" + security + '}';
+        return "SaTokenExtensionProperties{" + "enabled=" + enabled + ", dao=" + dao + ", permission=" + permission + ", security=" + security + '}';
     }
 }

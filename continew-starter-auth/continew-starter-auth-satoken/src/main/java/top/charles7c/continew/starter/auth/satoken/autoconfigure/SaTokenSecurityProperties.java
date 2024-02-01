@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.auth.satoken.properties;
+package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 
 /**
  * SaToken 安全配置属性

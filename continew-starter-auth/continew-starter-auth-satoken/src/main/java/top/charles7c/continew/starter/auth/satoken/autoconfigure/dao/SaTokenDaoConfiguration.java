@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.auth.satoken.autoconfigure;
+package top.charles7c.continew.starter.auth.satoken.autoconfigure.dao;
 
 import cn.dev33.satoken.dao.SaTokenDao;
 import cn.hutool.core.util.ReflectUtil;
@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
+import top.charles7c.continew.starter.auth.satoken.autoconfigure.SaTokenExtensionProperties;
 import top.charles7c.continew.starter.auth.satoken.core.SaTokenDaoRedisImpl;
 import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 
@@ -35,7 +36,7 @@ import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoC
  * @author Charles7c
  * @since 1.0.0
  */
-abstract class SaTokenDaoConfiguration {
+public class SaTokenDaoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(SaTokenDaoConfiguration.class);
 
@@ -49,7 +50,7 @@ abstract class SaTokenDaoConfiguration {
     @ConditionalOnMissingBean(SaTokenDao.class)
     @AutoConfigureBefore(RedissonAutoConfiguration.class)
     @ConditionalOnProperty(name = "sa-token.extension.dao.type", havingValue = "redis")
-    static class Redis {
+    public static class Redis {
         static {
             log.debug("[ContiNew Starter] - Auto Configuration 'SaToken-SaTokenDao-Redis' completed initialization.");
         }
@@ -63,8 +64,9 @@ abstract class SaTokenDaoConfiguration {
     /**
      * 自定义持久层实现类-自定义
      */
+    @ConditionalOnMissingBean(SaTokenDao.class)
     @ConditionalOnProperty(name = "sa-token.extension.dao.type", havingValue = "custom")
-    static class Custom {
+    public static class Custom {
         static {
             log.debug("[ContiNew Starter] - Auto Configuration 'SaToken-SaTokenDao-Custom' completed initialization.");
         }

@@ -33,6 +33,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.*;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.charles7c.continew.starter.auth.satoken.autoconfigure.dao.SaTokenDaoConfiguration;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
@@ -66,12 +67,13 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 权限认证实现类
+     * 自定义权限认证配置
      */
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "sa-token.extension.permission", name = PropertiesConstants.ENABLED, havingValue = "true")
     public StpInterface stpInterface() {
-        return ReflectUtil.newInstance(properties.getPermissionImpl());
+        return ReflectUtil.newInstance(properties.getPermission().getImpl());
     }
 
     /**

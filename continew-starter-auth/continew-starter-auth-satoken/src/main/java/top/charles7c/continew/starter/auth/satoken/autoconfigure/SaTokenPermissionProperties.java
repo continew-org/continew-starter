@@ -14,47 +14,46 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.auth.satoken.properties;
+package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 
-import cn.dev33.satoken.dao.SaTokenDao;
-import top.charles7c.continew.starter.auth.satoken.enums.SaTokenDaoType;
+import cn.dev33.satoken.stp.StpInterface;
 
 /**
- * SaToken 持久层配置属性
+ * SaToken 权限认证配置属性
  *
  * @author Charles7c
- * @since 1.0.0
+ * @since 1.3.0
  */
-public class SaTokenDaoProperties {
+public class SaTokenPermissionProperties {
 
     /**
-     * 持久层类型
+     * 是否启用权限认证
      */
-    private SaTokenDaoType type;
+    private boolean enabled = false;
 
     /**
-     * 自定义持久层实现类（当 type 为 CUSTOM 时必填）
+     * 自定义权限认证实现类（当 enabled 为 true 时必填）
      */
-    private Class<? extends SaTokenDao> impl;
+    private Class<? extends StpInterface> impl;
 
-    public SaTokenDaoType getType() {
-        return type;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void setType(SaTokenDaoType type) {
-        this.type = type;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
-    public Class<? extends SaTokenDao> getImpl() {
+    public Class<? extends StpInterface> getImpl() {
         return impl;
     }
 
-    public void setImpl(Class<? extends SaTokenDao> impl) {
+    public void setImpl(Class<? extends StpInterface> impl) {
         this.impl = impl;
     }
 
     @Override
     public String toString() {
-        return "SaTokenDaoProperties{" + "type=" + type + ", impl=" + impl + '}';
+        return "SaTokenPermissionProperties{" + "enabled=" + enabled + ", impl=" + impl + '}';
     }
 }
