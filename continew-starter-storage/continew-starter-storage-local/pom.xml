@@ -11,4 +11,12 @@
 
     <artifactId>continew-starter-storage-local</artifactId>
     <description>ContiNew Starter 存储模块 - 本地存储</description>
+
+    <dependencies>
+        <!-- Spring Web MVC 模块 -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+    </dependencies>
 </project>
