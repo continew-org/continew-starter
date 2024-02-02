@@ -24,9 +24,6 @@ package top.charles7c.continew.starter.core.constant;
  */
 public class PropertiesConstants {
 
-    private PropertiesConstants() {
-    }
-
     /**
      * ContiNew Starter
      */
@@ -106,4 +103,7 @@ public class PropertiesConstants {
      * 行为验证码配置
      */
     public static final String CAPTCHA_BEHAVIOR = CAPTCHA + ".behavior";
+
+    private PropertiesConstants() {
+    }
 }

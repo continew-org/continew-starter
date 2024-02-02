@@ -20,8 +20,6 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.captcha.graphic.enums.GraphicCaptchaType;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
-import java.awt.*;
-
 /**
  * 图形验证码配置属性
  *
