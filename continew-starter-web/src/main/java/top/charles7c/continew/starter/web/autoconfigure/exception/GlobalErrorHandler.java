@@ -73,7 +73,9 @@ public class GlobalErrorHandler extends BasicErrorController {
         } catch (IOException e) {
             log.error("请求地址 [{}]，默认错误处理时发生 IO 异常。", path, e);
         }
-        log.error("请求地址 [{}]，发生错误，错误信息：{}。", path, JSONUtil.toJsonStr(errorAttributeMap));
+        if (log.isErrorEnabled()) {
+            log.error("请求地址 [{}]，发生错误，错误信息：{}。", path, JSONUtil.toJsonStr(errorAttributeMap));
+        }
         return null;
     }
 
@@ -84,7 +86,9 @@ public class GlobalErrorHandler extends BasicErrorController {
         HttpStatus status = super.getStatus(request);
         R<Object> result = R.fail(status.value(), (String)errorAttributeMap.get("error"));
         result.setData(path);
-        log.error("请求地址 [{}]，发生错误，错误信息：{}。", path, JSONUtil.toJsonStr(errorAttributeMap));
+        if (log.isErrorEnabled()) {
+            log.error("请求地址 [{}]，发生错误，错误信息：{}。", path, JSONUtil.toJsonStr(errorAttributeMap));
+        }
         return new ResponseEntity<>(BeanUtil.beanToMap(result), HttpStatus.OK);
     }
 }

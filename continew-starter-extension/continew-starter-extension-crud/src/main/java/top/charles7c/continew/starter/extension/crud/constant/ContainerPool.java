@@ -24,11 +24,11 @@ package top.charles7c.continew.starter.extension.crud.constant;
  */
 public class ContainerPool {
 
-    protected ContainerPool() {
-    }
-
     /**
      * 用户昵称
      */
     public static final String USER_NICKNAME = "UserNickname";
+
+    protected ContainerPool() {
+    }
 }

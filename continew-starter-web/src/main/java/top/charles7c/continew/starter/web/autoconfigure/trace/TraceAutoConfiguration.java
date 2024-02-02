@@ -29,6 +29,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
@@ -73,7 +74,7 @@ public class TraceAutoConfiguration {
         FilterRegistrationBean<TLogServletFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new TLogServletFilter(traceProperties));
         registration.addUrlPatterns(StringConstants.PATH_PATTERN_CURRENT_DIR);
-        registration.setOrder(FilterRegistrationBean.HIGHEST_PRECEDENCE);
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return registration;
     }
 

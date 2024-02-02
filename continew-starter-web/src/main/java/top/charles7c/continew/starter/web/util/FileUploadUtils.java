@@ -64,10 +64,8 @@ public class FileUploadUtils {
             String pathname = filePath + fileName;
             File dest = new File(pathname).getCanonicalFile();
             // 如果父路径不存在，自动创建
-            if (!dest.getParentFile().exists()) {
-                if (!dest.getParentFile().mkdirs()) {
-                    log.error("Create upload file parent path failed.");
-                }
+            if (!dest.getParentFile().exists() && (!dest.getParentFile().mkdirs())) {
+                log.error("Create upload file parent path failed.");
             }
             // 文件写入
             multipartFile.transferTo(dest);

@@ -140,7 +140,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @PutMapping("/{id}")
-    public R update(@Validated(ValidateGroup.Crud.Update.class) @RequestBody C req, @PathVariable Long id) {
+    public R<Void> update(@Validated(ValidateGroup.Crud.Update.class) @RequestBody C req, @PathVariable Long id) {
         this.checkPermission(Api.UPDATE);
         baseService.update(req, id);
         return R.ok("修改成功");
