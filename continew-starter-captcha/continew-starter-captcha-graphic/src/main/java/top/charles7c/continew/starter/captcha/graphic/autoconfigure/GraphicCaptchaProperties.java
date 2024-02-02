@@ -16,9 +16,6 @@
 
 package top.charles7c.continew.starter.captcha.graphic.autoconfigure;
 
-import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
-import com.wf.captcha.base.Captcha;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.captcha.graphic.enums.GraphicCaptchaType;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
@@ -42,7 +39,7 @@ public class GraphicCaptchaProperties {
     /**
      * 类型
      */
-    private GraphicCaptchaType type;
+    private GraphicCaptchaType type = GraphicCaptchaType.SPEC;
 
     /**
      * 内容长度
@@ -68,23 +65,6 @@ public class GraphicCaptchaProperties {
      * 字体大小
      */
     private int fontSize = 25;
-
-    /**
-     * 获取图形验证码
-     *
-     * @return 图形验证码
-     */
-    public Captcha getCaptcha() {
-        if (this.enabled) {
-            Captcha captcha = ReflectUtil.newInstance(this.type.getCaptchaImpl(), this.width, this.height);
-            captcha.setLen(this.length);
-            if (StrUtil.isNotBlank(this.fontName)) {
-                captcha.setFont(new Font(fontName, Font.PLAIN, this.fontSize));
-            }
-            return captcha;
-        }
-        return null;
-    }
 
     public boolean isEnabled() {
         return enabled;
