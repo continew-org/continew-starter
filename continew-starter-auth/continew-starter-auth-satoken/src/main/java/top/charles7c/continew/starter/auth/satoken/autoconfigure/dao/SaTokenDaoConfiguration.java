@@ -17,17 +17,17 @@
 package top.charles7c.continew.starter.auth.satoken.autoconfigure.dao;
 
 import cn.dev33.satoken.dao.SaTokenDao;
-import cn.hutool.core.util.ReflectUtil;
+import cn.dev33.satoken.dao.SaTokenDaoDefaultImpl;
 import org.redisson.client.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
-import top.charles7c.continew.starter.auth.satoken.autoconfigure.SaTokenExtensionProperties;
-import top.charles7c.continew.starter.auth.satoken.core.SaTokenDaoRedisImpl;
+import org.springframework.core.ResolvableType;
 import top.charles7c.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 
 /**
@@ -44,15 +44,33 @@ public class SaTokenDaoConfiguration {
     }
 
     /**
-     * 自定义持久层实现类-Redis
+     * 自定义持久层实现-默认
      */
-    @ConditionalOnClass(RedisClient.class)
     @ConditionalOnMissingBean(SaTokenDao.class)
+    @ConditionalOnClass(RedisClient.class)
+    @AutoConfigureBefore(RedissonAutoConfiguration.class)
+    @ConditionalOnProperty(name = "sa-token.extension.dao.type", havingValue = "default", matchIfMissing = true)
+    public static class Default {
+        static {
+            log.debug("[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Default' completed initialization.");
+        }
+
+        @Bean
+        public SaTokenDao saTokenDao() {
+            return new SaTokenDaoDefaultImpl();
+        }
+    }
+
+    /**
+     * 自定义持久层实现-Redis
+     */
+    @ConditionalOnMissingBean(SaTokenDao.class)
+    @ConditionalOnClass(RedisClient.class)
     @AutoConfigureBefore(RedissonAutoConfiguration.class)
     @ConditionalOnProperty(name = "sa-token.extension.dao.type", havingValue = "redis")
     public static class Redis {
         static {
-            log.debug("[ContiNew Starter] - Auto Configuration 'SaToken-SaTokenDao-Redis' completed initialization.");
+            log.debug("[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Redis' completed initialization.");
         }
 
         @Bean
@@ -62,18 +80,18 @@ public class SaTokenDaoConfiguration {
     }
 
     /**
-     * 自定义持久层实现类-自定义
+     * 自定义持久层实现
      */
-    @ConditionalOnMissingBean(SaTokenDao.class)
     @ConditionalOnProperty(name = "sa-token.extension.dao.type", havingValue = "custom")
     public static class Custom {
-        static {
-            log.debug("[ContiNew Starter] - Auto Configuration 'SaToken-SaTokenDao-Custom' completed initialization.");
-        }
-
         @Bean
-        public SaTokenDao saTokenDao(SaTokenExtensionProperties properties) {
-            return ReflectUtil.newInstance(properties.getDao().getImpl());
+        @ConditionalOnMissingBean
+        public SaTokenDao saTokenDao() {
+            if (log.isErrorEnabled()) {
+                log.error("Consider defining a bean of type '{}' in your configuration.", ResolvableType
+                    .forClass(SaTokenDao.class));
+            }
+            throw new NoSuchBeanDefinitionException(SaTokenDao.class);
         }
     }
 }

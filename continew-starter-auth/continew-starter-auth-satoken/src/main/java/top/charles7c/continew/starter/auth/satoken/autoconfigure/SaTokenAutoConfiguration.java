@@ -19,10 +19,8 @@ package top.charles7c.continew.starter.auth.satoken.autoconfigure;
 import cn.dev33.satoken.interceptor.SaInterceptor;
 import cn.dev33.satoken.jwt.StpLogicJwtForSimple;
 import cn.dev33.satoken.router.SaRouter;
-import cn.dev33.satoken.stp.StpInterface;
 import cn.dev33.satoken.stp.StpLogic;
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.core.util.ReflectUtil;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,27 +58,26 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        // 注册 Sa-Token 拦截器，校验规则为 StpUtil.checkLogin() 登录校验
-        registry.addInterceptor(new SaInterceptor(handle -> SaRouter.match(StringConstants.PATH_PATTERN)
-            .notMatch(properties.getSecurity().getExcludes())
-            .check(r -> StpUtil.checkLogin()))).addPathPatterns(StringConstants.PATH_PATTERN);
+        registry.addInterceptor(saInterceptor()).addPathPatterns(StringConstants.PATH_PATTERN);
     }
 
     /**
-     * 自定义权限认证配置
+     * SaToken 拦截器配置
      */
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "sa-token.extension.permission", name = PropertiesConstants.ENABLED, havingValue = "true")
-    public StpInterface stpInterface() {
-        return ReflectUtil.newInstance(properties.getPermission().getImpl());
+    public SaInterceptor saInterceptor() {
+        return new SaInterceptor(handle -> SaRouter.match(StringConstants.PATH_PATTERN)
+            .notMatch(properties.getSecurity().getExcludes())
+            .check(r -> StpUtil.checkLogin()));
     }
 
     /**
-     * 自定义持久层配置
+     * 持久层配置
      */
     @Configuration
-    @Import({SaTokenDaoConfiguration.Redis.class, SaTokenDaoConfiguration.Custom.class})
+    @Import({SaTokenDaoConfiguration.Default.class, SaTokenDaoConfiguration.Redis.class,
+        SaTokenDaoConfiguration.Custom.class})
     protected static class SaTokenDaoAutoConfiguration {
     }
 
@@ -88,6 +85,7 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
      * 整合 JWT（简单模式）
      */
     @Bean
+    @ConditionalOnMissingBean
     public StpLogic stpLogic() {
         return new StpLogicJwtForSimple();
     }

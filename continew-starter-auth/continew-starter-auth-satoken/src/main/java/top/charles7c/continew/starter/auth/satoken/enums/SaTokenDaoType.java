@@ -25,6 +25,11 @@ package top.charles7c.continew.starter.auth.satoken.enums;
 public enum SaTokenDaoType {
 
     /**
+     * 默认
+     */
+    DEFAULT,
+
+    /**
      * Redis
      */
     REDIS,

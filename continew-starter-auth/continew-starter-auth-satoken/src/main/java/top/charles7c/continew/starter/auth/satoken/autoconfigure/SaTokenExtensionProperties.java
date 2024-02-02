@@ -41,12 +41,6 @@ public class SaTokenExtensionProperties {
     private SaTokenDaoProperties dao;
 
     /**
-     * 权限认证配置
-     */
-    @NestedConfigurationProperty
-    private SaTokenPermissionProperties permission;
-
-    /**
      * 安全配置
      */
     @NestedConfigurationProperty
@@ -68,14 +62,6 @@ public class SaTokenExtensionProperties {
         this.dao = dao;
     }
 
-    public SaTokenPermissionProperties getPermission() {
-        return permission;
-    }
-
-    public void setPermission(SaTokenPermissionProperties permission) {
-        this.permission = permission;
-    }
-
     public SaTokenSecurityProperties getSecurity() {
         return security;
     }
@@ -86,6 +72,6 @@ public class SaTokenExtensionProperties {
 
     @Override
     public String toString() {
-        return "SaTokenExtensionProperties{" + "enabled=" + enabled + ", dao=" + dao + ", permission=" + permission + ", security=" + security + '}';
+        return "SaTokenExtensionProperties{" + "enabled=" + enabled + ", dao=" + dao + ", security=" + security + '}';
     }
 }

@@ -16,7 +16,6 @@
 
 package top.charles7c.continew.starter.auth.satoken.autoconfigure.dao;
 
-import cn.dev33.satoken.dao.SaTokenDao;
 import top.charles7c.continew.starter.auth.satoken.enums.SaTokenDaoType;
 
 /**
@@ -30,12 +29,7 @@ public class SaTokenDaoProperties {
     /**
      * 持久层类型
      */
-    private SaTokenDaoType type;
-
-    /**
-     * 自定义持久层实现类（当 type 为 CUSTOM 时必填）
-     */
-    private Class<? extends SaTokenDao> impl;
+    private SaTokenDaoType type = SaTokenDaoType.DEFAULT;
 
     public SaTokenDaoType getType() {
         return type;
@@ -45,16 +39,8 @@ public class SaTokenDaoProperties {
         this.type = type;
     }
 
-    public Class<? extends SaTokenDao> getImpl() {
-        return impl;
-    }
-
-    public void setImpl(Class<? extends SaTokenDao> impl) {
-        this.impl = impl;
-    }
-
     @Override
     public String toString() {
-        return "SaTokenDaoProperties{" + "type=" + type + ", impl=" + impl + '}';
+        return "SaTokenDaoProperties{" + "type=" + type + '}';
     }
 }

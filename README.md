@@ -250,7 +250,6 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 - 感谢 <a href="https://github.com/baomidou/mybatis-plus" target="_blank">MyBatis Plus</a>、<a href="https://github.com/dromara/sa-token" target="_blank">Sa-Token</a> 、<a href="https://github.com/alibaba/jetcache" target="_blank">JetCache</a>、<a href="https://github.com/opengoofy/crane4j" target="_blank">Crane4j</a>、<a href="https://github.com/xiaoymin/knife4j" target="_blank">Knife4j</a>、<a href="https://github.com/dromara/hutool" target="_blank">Hutool</a> 等开源组件作者为国内开源世界作出的贡献
 - 感谢 <a href="https://github.com/elunez/eladmin" target="_blank">ELADMIN</a>、<a href="https://github.com/dromara/RuoYi-Vue-Plus" target="_blank">RuoYi-Vue-Plus</a>、<a href="https://gitee.com/herodotus/dante-engine" target="_blank">Dante-Engine</a>，致敬各位作者为开源脚手架领域作出的贡献
   - e.g. 起源于 ELADMIN 项目开源的 QueryHelper 组件
-  - e.g. 扩展于 RuoYi-Vue-Plus 项目封装的 SaToken 相关认证鉴权配置
   - e.g. 扩展于 Dante-Engine 项目封装的 Redisson 相关配置
 - 感谢项目使用或未使用到的每一款开源组件，致敬各位开源先驱 :fire:
 
