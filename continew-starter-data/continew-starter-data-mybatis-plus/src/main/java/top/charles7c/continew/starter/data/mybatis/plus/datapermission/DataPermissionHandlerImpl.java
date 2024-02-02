@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 
@@ -67,11 +68,12 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
             Method[] methodArr = clazz.getMethods();
             for (Method method : methodArr) {
                 DataPermission dataPermission = method.getAnnotation(DataPermission.class);
-                if (null != dataPermission && (method.getName().equals(methodName) || (method.getName() + "_COUNT")
-                    .equals(methodName))) {
-                    if (dataPermissionFilter.isFilter()) {
-                        return buildDataScopeFilter(dataPermission, where);
-                    }
+                String name = method.getName();
+                if (null == dataPermission || !StrUtil.equalsAny(methodName, name, name + "_COUNT")) {
+                    continue;
+                }
+                if (dataPermissionFilter.isFilter()) {
+                    return buildDataScopeFilter(dataPermission, where);
                 }
             }
         } catch (ClassNotFoundException e) {
@@ -227,7 +229,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      */
     private Column buildColumn(String tableAlias, String columnName) {
         if (StringUtils.isNotEmpty(tableAlias)) {
-            columnName = String.format("%s.%s", tableAlias, columnName);
+            return new Column(String.format("%s.%s", tableAlias, columnName));
         }
         return new Column(columnName);
     }

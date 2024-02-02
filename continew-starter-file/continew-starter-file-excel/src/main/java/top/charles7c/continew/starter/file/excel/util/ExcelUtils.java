@@ -70,10 +70,9 @@ public class ExcelUtils {
                                   Class<T> clazz,
                                   HttpServletResponse response) {
         try {
-            fileName = String.format("%s_%s.xlsx", fileName, DateUtil
-                .format(new Date(), DatePattern.PURE_DATETIME_PATTERN));
-            fileName = URLUtil.encode(fileName);
-            response.setHeader("Content-disposition", "attachment;filename=" + fileName);
+            String exportFileName = URLUtil.encode(String.format("%s_%s.xlsx", fileName, DateUtil
+                .format(new Date(), DatePattern.PURE_DATETIME_PATTERN)));
+            response.setHeader("Content-disposition", "attachment;filename=" + exportFileName);
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
             EasyExcel.write(response.getOutputStream(), clazz)
                 .autoCloseStream(false)

@@ -65,7 +65,6 @@ public class IpUtils {
      * @return 是否为内网 IP
      */
     public static boolean isInnerIp(String ip) {
-        ip = "0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : HtmlUtil.cleanHtmlTag(ip);
-        return NetUtil.isInnerIP(ip);
+        return NetUtil.isInnerIP("0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : HtmlUtil.cleanHtmlTag(ip));
     }
 }
