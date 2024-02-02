@@ -36,15 +36,15 @@ import java.util.List;
  */
 public class TreeUtils {
 
-    private TreeUtils() {
-    }
-
     /**
      * 默认字段配置对象（根据前端树结构灵活调整名称）
      */
     public static final TreeNodeConfig DEFAULT_CONFIG = TreeNodeConfig.DEFAULT_CONFIG.setNameKey("title")
         .setIdKey("key")
         .setWeightKey("sort");
+
+    private TreeUtils() {
+    }
 
     /**
      * 树构建
