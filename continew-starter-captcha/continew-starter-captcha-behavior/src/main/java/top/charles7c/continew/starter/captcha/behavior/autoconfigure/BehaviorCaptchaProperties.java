@@ -17,7 +17,6 @@
 package top.charles7c.continew.starter.captcha.behavior.autoconfigure;
 
 import com.anji.captcha.model.common.CaptchaTypeEnum;
-import com.anji.captcha.service.CaptchaCacheService;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.captcha.behavior.enums.StorageType;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
@@ -49,14 +48,9 @@ public class BehaviorCaptchaProperties {
     private CaptchaTypeEnum type = CaptchaTypeEnum.BLOCKPUZZLE;
 
     /**
-     * 缓存类型（默认：LOCAL 内存）
+     * 缓存类型
      */
-    private StorageType cacheType = StorageType.LOCAL;
-
-    /**
-     * 自定义缓存类型（当 cacheType 为 CUSTOM 时必填）
-     */
-    private Class<? extends CaptchaCacheService> cacheImpl;
+    private StorageType cacheType = StorageType.DEFAULT;
 
     /**
      * 滑动拼图底图路径（为空则使用默认底图）（路径下需要有两个文件夹，分别为 original（存放底图）slidingBlock（存放滑块））
@@ -178,14 +172,6 @@ public class BehaviorCaptchaProperties {
 
     public void setCacheType(StorageType cacheType) {
         this.cacheType = cacheType;
-    }
-
-    public Class<? extends CaptchaCacheService> getCacheImpl() {
-        return cacheImpl;
-    }
-
-    public void setCacheImpl(Class<? extends CaptchaCacheService> cacheImpl) {
-        this.cacheImpl = cacheImpl;
     }
 
     public String getJigsawBaseMapPath() {
@@ -334,6 +320,6 @@ public class BehaviorCaptchaProperties {
 
     @Override
     public String toString() {
-        return "BehaviorCaptchaProperties{" + "enabled=" + enabled + ", enableAes=" + enableAes + ", type=" + type + ", cacheType=" + cacheType + ", cacheImpl=" + cacheImpl + ", jigsawBaseMapPath='" + jigsawBaseMapPath + '\'' + ", slipOffset='" + slipOffset + '\'' + ", picClickBaseMapPath='" + picClickBaseMapPath + '\'' + ", fontType='" + fontType + '\'' + ", historyDataClearEnable=" + historyDataClearEnable + ", reqFrequencyLimitEnable=" + reqFrequencyLimitEnable + ", reqGetLockLimit=" + reqGetLockLimit + ", reqGetLockSeconds=" + reqGetLockSeconds + ", reqGetMinuteLimit=" + reqGetMinuteLimit + ", reqCheckMinuteLimit=" + reqCheckMinuteLimit + ", reqVerifyMinuteLimit=" + reqVerifyMinuteLimit + ", cacheNumber='" + cacheNumber + '\'' + ", timingClear='" + timingClear + '\'' + ", waterMark='" + waterMark + '\'' + ", waterFont='" + waterFont + '\'' + ", interferenceOptions='" + interferenceOptions + '\'' + ", fontStyle=" + fontStyle + ", fontSize=" + fontSize + '}';
+        return "BehaviorCaptchaProperties{" + "enabled=" + enabled + ", enableAes=" + enableAes + ", type=" + type + ", cacheType=" + cacheType + ", jigsawBaseMapPath='" + jigsawBaseMapPath + '\'' + ", slipOffset='" + slipOffset + '\'' + ", picClickBaseMapPath='" + picClickBaseMapPath + '\'' + ", fontType='" + fontType + '\'' + ", historyDataClearEnable=" + historyDataClearEnable + ", reqFrequencyLimitEnable=" + reqFrequencyLimitEnable + ", reqGetLockLimit=" + reqGetLockLimit + ", reqGetLockSeconds=" + reqGetLockSeconds + ", reqGetMinuteLimit=" + reqGetMinuteLimit + ", reqCheckMinuteLimit=" + reqCheckMinuteLimit + ", reqVerifyMinuteLimit=" + reqVerifyMinuteLimit + ", cacheNumber='" + cacheNumber + '\'' + ", timingClear='" + timingClear + '\'' + ", waterMark='" + waterMark + '\'' + ", waterFont='" + waterFont + '\'' + ", interferenceOptions='" + interferenceOptions + '\'' + ", fontStyle=" + fontStyle + ", fontSize=" + fontSize + '}';
     }
 }

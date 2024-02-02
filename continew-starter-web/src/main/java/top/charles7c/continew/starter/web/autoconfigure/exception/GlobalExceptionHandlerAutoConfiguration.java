@@ -38,8 +38,8 @@ import org.springframework.validation.beanvalidation.SpringConstraintValidatorFa
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
-@Import({GlobalExceptionHandler.class, GlobalErrorHandler.class})
 @ConditionalOnMissingBean(BasicErrorController.class)
+@Import({GlobalExceptionHandler.class, GlobalErrorHandler.class})
 public class GlobalExceptionHandlerAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandlerAutoConfiguration.class);

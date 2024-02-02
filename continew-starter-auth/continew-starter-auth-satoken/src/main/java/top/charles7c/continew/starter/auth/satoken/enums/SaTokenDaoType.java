@@ -25,7 +25,7 @@ package top.charles7c.continew.starter.auth.satoken.enums;
 public enum SaTokenDaoType {
 
     /**
-     * 默认
+     * 默认（内存）
      */
     DEFAULT,
 

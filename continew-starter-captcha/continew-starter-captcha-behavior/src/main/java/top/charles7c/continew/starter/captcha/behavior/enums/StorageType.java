@@ -25,9 +25,9 @@ package top.charles7c.continew.starter.captcha.behavior.enums;
 public enum StorageType {
 
     /**
-     * 内存
+     * 默认（内存）
      */
-    LOCAL,
+    DEFAULT,
 
     /**
      * Redis

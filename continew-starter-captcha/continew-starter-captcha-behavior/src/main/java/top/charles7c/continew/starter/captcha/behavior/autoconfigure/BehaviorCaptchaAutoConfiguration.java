@@ -36,6 +36,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import top.charles7c.continew.starter.captcha.behavior.autoconfigure.cache.BehaviorCaptchaCacheConfiguration;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 import java.util.HashMap;
@@ -49,8 +50,8 @@ import java.util.Properties;
  * @since 1.1.0
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_BEHAVIOR, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(BehaviorCaptchaProperties.class)
+@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_BEHAVIOR, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class BehaviorCaptchaAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(BehaviorCaptchaAutoConfiguration.class);
@@ -64,7 +65,8 @@ public class BehaviorCaptchaAutoConfiguration {
      * 自定义缓存实现配置
      */
     @Configuration
-    @Import({BehaviorCaptchaCacheConfiguration.Redis.class, BehaviorCaptchaCacheConfiguration.Custom.class})
+    @Import({BehaviorCaptchaCacheConfiguration.Default.class, BehaviorCaptchaCacheConfiguration.Redis.class,
+        BehaviorCaptchaCacheConfiguration.Custom.class})
     protected static class BehaviorCaptchaCacheAutoConfiguration {}
 
     /**
@@ -140,6 +142,6 @@ public class BehaviorCaptchaAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Behavior Captcha' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Captcha-Behavior' completed initialization.");
     }
 }

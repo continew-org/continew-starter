@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.captcha.behavior.core;
+package top.charles7c.continew.starter.captcha.behavior.autoconfigure.cache;
 
 import com.anji.captcha.service.CaptchaCacheService;
 import top.charles7c.continew.starter.cache.redisson.util.RedisUtils;
