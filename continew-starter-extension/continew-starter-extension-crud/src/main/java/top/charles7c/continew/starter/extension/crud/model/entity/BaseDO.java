@@ -104,9 +104,4 @@ public class BaseDO implements Serializable {
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
-
-    @Override
-    public String toString() {
-        return "BaseDO{" + "id=" + id + ", createUser=" + createUser + ", createTime=" + createTime + ", updateUser=" + updateUser + ", updateTime=" + updateTime + '}';
-    }
 }

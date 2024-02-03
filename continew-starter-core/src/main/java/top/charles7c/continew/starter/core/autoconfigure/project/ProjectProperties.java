@@ -114,11 +114,6 @@ public class ProjectProperties {
         public void setUrl(String url) {
             this.url = url;
         }
-
-        @Override
-        public String toString() {
-            return "Contact{" + "name='" + name + '\'' + ", email='" + email + '\'' + ", url='" + url + '\'' + '}';
-        }
     }
 
     /**
@@ -149,11 +144,6 @@ public class ProjectProperties {
 
         public void setUrl(String url) {
             this.url = url;
-        }
-
-        @Override
-        public String toString() {
-            return "License{" + "name='" + name + '\'' + ", url='" + url + '\'' + '}';
         }
     }
 
@@ -227,10 +217,5 @@ public class ProjectProperties {
 
     public void setProduction(boolean production) {
         this.production = production;
-    }
-
-    @Override
-    public String toString() {
-        return "ProjectProperties{" + "name='" + name + '\'' + ", appName='" + appName + '\'' + ", version='" + version + '\'' + ", description='" + description + '\'' + ", url='" + url + '\'' + ", basePackage='" + basePackage + '\'' + ", contact=" + contact + ", license=" + license + ", production=" + production + '}';
     }
 }

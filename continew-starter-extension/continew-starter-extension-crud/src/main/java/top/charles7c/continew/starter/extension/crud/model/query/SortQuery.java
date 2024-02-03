@@ -25,7 +25,6 @@ import top.charles7c.continew.starter.core.constant.StringConstants;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -75,10 +74,5 @@ public class SortQuery implements Serializable {
 
     public void setSort(String[] sort) {
         this.sort = sort;
-    }
-
-    @Override
-    public String toString() {
-        return "SortQuery{" + "sort=" + Arrays.toString(sort) + '}';
     }
 }

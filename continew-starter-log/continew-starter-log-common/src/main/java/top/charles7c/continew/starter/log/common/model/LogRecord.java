@@ -176,9 +176,4 @@ public class LogRecord {
     public Instant getTimestamp() {
         return timestamp;
     }
-
-    @Override
-    public String toString() {
-        return "LogRecord{" + "description='" + description + '\'' + ", module='" + module + '\'' + ", request=" + request + ", response=" + response + ", timeTaken=" + timeTaken + ", timestamp=" + timestamp + '}';
-    }
 }

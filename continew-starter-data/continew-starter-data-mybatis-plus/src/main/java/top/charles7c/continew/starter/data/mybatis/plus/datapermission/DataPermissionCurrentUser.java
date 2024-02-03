@@ -79,11 +79,6 @@ public class DataPermissionCurrentUser {
         public void setDataScope(DataScope dataScope) {
             this.dataScope = dataScope;
         }
-
-        @Override
-        public String toString() {
-            return "CurrentUserRole{" + "roleId='" + roleId + '\'' + ", dataScope=" + dataScope + '}';
-        }
     }
 
     public String getUserId() {
@@ -108,10 +103,5 @@ public class DataPermissionCurrentUser {
 
     public void setDeptId(String deptId) {
         this.deptId = deptId;
-    }
-
-    @Override
-    public String toString() {
-        return "DataPermissionCurrentUser{" + "userId='" + userId + '\'' + ", roles=" + roles + ", deptId='" + deptId + '\'' + '}';
     }
 }

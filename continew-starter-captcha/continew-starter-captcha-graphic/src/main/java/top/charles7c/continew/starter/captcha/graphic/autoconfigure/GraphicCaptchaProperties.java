@@ -119,9 +119,4 @@ public class GraphicCaptchaProperties {
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
     }
-
-    @Override
-    public String toString() {
-        return "GraphicCaptchaProperties{" + "enabled=" + enabled + ", type=" + type + ", length=" + length + ", width=" + width + ", height=" + height + ", fontName='" + fontName + '\'' + ", fontSize=" + fontSize + '}';
-    }
 }

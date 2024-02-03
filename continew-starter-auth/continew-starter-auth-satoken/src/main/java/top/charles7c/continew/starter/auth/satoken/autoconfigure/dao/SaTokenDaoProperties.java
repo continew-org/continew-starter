@@ -38,9 +38,4 @@ public class SaTokenDaoProperties {
     public void setType(SaTokenDaoType type) {
         this.type = type;
     }
-
-    @Override
-    public String toString() {
-        return "SaTokenDaoProperties{" + "type=" + type + '}';
-    }
 }

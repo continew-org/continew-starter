@@ -99,9 +99,4 @@ public class CorsProperties {
     public void setExposedHeaders(List<String> exposedHeaders) {
         this.exposedHeaders = exposedHeaders;
     }
-
-    @Override
-    public String toString() {
-        return "CorsProperties{" + "enabled=" + enabled + ", allowedOrigins=" + allowedOrigins + ", allowedMethods=" + allowedMethods + ", allowedHeaders=" + allowedHeaders + ", exposedHeaders=" + exposedHeaders + '}';
-    }
 }

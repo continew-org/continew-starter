@@ -89,9 +89,4 @@ public class LogResponse {
     public void setParam(Map<String, Object> param) {
         this.param = param;
     }
-
-    @Override
-    public String toString() {
-        return "LogResponse{" + "status=" + status + ", headers=" + headers + ", body='" + body + '\'' + ", param=" + param + '}';
-    }
 }

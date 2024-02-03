@@ -99,9 +99,4 @@ public class PageQuery extends SortQuery {
     public void setSize(Integer size) {
         this.size = size;
     }
-
-    @Override
-    public String toString() {
-        return "PageQuery{" + "page=" + page + ", size=" + size + "} " + super.toString();
-    }
 }

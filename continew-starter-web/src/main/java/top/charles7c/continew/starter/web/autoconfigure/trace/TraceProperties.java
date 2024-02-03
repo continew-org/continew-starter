@@ -68,9 +68,4 @@ public class TraceProperties {
     public void setTlog(TLogProperties tlog) {
         this.tlog = tlog;
     }
-
-    @Override
-    public String toString() {
-        return "TraceProperties{" + "enabled=" + enabled + ", headerName='" + headerName + '\'' + ", tlog=" + tlog + '}';
-    }
 }

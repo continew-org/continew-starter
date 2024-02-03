@@ -317,9 +317,4 @@ public class BehaviorCaptchaProperties {
     public void setFontSize(int fontSize) {
         this.fontSize = fontSize;
     }
-
-    @Override
-    public String toString() {
-        return "BehaviorCaptchaProperties{" + "enabled=" + enabled + ", enableAes=" + enableAes + ", type=" + type + ", cacheType=" + cacheType + ", jigsawBaseMapPath='" + jigsawBaseMapPath + '\'' + ", slipOffset='" + slipOffset + '\'' + ", picClickBaseMapPath='" + picClickBaseMapPath + '\'' + ", fontType='" + fontType + '\'' + ", historyDataClearEnable=" + historyDataClearEnable + ", reqFrequencyLimitEnable=" + reqFrequencyLimitEnable + ", reqGetLockLimit=" + reqGetLockLimit + ", reqGetLockSeconds=" + reqGetLockSeconds + ", reqGetMinuteLimit=" + reqGetMinuteLimit + ", reqCheckMinuteLimit=" + reqCheckMinuteLimit + ", reqVerifyMinuteLimit=" + reqVerifyMinuteLimit + ", cacheNumber='" + cacheNumber + '\'' + ", timingClear='" + timingClear + '\'' + ", waterMark='" + waterMark + '\'' + ", waterFont='" + waterFont + '\'' + ", interferenceOptions='" + interferenceOptions + '\'' + ", fontStyle=" + fontStyle + ", fontSize=" + fontSize + '}';
-    }
 }

@@ -19,7 +19,7 @@ package top.charles7c.continew.starter.file.excel.util;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.URLUtil;
-import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -74,7 +74,7 @@ public class ExcelUtils {
                 .format(new Date(), DatePattern.PURE_DATETIME_PATTERN)));
             response.setHeader("Content-disposition", "attachment;filename=" + exportFileName);
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
-            EasyExcel.write(response.getOutputStream(), clazz)
+            EasyExcelFactory.write(response.getOutputStream(), clazz)
                 .autoCloseStream(false)
                 // 自动适配宽度
                 .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())

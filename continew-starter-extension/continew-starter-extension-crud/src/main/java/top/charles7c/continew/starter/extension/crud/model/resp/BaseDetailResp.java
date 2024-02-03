@@ -81,9 +81,4 @@ public class BaseDetailResp extends BaseResp {
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
-
-    @Override
-    public String toString() {
-        return "BaseDetailResp{" + "updateUser=" + updateUser + ", updateUserString='" + updateUserString + '\'' + ", updateTime=" + updateTime + "} " + super.toString();
-    }
 }

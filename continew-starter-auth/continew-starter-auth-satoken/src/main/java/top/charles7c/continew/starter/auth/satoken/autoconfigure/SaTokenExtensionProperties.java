@@ -69,9 +69,4 @@ public class SaTokenExtensionProperties {
     public void setSecurity(SaTokenSecurityProperties security) {
         this.security = security;
     }
-
-    @Override
-    public String toString() {
-        return "SaTokenExtensionProperties{" + "enabled=" + enabled + ", dao=" + dao + ", security=" + security + '}';
-    }
 }

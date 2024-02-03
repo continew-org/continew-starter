@@ -112,9 +112,4 @@ public class Table implements Serializable {
     public void setUpdateTime(LocalDateTime updateTime) {
         this.updateTime = updateTime;
     }
-
-    @Override
-    public String toString() {
-        return "Table{" + "tableName='" + tableName + '\'' + ", comment='" + comment + '\'' + ", engine='" + engine + '\'' + ", charset='" + charset + '\'' + ", createTime=" + createTime + ", updateTime=" + updateTime + '}';
-    }
 }

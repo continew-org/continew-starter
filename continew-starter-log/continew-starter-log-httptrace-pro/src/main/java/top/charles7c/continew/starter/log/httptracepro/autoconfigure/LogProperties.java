@@ -70,9 +70,4 @@ public class LogProperties {
     public void setInclude(Set<Include> include) {
         this.include = include;
     }
-
-    @Override
-    public String toString() {
-        return "LogProperties{" + "enabled=" + enabled + ", isPrint=" + isPrint + ", include=" + include + '}';
-    }
 }

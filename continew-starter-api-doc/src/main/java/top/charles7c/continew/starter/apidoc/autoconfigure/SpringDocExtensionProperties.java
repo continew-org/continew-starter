@@ -43,9 +43,4 @@ public class SpringDocExtensionProperties {
     public void setComponents(Components components) {
         this.components = components;
     }
-
-    @Override
-    public String toString() {
-        return "SpringDocExtensionProperties{" + "components=" + components + '}';
-    }
 }

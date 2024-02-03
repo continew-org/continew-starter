@@ -115,9 +115,4 @@ public class RedissonProperties {
     public void setSentinelServersConfig(SentinelServersConfig sentinelServersConfig) {
         this.sentinelServersConfig = sentinelServersConfig;
     }
-
-    @Override
-    public String toString() {
-        return "RedissonProperties{" + "enabled=" + enabled + ", mode=" + mode + ", singleServerConfig=" + singleServerConfig + ", clusterServersConfig=" + clusterServersConfig + ", sentinelServersConfig=" + sentinelServersConfig + '}';
-    }
 }

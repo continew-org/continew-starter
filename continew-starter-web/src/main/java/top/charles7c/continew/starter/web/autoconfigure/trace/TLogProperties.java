@@ -81,9 +81,4 @@ public class TLogProperties {
     public void setMdcEnable(Boolean mdcEnable) {
         this.mdcEnable = mdcEnable;
     }
-
-    @Override
-    public String toString() {
-        return "TLogProperties{" + "pattern='" + pattern + '\'' + ", enableInvokeTimePrint=" + enableInvokeTimePrint + ", idGenerator='" + idGenerator + '\'' + ", mdcEnable=" + mdcEnable + '}';
-    }
 }

@@ -68,11 +68,6 @@ public class MyBatisPlusExtensionProperties {
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
         }
-
-        @Override
-        public String toString() {
-            return "DataPermissionProperties{" + "enabled=" + enabled + '}';
-        }
     }
 
     /**
@@ -131,11 +126,6 @@ public class MyBatisPlusExtensionProperties {
         public void setMaxLimit(Long maxLimit) {
             this.maxLimit = maxLimit;
         }
-
-        @Override
-        public String toString() {
-            return "PaginationProperties{" + "enabled=" + enabled + ", dbType=" + dbType + ", overflow=" + overflow + ", maxLimit=" + maxLimit + '}';
-        }
     }
 
     public boolean isEnabled() {
@@ -168,10 +158,5 @@ public class MyBatisPlusExtensionProperties {
 
     public void setPagination(PaginationProperties pagination) {
         this.pagination = pagination;
-    }
-
-    @Override
-    public String toString() {
-        return "MyBatisPlusExtensionProperties{" + "enabled=" + enabled + ", mapperPackage='" + mapperPackage + '\'' + ", dataPermission=" + dataPermission + ", pagination=" + pagination + '}';
     }
 }

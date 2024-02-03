@@ -93,9 +93,4 @@ public class ThreadPoolProperties {
     public void setKeepAliveSeconds(int keepAliveSeconds) {
         this.keepAliveSeconds = keepAliveSeconds;
     }
-
-    @Override
-    public String toString() {
-        return "ThreadPoolProperties{" + "enabled=" + enabled + ", corePoolSize=" + corePoolSize + ", maxPoolSize=" + maxPoolSize + ", queueCapacity=" + queueCapacity + ", keepAliveSeconds=" + keepAliveSeconds + '}';
-    }
 }

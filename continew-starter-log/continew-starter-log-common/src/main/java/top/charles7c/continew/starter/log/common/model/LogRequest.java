@@ -169,9 +169,4 @@ public class LogRequest {
     public void setOs(String os) {
         this.os = os;
     }
-
-    @Override
-    public String toString() {
-        return "LogRequest{" + "method='" + method + '\'' + ", url=" + url + ", ip='" + ip + '\'' + ", headers=" + headers + ", body='" + body + '\'' + ", param=" + param + ", address='" + address + '\'' + ", browser='" + browser + '\'' + ", os='" + os + '\'' + '}';
-    }
 }

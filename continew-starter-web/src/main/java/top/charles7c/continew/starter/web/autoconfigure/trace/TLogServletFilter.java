@@ -57,10 +57,10 @@ public class TLogServletFilter implements Filter {
                     httpServletResponse.addHeader(headerName, TLogContext.getTraceId());
                 }
                 chain.doFilter(request, response);
-                return;
             } finally {
                 TLogWebCommon.loadInstance().afterCompletion();
             }
+            return;
         }
         chain.doFilter(request, response);
     }

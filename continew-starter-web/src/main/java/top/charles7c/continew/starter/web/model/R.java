@@ -217,9 +217,4 @@ public class R<T> implements Serializable {
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
-
-    @Override
-    public String toString() {
-        return "R{" + "success=" + success + ", code=" + code + ", msg='" + msg + '\'' + ", data=" + data + ", timestamp=" + timestamp + '}';
-    }
 }

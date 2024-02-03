@@ -85,11 +85,6 @@ public class LocalStorageProperties {
         public void setMaxFileSize(DataSize maxFileSize) {
             this.maxFileSize = maxFileSize;
         }
-
-        @Override
-        public String toString() {
-            return "LocalStorageMapping{" + "pathPattern='" + pathPattern + '\'' + ", location='" + location + '\'' + ", maxFileSize=" + maxFileSize + '}';
-        }
     }
 
     public boolean isEnabled() {
@@ -106,10 +101,5 @@ public class LocalStorageProperties {
 
     public void setMapping(Map<String, LocalStorageMapping> mapping) {
         this.mapping = mapping;
-    }
-
-    @Override
-    public String toString() {
-        return "LocalStorageProperties{" + "enabled=" + enabled + ", mapping=" + mapping + '}';
     }
 }

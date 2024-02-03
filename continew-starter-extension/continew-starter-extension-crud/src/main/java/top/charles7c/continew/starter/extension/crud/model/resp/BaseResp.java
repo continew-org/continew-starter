@@ -113,9 +113,4 @@ public class BaseResp implements Serializable {
     public void setDisabled(Boolean disabled) {
         this.disabled = disabled;
     }
-
-    @Override
-    public String toString() {
-        return "BaseResp{" + "id=" + id + ", createUser=" + createUser + ", createUserString='" + createUserString + '\'' + ", createTime=" + createTime + ", disabled=" + disabled + '}';
-    }
 }

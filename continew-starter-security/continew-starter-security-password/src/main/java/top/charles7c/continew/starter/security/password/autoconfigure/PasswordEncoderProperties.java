@@ -53,9 +53,4 @@ public class PasswordEncoderProperties {
     public void setEncodingId(String encodingId) {
         this.encodingId = encodingId;
     }
-
-    @Override
-    public String toString() {
-        return "PasswordEncoderProperties{" + "enabled=" + enabled + ", encodingId='" + encodingId + '\'' + '}';
-    }
 }

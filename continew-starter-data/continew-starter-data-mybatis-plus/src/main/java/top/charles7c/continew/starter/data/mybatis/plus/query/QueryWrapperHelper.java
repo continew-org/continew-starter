@@ -135,8 +135,6 @@ public class QueryWrapperHelper {
             }
             return consumers;
         } catch (BadRequestException e) {
-            log.error("Build query wrapper occurred an validation error: {}. Query: {}, Field: {}.", e
-                .getMessage(), query, field, e);
             throw e;
         } catch (Exception e) {
             log.error("Build query wrapper occurred an error: {}. Query: {}, Field: {}.", e
