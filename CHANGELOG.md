@@ -1,3 +1,34 @@
+## [v1.3.0](https://github.com/Charles7c/continew-starter/compare/v1.2.0...v1.3.0) (2024-02-03)
+
+### ✨ 新特性
+
+* 【data/mybatis-plus】新增 QueryIgnore 忽略查询解析注解 ([91651b0](https://github.com/Charles7c/continew-starter/commit/91651b0b59cf642cd59aca068d8bca4554dc9895))
+* 【security/password】新增安全模块-密码编码器自动配置 ([47a4d57](https://github.com/Charles7c/continew-starter/commit/47a4d57dee3739de12ccbe9e15e25aef5b9ae558)) ([Gitee PR#9](https://gitee.com/Charles7c/continew-starter/pulls/9))
+* 【web】新增链路跟踪自动配置 ([8fc19ab](https://github.com/Charles7c/continew-starter/commit/8fc19ab9b87b1a1b6d290ee9a40d0157de267324))
+
+### 💎 功能优化
+
+- 【extension/crud】排序字段增加是否存在校验 ([Gitee PR#7](https://gitee.com/Charles7c/continew-starter/pulls/7))
+- 【data/mybatis-plus】优化数据权限处理器代码结构 ([aecefa1](https://github.com/Charles7c/continew-starter/commit/aecefa15ecbb9660f2ffa2f3bef3ad9eeb810916))
+- 【auth/satoken】支持更灵活的动态化路由拦截鉴权 ([31f29db](https://github.com/Charles7c/continew-starter/commit/31f29db19dede2cbf6988946b0dd8c8f153d1bd9))
+- 【auth/satoken】优化 SaToken 持久层配置 ([e6f8ac8](https://github.com/Charles7c/continew-starter/commit/e6f8ac8afa1b6c487343dc88d8ac7fdfde40e58b))
+- 【captcha/behavior】优化行为验证码缓存配置 ([8598e6d](https://github.com/Charles7c/continew-starter/commit/8598e6d109c1ca6be3e973ceb41c6dd7bd93c333))
+- 【storage/local】优化存储模块依赖 ([dcb6568](https://github.com/Charles7c/continew-starter/commit/dcb6568916cd549f1c403ece1c4f4d29ecc320b9))
+- 移除 Lombok 私有构造注解使用 ([11d0798](https://github.com/Charles7c/continew-starter/commit/11d0798f92a5fe4eda6300a7e6065f2d3afef0df))
+- 移除 Lombok 依赖，再度精简依赖 ([0eb6afa](https://github.com/Charles7c/continew-starter/commit/0eb6afabb6ccaa9d421981280c896e381f68b9a6)) ([Gitee PR#9](https://gitee.com/Charles7c/continew-starter/pulls/9))
+- 新增 Qodana、Sonar 扫描 ([ab1e999](https://github.com/Charles7c/continew-starter/commit/ab1e999094d9349a24eff51382a940f0ec682801)) ([1a8c589](https://github.com/Charles7c/continew-starter/commit/1a8c589083f80eddd2fe7e4c99751c699dd4d357))
+- 优化大量代码，解决 [Sonar](https://sonarcloud.io/organizations/charles7c/projects)、[Codacy](https://app.codacy.com/gh/Charles7c/continew-admin/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)、[Qodana](https://qodana.cloud/organizations/pQDPD/teams/p5jqd/) 扫描问题，点击各链接查看对应实时质量分析报告（Codacy 已达到 A）
+
+### 🐛 问题修复
+
+- 【web】配置 Validator 失败立即返回模式 ([1223f60](https://github.com/Charles7c/continew-starter/commit/1223f6052d459087419b7373b8a2d7cfa36ea45c))
+
+### 💥 破坏性变更
+
+- 【data/mybatis-plus】重构 QueryHelper => QueryWrapperHelper，支持多列查询，并删除 blurry 属性 ([6dc20e8](https://github.com/Charles7c/continew-starter/commit/6dc20e8909073f771c33736262290fe14095b2e7)) ([f16b968](https://github.com/Charles7c/continew-starter/commit/f16b968b3f161c58144e59c67629b5787ba2d60d)) ([13a6809](https://github.com/Charles7c/continew-starter/commit/13a6809e2aa9744b3c5ca3558d5709af7cde4698))
+- 【extension/crud】优化包结构 ([eabedd8](https://github.com/Charles7c/continew-starter/commit/eabedd861b533068d4fed31c412401fdba50aa63))
+- 【captcha/graphic】优化图形验证码自动配置，提供 Captcha Bean ([30d7631](https://github.com/Charles7c/continew-starter/commit/30d76314d66c392e36411229afeaed045f491d7a))
+
 ## [v1.2.0](https://github.com/Charles7c/continew-starter/compare/v1.1.1...v1.2.0) (2024-01-20)
 
 ### ✨ 新特性
