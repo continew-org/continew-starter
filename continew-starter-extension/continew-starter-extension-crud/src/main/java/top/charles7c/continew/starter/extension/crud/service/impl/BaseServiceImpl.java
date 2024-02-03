@@ -267,6 +267,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @param req 创建信息
      */
     protected void beforeAdd(C req) {
+        /* 新增前置处理 */
     }
 
     /**
@@ -276,6 +277,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @param id  ID
      */
     protected void beforeUpdate(C req, Long id) {
+        /* 修改前置处理 */
     }
 
     /**
@@ -284,6 +286,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @param ids ID 列表
      */
     protected void beforeDelete(List<Long> ids) {
+        /* 删除前置处理 */
     }
 
     /**
@@ -293,6 +296,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @param entity 实体信息
      */
     protected void afterAdd(C req, T entity) {
+        /* 新增后置处理 */
     }
 
     /**
@@ -302,6 +306,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @param entity 实体信息
      */
     protected void afterUpdate(C req, T entity) {
+        /* 修改后置处理 */
     }
 
     /**
@@ -309,7 +314,8 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      *
      * @param ids ID 列表
      */
-    private void afterDelete(List<Long> ids) {
+    protected void afterDelete(List<Long> ids) {
+        /* 删除后置处理 */
     }
 
     /**
