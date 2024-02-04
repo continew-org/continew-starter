@@ -35,7 +35,7 @@ public class LogProperties {
     /**
      * 是否启用日志
      */
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * 是否打印日志，开启后可打印访问日志（类似于 Nginx access log）
