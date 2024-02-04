@@ -156,7 +156,7 @@ public class MailUtils {
                             String content,
                             boolean isHtml,
                             File... files) throws MessagingException {
-        Assert.isTrue(CollUtil.isEmpty(tos), "请至少指定一名收件人");
+        Assert.isFalse(CollUtil.isEmpty(tos), "请至少指定一名收件人");
         MimeMessage mimeMessage = MAIL_SENDER.createMimeMessage();
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8
             .displayName());
