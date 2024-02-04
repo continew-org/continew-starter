@@ -21,6 +21,7 @@ import cn.dev33.satoken.jwt.StpLogicJwtForSimple;
 import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpLogic;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(saInterceptor()).addPathPatterns(StringConstants.PATH_PATTERN);
+        registry.addInterceptor(SpringUtil.getBean(SaInterceptor.class)).addPathPatterns(StringConstants.PATH_PATTERN);
     }
 
     /**
