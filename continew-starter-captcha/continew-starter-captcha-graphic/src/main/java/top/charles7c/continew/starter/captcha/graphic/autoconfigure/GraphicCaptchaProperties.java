@@ -32,7 +32,7 @@ public class GraphicCaptchaProperties {
     /**
      * 是否启用图形验证码
      */
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * 类型
