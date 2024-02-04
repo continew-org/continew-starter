@@ -34,6 +34,6 @@ public interface CommonUserService {
      * @param id ID
      * @return 昵称
      */
-    @ContainerMethod(namespace = ContainerPool.USER_NICKNAME, type = MappingType.NONE)
+    @ContainerMethod(namespace = ContainerPool.USER_NICKNAME, type = MappingType.ORDER_OF_KEYS)
     String getNicknameById(Long id);
 }
