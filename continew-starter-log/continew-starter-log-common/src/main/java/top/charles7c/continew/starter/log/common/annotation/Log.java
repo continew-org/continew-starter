@@ -16,6 +16,8 @@
 
 package top.charles7c.continew.starter.log.common.annotation;
 
+import top.charles7c.continew.starter.log.common.enums.Include;
+
 import java.lang.annotation.*;
 
 /**
@@ -45,6 +47,16 @@ public @interface Log {
      * </p>
      */
     String module() default "";
+
+    /**
+     * 包含信息（在全局配置基础上扩展包含信息）
+     */
+    Include[] include() default {};
+
+    /**
+     * 排除信息（在全局配置基础上减少包含信息）
+     */
+    Include[] exclude() default {};
 
     /**
      * 是否忽略日志记录（用于接口方法或类上）

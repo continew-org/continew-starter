@@ -83,18 +83,20 @@ public class LogInterceptor implements HandlerInterceptor {
             return;
         }
         timestampTtl.remove();
-        Set<Include> includeSet = logProperties.getInclude();
         try {
+            HandlerMethod handlerMethod = (HandlerMethod)handler;
+            Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
+            Log classLog = handlerMethod.getBeanType().getDeclaredAnnotation(Log.class);
+            Set<Include> includeSet = this.getIncludes(methodLog, classLog);
             LogRecord finishedLogRecord = startedLogRecord.finish(new RecordableServletHttpResponse(response, response
                 .getStatus()), includeSet);
-            HandlerMethod handlerMethod = (HandlerMethod)handler;
             // 记录日志描述
             if (includeSet.contains(Include.DESCRIPTION)) {
-                this.logDescription(finishedLogRecord, handlerMethod);
+                this.logDescription(finishedLogRecord, methodLog, handlerMethod);
             }
             // 记录所属模块
             if (includeSet.contains(Include.MODULE)) {
-                this.logModule(finishedLogRecord, handlerMethod);
+                this.logModule(finishedLogRecord, methodLog, classLog, handlerMethod);
             }
             if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
                 LogResponse logResponse = finishedLogRecord.getResponse();
@@ -108,14 +110,49 @@ public class LogInterceptor implements HandlerInterceptor {
     }
 
     /**
+     * 获取日志包含信息
+     *
+     * @param methodLog 方法级 Log 注解
+     * @param classLog  类级 Log 注解
+     * @return 日志包含信息
+     */
+    private Set<Include> getIncludes(Log methodLog, Log classLog) {
+        Set<Include> includeSet = logProperties.getInclude();
+        if (null != classLog) {
+            this.processInclude(includeSet, classLog);
+        }
+        if (null != methodLog) {
+            this.processInclude(includeSet, methodLog);
+        }
+        return includeSet;
+    }
+
+    /**
+     * 处理日志包含信息
+     *
+     * @param includes      日志包含信息
+     * @param logAnnotation Log 注解
+     */
+    private void processInclude(Set<Include> includes, Log logAnnotation) {
+        Include[] includeArr = logAnnotation.include();
+        if (includeArr.length > 0) {
+            includes.addAll(Set.of(includeArr));
+        }
+        Include[] excludeArr = logAnnotation.exclude();
+        if (excludeArr.length > 0) {
+            includes.removeAll(Set.of(excludeArr));
+        }
+    }
+
+    /**
      * 记录描述
      *
      * @param logRecord     日志信息
+     * @param methodLog     方法级 Log 注解
      * @param handlerMethod 处理器方法
      */
-    private void logDescription(LogRecord logRecord, HandlerMethod handlerMethod) {
+    private void logDescription(LogRecord logRecord, Log methodLog, HandlerMethod handlerMethod) {
         // 例如：@Log("新增部门") -> 新增部门
-        Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
         if (null != methodLog && StrUtil.isNotBlank(methodLog.value())) {
             logRecord.setDescription(methodLog.value());
             return;
@@ -131,16 +168,16 @@ public class LogInterceptor implements HandlerInterceptor {
      * 记录模块
      *
      * @param logRecord     日志信息
+     * @param methodLog     方法级 Log 注解
+     * @param classLog      类级 Log 注解
      * @param handlerMethod 处理器方法
      */
-    private void logModule(LogRecord logRecord, HandlerMethod handlerMethod) {
+    private void logModule(LogRecord logRecord, Log methodLog, Log classLog, HandlerMethod handlerMethod) {
         // 例如：@Log(module = "部门管理") -> 部门管理
-        Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
         if (null != methodLog && StrUtil.isNotBlank(methodLog.module())) {
             logRecord.setModule(methodLog.module());
             return;
         }
-        Log classLog = handlerMethod.getBeanType().getDeclaredAnnotation(Log.class);
         if (null != classLog && StrUtil.isNotBlank(classLog.module())) {
             logRecord.setModule(classLog.module());
             return;
