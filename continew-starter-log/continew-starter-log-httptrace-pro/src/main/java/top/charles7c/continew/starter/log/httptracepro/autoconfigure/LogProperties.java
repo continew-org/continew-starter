@@ -45,7 +45,7 @@ public class LogProperties {
     /**
      * 包含信息
      */
-    private Set<Include> include = new HashSet<>(Include.defaultIncludes());
+    private Set<Include> includes = new HashSet<>(Include.defaultIncludes());
 
     public boolean isEnabled() {
         return enabled;
@@ -63,11 +63,11 @@ public class LogProperties {
         isPrint = print;
     }
 
-    public Set<Include> getInclude() {
-        return include;
+    public Set<Include> getIncludes() {
+        return includes;
     }
 
-    public void setInclude(Set<Include> include) {
-        this.include = include;
+    public void setIncludes(Set<Include> includes) {
+        this.includes = includes;
     }
 }

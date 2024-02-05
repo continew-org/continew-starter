@@ -105,7 +105,7 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
      * @return true：是；false：否
      */
     private boolean isRequestWrapper(HttpServletRequest request) {
-        Set<Include> includeSet = logProperties.getInclude();
+        Set<Include> includeSet = logProperties.getIncludes();
         return !(request instanceof ContentCachingRequestWrapper) && (includeSet
             .contains(Include.REQUEST_BODY) || includeSet.contains(Include.REQUEST_PARAM));
     }
@@ -117,7 +117,7 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
      * @return true：是；false：否
      */
     private boolean isResponseWrapper(HttpServletResponse response) {
-        Set<Include> includeSet = logProperties.getInclude();
+        Set<Include> includeSet = logProperties.getIncludes();
         return !(response instanceof ContentCachingResponseWrapper) && (includeSet
             .contains(Include.RESPONSE_BODY) || includeSet.contains(Include.RESPONSE_PARAM));
     }

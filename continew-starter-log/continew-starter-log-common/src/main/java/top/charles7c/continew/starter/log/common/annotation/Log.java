@@ -51,12 +51,12 @@ public @interface Log {
     /**
      * 包含信息（在全局配置基础上扩展包含信息）
      */
-    Include[] include() default {};
+    Include[] includes() default {};
 
     /**
      * 排除信息（在全局配置基础上减少包含信息）
      */
-    Include[] exclude() default {};
+    Include[] excludes() default {};
 
     /**
      * 是否忽略日志记录（用于接口方法或类上）

@@ -117,7 +117,7 @@ public class LogInterceptor implements HandlerInterceptor {
      * @return 日志包含信息
      */
     private Set<Include> getIncludes(Log methodLog, Log classLog) {
-        Set<Include> includeSet = logProperties.getInclude();
+        Set<Include> includeSet = logProperties.getIncludes();
         if (null != classLog) {
             this.processInclude(includeSet, classLog);
         }
@@ -134,11 +134,11 @@ public class LogInterceptor implements HandlerInterceptor {
      * @param logAnnotation Log 注解
      */
     private void processInclude(Set<Include> includes, Log logAnnotation) {
-        Include[] includeArr = logAnnotation.include();
+        Include[] includeArr = logAnnotation.includes();
         if (includeArr.length > 0) {
             includes.addAll(Set.of(includeArr));
         }
-        Include[] excludeArr = logAnnotation.exclude();
+        Include[] excludeArr = logAnnotation.excludes();
         if (excludeArr.length > 0) {
             includes.removeAll(Set.of(excludeArr));
         }
