@@ -87,6 +87,7 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
      */
     @Bean
     @ConditionalOnMissingBean
+    @ConditionalOnProperty(prefix = "sa-token.extension", name = "enableJwt", havingValue = "true")
     public StpLogic stpLogic() {
         return new StpLogicJwtForSimple();
     }

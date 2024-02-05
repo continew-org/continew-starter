@@ -35,6 +35,11 @@ public class SaTokenExtensionProperties {
     private boolean enabled = false;
 
     /**
+     * 启用 JWT
+     */
+    private boolean enableJwt = false;
+
+    /**
      * 持久层配置
      */
     @NestedConfigurationProperty
@@ -52,6 +57,14 @@ public class SaTokenExtensionProperties {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isEnableJwt() {
+        return enableJwt;
+    }
+
+    public void setEnableJwt(boolean enableJwt) {
+        this.enableJwt = enableJwt;
     }
 
     public SaTokenDaoProperties getDao() {
