@@ -18,7 +18,6 @@ package top.charles7c.continew.starter.log.common.model;
 
 import cn.hutool.core.util.StrUtil;
 import org.springframework.http.HttpHeaders;
-import top.charles7c.continew.starter.core.util.ExceptionUtils;
 import top.charles7c.continew.starter.core.util.IpUtils;
 import top.charles7c.continew.starter.log.common.enums.Include;
 import top.charles7c.continew.starter.web.util.ServletUtils;
@@ -91,7 +90,15 @@ public class LogRequest {
             this.param = request.getParam();
         }
         this.address = (includes.contains(Include.IP_ADDRESS)) ? IpUtils.getAddress(this.ip) : null;
-        String userAgentString = ExceptionUtils.exToNull(() -> this.headers.get(HttpHeaders.USER_AGENT));
+        if (null == this.headers) {
+            return;
+        }
+        String userAgentString = this.headers.entrySet()
+            .stream()
+            .filter(h -> HttpHeaders.USER_AGENT.equalsIgnoreCase(h.getKey()))
+            .map(Map.Entry::getValue)
+            .findFirst()
+            .orElse(null);
         if (StrUtil.isNotBlank(userAgentString)) {
             this.browser = (includes.contains(Include.BROWSER)) ? ServletUtils.getBrowser(userAgentString) : null;
             this.os = (includes.contains(Include.OS)) ? ServletUtils.getOs(userAgentString) : null;
