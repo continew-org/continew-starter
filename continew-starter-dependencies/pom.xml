@@ -382,6 +382,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 安全模块 - 脱敏 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-security-mask</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 安全模块 - 密码编码器 -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>

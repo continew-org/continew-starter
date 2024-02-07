@@ -105,6 +105,11 @@ public class StringConstants {
     public static final char C_AT = CharPool.AT;
 
     /**
+     * 字符常量：星号 {@code '*'}
+     */
+    public static final char C_ASTERISK = '*';
+
+    /**
      * 字符串常量：制表符 {@code "\t"}
      */
     public static final String TAB = StrPool.TAB;
