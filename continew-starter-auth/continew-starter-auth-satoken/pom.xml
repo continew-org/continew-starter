@@ -25,6 +25,13 @@
             <artifactId>sa-token-jwt</artifactId>
         </dependency>
 
+        <!-- 缓存模块 - Redisson -->
+        <dependency>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-cache-redisson</artifactId>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Web 模块 -->
         <dependency>
             <groupId>top.charles7c.continew</groupId>

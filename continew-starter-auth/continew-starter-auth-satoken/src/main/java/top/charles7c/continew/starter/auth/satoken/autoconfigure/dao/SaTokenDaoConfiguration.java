@@ -47,8 +47,6 @@ public class SaTokenDaoConfiguration {
      * 自定义持久层实现-默认（内存）
      */
     @ConditionalOnMissingBean(SaTokenDao.class)
-    @ConditionalOnClass(RedisClient.class)
-    @AutoConfigureBefore(RedissonAutoConfiguration.class)
     @ConditionalOnProperty(name = "sa-token.extension.dao.type", havingValue = "default", matchIfMissing = true)
     public static class Default {
         static {

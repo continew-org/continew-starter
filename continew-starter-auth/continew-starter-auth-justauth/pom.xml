@@ -23,5 +23,12 @@
             <groupId>com.xkcoding.justauth</groupId>
             <artifactId>justauth-spring-boot-starter</artifactId>
         </dependency>
+
+        <!-- 缓存模块 - Redisson -->
+        <dependency>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-cache-redisson</artifactId>
+            <optional>true</optional>
+        </dependency>
     </dependencies>
 </project>
