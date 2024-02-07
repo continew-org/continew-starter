@@ -51,10 +51,11 @@ import java.util.List;
 public class RedissonAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(RedissonAutoConfiguration.class);
-
     private final RedissonProperties properties;
     private final RedisProperties redisProperties;
     private final ObjectMapper objectMapper;
+    private static final String REDIS_PROTOCOL_PREFIX = "redis://";
+    private static final String REDISS_PROTOCOL_PREFIX = "rediss://";
 
     public RedissonAutoConfiguration(RedissonProperties properties,
                                      RedisProperties redisProperties,
@@ -68,11 +69,13 @@ public class RedissonAutoConfiguration {
     public RedissonAutoConfigurationCustomizer redissonAutoConfigurationCustomizer() {
         return config -> {
             RedissonProperties.Mode mode = properties.getMode();
-            String protocol = redisProperties.getSsl().isEnabled() ? "rediss://" : "redis://";
+            String protocolPrefix = redisProperties.getSsl().isEnabled()
+                ? REDISS_PROTOCOL_PREFIX
+                : REDIS_PROTOCOL_PREFIX;
             switch (mode) {
-                case CLUSTER -> this.buildClusterModeConfig(config, protocol);
-                case SENTINEL -> this.buildSentinelModeConfig(config, protocol);
-                default -> this.buildSingleModeConfig(config, protocol);
+                case CLUSTER -> this.buildClusterModeConfig(config, protocolPrefix);
+                case SENTINEL -> this.buildSentinelModeConfig(config, protocolPrefix);
+                default -> this.buildSingleModeConfig(config, protocolPrefix);
             }
             // Jackson 处理
             config.setCodec(new JsonJacksonCodec(objectMapper));
@@ -83,10 +86,10 @@ public class RedissonAutoConfiguration {
     /**
      * 构建集群模式配置
      *
-     * @param config   配置
-     * @param protocol 协议
+     * @param config         配置
+     * @param protocolPrefix 协议前缀
      */
-    private void buildClusterModeConfig(Config config, String protocol) {
+    private void buildClusterModeConfig(Config config, String protocolPrefix) {
         ClusterServersConfig clusterServersConfig = config.useClusterServers();
         ClusterServersConfig customClusterServersConfig = properties.getClusterServersConfig();
         if (null != customClusterServersConfig) {
@@ -96,7 +99,7 @@ public class RedissonAutoConfiguration {
         // 下方配置如果为空，则使用 Redis 的配置
         if (CollUtil.isEmpty(clusterServersConfig.getNodeAddresses())) {
             List<String> nodeList = redisProperties.getCluster().getNodes();
-            nodeList.stream().map(node -> protocol + node).forEach(clusterServersConfig::addNodeAddress);
+            nodeList.stream().map(node -> protocolPrefix + node).forEach(clusterServersConfig::addNodeAddress);
         }
         if (StrUtil.isBlank(clusterServersConfig.getPassword())) {
             clusterServersConfig.setPassword(redisProperties.getPassword());
@@ -106,10 +109,10 @@ public class RedissonAutoConfiguration {
     /**
      * 构建哨兵模式配置
      *
-     * @param config   配置
-     * @param protocol 协议
+     * @param config         配置
+     * @param protocolPrefix 协议前缀
      */
-    private void buildSentinelModeConfig(Config config, String protocol) {
+    private void buildSentinelModeConfig(Config config, String protocolPrefix) {
         SentinelServersConfig sentinelServersConfig = config.useSentinelServers();
         SentinelServersConfig customSentinelServersConfig = properties.getSentinelServersConfig();
         if (null != customSentinelServersConfig) {
@@ -119,7 +122,7 @@ public class RedissonAutoConfiguration {
         // 下方配置如果为空，则使用 Redis 的配置
         if (CollUtil.isEmpty(sentinelServersConfig.getSentinelAddresses())) {
             List<String> nodeList = redisProperties.getSentinel().getNodes();
-            nodeList.stream().map(node -> protocol + node).forEach(sentinelServersConfig::addSentinelAddress);
+            nodeList.stream().map(node -> protocolPrefix + node).forEach(sentinelServersConfig::addSentinelAddress);
         }
         if (StrUtil.isBlank(sentinelServersConfig.getPassword())) {
             sentinelServersConfig.setPassword(redisProperties.getPassword());
@@ -132,10 +135,10 @@ public class RedissonAutoConfiguration {
     /**
      * 构建单机模式配置
      *
-     * @param config   配置
-     * @param protocol 协议
+     * @param config         配置
+     * @param protocolPrefix 协议前缀
      */
-    private void buildSingleModeConfig(Config config, String protocol) {
+    private void buildSingleModeConfig(Config config, String protocolPrefix) {
         SingleServerConfig singleServerConfig = config.useSingleServer();
         SingleServerConfig customSingleServerConfig = properties.getSingleServerConfig();
         if (null != customSingleServerConfig) {
@@ -147,8 +150,8 @@ public class RedissonAutoConfiguration {
             singleServerConfig.setPassword(redisProperties.getPassword());
         }
         if (StrUtil.isBlank(singleServerConfig.getAddress())) {
-            singleServerConfig.setAddress(protocol + redisProperties.getHost() + StringConstants.COLON + redisProperties
-                .getPort());
+            singleServerConfig.setAddress(protocolPrefix + redisProperties
+                .getHost() + StringConstants.COLON + redisProperties.getPort());
         }
     }
 }
