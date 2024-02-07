@@ -18,7 +18,7 @@ package top.charles7c.continew.starter.core.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.NetUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HtmlUtil;
 import net.dreamlu.mica.ip2region.core.Ip2regionSearcher;
@@ -52,7 +52,7 @@ public class IpUtils {
         IpInfo ipInfo = ip2regionSearcher.memorySearch(ip);
         if (null != ipInfo) {
             Set<String> regionSet = CollUtil.newLinkedHashSet(ipInfo.getAddress(), ipInfo.getIsp());
-            regionSet.removeIf(StrUtil::isBlank);
+            regionSet.removeIf(CharSequenceUtil::isBlank);
             return String.join(StringConstants.SPACE, regionSet);
         }
         return null;

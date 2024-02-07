@@ -25,7 +25,7 @@ import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -107,15 +107,15 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
         // 构建树
         return TreeUtils.build(list, treeNodeConfig, (node, tree) -> {
             // 转换器
-            tree.setId(ReflectUtil.invoke(node, StrUtil.genGetter(treeField.value())));
-            tree.setParentId(ReflectUtil.invoke(node, StrUtil.genGetter(treeField.parentIdKey())));
-            tree.setName(ReflectUtil.invoke(node, StrUtil.genGetter(treeField.nameKey())));
-            tree.setWeight(ReflectUtil.invoke(node, StrUtil.genGetter(treeField.weightKey())));
+            tree.setId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.value())));
+            tree.setParentId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.parentIdKey())));
+            tree.setName(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.nameKey())));
+            tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.weightKey())));
             if (!isSimple) {
                 List<Field> fieldList = ReflectUtils.getNonStaticFields(listClass);
-                fieldList.removeIf(f -> StrUtil.containsAnyIgnoreCase(f.getName(), treeField.value(), treeField
+                fieldList.removeIf(f -> CharSequenceUtil.containsAnyIgnoreCase(f.getName(), treeField.value(), treeField
                     .parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
-                fieldList.forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, StrUtil.genGetter(f
+                fieldList.forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, CharSequenceUtil.genGetter(f
                     .getName()))));
             }
         });
@@ -224,7 +224,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
                 String checkProperty;
                 // 携带表别名则获取 . 后面的字段名
                 if (property.contains(StringConstants.DOT)) {
-                    checkProperty = CollUtil.getLast(StrUtil.split(property, StringConstants.DOT));
+                    checkProperty = CollUtil.getLast(CharSequenceUtil.split(property, StringConstants.DOT));
                 } else {
                     checkProperty = property;
                 }
@@ -232,7 +232,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
                     .filter(field -> checkProperty.equals(field.getName()))
                     .findFirst();
                 ValidationUtils.throwIf(optional.isEmpty(), "无效的排序字段 [{}]", property);
-                queryWrapper.orderBy(true, order.isAscending(), StrUtil.toUnderlineCase(property));
+                queryWrapper.orderBy(true, order.isAscending(), CharSequenceUtil.toUnderlineCase(property));
             }
         }
     }

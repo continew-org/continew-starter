@@ -17,7 +17,7 @@
 package top.charles7c.continew.starter.extension.crud.model.query;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -77,7 +77,7 @@ public class PageQuery extends SortQuery {
             for (Sort.Order order : pageSort) {
                 OrderItem orderItem = new OrderItem();
                 orderItem.setAsc(order.isAscending());
-                orderItem.setColumn(StrUtil.toUnderlineCase(order.getProperty()));
+                orderItem.setColumn(CharSequenceUtil.toUnderlineCase(order.getProperty()));
                 mybatisPage.addOrder(orderItem);
             }
         }

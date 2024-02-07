@@ -17,7 +17,7 @@
 package top.charles7c.continew.starter.web.util;
 
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.servlet.ServletContext;
 import org.springframework.context.ApplicationContext;
@@ -55,7 +55,7 @@ public class SpringWebUtils {
             .getFieldValue(resourceHandlerMapping, "handlerMap");
         // 移除之前注册的映射
         for (Map.Entry<String, String> entry : handlerMap.entrySet()) {
-            String pathPattern = StrUtil.appendIfMissing(entry.getKey(), StringConstants.PATH_PATTERN);
+            String pathPattern = CharSequenceUtil.appendIfMissing(entry.getKey(), StringConstants.PATH_PATTERN);
             oldHandlerMap.remove(pathPattern);
         }
     }
@@ -80,10 +80,10 @@ public class SpringWebUtils {
         final ResourceHandlerRegistry resourceHandlerRegistry = new ResourceHandlerRegistry(applicationContext, servletContext, contentNegotiationManager, urlPathHelper);
         for (Map.Entry<String, String> entry : handlerMap.entrySet()) {
             // 移除之前注册的映射
-            String pathPattern = StrUtil.appendIfMissing(entry.getKey(), StringConstants.PATH_PATTERN);
+            String pathPattern = CharSequenceUtil.appendIfMissing(entry.getKey(), StringConstants.PATH_PATTERN);
             oldHandlerMap.remove(pathPattern);
             // 重新注册映射
-            String resourceLocations = StrUtil.appendIfMissing(entry.getValue(), StringConstants.SLASH);
+            String resourceLocations = CharSequenceUtil.appendIfMissing(entry.getValue(), StringConstants.SLASH);
             resourceHandlerRegistry.addResourceHandler(pathPattern).addResourceLocations("file:" + resourceLocations);
         }
         final Map<String, ?> additionalUrlMap = ReflectUtil

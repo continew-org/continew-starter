@@ -17,7 +17,7 @@
 package top.charles7c.continew.starter.extension.crud.model.query;
 
 import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Sort;
 import top.charles7c.continew.starter.core.constant.StringConstants;
@@ -56,10 +56,10 @@ public class SortQuery implements Serializable {
         }
 
         List<Sort.Order> orders = new ArrayList<>(sort.length);
-        if (StrUtil.contains(sort[0], StringConstants.COMMA)) {
+        if (CharSequenceUtil.contains(sort[0], StringConstants.COMMA)) {
             // e.g "sort=createTime,desc&sort=name,asc"
             for (String s : sort) {
-                List<String> sortList = StrUtil.splitTrim(s, StringConstants.COMMA);
+                List<String> sortList = CharSequenceUtil.splitTrim(s, StringConstants.COMMA);
                 Sort.Order order = new Sort.Order(Sort.Direction.valueOf(sortList.get(1).toUpperCase()), sortList
                     .get(0));
                 orders.add(order);

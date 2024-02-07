@@ -16,7 +16,7 @@
 
 package top.charles7c.continew.starter.storage.local.autoconfigure;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,10 +57,10 @@ public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
             LocalStorageProperties.LocalStorageMapping mapping = mappingEntry.getValue();
             String pathPattern = mapping.getPathPattern();
             String location = mapping.getLocation();
-            if (StrUtil.isBlank(location)) {
+            if (CharSequenceUtil.isBlank(location)) {
                 throw new IllegalArgumentException(String.format("Path pattern [%s] location is null.", pathPattern));
             }
-            registry.addResourceHandler(StrUtil.appendIfMissing(pathPattern, StringConstants.PATH_PATTERN))
+            registry.addResourceHandler(CharSequenceUtil.appendIfMissing(pathPattern, StringConstants.PATH_PATTERN))
                 .addResourceLocations(!location.startsWith("file:")
                     ? String.format("file:%s", this.format(location))
                     : this.format(location))

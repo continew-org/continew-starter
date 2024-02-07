@@ -16,9 +16,9 @@
 
 package top.charles7c.continew.starter.core.util.validate;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,7 +90,7 @@ public class Validator {
     protected static void throwIfBlank(CharSequence str,
                                        String message,
                                        Class<? extends RuntimeException> exceptionType) {
-        throwIf(StrUtil.isBlank(str), message, exceptionType);
+        throwIf(CharSequenceUtil.isBlank(str), message, exceptionType);
     }
 
     /**
@@ -103,7 +103,7 @@ public class Validator {
     protected static void throwIfNotBlank(CharSequence str,
                                           String message,
                                           Class<? extends RuntimeException> exceptionType) {
-        throwIf(StrUtil.isNotBlank(str), message, exceptionType);
+        throwIf(CharSequenceUtil.isNotBlank(str), message, exceptionType);
     }
 
     /**
@@ -148,7 +148,7 @@ public class Validator {
                                                  CharSequence str2,
                                                  String message,
                                                  Class<? extends RuntimeException> exceptionType) {
-        throwIf(StrUtil.equalsIgnoreCase(str1, str2), message, exceptionType);
+        throwIf(CharSequenceUtil.equalsIgnoreCase(str1, str2), message, exceptionType);
     }
 
     /**
@@ -163,7 +163,7 @@ public class Validator {
                                                     CharSequence str2,
                                                     String message,
                                                     Class<? extends RuntimeException> exceptionType) {
-        throwIf(!StrUtil.equalsIgnoreCase(str1, str2), message, exceptionType);
+        throwIf(!CharSequenceUtil.equalsIgnoreCase(str1, str2), message, exceptionType);
     }
 
     /**

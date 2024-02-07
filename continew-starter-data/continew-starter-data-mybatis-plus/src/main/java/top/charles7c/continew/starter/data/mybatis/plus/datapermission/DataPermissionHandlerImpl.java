@@ -16,18 +16,9 @@
 
 package top.charles7c.continew.starter.data.mybatis.plus.datapermission;
 
-import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.Set;
-
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import top.charles7c.continew.starter.core.constant.StringConstants;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
@@ -42,6 +33,13 @@ import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import top.charles7c.continew.starter.core.constant.StringConstants;
+
+import java.lang.reflect.Method;
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * 数据权限处理器实现类
@@ -69,7 +67,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
             for (Method method : methodArr) {
                 DataPermission dataPermission = method.getAnnotation(DataPermission.class);
                 String name = method.getName();
-                if (null == dataPermission || !StrUtil.equalsAny(methodName, name, name + "_COUNT")) {
+                if (null == dataPermission || !CharSequenceUtil.equalsAny(methodName, name, name + "_COUNT")) {
                     continue;
                 }
                 if (dataPermissionFilter.isFilter()) {

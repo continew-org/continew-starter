@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import top.charles7c.continew.starter.core.exception.BadRequestException;
 import top.charles7c.continew.starter.core.util.ReflectUtils;
@@ -117,7 +117,7 @@ public class QueryWrapperHelper {
             // 没有 @Query 注解，默认等值查询
             Query queryAnnotation = field.getAnnotation(Query.class);
             if (null == queryAnnotation) {
-                return Collections.singletonList(q -> q.eq(StrUtil.toUnderlineCase(fieldName), fieldValue));
+                return Collections.singletonList(q -> q.eq(CharSequenceUtil.toUnderlineCase(fieldName), fieldValue));
             }
             // 解析单列查询
             QueryType queryType = queryAnnotation.type();
@@ -125,7 +125,7 @@ public class QueryWrapperHelper {
             final int columnLength = ArrayUtil.length(columns);
             List<Consumer<QueryWrapper<R>>> consumers = new ArrayList<>(columnLength);
             if (columnLength <= 1) {
-                String columnName = columnLength == 1 ? columns[0] : StrUtil.toUnderlineCase(fieldName);
+                String columnName = columnLength == 1 ? columns[0] : CharSequenceUtil.toUnderlineCase(fieldName);
                 parse(queryType, columnName, fieldValue, consumers);
                 return consumers;
             }

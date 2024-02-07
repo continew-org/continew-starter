@@ -17,7 +17,7 @@
 package top.charles7c.continew.starter.captcha.graphic.core;
 
 import cn.hutool.core.util.ReflectUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.wf.captcha.base.Captcha;
 import top.charles7c.continew.starter.captcha.graphic.autoconfigure.GraphicCaptchaProperties;
 
@@ -46,7 +46,7 @@ public class GraphicCaptchaService {
         Captcha captcha = ReflectUtil.newInstance(properties.getType().getCaptchaImpl(), properties
             .getWidth(), properties.getHeight());
         captcha.setLen(properties.getLength());
-        if (StrUtil.isNotBlank(properties.getFontName())) {
+        if (CharSequenceUtil.isNotBlank(properties.getFontName())) {
             captcha.setFont(new Font(properties.getFontName(), Font.PLAIN, properties.getFontSize()));
         }
         return captcha;

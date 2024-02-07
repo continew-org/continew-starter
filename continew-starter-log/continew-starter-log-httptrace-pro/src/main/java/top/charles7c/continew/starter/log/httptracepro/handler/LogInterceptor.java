@@ -16,7 +16,7 @@
 
 package top.charles7c.continew.starter.log.httptracepro.handler;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -153,14 +153,14 @@ public class LogInterceptor implements HandlerInterceptor {
      */
     private void logDescription(LogRecord logRecord, Log methodLog, HandlerMethod handlerMethod) {
         // 例如：@Log("新增部门") -> 新增部门
-        if (null != methodLog && StrUtil.isNotBlank(methodLog.value())) {
+        if (null != methodLog && CharSequenceUtil.isNotBlank(methodLog.value())) {
             logRecord.setDescription(methodLog.value());
             return;
         }
         // 例如：@Operation(summary="新增部门") -> 新增部门
         Operation methodOperation = handlerMethod.getMethodAnnotation(Operation.class);
         if (null != methodOperation) {
-            logRecord.setDescription(StrUtil.blankToDefault(methodOperation.summary(), "请在该接口方法上指定日志描述"));
+            logRecord.setDescription(CharSequenceUtil.blankToDefault(methodOperation.summary(), "请在该接口方法上指定日志描述"));
         }
     }
 
@@ -174,11 +174,11 @@ public class LogInterceptor implements HandlerInterceptor {
      */
     private void logModule(LogRecord logRecord, Log methodLog, Log classLog, HandlerMethod handlerMethod) {
         // 例如：@Log(module = "部门管理") -> 部门管理
-        if (null != methodLog && StrUtil.isNotBlank(methodLog.module())) {
+        if (null != methodLog && CharSequenceUtil.isNotBlank(methodLog.module())) {
             logRecord.setModule(methodLog.module());
             return;
         }
-        if (null != classLog && StrUtil.isNotBlank(classLog.module())) {
+        if (null != classLog && CharSequenceUtil.isNotBlank(classLog.module())) {
             logRecord.setModule(classLog.module());
             return;
         }
@@ -186,7 +186,7 @@ public class LogInterceptor implements HandlerInterceptor {
         Tag classTag = handlerMethod.getBeanType().getDeclaredAnnotation(Tag.class);
         if (null != classTag) {
             String name = classTag.name();
-            logRecord.setModule(StrUtil.blankToDefault(name, "请在该接口类上指定所属模块"));
+            logRecord.setModule(CharSequenceUtil.blankToDefault(name, "请在该接口类上指定所属模块"));
         }
     }
 

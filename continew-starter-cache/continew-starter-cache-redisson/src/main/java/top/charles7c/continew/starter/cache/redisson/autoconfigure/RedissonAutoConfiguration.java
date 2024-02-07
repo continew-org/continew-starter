@@ -18,7 +18,7 @@ package top.charles7c.continew.starter.cache.redisson.autoconfigure;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.redisson.codec.JsonJacksonCodec;
 import org.redisson.config.ClusterServersConfig;
@@ -101,7 +101,7 @@ public class RedissonAutoConfiguration {
             List<String> nodeList = redisProperties.getCluster().getNodes();
             nodeList.stream().map(node -> protocolPrefix + node).forEach(clusterServersConfig::addNodeAddress);
         }
-        if (StrUtil.isBlank(clusterServersConfig.getPassword())) {
+        if (CharSequenceUtil.isBlank(clusterServersConfig.getPassword())) {
             clusterServersConfig.setPassword(redisProperties.getPassword());
         }
     }
@@ -124,10 +124,10 @@ public class RedissonAutoConfiguration {
             List<String> nodeList = redisProperties.getSentinel().getNodes();
             nodeList.stream().map(node -> protocolPrefix + node).forEach(sentinelServersConfig::addSentinelAddress);
         }
-        if (StrUtil.isBlank(sentinelServersConfig.getPassword())) {
+        if (CharSequenceUtil.isBlank(sentinelServersConfig.getPassword())) {
             sentinelServersConfig.setPassword(redisProperties.getPassword());
         }
-        if (StrUtil.isBlank(sentinelServersConfig.getMasterName())) {
+        if (CharSequenceUtil.isBlank(sentinelServersConfig.getMasterName())) {
             sentinelServersConfig.setMasterName(redisProperties.getSentinel().getMaster());
         }
     }
@@ -146,10 +146,10 @@ public class RedissonAutoConfiguration {
         }
         // 下方配置如果为空，则使用 Redis 的配置
         singleServerConfig.setDatabase(redisProperties.getDatabase());
-        if (StrUtil.isBlank(singleServerConfig.getPassword())) {
+        if (CharSequenceUtil.isBlank(singleServerConfig.getPassword())) {
             singleServerConfig.setPassword(redisProperties.getPassword());
         }
-        if (StrUtil.isBlank(singleServerConfig.getAddress())) {
+        if (CharSequenceUtil.isBlank(singleServerConfig.getAddress())) {
             singleServerConfig.setAddress(protocolPrefix + redisProperties
                 .getHost() + StringConstants.COLON + redisProperties.getPort());
         }

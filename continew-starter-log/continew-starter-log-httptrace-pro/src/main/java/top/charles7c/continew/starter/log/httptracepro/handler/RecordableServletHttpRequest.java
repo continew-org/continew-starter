@@ -16,6 +16,7 @@
 
 package top.charles7c.continew.starter.log.httptracepro.handler;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.servlet.JakartaServletUtil;
 import cn.hutool.json.JSONUtil;
@@ -53,7 +54,7 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     @Override
     public URI getUrl() {
         String queryString = request.getQueryString();
-        if (StrUtil.isBlank(queryString)) {
+        if (CharSequenceUtil.isBlank(queryString)) {
             return URI.create(request.getRequestURL().toString());
         }
         try {
@@ -89,7 +90,7 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     @Override
     public Map<String, Object> getParam() {
         String body = this.getBody();
-        return StrUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body)
+        return CharSequenceUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body)
             ? JSONUtil.toBean(body, Map.class)
             : Collections.unmodifiableMap(request.getParameterMap());
     }

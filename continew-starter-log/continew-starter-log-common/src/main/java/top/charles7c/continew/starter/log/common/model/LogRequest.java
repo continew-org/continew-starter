@@ -16,7 +16,7 @@
 
 package top.charles7c.continew.starter.log.common.model;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import org.springframework.http.HttpHeaders;
 import top.charles7c.continew.starter.core.util.IpUtils;
 import top.charles7c.continew.starter.log.common.enums.Include;
@@ -99,7 +99,7 @@ public class LogRequest {
             .map(Map.Entry::getValue)
             .findFirst()
             .orElse(null);
-        if (StrUtil.isNotBlank(userAgentString)) {
+        if (CharSequenceUtil.isNotBlank(userAgentString)) {
             this.browser = (includes.contains(Include.BROWSER)) ? ServletUtils.getBrowser(userAgentString) : null;
             this.os = (includes.contains(Include.OS)) ? ServletUtils.getOs(userAgentString) : null;
         }

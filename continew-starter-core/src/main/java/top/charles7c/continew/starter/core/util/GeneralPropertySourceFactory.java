@@ -16,7 +16,7 @@
 
 package top.charles7c.continew.starter.core.util;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import org.springframework.boot.env.YamlPropertySourceLoader;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.Resource;
@@ -43,7 +43,7 @@ public class GeneralPropertySourceFactory extends DefaultPropertySourceFactory {
                                                   EncodedResource encodedResource) throws IOException {
         Resource resource = encodedResource.getResource();
         String resourceName = resource.getFilename();
-        if (StrUtil.isNotBlank(resourceName) && StrUtil.endWithAny(resourceName, ".yml", ".yaml")) {
+        if (CharSequenceUtil.isNotBlank(resourceName) && CharSequenceUtil.endWithAny(resourceName, ".yml", ".yaml")) {
             return new YamlPropertySourceLoader().load(resourceName, resource).get(0);
         }
         return super.createPropertySource(name, encodedResource);

@@ -19,7 +19,7 @@ package top.charles7c.continew.starter.messaging.mail.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -192,14 +192,14 @@ public class MailUtils {
      * @return 联系人列表
      */
     private static List<String> splitAddress(String addresses) {
-        if (StrUtil.isBlank(addresses)) {
+        if (CharSequenceUtil.isBlank(addresses)) {
             return new ArrayList<>(0);
         }
         List<String> result;
-        if (StrUtil.contains(addresses, StringConstants.COMMA)) {
-            result = StrUtil.splitTrim(addresses, StringConstants.COMMA);
-        } else if (StrUtil.contains(addresses, StringConstants.SEMICOLON)) {
-            result = StrUtil.splitTrim(addresses, StringConstants.SEMICOLON);
+        if (CharSequenceUtil.contains(addresses, StringConstants.COMMA)) {
+            result = CharSequenceUtil.splitTrim(addresses, StringConstants.COMMA);
+        } else if (CharSequenceUtil.contains(addresses, StringConstants.SEMICOLON)) {
+            result = CharSequenceUtil.splitTrim(addresses, StringConstants.SEMICOLON);
         } else {
             result = CollUtil.newArrayList(addresses);
         }

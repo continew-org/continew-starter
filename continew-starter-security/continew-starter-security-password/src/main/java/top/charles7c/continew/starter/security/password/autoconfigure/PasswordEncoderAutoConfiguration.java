@@ -17,7 +17,7 @@
 package top.charles7c.continew.starter.security.password.autoconfigure;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,7 +80,8 @@ public class PasswordEncoderAutoConfiguration {
         if (CollUtil.isNotEmpty(passwordEncoderList)) {
             passwordEncoderList.forEach(passwordEncoder -> {
                 String simpleName = passwordEncoder.getClass().getSimpleName();
-                encoders.put(StrUtil.removeSuffix(simpleName, "PasswordEncoder").toLowerCase(), passwordEncoder);
+                encoders.put(CharSequenceUtil.removeSuffix(simpleName, "PasswordEncoder")
+                    .toLowerCase(), passwordEncoder);
             });
         }
         String encodingId = properties.getEncodingId();

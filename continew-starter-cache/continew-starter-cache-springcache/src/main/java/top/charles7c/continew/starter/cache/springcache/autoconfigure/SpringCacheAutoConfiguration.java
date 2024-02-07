@@ -17,7 +17,7 @@
 package top.charles7c.continew.starter.cache.springcache.autoconfigure;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -92,7 +92,7 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
     @Override
     public KeyGenerator keyGenerator() {
         return (target, method, params) -> {
-            String key = StrUtil.toUnderlineCase(method.getName()).toUpperCase();
+            String key = CharSequenceUtil.toUnderlineCase(method.getName()).toUpperCase();
             Map<String, Object> paramMap = MapUtil.newHashMap(params.length);
             for (int i = 0; i < params.length; i++) {
                 paramMap.put(String.valueOf(i), params[i]);

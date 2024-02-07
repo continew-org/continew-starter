@@ -18,7 +18,7 @@ package top.charles7c.continew.starter.captcha.behavior.autoconfigure;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.anji.captcha.model.common.Const;
 import com.anji.captcha.service.CaptchaService;
 import com.anji.captcha.service.impl.CaptchaServiceFactory;
@@ -81,8 +81,8 @@ public class BehaviorCaptchaAutoConfiguration {
         config.put(Const.CAPTCHA_FONT_TYPE, properties.getFontType());
         config.put(Const.CAPTCHA_TYPE, properties.getType().getCodeValue());
         config.put(Const.CAPTCHA_INTERFERENCE_OPTIONS, properties.getInterferenceOptions());
-        config.put(Const.ORIGINAL_PATH_JIGSAW, StrUtil.emptyIfNull(properties.getJigsawBaseMapPath()));
-        config.put(Const.ORIGINAL_PATH_PIC_CLICK, StrUtil.emptyIfNull(properties.getPicClickBaseMapPath()));
+        config.put(Const.ORIGINAL_PATH_JIGSAW, CharSequenceUtil.emptyIfNull(properties.getJigsawBaseMapPath()));
+        config.put(Const.ORIGINAL_PATH_PIC_CLICK, CharSequenceUtil.emptyIfNull(properties.getPicClickBaseMapPath()));
         config.put(Const.CAPTCHA_SLIP_OFFSET, properties.getSlipOffset());
         config.put(Const.CAPTCHA_AES_STATUS, String.valueOf(properties.getEnableAes()));
         config.put(Const.CAPTCHA_WATER_FONT, properties.getWaterFont());
@@ -98,8 +98,8 @@ public class BehaviorCaptchaAutoConfiguration {
         config.put(Const.CAPTCHA_FONT_SIZE, properties.getFontSize());
         config.put(Const.CAPTCHA_FONT_STYLE, properties.getFontStyle());
         config.put(Const.CAPTCHA_WORD_COUNT, 4);
-        if (StrUtil.startWith(properties.getJigsawBaseMapPath(), "classpath:") || StrUtil.startWith(properties
-            .getPicClickBaseMapPath(), "classpath:")) {
+        if (CharSequenceUtil.startWith(properties.getJigsawBaseMapPath(), "classpath:") || CharSequenceUtil
+            .startWith(properties.getPicClickBaseMapPath(), "classpath:")) {
             // 自定义 resources 目录下初始化底图
             config.put(Const.CAPTCHA_INIT_ORIGINAL, true);
             initializeBaseMap(properties.getJigsawBaseMapPath(), properties.getPicClickBaseMapPath());

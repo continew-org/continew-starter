@@ -18,7 +18,7 @@ package top.charles7c.continew.starter.web.autoconfigure.exception;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -99,7 +99,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public R<Void> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e,
                                                              HttpServletRequest request) {
-        String errorMsg = StrUtil.format("参数名：[{}]，期望参数类型：[{}]", e.getName(), e.getParameter().getParameterType());
+        String errorMsg = CharSequenceUtil.format("参数名：[{}]，期望参数类型：[{}]", e.getName(), e.getParameter()
+            .getParameterType());
         log.warn("请求地址 [{}]，参数转换失败，{}。", request.getRequestURI(), errorMsg, e);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
     }
@@ -110,7 +111,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public R<Void> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e, HttpServletRequest request) {
         log.warn("请求地址 [{}]，上传文件失败，文件大小超过限制。", request.getRequestURI(), e);
-        String sizeLimit = StrUtil.subBetween(e.getMessage(), "The maximum size ", " for");
+        String sizeLimit = CharSequenceUtil.subBetween(e.getMessage(), "The maximum size ", " for");
         String errorMsg = String.format("请上传小于 %sMB 的文件", NumberUtil.parseLong(sizeLimit) / 1024 / 1024);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
     }

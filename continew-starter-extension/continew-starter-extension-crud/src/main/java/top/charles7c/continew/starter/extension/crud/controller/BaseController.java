@@ -18,7 +18,7 @@ package top.charles7c.continew.starter.extension.crud.controller;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.lang.tree.Tree;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -184,7 +184,8 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     private void checkPermission(Api api) {
         CrudRequestMapping crudRequestMapping = this.getClass().getDeclaredAnnotation(CrudRequestMapping.class);
         String path = crudRequestMapping.value();
-        String permissionPrefix = String.join(StringConstants.COLON, StrUtil.splitTrim(path, StringConstants.SLASH));
+        String permissionPrefix = String.join(StringConstants.COLON, CharSequenceUtil
+            .splitTrim(path, StringConstants.SLASH));
         StpUtil.checkPermission(String.format("%s:%s", permissionPrefix, api.name().toLowerCase()));
     }
 }

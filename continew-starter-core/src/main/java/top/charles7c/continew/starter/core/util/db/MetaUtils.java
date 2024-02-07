@@ -17,7 +17,7 @@
 package top.charles7c.continew.starter.core.util.db;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
 import cn.hutool.db.meta.Column;
@@ -61,7 +61,7 @@ public class MetaUtils {
         String querySql = "SHOW TABLE STATUS";
         List<Entity> tableEntityList;
         Db db = Db.use(dataSource);
-        if (StrUtil.isNotBlank(tableName)) {
+        if (CharSequenceUtil.isNotBlank(tableName)) {
             tableEntityList = db.query(String.format("%s WHERE NAME = ?", querySql), tableName);
         } else {
             tableEntityList = db.query(querySql);

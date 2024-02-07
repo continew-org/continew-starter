@@ -16,6 +16,7 @@
 
 package top.charles7c.continew.starter.log.httptracepro.handler;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.HttpServletResponse;
@@ -67,6 +68,6 @@ public final class RecordableServletHttpResponse implements RecordableHttpRespon
     @Override
     public Map<String, Object> getParam() {
         String body = this.getBody();
-        return StrUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body) ? JSONUtil.toBean(body, Map.class) : null;
+        return CharSequenceUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body) ? JSONUtil.toBean(body, Map.class) : null;
     }
 }

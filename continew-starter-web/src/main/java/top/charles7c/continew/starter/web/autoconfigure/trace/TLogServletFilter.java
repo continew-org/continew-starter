@@ -16,7 +16,7 @@
 
 package top.charles7c.continew.starter.web.autoconfigure.trace;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.yomahub.tlog.context.TLogContext;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,7 +53,7 @@ public class TLogServletFilter implements Filter {
                 TLogWebCommon.loadInstance().preHandle(httpServletRequest);
                 // 把 traceId 放入 response 的 header，为了方便有些人有这样的需求，从前端拿整条链路的 traceId
                 String headerName = traceProperties.getHeaderName();
-                if (StrUtil.isNotBlank(headerName)) {
+                if (CharSequenceUtil.isNotBlank(headerName)) {
                     httpServletResponse.addHeader(headerName, TLogContext.getTraceId());
                 }
                 chain.doFilter(request, response);
