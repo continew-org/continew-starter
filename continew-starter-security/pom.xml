@@ -16,6 +16,7 @@
     <modules>
         <module>continew-starter-security-password</module>
         <module>continew-starter-security-mask</module>
+        <module>continew-starter-security-crypto</module>
     </modules>
 
     <dependencies>

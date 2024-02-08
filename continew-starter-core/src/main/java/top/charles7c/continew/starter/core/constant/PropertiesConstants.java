@@ -52,12 +52,17 @@ public class PropertiesConstants {
     /**
      * 安全配置
      */
-    public static final String SECURITY = CONTINEW_STARTER + ".security";
+    public static final String SECURITY = CONTINEW_STARTER + StringConstants.DOT + "security";
 
     /**
      * 密码编解码配置
      */
-    public static final String PASSWORD = SECURITY + ".password";
+    public static final String PASSWORD = SECURITY + StringConstants.DOT + "password";
+
+    /**
+     * 加/解密配置
+     */
+    public static final String CRYPTO = SECURITY + StringConstants.DOT + "crypto";
 
     /**
      * Web 配置

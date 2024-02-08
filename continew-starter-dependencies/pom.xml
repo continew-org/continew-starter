@@ -120,6 +120,11 @@
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-core</artifactId>
+                <version>${mybatis-plus.version}</version>
+            </dependency>
 
             <!-- Dynamic Datasource（基于 Spring Boot 的快速集成多数据源的启动器） -->
             <dependency>
@@ -379,6 +384,13 @@
             <dependency>
                 <groupId>top.charles7c.continew</groupId>
                 <artifactId>continew-starter-web</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 安全模块 - 加密 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-security-crypto</artifactId>
                 <version>${revision}</version>
             </dependency>
 
