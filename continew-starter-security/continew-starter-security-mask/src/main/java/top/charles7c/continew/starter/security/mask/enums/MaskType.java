@@ -17,8 +17,8 @@
 package top.charles7c.continew.starter.security.mask.enums;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.CharUtil;
 import top.charles7c.continew.starter.core.constant.StringConstants;
+import top.charles7c.continew.starter.security.mask.strategy.IMaskStrategy;
 
 /**
  * 脱敏类型
@@ -26,7 +26,7 @@ import top.charles7c.continew.starter.core.constant.StringConstants;
  * @author Charles7c
  * @since 1.4.0
  */
-public enum MaskType {
+public enum MaskType implements IMaskStrategy {
 
     /**
      * 自定义脱敏
@@ -119,11 +119,11 @@ public enum MaskType {
             buffer.append(cleanStr, 0, 4);
             for (int i = 0; i < midLength; ++i) {
                 if (i % 4 == 0) {
-                    buffer.append(CharUtil.SPACE);
+                    buffer.append(StringConstants.SPACE);
                 }
                 buffer.append(character);
             }
-            buffer.append(CharUtil.SPACE).append(cleanStr, length - endLength, length);
+            buffer.append(StringConstants.SPACE).append(cleanStr, length - endLength, length);
             return buffer.toString();
         }
     },
@@ -217,15 +217,4 @@ public enum MaskType {
                 .format(":%s:%s:%s:%s:%s:%s:%s", character, character, character, character, character, character, character);
         }
     },;
-
-    /**
-     * 数据脱敏
-     *
-     * @param str       原始字符串
-     * @param character 脱敏符号
-     * @param left      左侧保留位数
-     * @param right     右侧保留位数
-     * @return 脱敏后的数据
-     */
-    public abstract String mask(String str, char character, int left, int right);
 }

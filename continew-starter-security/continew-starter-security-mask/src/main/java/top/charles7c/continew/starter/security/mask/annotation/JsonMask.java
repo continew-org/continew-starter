@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.security.mask.core.JsonMaskSerializer;
 import top.charles7c.continew.starter.security.mask.enums.MaskType;
+import top.charles7c.continew.starter.security.mask.strategy.IMaskStrategy;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -43,6 +44,14 @@ public @interface JsonMask {
      * 脱敏类型
      */
     MaskType value() default MaskType.CUSTOM;
+
+    /**
+     * 脱敏策略
+     * <p>
+     * 优先级高于脱敏类型
+     * </p>
+     */
+    Class<? extends IMaskStrategy> strategy() default IMaskStrategy.class;
 
     /**
      * 左侧保留位数
