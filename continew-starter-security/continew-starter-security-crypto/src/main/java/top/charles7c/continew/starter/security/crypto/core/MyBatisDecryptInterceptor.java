@@ -63,7 +63,7 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor {
             List<Field> fieldList = super.getEncryptFields(result);
             // 解密处理
             for (Field field : fieldList) {
-                IEncryptor encryptor = super.getEncryptor(field);
+                IEncryptor encryptor = super.getEncryptor(field.getAnnotation(FieldEncrypt.class));
                 Object fieldValue = ReflectUtil.getFieldValue(result, field);
                 // 优先获取自定义对称加密算法密钥，获取不到时再获取全局配置
                 String password = ObjectUtil.defaultIfBlank(field.getAnnotation(FieldEncrypt.class)

@@ -30,7 +30,7 @@ import java.lang.annotation.Target;
  * @author Charles7c
  * @since 1.4.0
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface FieldEncrypt {
 
