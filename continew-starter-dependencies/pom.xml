@@ -387,6 +387,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 安全模块 - 统一模块 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-security-all</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 安全模块 - 加密 -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>

@@ -14,6 +14,7 @@
     <description>ContiNew Starter 安全模块</description>
 
     <modules>
+        <module>continew-starter-security-all</module>
         <module>continew-starter-security-password</module>
         <module>continew-starter-security-mask</module>
         <module>continew-starter-security-crypto</module>

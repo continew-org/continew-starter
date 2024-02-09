@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>top.charles7c.continew</groupId>
+        <artifactId>continew-starter-security</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>continew-starter-security-all</artifactId>
+    <description>ContiNew Starter 安全模块 - 统一模块</description>
+
+    <dependencies>
+        <!-- 安全模块 - 加密 -->
+        <dependency>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-security-crypto</artifactId>
+        </dependency>
+
+        <!-- 安全模块 - 脱敏 -->
+        <dependency>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-security-mask</artifactId>
+        </dependency>
+
+        <!-- 安全模块 - 密码编码器 -->
+        <dependency>
+            <groupId>top.charles7c.continew</groupId>
+            <artifactId>continew-starter-security-password</artifactId>
+        </dependency>
+    </dependencies>
+</project>
