@@ -16,10 +16,7 @@
 
 package top.charles7c.continew.starter.security.crypto.enums;
 
-import top.charles7c.continew.starter.security.crypto.encryptor.AesEncryptor;
-import top.charles7c.continew.starter.security.crypto.encryptor.Base64Encryptor;
-import top.charles7c.continew.starter.security.crypto.encryptor.IEncryptor;
-import top.charles7c.continew.starter.security.crypto.encryptor.RsaEncryptor;
+import top.charles7c.continew.starter.security.crypto.encryptor.*;
 
 /**
  * 加密/解密算法枚举
@@ -33,6 +30,16 @@ public enum Algorithm {
      * AES
      */
     AES(AesEncryptor.class),
+
+    /**
+     * DES
+     */
+    DES(DesEncryptor.class),
+
+    /**
+     * PBEWithMD5AndDES
+     */
+    PBEWithMD5AndDES(PbeWithMd5AndDesEncryptor.class),
 
     /**
      * RSA
