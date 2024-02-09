@@ -16,12 +16,15 @@
 
 package top.charles7c.continew.starter.security.crypto.core;
 
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.plugin.*;
 import top.charles7c.continew.starter.core.constant.StringConstants;
+import top.charles7c.continew.starter.core.exception.BusinessException;
 import top.charles7c.continew.starter.security.crypto.annotation.FieldEncrypt;
 import top.charles7c.continew.starter.security.crypto.encryptor.IEncryptor;
 import top.charles7c.continew.starter.security.crypto.enums.Algorithm;
@@ -30,6 +33,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 /**
@@ -40,27 +44,16 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractMyBatisInterceptor implements Interceptor {
 
+    private static final Map<String, Map<String, FieldEncrypt>> ENCRYPT_PARAM_CACHE = new ConcurrentHashMap<>();
+
     /**
-     * 获取参数列表
+     * 获取加密参数
      *
      * @param mappedStatementId 映射语句 ID
-     * @return 参数列表
-     * @throws ClassNotFoundException /
+     * @return 加密参数
      */
-    public Parameter[] getParameters(String mappedStatementId) throws ClassNotFoundException {
-        String className = CharSequenceUtil.subBefore(mappedStatementId, StringConstants.DOT, true);
-        String wrapperMethodName = CharSequenceUtil.subAfter(mappedStatementId, StringConstants.DOT, true);
-        String methodName = Stream.of("_mpCount", "_COUNT")
-            .filter(wrapperMethodName::endsWith)
-            .findFirst()
-            .map(suffix -> wrapperMethodName.substring(0, wrapperMethodName.length() - suffix.length()))
-            .orElse(wrapperMethodName);
-        Optional<Method> methodOptional = Arrays.stream(ReflectUtil.getMethods(Class.forName(className), m -> Objects
-            .equals(m.getName(), methodName))).findFirst();
-        if (methodOptional.isPresent()) {
-            return methodOptional.get().getParameters();
-        }
-        return new Parameter[0];
+    public Map<String, FieldEncrypt> getEncryptParams(String mappedStatementId) {
+        return ENCRYPT_PARAM_CACHE.computeIfAbsent(mappedStatementId, this::getEncryptParamsNoCached);
     }
 
     /**
@@ -106,5 +99,48 @@ public abstract class AbstractMyBatisInterceptor implements Interceptor {
         }
         // 使用自定义加/解密处理器
         return SpringUtil.getBean(encryptorClass);
+    }
+
+    /**
+     * 获取参数列表（无缓存）
+     *
+     * @param mappedStatementId 映射语句 ID
+     * @return 参数列表
+     */
+    private Map<String, FieldEncrypt> getEncryptParamsNoCached(String mappedStatementId) {
+        try {
+            String className = CharSequenceUtil.subBefore(mappedStatementId, StringConstants.DOT, true);
+            String wrapperMethodName = CharSequenceUtil.subAfter(mappedStatementId, StringConstants.DOT, true);
+            String methodName = Stream.of("_mpCount", "_COUNT")
+                .filter(wrapperMethodName::endsWith)
+                .findFirst()
+                .map(suffix -> wrapperMethodName.substring(0, wrapperMethodName.length() - suffix.length()))
+                .orElse(wrapperMethodName);
+            // 获取真实方法
+            Optional<Method> methodOptional = Arrays.stream(ReflectUtil.getMethods(Class
+                .forName(className), m -> Objects.equals(m.getName(), methodName))).findFirst();
+            if (methodOptional.isEmpty()) {
+                return Collections.emptyMap();
+            }
+            // 获取方法中的加密参数
+            Map<String, FieldEncrypt> map = MapUtil.newHashMap();
+            Parameter[] parameterArr = methodOptional.get().getParameters();
+            for (int i = 0; i < parameterArr.length; i++) {
+                Parameter parameter = parameterArr[i];
+                String parameterName = this.getParameterName(parameter);
+                FieldEncrypt fieldEncrypt = parameter.getAnnotation(FieldEncrypt.class);
+                if (null != fieldEncrypt) {
+                    map.put(parameterName, fieldEncrypt);
+                    if (String.class.equals(parameter.getType())) {
+                        map.put("param" + (i + 1), fieldEncrypt);
+                    }
+                } else if (parameterName.startsWith(Constants.ENTITY)) {
+                    map.put(parameterName, null);
+                }
+            }
+            return map;
+        } catch (ClassNotFoundException e) {
+            throw new BusinessException(e.getMessage());
+        }
     }
 }

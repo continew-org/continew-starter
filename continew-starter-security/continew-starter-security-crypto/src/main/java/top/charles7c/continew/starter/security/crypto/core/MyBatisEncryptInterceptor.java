@@ -33,7 +33,6 @@ import top.charles7c.continew.starter.security.crypto.autoconfigure.CryptoProper
 import top.charles7c.continew.starter.security.crypto.encryptor.IEncryptor;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Parameter;
 import java.util.*;
 
 /**
@@ -93,29 +92,23 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
     }
 
     /**
-     * 加密 Map 类型数据
+     * 加密 Map 类型数据（使用 @Param 注解的场景）
      *
      * @param parameterMap    参数
      * @param mappedStatement 映射语句
      * @throws Exception /
      */
     private void encryptMap(HashMap<String, Object> parameterMap, MappedStatement mappedStatement) throws Exception {
-        Parameter[] parameterArr = super.getParameters(mappedStatement.getId());
-        for (int i = 0; i < parameterArr.length; i++) {
-            Parameter parameter = parameterArr[i];
-            String parameterName = super.getParameterName(parameter);
-            FieldEncrypt fieldEncrypt = parameter.getAnnotation(FieldEncrypt.class);
-            if (null != fieldEncrypt) {
-                parameterMap.put(parameterName, this.doEncrypt(parameterMap.get(parameterName), fieldEncrypt));
-                if (String.class.equals(parameter.getType())) {
-                    String parameterIndexName = "param" + (i + 1);
-                    parameterMap.put(parameterIndexName, this.doEncrypt(parameterMap
-                        .get(parameterIndexName), fieldEncrypt));
-                }
-            } else if (parameterName.startsWith(Constants.ENTITY)) {
+        Map<String, FieldEncrypt> encryptParamMap = super.getEncryptParams(mappedStatement.getId());
+        for (Map.Entry<String, FieldEncrypt> encryptParamEntry : encryptParamMap.entrySet()) {
+            String parameterName = encryptParamEntry.getKey();
+            if (parameterName.startsWith(Constants.ENTITY)) {
                 // 兼容 MyBatis Plus 封装的 update 相关方法，updateById、update
-                Object entity = parameterMap.getOrDefault(Constants.ENTITY, null);
+                Object entity = parameterMap.getOrDefault(parameterName, null);
                 this.doEncrypt(this.getEncryptFields(entity), entity);
+            } else {
+                FieldEncrypt fieldEncrypt = encryptParamEntry.getValue();
+                parameterMap.put(parameterName, this.doEncrypt(parameterMap.get(parameterName), fieldEncrypt));
             }
         }
     }
