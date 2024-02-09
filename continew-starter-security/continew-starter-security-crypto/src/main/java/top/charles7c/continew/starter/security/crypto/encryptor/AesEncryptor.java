@@ -16,10 +16,7 @@
 
 package top.charles7c.continew.starter.security.crypto.encryptor;
 
-import cn.hutool.crypto.SecureUtil;
-import cn.hutool.crypto.symmetric.AES;
-
-import java.nio.charset.StandardCharsets;
+import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 
 /**
  * AES（Advanced Encryption Standard） 加/解密处理器
@@ -30,17 +27,10 @@ import java.nio.charset.StandardCharsets;
  * @author Charles7c
  * @since 1.4.0
  */
-public class AesEncryptor implements IEncryptor {
+public class AesEncryptor extends AbstractSymmetricCryptoEncryptor {
 
     @Override
-    public String encrypt(String plaintext, String password, String publicKey) throws Exception {
-        AES aes = SecureUtil.aes(password.getBytes(StandardCharsets.UTF_8));
-        return aes.encryptHex(plaintext);
-    }
-
-    @Override
-    public String decrypt(String ciphertext, String password, String privateKey) throws Exception {
-        AES aes = SecureUtil.aes(password.getBytes(StandardCharsets.UTF_8));
-        return aes.decryptStr(ciphertext);
+    protected SymmetricAlgorithm getAlgorithm() {
+        return SymmetricAlgorithm.AES;
     }
 }
