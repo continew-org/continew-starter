@@ -16,10 +16,7 @@
 
 package top.charles7c.continew.starter.data.mybatis.plus.autoconfigure;
 
-import cn.hutool.core.net.NetUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
-import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
@@ -34,10 +31,13 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 import top.charles7c.continew.starter.core.util.GeneralPropertySourceFactory;
+import top.charles7c.continew.starter.data.mybatis.plus.autoconfigure.idgenerator.MyBatisPlusIdGeneratorConfiguration;
 import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionFilter;
 import top.charles7c.continew.starter.data.mybatis.plus.datapermission.DataPermissionHandlerImpl;
 
@@ -82,6 +82,15 @@ public class MybatisPlusAutoConfiguration {
     }
 
     /**
+     * ID 生成器配置
+     */
+    @Configuration
+    @Import({MyBatisPlusIdGeneratorConfiguration.Default.class, MyBatisPlusIdGeneratorConfiguration.CosId.class,
+        MyBatisPlusIdGeneratorConfiguration.Custom.class})
+    protected static class MyBatisPlusIdGeneratorAutoConfiguration {
+    }
+
+    /**
      * 数据权限处理器
      */
     @Bean
@@ -89,18 +98,6 @@ public class MybatisPlusAutoConfiguration {
     @ConditionalOnEnabledDataPermission
     public DataPermissionHandler dataPermissionHandler(DataPermissionFilter dataPermissionFilter) {
         return new DataPermissionHandlerImpl(dataPermissionFilter);
-    }
-
-    /**
-     * ID 生成器配置（仅在主键类型（idType）配置为 ASSIGN_ID 或 ASSIGN_UUID 时有效）
-     * <p>
-     * 使用网卡信息绑定雪花生成器，防止集群雪花 ID 重复
-     * </p>
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public IdentifierGenerator identifierGenerator() {
-        return new DefaultIdentifierGenerator(NetUtil.getLocalhost());
     }
 
     /**

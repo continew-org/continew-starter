@@ -61,6 +61,7 @@
         <p6spy.version>3.9.1</p6spy.version>
         <jetcache.version>2.7.5</jetcache.version>
         <redisson.version>3.26.0</redisson.version>
+        <cosid.version>2.6.5</cosid.version>
         <sms4j.version>3.1.1</sms4j.version>
         <aj-captcha.version>1.3.0</aj-captcha.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
@@ -172,6 +173,18 @@
                 <groupId>org.redisson</groupId>
                 <artifactId>redisson-spring-boot-starter</artifactId>
                 <version>${redisson.version}</version>
+            </dependency>
+
+            <!-- CosId（通用、灵活、高性能的分布式 ID 生成器） -->
+            <dependency>
+                <groupId>me.ahoo.cosid</groupId>
+                <artifactId>cosid-spring-boot-starter</artifactId>
+                <version>${cosid.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>me.ahoo.cosid</groupId>
+                <artifactId>cosid-spring-redis</artifactId>
+                <version>${cosid.version}</version>
             </dependency>
 
             <!-- SMS4J（短信聚合框架，轻松集成多家短信服务，解决接入多个短信 SDK 的繁琐流程） -->

@@ -31,10 +31,11 @@
             <artifactId>p6spy</artifactId>
         </dependency>
 
+        <!-- CosId（通用、灵活、高性能的分布式 ID 生成器） -->
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
+            <groupId>me.ahoo.cosid</groupId>
+            <artifactId>cosid-spring-boot-starter</artifactId>
+            <optional>true</optional>
         </dependency>
-
     </dependencies>
 </project>

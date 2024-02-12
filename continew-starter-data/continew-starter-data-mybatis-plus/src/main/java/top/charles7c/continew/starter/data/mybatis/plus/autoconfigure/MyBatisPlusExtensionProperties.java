@@ -18,6 +18,8 @@ package top.charles7c.continew.starter.data.mybatis.plus.autoconfigure;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import top.charles7c.continew.starter.data.mybatis.plus.autoconfigure.idgenerator.MyBatisPlusIdGeneratorProperties;
 
 /**
  * MyBatis Plus 扩展配置属性
@@ -40,6 +42,12 @@ public class MyBatisPlusExtensionProperties {
      * </p>
      */
     private String mapperPackage;
+
+    /**
+     * ID 生成器
+     */
+    @NestedConfigurationProperty
+    private MyBatisPlusIdGeneratorProperties idGenerator;
 
     /**
      * 数据权限插件配置
@@ -142,6 +150,14 @@ public class MyBatisPlusExtensionProperties {
 
     public void setMapperPackage(String mapperPackage) {
         this.mapperPackage = mapperPackage;
+    }
+
+    public MyBatisPlusIdGeneratorProperties getIdGenerator() {
+        return idGenerator;
+    }
+
+    public void setIdGenerator(MyBatisPlusIdGeneratorProperties idGenerator) {
+        this.idGenerator = idGenerator;
     }
 
     public DataPermissionProperties getDataPermission() {
