@@ -186,6 +186,11 @@
                 <artifactId>cosid-spring-redis</artifactId>
                 <version>${cosid.version}</version>
             </dependency>
+            <dependency>
+                <groupId>me.ahoo.cosid</groupId>
+                <artifactId>cosid-jdbc</artifactId>
+                <version>${cosid.version}</version>
+            </dependency>
 
             <!-- SMS4J（短信聚合框架，轻松集成多家短信服务，解决接入多个短信 SDK 的繁琐流程） -->
             <dependency>
