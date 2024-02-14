@@ -1,3 +1,46 @@
+## [v1.4.0](https://github.com/Charles7c/continew-starter/compare/v1.3.0...v1.4.0) (2024-02-14)
+
+### ✨ 新特性
+
+- 【captcha/graphic】新增图形验证码服务接口，并调整验证码默认启用 ([3184faa](https://github.com/Charles7c/continew-starter/commit/3184faaa27111845867d2210f0db16381d53d800))
+- 【log/httptrace-pro】Log 注解新增 include、exclude 属性，用于扩展或减少日志包含信息 ([669ea85](https://github.com/Charles7c/continew-starter/commit/669ea85658c89c631518def8f84d4f5d60059ad7)) ([2afb0b6](https://github.com/Charles7c/continew-starter/commit/2afb0b625fc936364c6dacacc735ce421c5cb37c))
+- 【security/mask】新增安全模块-脱敏，支持 JSON 数据脱敏 ([7b79519](https://github.com/Charles7c/continew-starter/commit/7b795194d3db979c239ab30d78fdb61d95f06896)) ([111e732](https://github.com/Charles7c/continew-starter/commit/111e7329673778c475c4ff4aa5ba6eef9f43f506))
+- 【security/crypto】新增安全模块-加密，支持 MyBatis ORM 框架字段加密 ([5ccdd9e](https://github.com/Charles7c/continew-starter/commit/5ccdd9e5da2a81d6a1f69bdf3f0e4eb1475b68a0)) ([88f82d1](https://github.com/Charles7c/continew-starter/commit/88f82d1c0aa5abf8f094564f4b84ae84efd80946)) ([b604f2f](https://github.com/Charles7c/continew-starter/commit/b604f2fc7eb938a52338ee41cf1823af374a14da)) ([74a1166](https://github.com/Charles7c/continew-starter/commit/74a1166b5f250c2ba8aab027d98bc11e59860c01)) ([9ebcd14](https://github.com/Charles7c/continew-starter/commit/9ebcd14878b499039a70380b0773b00b9f8dc111))
+- 【security/all】新增 continew-starter-security-all 模块，统一引入加密、脱敏、密码编码器能力 ([12c3d64](https://github.com/Charles7c/continew-starter/commit/12c3d640668298439ef0b610f5b36848e1f91b1a))
+
+### 💎 功能优化
+
+- 【log/httptrace-pro】默认启用日志 ([2aea8ba](https://github.com/Charles7c/continew-starter/commit/2aea8ba8318dded142a274221af7de2b62d4ced9))
+- 【log/httptrace-pro】兼容小写 user-agent 情况 ([18b9d1b](https://github.com/Charles7c/continew-starter/commit/18b9d1ba799ce96d8831b7243508b2517ff5c5c7))
+- 【auth/satoken】JWT 配置支持启用/关闭 ([c33a670](https://github.com/Charles7c/continew-starter/commit/c33a6709f50c2240cc9826c4ee2e83d88db5fb07))
+- 【cache/redisson】优化协议前缀变量命名 ([00798bd](https://github.com/Charles7c/continew-starter/commit/00798bdb4c82c8ec8b3cf1110a0afaaa94ad2b27))
+- 【auth】调整 Redisson 模块为可选依赖 ([00bba33](https://github.com/Charles7c/continew-starter/commit/00bba33517c15936ec2f40a8a7f3213d25a223aa))
+- 【data/mybatis-plus】重构 ID 生成器配置，支持默认、CosId、自定义 ([c9311df](https://github.com/Charles7c/continew-starter/commit/c9311df093d4524b272535640333c413a2eda86f)) ([58dc51f](https://github.com/Charles7c/continew-starter/commit/58dc51f66c3a77f7f1621557cdd065243b6ae5a9))
+- 【message/sms】精简部分依赖 ([f67f278](https://github.com/Charles7c/continew-starter/commit/f67f278784002de553c923f399d585e35f0a6356))
+- 根据 Sonar 建议调整，StrUtil => CharSequenceUtil ([ea71cf5](https://github.com/Charles7c/continew-starter/commit/ea71cf573b7b6452b9315c67967f29e25468a04a))
+
+### 🐛 问题修复
+
+- 【extension/crud】修复删除后置处理方法访问修饰符使用错误 ([24f9975](https://github.com/Charles7c/continew-starter/commit/24f99754d041e113f07eb43570d6a49c4ff24008))
+- 【message/mail】修复发送邮件收件人不为空判断错误 ([Gitee PR#12](https://gitee.com/Charles7c/continew-starter/pulls/12))
+- 【auth/satoken】修复 SaInterceptor Bean 获取方式错误 ([1ba1596](https://github.com/Charles7c/continew-starter/commit/1ba1596f4e4b31d82e174e981711e45a1df67ee7))
+
+### 📦 依赖升级
+
+- 【dependencies】Spring Boot 3.1.7 => 3.1.8 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】Dynamic Datasource 4.2.0 => 4.3.0 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】JetCache 2.7.4 => 2.7.5 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】Redisson 3.25.2 => 3.26.0 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】SMS4J 3.0.4 => 3.1.1 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】X File Storage 2.0.0 => 2.1.0 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】Amazon S3 1.12.626 => 1.12.651 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】Crane4j 2.4.0 => 2.5.0 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8)) ([c963978](https://github.com/Charles7c/continew-starter/commit/c96397898027140c243b034dc3d23bd3d60695e7))
+- 【dependencies】Knife4j 4.4.0 => 4.5.0 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】Hutool 5.8.24 => 5.8.25 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】ip2region 3.1.6 => 3.1.7 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】flatten-maven-plugin 1.5.0 => 1.6.0 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+- 【dependencies】spotless-maven-plugin 2.40.0 => 2.43.0 ([ab76665](https://github.com/Charles7c/continew-starter/commit/ab76665aab8cf06e508f039dbce13959e171d0c8))
+
 ## [v1.3.0](https://github.com/Charles7c/continew-starter/compare/v1.2.0...v1.3.0) (2024-02-03)
 
 ### ✨ 新特性
