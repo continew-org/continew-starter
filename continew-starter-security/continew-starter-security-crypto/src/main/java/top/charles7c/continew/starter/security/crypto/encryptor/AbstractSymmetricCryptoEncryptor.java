@@ -16,7 +16,7 @@
 
 package top.charles7c.continew.starter.security.crypto.encryptor;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.crypto.symmetric.SymmetricAlgorithm;
 import cn.hutool.crypto.symmetric.SymmetricCrypto;
 import top.charles7c.continew.starter.core.constant.StringConstants;
@@ -37,7 +37,7 @@ public abstract class AbstractSymmetricCryptoEncryptor implements IEncryptor {
 
     @Override
     public String encrypt(String plaintext, String password, String publicKey) throws Exception {
-        if (StrUtil.isBlank(plaintext)) {
+        if (CharSequenceUtil.isBlank(plaintext)) {
             return plaintext;
         }
         return this.getCrypto(password).encryptHex(plaintext);
@@ -45,7 +45,7 @@ public abstract class AbstractSymmetricCryptoEncryptor implements IEncryptor {
 
     @Override
     public String decrypt(String ciphertext, String password, String privateKey) throws Exception {
-        if (StrUtil.isBlank(ciphertext)) {
+        if (CharSequenceUtil.isBlank(ciphertext)) {
             return ciphertext;
         }
         return this.getCrypto(password).decryptStr(ciphertext);
