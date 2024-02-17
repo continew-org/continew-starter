@@ -112,8 +112,8 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      * 构建本部门及以下数据权限表达式
      *
      * <p>
-     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.`dept_id` in (select `id` from `sys_dept` where `id` =
-     * xxx or find_in_set(xxx, `ancestors`));
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.dept_id in (select id from sys_dept where id =
+     * xxx or find_in_set(xxx, ancestors));
      * </p>
      *
      * @param dataPermission 数据权限
@@ -147,7 +147,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      * 构建本部门数据权限表达式
      *
      * <p>
-     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.`dept_id` = xxx;
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.dept_id = xxx;
      * </p>
      *
      * @param dataPermission 数据权限
@@ -168,7 +168,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      * 构建仅本人数据权限表达式
      *
      * <p>
-     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.`create_user` = xxx;
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.create_user = xxx;
      * </p>
      *
      * @param dataPermission 数据权限
@@ -190,8 +190,8 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      * 构建自定义数据权限表达式
      *
      * <p>
-     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.`dept_id` in (select `dept_id` from `sys_role_dept`
-     * where `role_id` = xxx);
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.dept_id in (select dept_id from sys_role_dept
+     * where role_id = xxx);
      * </p>
      *
      * @param dataPermission 数据权限
