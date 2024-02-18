@@ -27,11 +27,11 @@
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/github/forks/Charles7c/continew-starter?style=social" alt="GitHub forks" />
 </a>
-<a href="https://gitee.com/Charles7c/continew-starter" target="_blank">
-<img src="https://gitee.com/Charles7c/continew-starter/badge/star.svg?theme=white" alt="Gitee stars" />
+<a href="https://gitee.com/continew/continew-starter" target="_blank">
+<img src="https://gitee.com/continew/continew-starter/badge/star.svg?theme=white" alt="Gitee stars" />
 </a>
-<a href="https://gitee.com/Charles7c/continew-starter" target="_blank">
-<img src="https://gitee.com/Charles7c/continew-starter/badge/fork.svg?theme=white" alt="Gitee forks" />
+<a href="https://gitee.com/continew/continew-starter" target="_blank">
+<img src="https://gitee.com/continew/continew-starter/badge/fork.svg?theme=white" alt="Gitee forks" />
 </a>
 
 ## 简介
@@ -66,7 +66,7 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
 | 开源平台      | 源码地址                                      |
 | :------------ | :-------------------------------------------- |
 | GitHub        | https://github.com/Charles7c/continew-starter |
-| Gitee（码云） | https://gitee.com/Charles7c/continew-starter  |
+| Gitee（码云） | https://gitee.com/continew/continew-starter  |
 
 ## 像数1，2，3一样容易
 

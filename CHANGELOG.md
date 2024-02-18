@@ -22,7 +22,7 @@
 ### 🐛 问题修复
 
 - 【extension/crud】修复删除后置处理方法访问修饰符使用错误 ([24f9975](https://github.com/Charles7c/continew-starter/commit/24f99754d041e113f07eb43570d6a49c4ff24008))
-- 【message/mail】修复发送邮件收件人不为空判断错误 ([Gitee PR#12](https://gitee.com/Charles7c/continew-starter/pulls/12))
+- 【message/mail】修复发送邮件收件人不为空判断错误 ([Gitee PR#12](https://gitee.com/continew/continew-starter/pulls/12))
 - 【auth/satoken】修复 SaInterceptor Bean 获取方式错误 ([1ba1596](https://github.com/Charles7c/continew-starter/commit/1ba1596f4e4b31d82e174e981711e45a1df67ee7))
 
 ### 📦 依赖升级
@@ -46,19 +46,19 @@
 ### ✨ 新特性
 
 * 【data/mybatis-plus】新增 QueryIgnore 忽略查询解析注解 ([91651b0](https://github.com/Charles7c/continew-starter/commit/91651b0b59cf642cd59aca068d8bca4554dc9895))
-* 【security/password】新增安全模块-密码编码器自动配置 ([47a4d57](https://github.com/Charles7c/continew-starter/commit/47a4d57dee3739de12ccbe9e15e25aef5b9ae558)) ([Gitee PR#9](https://gitee.com/Charles7c/continew-starter/pulls/9))
+* 【security/password】新增安全模块-密码编码器自动配置 ([47a4d57](https://github.com/Charles7c/continew-starter/commit/47a4d57dee3739de12ccbe9e15e25aef5b9ae558)) ([Gitee PR#9](https://gitee.com/continew/continew-starter/pulls/9))
 * 【web】新增链路跟踪自动配置 ([8fc19ab](https://github.com/Charles7c/continew-starter/commit/8fc19ab9b87b1a1b6d290ee9a40d0157de267324))
 
 ### 💎 功能优化
 
-- 【extension/crud】排序字段增加是否存在校验 ([Gitee PR#7](https://gitee.com/Charles7c/continew-starter/pulls/7))
+- 【extension/crud】排序字段增加是否存在校验 ([Gitee PR#7](https://gitee.com/continew/continew-starter/pulls/7))
 - 【data/mybatis-plus】优化数据权限处理器代码结构 ([aecefa1](https://github.com/Charles7c/continew-starter/commit/aecefa15ecbb9660f2ffa2f3bef3ad9eeb810916))
 - 【auth/satoken】支持更灵活的动态化路由拦截鉴权 ([31f29db](https://github.com/Charles7c/continew-starter/commit/31f29db19dede2cbf6988946b0dd8c8f153d1bd9))
 - 【auth/satoken】优化 SaToken 持久层配置 ([e6f8ac8](https://github.com/Charles7c/continew-starter/commit/e6f8ac8afa1b6c487343dc88d8ac7fdfde40e58b))
 - 【captcha/behavior】优化行为验证码缓存配置 ([8598e6d](https://github.com/Charles7c/continew-starter/commit/8598e6d109c1ca6be3e973ceb41c6dd7bd93c333))
 - 【storage/local】优化存储模块依赖 ([dcb6568](https://github.com/Charles7c/continew-starter/commit/dcb6568916cd549f1c403ece1c4f4d29ecc320b9))
 - 移除 Lombok 私有构造注解使用 ([11d0798](https://github.com/Charles7c/continew-starter/commit/11d0798f92a5fe4eda6300a7e6065f2d3afef0df))
-- 移除 Lombok 依赖，再度精简依赖 ([0eb6afa](https://github.com/Charles7c/continew-starter/commit/0eb6afabb6ccaa9d421981280c896e381f68b9a6)) ([Gitee PR#9](https://gitee.com/Charles7c/continew-starter/pulls/9))
+- 移除 Lombok 依赖，再度精简依赖 ([0eb6afa](https://github.com/Charles7c/continew-starter/commit/0eb6afabb6ccaa9d421981280c896e381f68b9a6)) ([Gitee PR#9](https://gitee.com/continew/continew-starter/pulls/9))
 - 新增 Qodana、Sonar 扫描 ([ab1e999](https://github.com/Charles7c/continew-starter/commit/ab1e999094d9349a24eff51382a940f0ec682801)) ([1a8c589](https://github.com/Charles7c/continew-starter/commit/1a8c589083f80eddd2fe7e4c99751c699dd4d357))
 - 优化大量代码，解决 [Sonar](https://sonarcloud.io/organizations/charles7c/projects)、[Codacy](https://app.codacy.com/gh/Charles7c/continew-admin/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)、[Qodana](https://qodana.cloud/organizations/pQDPD/teams/p5jqd/) 扫描问题，点击各链接查看对应实时质量分析报告（Codacy 已达到 A）
 
@@ -89,7 +89,7 @@
 
 - 新增部分 Maven 插件版本锁定 ([be14bca](https://github.com/Charles7c/continew-starter/commit/be14bca2ca6ba5a808f7feebaafcf9356d338643))
 - 移除部分无用 Maven 配置 ([6d9e8b4](https://github.com/Charles7c/continew-starter/commit/6d9e8b43ebe8d891ab459a2c2f21e06936abdc1d))
-- 全局统一 Hutool 版本，精简各模块 Hutool 依赖 ([Gitee PR#6](https://gitee.com/Charles7c/continew-starter/pulls/6))
+- 全局统一 Hutool 版本，精简各模块 Hutool 依赖 ([Gitee PR#6](https://gitee.com/continew/continew-starter/pulls/6))
 - 调整部分类的所在包 ([b4b40b4](https://github.com/Charles7c/continew-starter/commit/b4b40b4cb929824e44bc7ad8737cbe73b283b34d))
 
 ### 🐛 问题修复
@@ -112,7 +112,7 @@
 ### 💎 功能优化
 
 - 【log/httptrace-pro】优化日志过滤器，仅在需要记录请求体、响应体时进行过滤 ([d68d88d](https://github.com/Charles7c/continew-starter/commit/d68d88db218d5008140c3056827dd6ac608a8b62))
-- 【log/httptrace-pro】优化 @Log 注解信息获取优先级逻辑 ([Gitee PR#5](https://gitee.com/Charles7c/continew-starter/pulls/5))
+- 【log/httptrace-pro】优化 @Log 注解信息获取优先级逻辑 ([Gitee PR#5](https://gitee.com/continew/continew-starter/pulls/5))
 - 【extension/crud】优化 BaseServiceImpl 中获取各泛型参数类型的方式 ([6fc0b51](https://github.com/Charles7c/continew-starter/commit/6fc0b51a574434db9d21d1f254b3fce344c9f2f6))
 - 【extension/crud】减少查询列表时可能的无用转换 ([0565372](https://github.com/Charles7c/continew-starter/commit/0565372e9aa8010a1c4625be4cf85d557a7eed7b))
 - 使用常量优化部分配置属性名 ([2025068](https://github.com/Charles7c/continew-starter/commit/20250681da7682de159b6259e80193b204e55047))
@@ -131,7 +131,7 @@
 * 【storage/local】新增 continew-starter-storage-local 本地存储模块 ([cd6826a](https://github.com/Charles7c/continew-starter/commit/cd6826a0abe0666f9fe867e92bf70abb47e5ff2e))
 * 【cache/redisson】RedisUtils 新增限流方法 ([9cf3ae8](https://github.com/Charles7c/continew-starter/commit/9cf3ae87a1a20db9ee8b2b7272e8328b5fc5c20c))
 * 【data/mybatis-plus】新增数据权限默认解决方案 ([621a5e3](https://github.com/Charles7c/continew-starter/commit/621a5e3b22db9b81d31c65b39ad387a8531e09af))
-* 【captcha/behavior】新增 continew-starter-captcha-behavior 行为验证码模块 ([Gitee PR#1](https://gitee.com/Charles7c/continew-starter/pulls/1))
+* 【captcha/behavior】新增 continew-starter-captcha-behavior 行为验证码模块 ([Gitee PR#1](https://gitee.com/continew/continew-starter/pulls/1))
 * 【core】新增 PATH_PATTERN 字符串常量 ([76e282c](https://github.com/Charles7c/continew-starter/commit/76e282c7965fdfa39854fe77397687bbc40d0f7f))
 
 ### 💎 功能优化
