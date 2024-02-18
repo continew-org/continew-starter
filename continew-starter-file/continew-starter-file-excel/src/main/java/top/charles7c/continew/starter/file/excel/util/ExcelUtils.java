@@ -70,7 +70,7 @@ public class ExcelUtils {
                                   Class<T> clazz,
                                   HttpServletResponse response) {
         try {
-            String exportFileName = URLUtil.encode(String.format("%s_%s.xlsx", fileName, DateUtil
+            String exportFileName = URLUtil.encode("%s_%s.xlsx".formatted(fileName, DateUtil
                 .format(new Date(), DatePattern.PURE_DATETIME_PATTERN)));
             response.setHeader("Content-disposition", "attachment;filename=" + exportFileName);
             response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");

@@ -186,6 +186,6 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
         String path = crudRequestMapping.value();
         String permissionPrefix = String.join(StringConstants.COLON, CharSequenceUtil
             .splitTrim(path, StringConstants.SLASH));
-        StpUtil.checkPermission(String.format("%s:%s", permissionPrefix, api.name().toLowerCase()));
+        StpUtil.checkPermission("%s:%s".formatted(permissionPrefix, api.name().toLowerCase()));
     }
 }

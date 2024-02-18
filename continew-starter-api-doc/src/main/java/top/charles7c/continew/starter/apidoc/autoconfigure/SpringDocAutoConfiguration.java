@@ -75,7 +75,7 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
     @Bean
     @ConditionalOnMissingBean
     public OpenAPI openApi(ProjectProperties projectProperties, SpringDocExtensionProperties properties) {
-        Info info = new Info().title(String.format("%s %s", projectProperties.getName(), "API 文档"))
+        Info info = new Info().title("%s %s".formatted(projectProperties.getName(), "API 文档"))
             .version(projectProperties.getVersion())
             .description(projectProperties.getDescription());
         ProjectProperties.Contact contact = projectProperties.getContact();

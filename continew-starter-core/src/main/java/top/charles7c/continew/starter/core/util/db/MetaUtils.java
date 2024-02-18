@@ -62,7 +62,7 @@ public class MetaUtils {
         List<Entity> tableEntityList;
         Db db = Db.use(dataSource);
         if (CharSequenceUtil.isNotBlank(tableName)) {
-            tableEntityList = db.query(String.format("%s WHERE NAME = ?", querySql), tableName);
+            tableEntityList = db.query("%s WHERE NAME = ?".formatted(querySql), tableName);
         } else {
             tableEntityList = db.query(querySql);
         }

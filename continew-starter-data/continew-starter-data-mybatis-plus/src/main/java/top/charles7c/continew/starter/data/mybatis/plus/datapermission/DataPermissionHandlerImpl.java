@@ -102,7 +102,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
                 case DEPT -> expression = this.buildDeptExpression(dataPermission, currentUser, expression);
                 case SELF -> expression = this.buildSelfExpression(dataPermission, currentUser, expression);
                 case CUSTOM -> expression = this.buildCustomExpression(dataPermission, role, expression);
-                default -> throw new IllegalArgumentException(String.format("暂不支持 [%s] 数据权限", dataScope));
+                default -> throw new IllegalArgumentException("暂不支持 [%s] 数据权限".formatted(dataScope));
             }
         }
         return null != where ? new AndExpression(where, new Parenthesis(expression)) : expression;
@@ -227,7 +227,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      */
     private Column buildColumn(String tableAlias, String columnName) {
         if (StringUtils.isNotEmpty(tableAlias)) {
-            return new Column(String.format("%s.%s", tableAlias, columnName));
+            return new Column("%s.%s".formatted(tableAlias, columnName));
         }
         return new Column(columnName);
     }

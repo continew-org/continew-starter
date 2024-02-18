@@ -45,7 +45,7 @@ public class CheckUtils extends Validator {
      * @param fieldValue 字段值
      */
     public static void throwIfNotExists(Object obj, String entityName, String fieldName, Object fieldValue) {
-        String message = String.format("%s 为 [%s] 的 %s 记录已不存在", fieldName, fieldValue, CharSequenceUtil
+        String message = "%s 为 [%s] 的 %s 记录已不存在".formatted(fieldName, fieldValue, CharSequenceUtil
             .replace(entityName, "DO", StringConstants.EMPTY));
         throwIfNull(obj, message, EXCEPTION_TYPE);
     }
@@ -81,7 +81,7 @@ public class CheckUtils extends Validator {
      * @param fieldValue 字段值
      */
     public static void throwIfExists(Object obj, String entityName, String fieldName, Object fieldValue) {
-        String message = String.format("%s 为 [%s] 的 %s 记录已存在", fieldName, fieldValue, entityName);
+        String message = "%s 为 [%s] 的 %s 记录已存在".formatted(fieldName, fieldValue, entityName);
         throwIfNotNull(obj, message, EXCEPTION_TYPE);
     }
 

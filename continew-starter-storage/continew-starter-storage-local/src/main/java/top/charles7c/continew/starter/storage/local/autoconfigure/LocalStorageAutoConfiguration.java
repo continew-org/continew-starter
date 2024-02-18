@@ -58,11 +58,11 @@ public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
             String pathPattern = mapping.getPathPattern();
             String location = mapping.getLocation();
             if (CharSequenceUtil.isBlank(location)) {
-                throw new IllegalArgumentException(String.format("Path pattern [%s] location is null.", pathPattern));
+                throw new IllegalArgumentException("Path pattern [%s] location is null.".formatted(pathPattern));
             }
             registry.addResourceHandler(CharSequenceUtil.appendIfMissing(pathPattern, StringConstants.PATH_PATTERN))
                 .addResourceLocations(!location.startsWith("file:")
-                    ? String.format("file:%s", this.format(location))
+                    ? "file:%s".formatted(this.format(location))
                     : this.format(location))
                 .setCachePeriod(0);
         }

@@ -182,7 +182,7 @@ public class QueryWrapperHelper {
             }
             case IS_NULL -> consumers.add(q -> q.isNull(columnName));
             case IS_NOT_NULL -> consumers.add(q -> q.isNotNull(columnName));
-            default -> throw new IllegalArgumentException(String.format("暂不支持 [%s] 查询类型", queryType));
+            default -> throw new IllegalArgumentException("暂不支持 [%s] 查询类型".formatted(queryType));
         }
     }
 }

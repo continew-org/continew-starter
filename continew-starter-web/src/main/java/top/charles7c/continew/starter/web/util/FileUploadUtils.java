@@ -54,10 +54,10 @@ public class FileUploadUtils {
 
         String fileName;
         if (isKeepOriginalFilename) {
-            fileName = String.format("%s-%s.%s", FileNameUtil.getPrefix(originalFilename), DateUtil.format(LocalDateTime
+            fileName = "%s-%s.%s".formatted(FileNameUtil.getPrefix(originalFilename), DateUtil.format(LocalDateTime
                 .now(), DatePattern.PURE_DATETIME_MS_PATTERN), extensionName);
         } else {
-            fileName = String.format("%s.%s", IdUtil.fastSimpleUUID(), extensionName);
+            fileName = "%s.%s".formatted(IdUtil.fastSimpleUUID(), extensionName);
         }
 
         try {

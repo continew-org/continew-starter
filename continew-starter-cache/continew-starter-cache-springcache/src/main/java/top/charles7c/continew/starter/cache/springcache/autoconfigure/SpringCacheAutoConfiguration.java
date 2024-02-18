@@ -97,7 +97,7 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
             for (int i = 0; i < params.length; i++) {
                 paramMap.put(String.valueOf(i), params[i]);
             }
-            return String.format("%s:%s", key, DigestUtil.sha256Hex(JSONUtil.toJsonStr(paramMap)));
+            return "%s:%s".formatted(key, DigestUtil.sha256Hex(JSONUtil.toJsonStr(paramMap)));
         };
     }
 

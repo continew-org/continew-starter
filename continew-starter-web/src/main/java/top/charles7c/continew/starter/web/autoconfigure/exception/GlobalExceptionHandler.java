@@ -112,7 +112,7 @@ public class GlobalExceptionHandler {
     public R<Void> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e, HttpServletRequest request) {
         log.warn("请求地址 [{}]，上传文件失败，文件大小超过限制。", request.getRequestURI(), e);
         String sizeLimit = CharSequenceUtil.subBetween(e.getMessage(), "The maximum size ", " for");
-        String errorMsg = String.format("请上传小于 %sMB 的文件", NumberUtil.parseLong(sizeLimit) / 1024 / 1024);
+        String errorMsg = "请上传小于 %sMB 的文件".formatted(NumberUtil.parseLong(sizeLimit) / 1024 / 1024);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
     }
 
