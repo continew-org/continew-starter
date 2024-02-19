@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.core.util.db;
+package top.charles7c.continew.starter.data.core.util;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.text.CharSequenceUtil;
@@ -22,8 +22,12 @@ import cn.hutool.db.Db;
 import cn.hutool.db.Entity;
 import cn.hutool.db.meta.Column;
 import cn.hutool.db.meta.MetaUtil;
+import top.charles7c.continew.starter.core.exception.BusinessException;
+import top.charles7c.continew.starter.data.core.enums.DatabaseType;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,6 +42,23 @@ import java.util.List;
 public class MetaUtils {
 
     private MetaUtils() {
+    }
+
+    /**
+     * 获取数据库类型
+     *
+     * @param dataSource 数据源
+     * @return 数据库类型
+     * @since 1.4.1
+     */
+    public static DatabaseType getDatabaseType(DataSource dataSource) {
+        try (Connection conn = dataSource.getConnection()) {
+            DatabaseMetaData metaData = conn.getMetaData();
+            String databaseProductName = metaData.getDatabaseProductName();
+            return DatabaseType.get(databaseProductName);
+        } catch (SQLException e) {
+            throw new BusinessException(e);
+        }
     }
 
     /**

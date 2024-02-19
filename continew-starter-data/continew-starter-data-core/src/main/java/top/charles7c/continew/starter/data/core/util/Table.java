@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.core.util.db;
+package top.charles7c.continew.starter.data.core.util;
 
 import java.io.Serial;
 import java.io.Serializable;

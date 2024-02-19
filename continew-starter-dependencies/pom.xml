@@ -321,6 +321,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 数据访问模块 - 核心模块 -->
+            <dependency>
+                <groupId>top.charles7c.continew</groupId>
+                <artifactId>continew-starter-data-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 缓存模块 - JetCache -->
             <dependency>
                 <groupId>top.charles7c.continew</groupId>

@@ -52,11 +52,5 @@
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-http</artifactId>
         </dependency>
-
-        <!-- Hutool 数据库模块（在 JDBC 基础上封装的数据库操作工具类，通过包装，使用 ActiveRecord 思想操作数据库） -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-db</artifactId>
-        </dependency>
     </dependencies>
 </project>
