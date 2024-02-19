@@ -45,6 +45,19 @@ public class MetaUtils {
     }
 
     /**
+     * 获取数据库类型（如果获取不到数据库类型，则返回默认数据库类型）
+     *
+     * @param dataSource   数据源
+     * @param defaultValue 默认数据库类型
+     * @return 数据库类型
+     * @since 1.4.1
+     */
+    public static DatabaseType getDatabaseTypeOrDefault(DataSource dataSource, DatabaseType defaultValue) {
+        DatabaseType databaseType = getDatabaseType(dataSource);
+        return null == databaseType ? defaultValue : databaseType;
+    }
+
+    /**
      * 获取数据库类型
      *
      * @param dataSource 数据源
