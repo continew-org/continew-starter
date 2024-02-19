@@ -18,7 +18,7 @@ package top.charles7c.continew.starter.log.httptracepro.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
-import top.charles7c.continew.starter.log.common.enums.Include;
+import top.charles7c.continew.starter.log.core.enums.Include;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -26,7 +26,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
-import top.charles7c.continew.starter.log.common.enums.Include;
+import top.charles7c.continew.starter.log.core.enums.Include;
 import top.charles7c.continew.starter.log.httptracepro.autoconfigure.LogProperties;
 
 import java.io.IOException;

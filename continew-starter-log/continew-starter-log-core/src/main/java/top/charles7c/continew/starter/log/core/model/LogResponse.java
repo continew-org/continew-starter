@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.log.common.model;
+package top.charles7c.continew.starter.log.core.model;
 
-import top.charles7c.continew.starter.log.common.enums.Include;
+import top.charles7c.continew.starter.log.core.enums.Include;
 
 import java.util.*;
 

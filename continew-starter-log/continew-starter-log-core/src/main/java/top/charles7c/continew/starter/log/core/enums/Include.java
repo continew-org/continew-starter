@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.log.common.enums;
+package top.charles7c.continew.starter.log.core.enums;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;

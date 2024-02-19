@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.log.common.dao;
+package top.charles7c.continew.starter.log.core.dao;
 
-import top.charles7c.continew.starter.log.common.model.LogRecord;
+import top.charles7c.continew.starter.log.core.model.LogRecord;
 
 import java.util.Collections;
 import java.util.List;

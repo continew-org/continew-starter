@@ -9,6 +9,6 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-log-common</artifactId>
-    <description>ContiNew Starter 日志模块 - 公共模块</description>
+    <artifactId>continew-starter-log-core</artifactId>
+    <description>ContiNew Starter 日志模块 - 核心模块</description>
 </project>

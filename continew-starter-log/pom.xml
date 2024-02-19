@@ -14,7 +14,7 @@
     <description>ContiNew Starter 日志模块</description>
 
     <modules>
-        <module>continew-starter-log-common</module>
+        <module>continew-starter-log-core</module>
         <module>continew-starter-log-httptrace-pro</module>
     </modules>
 

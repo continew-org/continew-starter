@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.log.common.dao.impl;
+package top.charles7c.continew.starter.log.core.dao.impl;
 
-import top.charles7c.continew.starter.log.common.dao.LogDao;
-import top.charles7c.continew.starter.log.common.model.LogRecord;
+import top.charles7c.continew.starter.log.core.dao.LogDao;
+import top.charles7c.continew.starter.log.core.model.LogRecord;
 
 import java.util.LinkedList;
 import java.util.List;

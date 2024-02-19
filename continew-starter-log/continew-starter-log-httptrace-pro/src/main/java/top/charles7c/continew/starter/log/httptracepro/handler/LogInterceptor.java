@@ -30,11 +30,11 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import top.charles7c.continew.starter.log.common.annotation.Log;
-import top.charles7c.continew.starter.log.common.dao.LogDao;
-import top.charles7c.continew.starter.log.common.enums.Include;
-import top.charles7c.continew.starter.log.common.model.LogRecord;
-import top.charles7c.continew.starter.log.common.model.LogResponse;
+import top.charles7c.continew.starter.log.core.annotation.Log;
+import top.charles7c.continew.starter.log.core.dao.LogDao;
+import top.charles7c.continew.starter.log.core.enums.Include;
+import top.charles7c.continew.starter.log.core.model.LogRecord;
+import top.charles7c.continew.starter.log.core.model.LogResponse;
 import top.charles7c.continew.starter.log.httptracepro.autoconfigure.LogProperties;
 
 import java.time.Clock;

@@ -26,8 +26,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import top.charles7c.continew.starter.log.common.dao.LogDao;
-import top.charles7c.continew.starter.log.common.dao.impl.LogDaoDefaultImpl;
+import top.charles7c.continew.starter.log.core.dao.LogDao;
+import top.charles7c.continew.starter.log.core.dao.impl.LogDaoDefaultImpl;
 import top.charles7c.continew.starter.log.httptracepro.handler.LogFilter;
 import top.charles7c.continew.starter.log.httptracepro.handler.LogInterceptor;
 

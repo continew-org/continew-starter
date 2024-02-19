@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.log.common.model;
+package top.charles7c.continew.starter.log.core.model;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import org.springframework.http.HttpHeaders;
 import top.charles7c.continew.starter.core.util.IpUtils;
-import top.charles7c.continew.starter.log.common.enums.Include;
+import top.charles7c.continew.starter.log.core.enums.Include;
 import top.charles7c.continew.starter.web.util.ServletUtils;
 
 import java.net.URI;

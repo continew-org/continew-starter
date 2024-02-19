@@ -25,7 +25,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 import top.charles7c.continew.starter.core.constant.StringConstants;
-import top.charles7c.continew.starter.log.common.model.RecordableHttpRequest;
+import top.charles7c.continew.starter.log.core.model.RecordableHttpRequest;
 
 import java.net.URI;
 import java.net.URISyntaxException;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.log.common.model;
+package top.charles7c.continew.starter.log.core.model;
 
 import java.net.URI;
 import java.util.Map;

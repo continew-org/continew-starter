@@ -25,10 +25,10 @@
             <artifactId>transmittable-thread-local</artifactId>
         </dependency>
 
-        <!-- 日志模块 - 公共模块 -->
+        <!-- 日志模块 - 核心模块 -->
         <dependency>
             <groupId>top.charles7c.continew</groupId>
-            <artifactId>continew-starter-log-common</artifactId>
+            <artifactId>continew-starter-log-core</artifactId>
         </dependency>
     </dependencies>
 </project>
