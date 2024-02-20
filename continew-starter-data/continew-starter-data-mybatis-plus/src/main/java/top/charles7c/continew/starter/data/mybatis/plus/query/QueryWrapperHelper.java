@@ -32,6 +32,7 @@ import top.charles7c.continew.starter.data.core.enums.QueryType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -177,11 +178,11 @@ public class QueryWrapperHelper {
             case LIKE_RIGHT -> consumers.add(q -> q.likeRight(columnName, fieldValue));
             case IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
-                consumers.add(q -> q.in(columnName, (List<Object>)fieldValue));
+                consumers.add(q -> q.in(columnName, (Collection<Object>)fieldValue));
             }
             case NOT_IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
-                consumers.add(q -> q.notIn(columnName, (List<Object>)fieldValue));
+                consumers.add(q -> q.notIn(columnName, (Collection<Object>)fieldValue));
             }
             case IS_NULL -> consumers.add(q -> q.isNull(columnName));
             case IS_NOT_NULL -> consumers.add(q -> q.isNotNull(columnName));
