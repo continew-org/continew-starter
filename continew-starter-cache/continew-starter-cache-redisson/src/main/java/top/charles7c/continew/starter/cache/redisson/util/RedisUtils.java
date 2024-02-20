@@ -18,7 +18,6 @@ package top.charles7c.continew.starter.cache.redisson.util;
 
 import cn.hutool.extra.spring.SpringUtil;
 import org.redisson.api.*;
-import org.redisson.config.Config;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 
 import java.time.Duration;
@@ -44,7 +43,7 @@ public class RedisUtils {
      * @param key   键
      * @param value 值
      */
-    public static <T> void set(final String key, final T value) {
+    public static <T> void set(String key, T value) {
         CLIENT.getBucket(key).set(value);
     }
 
@@ -55,7 +54,7 @@ public class RedisUtils {
      * @param value    值
      * @param duration 过期时间
      */
-    public static <T> void set(final String key, final T value, final Duration duration) {
+    public static <T> void set(String key, T value, Duration duration) {
         RBatch batch = CLIENT.createBatch();
         RBucketAsync<T> bucket = batch.getBucket(key);
         bucket.setAsync(value);
@@ -69,7 +68,7 @@ public class RedisUtils {
      * @param key 键
      * @return 值
      */
-    public static <T> T get(final String key) {
+    public static <T> T get(String key) {
         RBucket<T> bucket = CLIENT.getBucket(key);
         return bucket.get();
     }
@@ -80,8 +79,17 @@ public class RedisUtils {
      * @param key 键
      * @return true：设置成功；false：设置失败
      */
-    public static boolean delete(final String key) {
+    public static boolean delete(String key) {
         return CLIENT.getBucket(key).delete();
+    }
+
+    /**
+     * 删除缓存
+     *
+     * @param pattern 键模式
+     */
+    public static void deleteByPattern(String pattern) {
+        CLIENT.getKeys().deleteByPattern(pattern);
     }
 
     /**
@@ -91,7 +99,7 @@ public class RedisUtils {
      * @param timeout 过期时间（单位：秒）
      * @return true：设置成功；false：设置失败
      */
-    public static boolean expire(final String key, final long timeout) {
+    public static boolean expire(String key, long timeout) {
         return expire(key, Duration.ofSeconds(timeout));
     }
 
@@ -102,7 +110,7 @@ public class RedisUtils {
      * @param duration 过期时间
      * @return true：设置成功；false：设置失败
      */
-    public static boolean expire(final String key, final Duration duration) {
+    public static boolean expire(String key, Duration duration) {
         return CLIENT.getBucket(key).expire(duration);
     }
 
@@ -112,7 +120,7 @@ public class RedisUtils {
      * @param key 键
      * @return 缓存剩余过期时间（单位：毫秒）
      */
-    public static long getTimeToLive(final String key) {
+    public static long getTimeToLive(String key) {
         return CLIENT.getBucket(key).remainTimeToLive();
     }
 
@@ -124,18 +132,18 @@ public class RedisUtils {
      */
     public static boolean hasKey(String key) {
         RKeys keys = CLIENT.getKeys();
-        return keys.countExists(getNameMapper().map(key)) > 0;
+        return keys.countExists(key) > 0;
     }
 
     /**
      * 查询缓存列表
      *
-     * @param keyPattern 键表达式
+     * @param pattern 键模式
      * @return 缓存列表
      */
-    public static Collection<String> keys(final String keyPattern) {
-        Stream<String> stream = CLIENT.getKeys().getKeysStreamByPattern(getNameMapper().map(keyPattern));
-        return stream.map(key -> getNameMapper().unmap(key)).toList();
+    public static Collection<String> keys(String pattern) {
+        Stream<String> stream = CLIENT.getKeys().getKeysStreamByPattern(pattern);
+        return stream.toList();
     }
 
     /**
@@ -162,21 +170,4 @@ public class RedisUtils {
     public static String formatKey(String... subKeys) {
         return String.join(StringConstants.COLON, subKeys);
     }
-
-    /**
-     * 根据 Redisson 配置，获取名称映射器
-     *
-     * @return 名称映射器
-     */
-    private static NameMapper getNameMapper() {
-        Config config = CLIENT.getConfig();
-        if (config.isClusterConfig()) {
-            return config.useClusterServers().getNameMapper();
-        }
-        if (config.isSentinelConfig()) {
-            return config.useSentinelServers().getNameMapper();
-        }
-        return config.useSingleServer().getNameMapper();
-    }
-
 }
