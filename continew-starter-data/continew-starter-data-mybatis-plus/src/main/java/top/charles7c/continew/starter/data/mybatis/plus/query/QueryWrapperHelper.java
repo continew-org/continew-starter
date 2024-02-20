@@ -26,6 +26,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import top.charles7c.continew.starter.core.exception.BadRequestException;
 import top.charles7c.continew.starter.core.util.ReflectUtils;
 import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
+import top.charles7c.continew.starter.data.core.annotation.Query;
+import top.charles7c.continew.starter.data.core.annotation.QueryIgnore;
+import top.charles7c.continew.starter.data.core.enums.QueryType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

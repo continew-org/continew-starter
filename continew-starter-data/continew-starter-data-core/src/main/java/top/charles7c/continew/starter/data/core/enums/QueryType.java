@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.data.mybatis.plus.query;
+package top.charles7c.continew.starter.data.core.enums;
 
 /**
  * 查询类型枚举
