@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.extension.crud.service;
+package top.charles7c.continew.starter.data.core.service;
 
 import java.io.Serializable;
 

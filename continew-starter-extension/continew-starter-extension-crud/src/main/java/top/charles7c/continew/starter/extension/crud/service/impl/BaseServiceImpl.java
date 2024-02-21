@@ -43,7 +43,7 @@ import top.charles7c.continew.starter.data.mybatis.plus.query.QueryWrapperHelper
 import top.charles7c.continew.starter.extension.crud.annotation.TreeField;
 import top.charles7c.continew.starter.extension.crud.model.entity.BaseDO;
 import top.charles7c.continew.starter.extension.crud.model.req.BaseReq;
-import top.charles7c.continew.starter.extension.crud.service.IService;
+import top.charles7c.continew.starter.data.core.service.IService;
 import top.charles7c.continew.starter.extension.crud.model.query.PageQuery;
 import top.charles7c.continew.starter.extension.crud.model.query.SortQuery;
 import top.charles7c.continew.starter.extension.crud.model.resp.PageResp;
