@@ -66,15 +66,6 @@ public interface BaseService<L, D, Q, C extends BaseReq> {
     List<L> list(Q query, SortQuery sortQuery);
 
     /**
-     * 查询列表
-     *
-     * @return 列表信息
-     */
-    default List<L> list() {
-        return list(null, null);
-    }
-
-    /**
      * 查看详情
      *
      * @param id ID

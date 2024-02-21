@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package top.charles7c.continew.starter.data.core.service;
-
-import java.io.Serializable;
+package top.charles7c.continew.starter.data.mybatis.plus.service;
 
 /**
  * 通用业务接口
@@ -25,13 +23,5 @@ import java.io.Serializable;
  * @author Charles7c
  * @since 1.2.0
  */
-public interface IService<T> {
-
-    /**
-     * 根据 ID 查询
-     *
-     * @param id ID
-     * @return 实体信息
-     */
-    T getById(Serializable id);
+public interface IService<T> extends com.baomidou.mybatisplus.extension.service.IService<T> {
 }

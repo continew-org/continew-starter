@@ -23,27 +23,24 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
-import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import top.charles7c.continew.starter.core.constant.StringConstants;
 import top.charles7c.continew.starter.core.util.ClassUtils;
 import top.charles7c.continew.starter.core.util.ReflectUtils;
-import top.charles7c.continew.starter.core.util.validate.CheckUtils;
 import top.charles7c.continew.starter.core.util.validate.ValidationUtils;
 import top.charles7c.continew.starter.data.mybatis.plus.base.BaseMapper;
 import top.charles7c.continew.starter.data.mybatis.plus.query.QueryWrapperHelper;
+import top.charles7c.continew.starter.data.mybatis.plus.service.impl.ServiceImpl;
 import top.charles7c.continew.starter.extension.crud.annotation.TreeField;
 import top.charles7c.continew.starter.extension.crud.model.entity.BaseDO;
 import top.charles7c.continew.starter.extension.crud.model.req.BaseReq;
-import top.charles7c.continew.starter.data.core.service.IService;
 import top.charles7c.continew.starter.extension.crud.model.query.PageQuery;
 import top.charles7c.continew.starter.extension.crud.model.query.SortQuery;
 import top.charles7c.continew.starter.extension.crud.model.resp.PageResp;
@@ -51,7 +48,6 @@ import top.charles7c.continew.starter.extension.crud.service.BaseService;
 import top.charles7c.continew.starter.extension.crud.util.TreeUtils;
 import top.charles7c.continew.starter.file.excel.util.ExcelUtils;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,17 +65,12 @@ import java.util.Optional;
  * @author Charles7c
  * @since 1.0.0
  */
-public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO, L, D, Q, C extends BaseReq> implements BaseService<L, D, Q, C>, IService<T> {
+public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO, L, D, Q, C extends BaseReq> extends ServiceImpl<M, T> implements BaseService<L, D, Q, C> {
 
-    @Autowired
-    protected M baseMapper;
-
-    private final Class<?>[] typeArguments = ClassUtils.getTypeArguments(this.getClass());
-    protected final Class<T> entityClass = this.currentEntityClass();
+    private final Class<?>[] typeArgumentCache = ClassUtils.getTypeArguments(this.getClass());
     protected final Class<L> listClass = this.currentListClass();
     protected final Class<D> detailClass = this.currentDetailClass();
     protected final Class<Q> queryClass = this.currentQueryClass();
-    private final List<Field> entityFields = ReflectUtils.getNonStaticFields(this.entityClass);
     private final List<Field> queryFields = ReflectUtils.getNonStaticFields(this.queryClass);
 
     @Override
@@ -128,28 +119,9 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
         return list;
     }
 
-    /**
-     * 查询列表
-     *
-     * @param query       查询条件
-     * @param sortQuery   排序查询条件
-     * @param targetClass 指定类型
-     * @return 列表信息
-     */
-    protected <E> List<E> list(Q query, SortQuery sortQuery, Class<E> targetClass) {
-        QueryWrapper<T> queryWrapper = this.handleQueryWrapper(query);
-        // 设置排序
-        this.sort(queryWrapper, sortQuery);
-        List<T> entityList = baseMapper.selectList(queryWrapper);
-        if (entityClass == targetClass) {
-            return (List<E>)entityList;
-        }
-        return BeanUtil.copyToList(entityList, targetClass);
-    }
-
     @Override
     public D get(Long id) {
-        T entity = this.getById(id, false);
+        T entity = super.getById(id, false);
         D detail = BeanUtil.toBean(entity, detailClass);
         this.fill(detail);
         return detail;
@@ -190,24 +162,23 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
         ExcelUtils.export(list, "导出数据", detailClass, response);
     }
 
-    @Override
-    public T getById(Serializable id) {
-        return this.getById(id, true);
-    }
-
     /**
-     * 根据 ID 查询
+     * 查询列表
      *
-     * @param id            ID
-     * @param isCheckExists 是否检查存在
-     * @return 实体信息
+     * @param query       查询条件
+     * @param sortQuery   排序查询条件
+     * @param targetClass 指定类型
+     * @return 列表信息
      */
-    protected T getById(Serializable id, boolean isCheckExists) {
-        T entity = baseMapper.selectById(id);
-        if (isCheckExists) {
-            CheckUtils.throwIfNotExists(entity, ClassUtil.getClassName(entityClass, true), "ID", id);
+    protected <E> List<E> list(Q query, SortQuery sortQuery, Class<E> targetClass) {
+        QueryWrapper<T> queryWrapper = this.handleQueryWrapper(query);
+        // 设置排序
+        this.sort(queryWrapper, sortQuery);
+        List<T> entityList = baseMapper.selectList(queryWrapper);
+        if (entityClass == targetClass) {
+            return (List<E>)entityList;
         }
-        return entity;
+        return BeanUtil.copyToList(entityList, targetClass);
     }
 
     /**
@@ -319,21 +290,12 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     /**
-     * 获取当前实体类型
-     *
-     * @return 当前实体类型
-     */
-    protected Class<T> currentEntityClass() {
-        return (Class<T>)this.typeArguments[1];
-    }
-
-    /**
      * 获取当前列表信息类型
      *
      * @return 当前列表信息类型
      */
     protected Class<L> currentListClass() {
-        return (Class<L>)this.typeArguments[2];
+        return (Class<L>)this.typeArgumentCache[2];
     }
 
     /**
@@ -342,7 +304,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @return 当前详情信息类型
      */
     protected Class<D> currentDetailClass() {
-        return (Class<D>)this.typeArguments[3];
+        return (Class<D>)this.typeArgumentCache[3];
     }
 
     /**
@@ -351,6 +313,6 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @return 当前查询条件类型
      */
     protected Class<Q> currentQueryClass() {
-        return (Class<Q>)this.typeArguments[4];
+        return (Class<Q>)this.typeArgumentCache[4];
     }
 }
