@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/maven-central/v/top.charles7c.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/SNAPSHOT-v1.4.1-%23ff3f59.svg" alt="Release" />
+<img src="https://img.shields.io/badge/RELEASE-v1.4.1-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://app.codacy.com/gh/Charles7c/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank">
 <img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy Badge" />
@@ -201,6 +201,7 @@ continew-starter.web:
 
 | 模块名称                           | 模块说明                                  | 依赖版本 |
 | ---------------------------------- | ----------------------------------------- | -------- |
+| continew-starter-log-core          | 日志核心模块                              |          |
 | continew-starter-log-httptrace-pro | Spring Boot Actuator HttpTrace 重置增强版 |          |
 
 ### 存储模块
@@ -234,6 +235,7 @@ continew-starter.web:
 
 | 模块名称                           | 模块说明              | 依赖版本                                                     |
 | ---------------------------------- | --------------------- | ------------------------------------------------------------ |
+| continew-starter-data-core         | 数据访问核心模块      |                                                              |
 | continew-starter-data-mybatis-plus | MyBatis Plus 自动配置 | <a href="https://baomidou.com/" target="_blank">MyBatis Plus</a>：3.5.5<br /><a href="https://www.kancloud.cn/tracy5546/dynamic-datasource/2264611" target="_blank">dynamic-datasource-spring-boot-starter</a>：4.3.0<br /><a href="https://github.com/p6spy/p6spy" target="_blank">P6Spy</a>：3.9.1 |
 
 ### 认证模块

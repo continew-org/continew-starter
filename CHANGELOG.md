@@ -1,3 +1,29 @@
+## [v1.4.1](https://github.com/Charles7c/continew-starter/compare/v1.4.0...v1.4.1) (2024-02-21)
+
+### ✨ 新特性
+
+- 【data/core】新增 continew-starter-data-core 模块 ([4ffc5dc](https://github.com/Charles7c/continew-starter/commit/4ffc5dc1d4cdbb572070312eef172a197e216318))
+- 【data/core】新增获取数据库类型带默认类型方法 ([31ca1fd](https://github.com/Charles7c/continew-starter/commit/31ca1fda528629906958d8422897ac8ae179daab))
+
+### 💎 功能优化
+
+- 【security/crypto】调整部分 StrUtil => CharSequenceUtil ([2e5788f](https://github.com/Charles7c/continew-starter/commit/2e5788f007f61f0ec531aa69834229d128311398))
+- 【data/mybatis-plus】移除 ` 符号的使用，保持数据库无关性 ([557ea13](https://github.com/Charles7c/continew-starter/commit/557ea1375728695c027004e64e2fa8d2d66215e6))
+- 【core】完善自定义异常类构造方法 ([d42585c](https://github.com/Charles7c/continew-starter/commit/d42585cb4d6660724db004893f57a6c67b4690e1))
+- 【cache/redisson】完善 Redisson 工具类 ([9ed2dac](https://github.com/Charles7c/continew-starter/commit/9ed2dac00c58621cbc133e3e072c100306cf170a))
+- 优化字符串模板方法 API 使用 ([c986784](https://github.com/Charles7c/continew-starter/commit/c9867844b650a69f6b3b3ea4f9af67807091eb1b))
+
+### 🐛 问题修复
+
+- 【data/mybatis-plus】修复 Query In、Not In 查询数据类型转换错误 ([9bd4583](https://github.com/Charles7c/continew-starter/commit/9bd458322339f3197f1925347ff16f53fe0f3856))
+
+### 💥 破坏性变更
+
+- 【log/core】continew-starter-log-common => continew-starter-log-core ([56a22c4](https://github.com/Charles7c/continew-starter/commit/56a22c4bce2445fb135d1fce7b6155fd5b48051e))
+- 【data/mybatis-plus】调整 Query 相关类到 data-core ([3f2a306](https://github.com/Charles7c/continew-starter/commit/3f2a306cad1d15436ae36c1b2eb54f28b50e84b9))
+- 【extension/crud】调整 IService 到 data-core ([ab7e987](https://github.com/Charles7c/continew-starter/commit/ab7e987672202f3e80c0e4f64ea0c576ff7cc89f))
+- 更新 Gitee 项目链接 ([89108ad](https://github.com/Charles7c/continew-starter/commit/89108ad55addeaf47f224f4ed90ecb42244dbfd8))
+
 ## [v1.4.0](https://github.com/Charles7c/continew-starter/compare/v1.3.0...v1.4.0) (2024-02-14)
 
 ### ✨ 新特性
