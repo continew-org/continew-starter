@@ -13,9 +13,11 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     # 序列化配置（Bean -> JSON）
     serialization:
+      # 不允许序列化日期时以 timestamps 输出（默认：true）
+      write-dates-as-timestamps: false
       # 允许序列化无属性的 Bean
-      FAIL_ON_EMPTY_BEANS: false
+      fail-on-empty-beans: false
     # 反序列化配置（JSON -> Bean）
     deserialization:
       # 允许反序列化不存在的属性
-      FAIL_ON_UNKNOWN_PROPERTIES: false
+      fail-on-unknown-properties: false
