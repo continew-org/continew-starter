@@ -181,7 +181,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
      *
      * @param api API 类型
      */
-    private void checkPermission(Api api) {
+    protected void checkPermission(Api api) {
         CrudRequestMapping crudRequestMapping = this.getClass().getDeclaredAnnotation(CrudRequestMapping.class);
         String path = crudRequestMapping.value();
         String permissionPrefix = String.join(StringConstants.COLON, CharSequenceUtil
