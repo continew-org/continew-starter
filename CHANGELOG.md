@@ -1,3 +1,22 @@
+## [v1.5.0](https://github.com/Charles7c/continew-starter/compare/v1.4.1...v1.5.0) (2024-03-08)
+
+### 💎 功能优化
+
+- 【data/mybatis-plus】重构 IService 及 BaseService 体系结构 ([36ce07b](https://github.com/Charles7c/continew-starter/commit/36ce07b600fc54eeca3682d09aa5992cb2b35c17))
+- 【json/jackson】优化 Jackson 默认配置 ([a54294d](https://github.com/Charles7c/continew-starter/commit/a54294df6e24dc36d36cf6a94559af2ed4c32d44))
+- 【extension/crud】调整 BaseController checkPermission 方法的访问修饰符 private => protected ([12bdf3e](https://github.com/Charles7c/continew-starter/commit/12bdf3e44a10e9683b8605642eac9c463c590af4))
+
+### 📦 依赖升级
+
+- 【dependencies】Spring Boot 3.1.8 => 3.1.9 ([98261b9](https://github.com/Charles7c/continew-starter/commit/98261b96dacdba9d210790112248d798e292ae0b))
+- 【dependencies】Redisson 3.26.0 => 3.27.1 ([98261b9](https://github.com/Charles7c/continew-starter/commit/98261b96dacdba9d210790112248d798e292ae0b))
+- 【dependencies】Crane4j 2.5.0 => 2.6.0 ([98261b9](https://github.com/Charles7c/continew-starter/commit/98261b96dacdba9d210790112248d798e292ae0b))
+- 【dependencies】Hutool 5.8.25 => 5.8.26 ([98261b9](https://github.com/Charles7c/continew-starter/commit/98261b96dacdba9d210790112248d798e292ae0b))
+- 【dependencies】CosId 2.6.5 => 2.6.6 ([98261b9](https://github.com/Charles7c/continew-starter/commit/98261b96dacdba9d210790112248d798e292ae0b))
+- 【dependencies】Amazon S3 1.12.651 => 1.12.675 ([98261b9](https://github.com/Charles7c/continew-starter/commit/98261b96dacdba9d210790112248d798e292ae0b))
+- 【dependencies】Ip2region 3.1.7 => 3.1.9 ([98261b9](https://github.com/Charles7c/continew-starter/commit/98261b96dacdba9d210790112248d798e292ae0b))
+- 【dependencies】TTL 2.14.4 => 2.14.5 ([98261b9](https://github.com/Charles7c/continew-starter/commit/98261b96dacdba9d210790112248d798e292ae0b))
+
 ## [v1.4.1](https://github.com/Charles7c/continew-starter/compare/v1.4.0...v1.4.1) (2024-02-21)
 
 ### ✨ 新特性
