@@ -86,28 +86,27 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
         if (null != license) {
             info.license(new License().name(license.getName()).url(license.getUrl()));
         }
-        OpenAPI openAPI = new OpenAPI();
-        openAPI.info(info);
+        OpenAPI openApi = new OpenAPI();
+        openApi.info(info);
         Components components = properties.getComponents();
         if (null != components) {
-            openAPI.components(components);
+            openApi.components(components);
             // 鉴权配置
             Map<String, SecurityScheme> securitySchemeMap = components.getSecuritySchemes();
             if (MapUtil.isNotEmpty(securitySchemeMap)) {
                 SecurityRequirement securityRequirement = new SecurityRequirement();
                 List<String> list = securitySchemeMap.values().stream().map(SecurityScheme::getName).toList();
                 list.forEach(securityRequirement::addList);
-                openAPI.addSecurityItem(securityRequirement);
+                openApi.addSecurityItem(securityRequirement);
             }
         }
-        return openAPI;
+        return openApi;
     }
 
     /**
      * 全局自定义配置（全局添加鉴权参数）
      */
     @Bean
-    @ConditionalOnMissingBean
     public GlobalOpenApiCustomizer globalOpenApiCustomizer(SpringDocExtensionProperties properties) {
         return openApi -> {
             if (null != openApi.getPaths()) {
