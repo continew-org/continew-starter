@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/maven-central/v/top.charles7c.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/SNAPSHOT-v1.5.1-%23ff3f59.svg" alt="Release" />
+<img src="https://img.shields.io/badge/RELEASE-v1.5.1-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://app.codacy.com/gh/Charles7c/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank">
 <img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy Badge" />

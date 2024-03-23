@@ -1,3 +1,18 @@
+## [v1.5.1](https://github.com/Charles7c/continew-starter/compare/v1.5.0...v1.5.1) (2024-03-23)
+
+### ✨ 新特性
+
+- 【web】FileUploadUtils 新增文件下载方法 ([171040b](https://github.com/Charles7c/continew-starter/commit/171040b674ae18dd6560f1501f7c0d47a1f4b8ba))
+
+### 🐛 问题修复
+
+- 【api-doc】修复接口级鉴权配置不生效的问题 ([ab4a72e](https://github.com/Charles7c/continew-starter/commit/ab4a72e0fffe20b492c2250cc997ba3e94794118))
+
+### 📦 依赖升级
+
+- 【dependencies】Redisson 3.27.1 => 3.27.2 ([0f43e1c](https://github.com/Charles7c/continew-starter/commit/0f43e1cff7f2fc58273de300acf4432f3a300af4))
+- 【dependencies】Crane4j 2.6.0 => 2.6.1 ([0f43e1c](https://github.com/Charles7c/continew-starter/commit/0f43e1cff7f2fc58273de300acf4432f3a300af4))
+
 ## [v1.5.0](https://github.com/Charles7c/continew-starter/compare/v1.4.1...v1.5.0) (2024-03-08)
 
 ### 💎 功能优化
