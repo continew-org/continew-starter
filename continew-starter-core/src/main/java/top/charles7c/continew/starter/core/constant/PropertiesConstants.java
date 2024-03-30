@@ -80,6 +80,11 @@ public class PropertiesConstants {
     public static final String TRACE = WEB + ".trace";
 
     /**
+     * 链路配置
+     */
+    public static final String XSS = WEB + ".xss";
+
+    /**
      * 日志配置
      */
     public static final String LOG = CONTINEW_STARTER + ".log";

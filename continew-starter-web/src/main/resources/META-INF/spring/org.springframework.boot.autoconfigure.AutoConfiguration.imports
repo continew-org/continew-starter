@@ -1,2 +1,3 @@
 top.charles7c.continew.starter.web.autoconfigure.cors.CorsAutoConfiguration
 top.charles7c.continew.starter.web.autoconfigure.trace.TraceAutoConfiguration
+top.charles7c.continew.starter.web.autoconfigure.xss.XssAutoConfiguration
