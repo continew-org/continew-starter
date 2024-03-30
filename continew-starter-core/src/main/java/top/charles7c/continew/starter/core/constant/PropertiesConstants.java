@@ -37,7 +37,7 @@ public class PropertiesConstants {
     /**
      * 线程池配置
      */
-    public static final String THREAD_POOL = CONTINEW_STARTER + ".thread-pool";
+    public static final String THREAD_POOL = CONTINEW_STARTER + StringConstants.DOT + "thread-pool";
 
     /**
      * Spring Doc 配置
@@ -47,7 +47,7 @@ public class PropertiesConstants {
     /**
      * Spring Doc Swagger UI 配置
      */
-    public static final String SPRINGDOC_SWAGGER_UI = SPRINGDOC + ".swagger-ui";
+    public static final String SPRINGDOC_SWAGGER_UI = SPRINGDOC + StringConstants.DOT + "swagger-ui";
 
     /**
      * 安全配置
@@ -67,52 +67,52 @@ public class PropertiesConstants {
     /**
      * Web 配置
      */
-    public static final String WEB = CONTINEW_STARTER + ".web";
+    public static final String WEB = CONTINEW_STARTER + StringConstants.DOT + "web";
 
     /**
      * 跨域配置
      */
-    public static final String CORS = WEB + ".cors";
+    public static final String CORS = WEB + StringConstants.DOT + "cors";
 
     /**
      * 链路配置
      */
-    public static final String TRACE = WEB + ".trace";
+    public static final String TRACE = WEB + StringConstants.DOT + "trace";
 
     /**
-     * 链路配置
+     * XSS 配置
      */
-    public static final String XSS = WEB + ".xss";
+    public static final String XSS = WEB + StringConstants.DOT + "xss";
 
     /**
      * 日志配置
      */
-    public static final String LOG = CONTINEW_STARTER + ".log";
+    public static final String LOG = CONTINEW_STARTER + StringConstants.DOT + "log";
 
     /**
      * 存储配置
      */
-    public static final String STORAGE = CONTINEW_STARTER + ".storage";
+    public static final String STORAGE = CONTINEW_STARTER + StringConstants.DOT + "storage";
 
     /**
      * 本地存储配置
      */
-    public static final String STORAGE_LOCAL = STORAGE + ".local";
+    public static final String STORAGE_LOCAL = STORAGE + StringConstants.DOT + "local";
 
     /**
      * 验证码配置
      */
-    public static final String CAPTCHA = CONTINEW_STARTER + ".captcha";
+    public static final String CAPTCHA = CONTINEW_STARTER + StringConstants.DOT + "captcha";
 
     /**
      * 图形验证码配置
      */
-    public static final String CAPTCHA_GRAPHIC = CAPTCHA + ".graphic";
+    public static final String CAPTCHA_GRAPHIC = CAPTCHA + StringConstants.DOT + "graphic";
 
     /**
      * 行为验证码配置
      */
-    public static final String CAPTCHA_BEHAVIOR = CAPTCHA + ".behavior";
+    public static final String CAPTCHA_BEHAVIOR = CAPTCHA + StringConstants.DOT + "behavior";
 
     private PropertiesConstants() {
     }

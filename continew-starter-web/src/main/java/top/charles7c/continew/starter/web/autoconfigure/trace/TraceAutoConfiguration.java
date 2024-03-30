@@ -25,13 +25,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
-import top.charles7c.continew.starter.core.constant.StringConstants;
 
 /**
  * 链路跟踪自动配置
@@ -41,6 +41,7 @@ import top.charles7c.continew.starter.core.constant.StringConstants;
  * @since 1.3.0
  */
 @AutoConfiguration
+@ConditionalOnWebApplication
 @EnableConfigurationProperties(TraceProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.TRACE, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class TraceAutoConfiguration {
@@ -70,10 +71,9 @@ public class TraceAutoConfiguration {
      * TLog 过滤器配置
      */
     @Bean
-    public FilterRegistrationBean<TLogServletFilter> filterRegistration() {
+    public FilterRegistrationBean<TLogServletFilter> tLogServletFilter() {
         FilterRegistrationBean<TLogServletFilter> registration = new FilterRegistrationBean<>();
         registration.setFilter(new TLogServletFilter(traceProperties));
-        registration.addUrlPatterns(StringConstants.PATH_PATTERN_CURRENT_DIR);
         registration.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return registration;
     }

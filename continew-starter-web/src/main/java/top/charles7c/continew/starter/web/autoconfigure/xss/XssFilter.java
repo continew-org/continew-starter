@@ -29,10 +29,10 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * xss过滤器
+ * XSS 过滤器
  *
  * @author whhya
- * @since 1.0.0
+ * @since 2.0.0
  */
 public class XssFilter implements Filter {
 
@@ -53,58 +53,46 @@ public class XssFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
                          ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
-        HttpServletRequest req = (HttpServletRequest) servletRequest;
-        //未开启xss过滤，则直接跳过
-        if (!xssProperties.isEnabled()) {
-            filterChain.doFilter(req, servletResponse);
+        // 未开启 XSS 过滤，则直接跳过
+        if (servletRequest instanceof HttpServletRequest request && xssProperties.isEnabled()) {
+            // 放行路由：忽略 XSS 过滤（）
+            List<String> excludePatterns = xssProperties.getExcludePatterns();
+            if (CollectionUtil.isNotEmpty(excludePatterns) && isMatchPath(request.getServletPath(), excludePatterns)) {
+                filterChain.doFilter(request, servletResponse);
+                return;
+            }
+            // 拦截路由：执行 XSS 过滤
+            List<String> includePatterns = xssProperties.getIncludePatterns();
+            if (CollectionUtil.isNotEmpty(includePatterns)) {
+                if (isMatchPath(request.getServletPath(), includePatterns)) {
+                    filterChain.doFilter(new XssServletRequestWrapper(request), servletResponse);
+                } else {
+                    filterChain.doFilter(request, servletResponse);
+                }
+                return;
+            }
+            // 默认：执行 XSS 过滤
+            filterChain.doFilter(new XssServletRequestWrapper(request), servletResponse);
             return;
         }
-
-        //限定url地址
-        List<String> pathPatterns = xssProperties.getPathPatterns();
-
-        //判断是否匹配需要忽略地址
-        List<String> pathExcludePatterns = xssProperties.getPathExcludePatterns();
-        if (CollectionUtil.isNotEmpty(pathPatterns)) {
-            if (isMatchPath(req.getServletPath(), pathExcludePatterns)) {
-                filterChain.doFilter(req, servletResponse);
-                return;
-            }
-        }
-
-        //如果存在则限定path拦截
-        if (CollectionUtil.isNotEmpty(pathPatterns)) {
-            //未匹配上限定地址，则直接不过滤
-            if (isMatchPath(req.getServletPath(), pathPatterns)) {
-                filterChain.doFilter(new XssServletRequestWrapper(req), servletResponse);
-                return;
-            } else {
-                filterChain.doFilter(req, servletResponse);
-                return;
-            }
-        }
-
-        //默认拦截
-        filterChain.doFilter(new XssServletRequestWrapper((HttpServletRequest) servletRequest), servletResponse);
+        filterChain.doFilter(servletRequest, servletResponse);
     }
 
     /**
      * 判断数组中是否存在匹配的路径
      *
-     * @param requestURL   请求地址
+     * @param requestUrl   请求地址
      * @param pathPatterns 指定匹配路径
-     * @return true 匹配 false 不匹配
+     * @return true：匹配；false：不匹配
      */
-    private static boolean isMatchPath(String requestURL, List<String> pathPatterns) {
+    private static boolean isMatchPath(String requestUrl, List<String> pathPatterns) {
         for (String pattern : pathPatterns) {
             PathPattern pathPattern = PathPatternParser.defaultInstance.parse(pattern);
-            PathContainer pathContainer = PathContainer.parsePath(requestURL);
-            boolean matches = pathPattern.matches(pathContainer);
-            if (matches) {
+            PathContainer pathContainer = PathContainer.parsePath(requestUrl);
+            if (pathPattern.matches(pathContainer)) {
                 return true;
             }
         }
         return false;
     }
-
 }

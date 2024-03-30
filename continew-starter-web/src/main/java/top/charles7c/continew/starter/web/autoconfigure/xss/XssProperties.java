@@ -23,27 +23,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * xss配置属性
+ * XSS 过滤配置属性
  *
  * @author whhya
- * @since 1.0.0
+ * @since 2.0.0
  */
 @ConfigurationProperties(PropertiesConstants.XSS)
 public class XssProperties {
+
     /**
-     * 是否启用Xss
+     * 是否启用 XSS 过滤
      */
     private boolean enabled = true;
 
     /**
-     * 拦截的路由，默认为空
+     * 拦截路由（默认为空）
+     *
+     * <p>
+     * 当拦截的路由配置不为空，则根据该配置执行过滤
+     * </p>
      */
-    private List<String> pathPatterns = new ArrayList<>();
+    private List<String> includePatterns = new ArrayList<>();
 
     /**
-     * 放行的路由，默认为空
+     * 放行路由（默认为空）
      */
-    private List<String> pathExcludePatterns = new ArrayList<>();
+    private List<String> excludePatterns = new ArrayList<>();
 
     public boolean isEnabled() {
         return enabled;
@@ -53,20 +58,19 @@ public class XssProperties {
         this.enabled = enabled;
     }
 
-    public List<String> getPathPatterns() {
-        return pathPatterns;
+    public List<String> getIncludePatterns() {
+        return includePatterns;
     }
 
-    public void setPathPatterns(List<String> pathPatterns) {
-        this.pathPatterns = pathPatterns;
+    public void setIncludePatterns(List<String> includePatterns) {
+        this.includePatterns = includePatterns;
     }
 
-    public List<String> getPathExcludePatterns() {
-        return pathExcludePatterns;
+    public List<String> getExcludePatterns() {
+        return excludePatterns;
     }
 
-    public void setPathExcludePatterns(List<String> pathExcludePatterns) {
-        this.pathExcludePatterns = pathExcludePatterns;
+    public void setExcludePatterns(List<String> excludePatterns) {
+        this.excludePatterns = excludePatterns;
     }
-
 }

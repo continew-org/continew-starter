@@ -25,18 +25,22 @@ import org.springframework.context.annotation.Bean;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * XSS配置
+ * XSS 过滤自动配置
  *
  * @author whhya
- * @since 1.0.0
+ * @since 2.0.0
  */
 @AutoConfiguration
 @ConditionalOnWebApplication
-@ConditionalOnProperty(prefix = PropertiesConstants.XSS, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(XssProperties.class)
+@ConditionalOnProperty(prefix = PropertiesConstants.XSS, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class XssAutoConfiguration {
+
+    /**
+     * XSS 过滤器配置
+     */
     @Bean
-    public FilterRegistrationBean<XssFilter> XssFilter(XssProperties xssProperties) {
+    public FilterRegistrationBean<XssFilter> xssFilter(XssProperties xssProperties) {
         FilterRegistrationBean<XssFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new XssFilter(xssProperties));
         return registrationBean;

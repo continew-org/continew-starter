@@ -31,10 +31,10 @@ import java.io.IOException;
 import java.io.StringReader;
 
 /**
- * 针对XssServletRequest进行过滤的包装类
+ * 针对 XssServletRequest 进行过滤的包装类
  *
  * @author whh
- * @since 1.0.0
+ * @since 2.0.0
  */
 public class XssServletRequestWrapper extends HttpServletRequestWrapper {
 
@@ -102,6 +102,7 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
     static ServletInputStream getServletInputStream(String body) {
         final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
         return new ServletInputStream() {
+            @Override
             public int read() {
                 return byteArrayInputStream.read();
             }
@@ -118,9 +119,8 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
 
             @Override
             public void setReadListener(ReadListener readListener) {
-
+                // 设置监听器
             }
-
         };
     }
 }
