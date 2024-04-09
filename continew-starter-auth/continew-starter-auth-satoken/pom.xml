@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>top.charles7c.continew</groupId>
+        <groupId>top.continew</groupId>
         <artifactId>continew-starter-auth</artifactId>
         <version>${revision}</version>
     </parent>
@@ -27,14 +27,14 @@
 
         <!-- 缓存模块 - Redisson -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
+            <groupId>top.continew</groupId>
             <artifactId>continew-starter-cache-redisson</artifactId>
             <optional>true</optional>
         </dependency>
 
         <!-- Web 模块 -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
+            <groupId>top.continew</groupId>
             <artifactId>continew-starter-web</artifactId>
         </dependency>
     </dependencies>

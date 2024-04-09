@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>top.charles7c.continew</groupId>
+        <groupId>top.continew</groupId>
         <artifactId>continew-starter-extension</artifactId>
         <version>${revision}</version>
     </parent>
@@ -26,25 +26,25 @@
 
         <!-- 认证模块 - SaToken -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
+            <groupId>top.continew</groupId>
             <artifactId>continew-starter-auth-satoken</artifactId>
         </dependency>
 
         <!-- 数据访问模块 - MyBatis Plus -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
+            <groupId>top.continew</groupId>
             <artifactId>continew-starter-data-mybatis-plus</artifactId>
         </dependency>
 
         <!-- 文件处理模块 - Excel -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
+            <groupId>top.continew</groupId>
             <artifactId>continew-starter-file-excel</artifactId>
         </dependency>
 
         <!-- Web 模块 -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
+            <groupId>top.continew</groupId>
             <artifactId>continew-starter-web</artifactId>
         </dependency>
     </dependencies>

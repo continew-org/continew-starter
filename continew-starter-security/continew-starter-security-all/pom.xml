@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>top.charles7c.continew</groupId>
+        <groupId>top.continew</groupId>
         <artifactId>continew-starter-security</artifactId>
         <version>${revision}</version>
     </parent>
@@ -15,19 +15,19 @@
     <dependencies>
         <!-- 安全模块 - 加密 -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
+            <groupId>top.continew</groupId>
             <artifactId>continew-starter-security-crypto</artifactId>
         </dependency>
 
         <!-- 安全模块 - 脱敏 -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
+            <groupId>top.continew</groupId>
             <artifactId>continew-starter-security-mask</artifactId>
         </dependency>
 
         <!-- 安全模块 - 密码编码器 -->
         <dependency>
-            <groupId>top.charles7c.continew</groupId>
+            <groupId>top.continew</groupId>
             <artifactId>continew-starter-security-password</artifactId>
         </dependency>
     </dependencies>
