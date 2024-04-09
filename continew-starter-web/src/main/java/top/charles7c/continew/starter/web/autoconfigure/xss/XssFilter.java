@@ -65,14 +65,14 @@ public class XssFilter implements Filter {
             List<String> includePatterns = xssProperties.getIncludePatterns();
             if (CollectionUtil.isNotEmpty(includePatterns)) {
                 if (isMatchPath(request.getServletPath(), includePatterns)) {
-                    filterChain.doFilter(new XssServletRequestWrapper(request), servletResponse);
+                    filterChain.doFilter(new XssServletRequestWrapper(request, xssProperties), servletResponse);
                 } else {
                     filterChain.doFilter(request, servletResponse);
                 }
                 return;
             }
             // 默认：执行 XSS 过滤
-            filterChain.doFilter(new XssServletRequestWrapper(request), servletResponse);
+            filterChain.doFilter(new XssServletRequestWrapper(request, xssProperties), servletResponse);
             return;
         }
         filterChain.doFilter(servletRequest, servletResponse);

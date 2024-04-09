@@ -16,19 +16,24 @@
 
 package top.charles7c.continew.starter.web.autoconfigure.xss;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.EscapeUtil;
+import cn.hutool.core.util.ReUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
+import top.charles7c.continew.starter.web.enums.XssMode;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.List;
 
 /**
  * 针对 XssServletRequest 进行过滤的包装类
@@ -39,17 +44,22 @@ import java.io.StringReader;
 public class XssServletRequestWrapper extends HttpServletRequestWrapper {
 
     private String body = "";
+
+    private final static String ESCAPE_MODE = "ESCAPE";
     String[] method = {"POST", "PATCH", "PUT"};
 
-    public XssServletRequestWrapper(HttpServletRequest request) throws IOException {
+    private final XssProperties xssProperties;
+
+    public XssServletRequestWrapper(HttpServletRequest request, XssProperties xssProperties) throws IOException {
         super(request);
+        this.xssProperties = xssProperties;
         if (StrUtil.containsAny(request.getMethod().toUpperCase(), method)) {
             body = IoUtil.getReader(request.getReader()).readLine();
-            if (StrUtil.isNotEmpty(body)) {
-                body = cleanHtmlTag(body);
+            if (StrUtil.isEmpty(body)) {
+                return;
             }
+            body = handleTag(body);
         }
-
     }
 
     @Override
@@ -64,12 +74,12 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
 
     @Override
     public String getQueryString() {
-        return cleanHtmlTag(super.getQueryString());
+        return handleTag(super.getQueryString());
     }
 
     @Override
     public String getParameter(String name) {
-        return cleanHtmlTag(super.getParameter(name));
+        return handleTag(super.getParameter(name));
     }
 
     @Override
@@ -79,22 +89,40 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
             return values;
         }
         int length = values.length;
-        String[] escapeValues = new String[length];
+        String[] resultValues = new String[length];
         for (int i = 0; i < length; i++) {
-            escapeValues[i] = cleanHtmlTag(values[i]);
+            resultValues[i] = handleTag(values[i]);
         }
-        return escapeValues;
+        return resultValues;
     }
 
     /**
-     * 清除文本中所有HTML标签，但是不删除标签内的内容
+     * 对文本内容使用指定过滤模式
      *
      * @param content 文本内容
-     * @return 处理过后的文本
+     * @return 返回处理过后内容
      */
-    private String cleanHtmlTag(String content) {
+    private String handleTag(String content) {
         if (StrUtil.isEmpty(content)) {
             return content;
+        }
+        // 获取过滤模式
+        XssMode mode = xssProperties.getMode();
+        //异常情况下mode为空，则默认用清空模式
+        if (StrUtil.isEmpty(mode.name())) {
+            return HtmlUtil.cleanHtmlTag(content);
+        }
+        // 如果是escape模式，则进行转义
+        if (mode.name().equals(ESCAPE_MODE)) {
+            List<String> reStr = ReUtil.findAllGroup0(HtmlUtil.RE_HTML_MARK, content);
+            if (CollectionUtil.isEmpty(reStr)) {
+                return content;
+            }
+            for (String s : reStr) {
+                content = content.replace(s, EscapeUtil.escapeHtml4(s).replace("\\", ""));
+            }
+            return content;
+
         }
         return HtmlUtil.cleanHtmlTag(content);
     }
@@ -123,4 +151,5 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
             }
         };
     }
+
 }

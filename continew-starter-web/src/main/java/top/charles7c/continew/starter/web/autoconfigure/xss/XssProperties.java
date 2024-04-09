@@ -18,6 +18,7 @@ package top.charles7c.continew.starter.web.autoconfigure.xss;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.charles7c.continew.starter.core.constant.PropertiesConstants;
+import top.charles7c.continew.starter.web.enums.XssMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +51,13 @@ public class XssProperties {
      */
     private List<String> excludePatterns = new ArrayList<>();
 
+    /**
+     * xss过滤方式
+     * clean : 删除xss匹配标签 （默认）
+     * escape ： 转义xss匹配标签
+     */
+    private XssMode mode = XssMode.CLEAN;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -72,5 +80,13 @@ public class XssProperties {
 
     public void setExcludePatterns(List<String> excludePatterns) {
         this.excludePatterns = excludePatterns;
+    }
+
+    public XssMode getMode() {
+        return mode;
+    }
+
+    public void setMode(XssMode mode) {
+        this.mode = mode;
     }
 }
