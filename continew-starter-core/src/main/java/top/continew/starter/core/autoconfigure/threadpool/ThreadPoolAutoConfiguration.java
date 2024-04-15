@@ -20,6 +20,7 @@ import cn.hutool.core.thread.ThreadUtil;
 import cn.hutool.core.util.ObjectUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -30,9 +31,13 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.util.ExceptionUtils;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 线程池自动配置
@@ -69,6 +74,11 @@ public class ThreadPoolAutoConfiguration {
         executor.setKeepAliveSeconds(properties.getKeepAliveSeconds());
         // 配置当池内线程数已达到上限的时候，该如何处理新任务：不在新线程中执行任务，而是由调用者所在的线程来执行
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        // 关闭线程池是否等待任务完成
+        executor.setWaitForTasksToCompleteOnShutdown(properties.isWaitForTasksToCompleteOnShutdown());
+        // 执行器在关闭时阻塞的最长毫秒数，以等待剩余任务完成执行。
+        executor.setAwaitTerminationMillis(properties.getAwaitTerminationMillis());
+
         log.debug("[ContiNew Starter] - Auto Configuration 'ThreadPoolTaskExecutor' completed initialization.");
         return executor;
     }
@@ -88,7 +98,65 @@ public class ThreadPoolAutoConfiguration {
                 ExceptionUtils.printException(runnable, throwable);
             }
         };
+        // 应用关闭时，关闭线程池
+        SpringApplication.getShutdownHandlers().add(() -> {
+            shutdown(executor, properties);
+        });
         log.debug("[ContiNew Starter] - Auto Configuration 'ScheduledExecutorService' completed initialization.");
         return executor;
+    }
+
+    /**
+     * 根据相应的配置设置关闭 ExecutorService
+     *
+     * @see org.springframework.scheduling.concurrent.ExecutorConfigurationSupport#shutdown()
+     */
+    public void shutdown(ExecutorService executor, ThreadPoolProperties properties) {
+        log.debug("[ContiNew Starter] - Shutting down ScheduledExecutorService start.");
+        if (executor != null) {
+            if (properties.isWaitForTasksToCompleteOnShutdown()) {
+                executor.shutdown();
+            } else {
+                for (Runnable remainingTask : executor.shutdownNow()) {
+                    cancelRemainingTask(remainingTask);
+                }
+            }
+            awaitTerminationIfNecessary(executor, properties);
+            log.debug("[ContiNew Starter] - Shutting down ScheduledExecutorService complete.");
+        }
+    }
+
+    /**
+     * Cancel the given remaining task which never commenced execution,
+     * as returned from {@link ExecutorService#shutdownNow()}.
+     *
+     * @param task the task to cancel (typically a {@link RunnableFuture})
+     * @see RunnableFuture#cancel(boolean)
+     * @since 5.0.5
+     */
+    protected void cancelRemainingTask(Runnable task) {
+        if (task instanceof Future<?> future) {
+            future.cancel(true);
+        }
+    }
+
+    /**
+     * Wait for the executor to terminate, according to the value of the properties
+     */
+    private void awaitTerminationIfNecessary(ExecutorService executor, ThreadPoolProperties properties) {
+        if (properties.getAwaitTerminationMillis() > 0) {
+            try {
+                if (!executor.awaitTermination(properties.getAwaitTerminationMillis(), TimeUnit.MILLISECONDS)) {
+                    if (log.isWarnEnabled()) {
+                        log.warn("[ContiNew Starter] - Timed out while waiting for  executor 'ScheduledExecutorService' to terminate.");
+                    }
+                }
+            } catch (InterruptedException ex) {
+                if (log.isWarnEnabled()) {
+                    log.warn("[ContiNew Starter] - Interrupted while waiting for executor 'ScheduledExecutorService' to terminate");
+                }
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }

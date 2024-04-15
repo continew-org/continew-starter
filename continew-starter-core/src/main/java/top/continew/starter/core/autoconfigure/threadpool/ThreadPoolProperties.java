@@ -54,6 +54,16 @@ public class ThreadPoolProperties {
      */
     private int keepAliveSeconds = 300;
 
+    /**
+     * 关闭线程池是否等待任务完成
+     */
+    private boolean waitForTasksToCompleteOnShutdown = false;
+
+    /**
+     * 执行器在关闭时阻塞的最长毫秒数，以等待剩余任务完成执行。
+     */
+    private long awaitTerminationMillis = 0;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -92,5 +102,21 @@ public class ThreadPoolProperties {
 
     public void setKeepAliveSeconds(int keepAliveSeconds) {
         this.keepAliveSeconds = keepAliveSeconds;
+    }
+
+    public boolean isWaitForTasksToCompleteOnShutdown() {
+        return waitForTasksToCompleteOnShutdown;
+    }
+
+    public void setWaitForTasksToCompleteOnShutdown(boolean waitForTasksToCompleteOnShutdown) {
+        this.waitForTasksToCompleteOnShutdown = waitForTasksToCompleteOnShutdown;
+    }
+
+    public long getAwaitTerminationMillis() {
+        return awaitTerminationMillis;
+    }
+
+    public void setAwaitTerminationMillis(long awaitTerminationMillis) {
+        this.awaitTerminationMillis = awaitTerminationMillis;
     }
 }
