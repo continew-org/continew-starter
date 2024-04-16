@@ -17,7 +17,7 @@
 package top.continew.starter.web.enums;
 
 /**
- * API 类型枚举
+ * XSS 模式枚举
  *
  * @author whhya
  * @since 2.0.0
@@ -25,11 +25,12 @@ package top.continew.starter.web.enums;
 public enum XssMode {
 
     /**
-     * 所有 API
+     * 清理
      */
     CLEAN,
+
     /**
-     * 分页
+     * 转义
      */
     ESCAPE,
 }

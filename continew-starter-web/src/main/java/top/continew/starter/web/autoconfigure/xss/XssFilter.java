@@ -55,7 +55,7 @@ public class XssFilter implements Filter {
                          FilterChain filterChain) throws IOException, ServletException {
         // 未开启 XSS 过滤，则直接跳过
         if (servletRequest instanceof HttpServletRequest request && xssProperties.isEnabled()) {
-            // 放行路由：忽略 XSS 过滤（）
+            // 放行路由：忽略 XSS 过滤
             List<String> excludePatterns = xssProperties.getExcludePatterns();
             if (CollectionUtil.isNotEmpty(excludePatterns) && isMatchPath(request.getServletPath(), excludePatterns)) {
                 filterChain.doFilter(request, servletResponse);

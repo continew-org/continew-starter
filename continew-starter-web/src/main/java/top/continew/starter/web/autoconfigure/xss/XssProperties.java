@@ -52,9 +52,7 @@ public class XssProperties {
     private List<String> excludePatterns = new ArrayList<>();
 
     /**
-     * xss过滤方式
-     * clean : 删除xss匹配标签 （默认）
-     * escape ： 转义xss匹配标签
+     * XSS 模式
      */
     private XssMode mode = XssMode.CLEAN;
 
