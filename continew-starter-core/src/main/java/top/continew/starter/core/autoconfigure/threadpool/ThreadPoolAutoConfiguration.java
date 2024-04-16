@@ -76,9 +76,8 @@ public class ThreadPoolAutoConfiguration {
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
         // 关闭线程池是否等待任务完成
         executor.setWaitForTasksToCompleteOnShutdown(properties.isWaitForTasksToCompleteOnShutdown());
-        // 执行器在关闭时阻塞的最长毫秒数，以等待剩余任务完成执行。
+        // 执行器在关闭时阻塞的最长毫秒数，以等待剩余任务完成执行
         executor.setAwaitTerminationMillis(properties.getAwaitTerminationMillis());
-
         log.debug("[ContiNew Starter] - Auto Configuration 'ThreadPoolTaskExecutor' completed initialization.");
         return executor;
     }
@@ -99,9 +98,7 @@ public class ThreadPoolAutoConfiguration {
             }
         };
         // 应用关闭时，关闭线程池
-        SpringApplication.getShutdownHandlers().add(() -> {
-            shutdown(executor, properties);
-        });
+        SpringApplication.getShutdownHandlers().add(() -> shutdown(executor, properties));
         log.debug("[ContiNew Starter] - Auto Configuration 'ScheduledExecutorService' completed initialization.");
         return executor;
     }
@@ -132,7 +129,6 @@ public class ThreadPoolAutoConfiguration {
      *
      * @param task the task to cancel (typically a {@link RunnableFuture})
      * @see RunnableFuture#cancel(boolean)
-     * @since 5.0.5
      */
     protected void cancelRemainingTask(Runnable task) {
         if (task instanceof Future<?> future) {

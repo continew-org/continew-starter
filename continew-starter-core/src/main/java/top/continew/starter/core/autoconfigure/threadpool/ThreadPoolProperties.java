@@ -60,7 +60,7 @@ public class ThreadPoolProperties {
     private boolean waitForTasksToCompleteOnShutdown = false;
 
     /**
-     * 执行器在关闭时阻塞的最长毫秒数，以等待剩余任务完成执行。
+     * 执行器在关闭时阻塞的最长毫秒数，以等待剩余任务完成执行
      */
     private long awaitTerminationMillis = 0;
 
