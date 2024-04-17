@@ -14,7 +14,6 @@
     <description>ContiNew Starter 消息模块</description>
 
     <modules>
-        <module>continew-starter-messaging-sms</module>
         <module>continew-starter-messaging-mail</module>
     </modules>
 

@@ -1,3 +1,36 @@
+## [v2.0.0](https://github.com/Charles7c/continew-starter/compare/v1.5.1...v2.0.0) (2024-04-17)
+
+### ✨ 新特性
+
+- 【web】新增 XSS 过滤器 ([2656da4](https://github.com/Charles7c/continew-starter/commit/2656da450c866681c270c30131c028847e1e21d4)) ([2573fb0](https://github.com/Charles7c/continew-starter/commit/2573fb04f0698db3ab662a0e7bf762c04300468b)) ([Gitee PR#13](https://gitee.com/continew/continew-starter/pulls/13))
+
+### 🐛 问题修复
+
+- 【cache/redisson】修复Failed to submit a listener notification task. Event loop shut down? 问题 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+
+### 💎 功能优化
+
+- 【core】应用关闭，支持优雅关闭自定义线程池 ScheduledExecutorService ([c4051a6](https://github.com/Charles7c/continew-starter/commit/c4051a6465e0d70d119ec27c6ae4eb4d1893339a))
+- 【extension/crud】优化部分注释 ([fe310bc](https://github.com/Charles7c/continew-starter/commit/fe310bcb879d3f20eb8ead4b39436ec96b99e7f6))
+- 移除 Qodana 扫描，License 已过期 ([b0e567d](https://github.com/Charles7c/continew-starter/commit/b0e567d749b988e3f45772742a273a422a661edb))
+
+### 📦 依赖升级
+
+- 【dependencies】Spring Boot 3.1.9 => 3.1.10 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+- 【dependencies】Redisson 3.27.2 => 3.28.0 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+- 【dependencies】CosId 2.6.6 => 2.6.8 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+- 【dependencies】SMS4J 3.1.1 => 3.2.1 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+- 【dependencies】Easy Excel 3.3.3 => 3.3.4 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+- 【dependencies】AWS S3 1.12.675 => 1.12.702 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+- 【dependencies】Crane4j 2.6.1 => 2.7.0 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+- 【dependencies】TLog 1.5.1 => 1.5.2 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+- 【dependencies】Hutool 5.8.26 => 5.8.27 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+- 【dependencies】IP2Region 3.1.9 => 3.1.10 ([2d71eca](https://github.com/Charles7c/continew-starter/commit/2d71eca07505f143c82cca8d24bc6f54105d0bbb))
+
+### 💥 破坏性变更
+
+- groupId 及基础包名调整，更短的包名，聚合品牌形象。top.charles7c.continew => top.continew ([dbb7a63](https://github.com/Charles7c/continew-starter/commit/dbb7a6319e9440e7a05f2eb4aab3b445f43197f7))
+
 ## [v1.5.1](https://github.com/Charles7c/continew-starter/compare/v1.5.0...v1.5.1) (2024-03-23)
 
 ### ✨ 新特性

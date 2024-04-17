@@ -12,6 +12,7 @@
 
     <artifactId>continew-starter</artifactId>
     <packaging>pom</packaging>
+    <name>ContiNew Starter</name>
     <description>
         ContiNew Starter（Continue New Starter）基于“约定优于配置”的理念，
         再次精简常规配置，提供一个更为完整的配置解决方案，帮助开发人员更加快速的集成常用第三方库或工具到 Spring Boot Web 应用程序中。
@@ -37,21 +38,11 @@
             <timezone>+8</timezone>
             <url>https://github.com/Charles7c</url>
         </developer>
-        <developer>
-            <id>bull-bcls</id>
-            <name>Bull-BCLS</name>
-            <email>Tomcat416@163.com</email>
-            <roles>
-                <role>Java Development Engineer</role>
-            </roles>
-            <timezone>+8</timezone>
-            <url>https://github.com/Bull-BCLS</url>
-        </developer>
     </developers>
     <scm>
-        <url>https://github.com/Charles7c/continew-starter</url>
         <connection>scm:git:git@github.com:Charles7c/continew-starter.git</connection>
         <developerConnection>scm:git:git@github.com:Charles7c/continew-starter.git</developerConnection>
+        <url>https://github.com/Charles7c/continew-starter</url>
     </scm>
 
     <properties>

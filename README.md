@@ -4,10 +4,10 @@
 <img src="https://img.shields.io/badge/License-LGPL--3.0-blue.svg" alt="License" />
 </a>
 <a href="https://central.sonatype.com/search?q=continew-starter" target="_blank">
-<img src="https://img.shields.io/maven-central/v/top.charles7c.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
+<img src="https://img.shields.io/maven-central/v/top.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/SNAPSHOT-v2.0.0-%23ff3f59.svg" alt="Release" />
+<img src="https://img.shields.io/badge/RELEASE-v2.0.0-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://app.codacy.com/gh/Charles7c/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank">
 <img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy Badge" />
@@ -16,7 +16,7 @@
 <img src="https://sonarcloud.io/api/project_badges/measure?project=Charles7c_continew-starter&metric=alert_status" alt="Sonar Status" />
 </a>
 <a href="https://spring.io/projects/spring-boot" target="_blank">
-<img src="https://img.shields.io/badge/Spring Boot-3.1.9-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
+<img src="https://img.shields.io/badge/Spring Boot-3.1.10-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/badge/Open JDK-17-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
@@ -137,31 +137,6 @@ continew-starter.web:
     exposed-headers: '*'
 ```
 
-<details>
-  <summary>抢先体验快照（SNAPSHOT）版本💡</summary>
-
-> **注意：** 快照版本目前处于开发测试阶段，其中很多特性或改动尚不稳定，可能会因为修复或优化而频繁调整。因此，仅可用于体验，切勿用于生产环境！
-
-1.在项目 pom.xml 中配置 SNAPSHOT（快照）仓库地址（如果你已配有其他仓库地址，追加下方快照仓库地址即可）
-
-```xml
-<repositories>
-    <repository>
-        <id>sonatype-nexus-snapshots</id>
-        <name>Sonatype Nexus Snapshots</name>
-        <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-        <snapshots>
-            <updatePolicy>always</updatePolicy>
-            <enabled>true</enabled>
-        </snapshots>
-    </repository>
-</repositories>
-```
-
-2.将 ContiNew Starter 版本改为对应快照版本，例如：1.3.0-SNAPSHOT
-
-</details>
-
 ## 模块结构
 
 ### 核心模块
@@ -189,7 +164,6 @@ continew-starter.web:
 | continew-starter-security-password | 密码编码器        |          |
 | continew-starter-security-mask     | JSON 脱敏         |          |
 | continew-starter-security-crypto   | 数据库字段加/解密 |          |
-| continew-starter-security-all      |                   |          |
 
 ### Web模块
 
@@ -250,7 +224,6 @@ continew-starter.web:
 | 模块名称                        | 模块说明 | 依赖版本                                                     |
 | ------------------------------- | -------- | ------------------------------------------------------------ |
 | continew-starter-messaging-mail | 邮件     | Jakarta Mail：1.1.0                                          |
-| continew-starter-messaging-sms  | 短信     | <a href="https://sms4j.com/" target="_blank">SMS4J</a>：3.1.1 |
 
 ### 扩展模块
 

@@ -36,14 +36,14 @@
         </developer>
     </developers>
     <scm>
-        <url>https://github.com/Charles7c/continew-starter</url>
         <connection>scm:git:git@github.com:Charles7c/continew-starter.git</connection>
         <developerConnection>scm:git:git@github.com:Charles7c/continew-starter.git</developerConnection>
+        <url>https://github.com/Charles7c/continew-starter</url>
     </scm>
 
     <properties>
         <!-- 项目版本号 -->
-        <revision>2.0.0-SNAPSHOT</revision>
+        <revision>2.0.0</revision>
         <sa-token.version>1.37.0</sa-token.version>
         <just-auth.version>1.16.6</just-auth.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
@@ -339,13 +339,6 @@
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 消息模块 - SMS -->
-            <dependency>
-                <groupId>top.continew</groupId>
-                <artifactId>continew-starter-messaging-sms</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
             <!-- 消息模块 - 邮件 -->
             <dependency>
                 <groupId>top.continew</groupId>
@@ -399,13 +392,6 @@
             <dependency>
                 <groupId>top.continew</groupId>
                 <artifactId>continew-starter-web</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 安全模块 - 统一模块 -->
-            <dependency>
-                <groupId>top.continew</groupId>
-                <artifactId>continew-starter-security-all</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -652,20 +638,18 @@
                             </execution>
                         </executions>
                     </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>0.4.0</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <tokenAuth>true</tokenAuth>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
-            <distributionManagement>
-                <snapshotRepository>
-                    <id>sonatype-nexus-snapshots</id>
-                    <name>Sonatype Nexus Snapshots</name>
-                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots/</url>
-                </snapshotRepository>
-                <repository>
-                    <id>sonatype-nexus-staging</id>
-                    <name>Nexus Release Repository</name>
-                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-            </distributionManagement>
         </profile>
         <!-- Sonar 代码质量分析 -->
         <profile>
