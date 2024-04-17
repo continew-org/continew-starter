@@ -101,12 +101,12 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     }
 
     /**
-     * 查看详情
+     * 查询详情
      *
      * @param id ID
      * @return 详情信息
      */
-    @Operation(summary = "查看详情", description = "查看详情")
+    @Operation(summary = "查询详情", description = "查询详情")
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @GetMapping("/{id}")
