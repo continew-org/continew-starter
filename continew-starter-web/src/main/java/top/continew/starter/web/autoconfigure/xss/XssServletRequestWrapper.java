@@ -18,6 +18,7 @@ package top.continew.starter.web.autoconfigure.xss;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.*;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.http.Method;
@@ -49,10 +50,10 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
     public XssServletRequestWrapper(HttpServletRequest request, XssProperties xssProperties) throws IOException {
         super(request);
         this.xssProperties = xssProperties;
-        if (StrUtil.containsAny(request.getMethod().toUpperCase(), Method.POST.name(), Method.PATCH.name(), Method.PUT
-            .name())) {
+        if (CharSequenceUtil.equalsAnyIgnoreCase(request.getMethod().toUpperCase(), Method.POST.name(), Method.PATCH
+            .name(), Method.PUT.name())) {
             body = IoUtil.getReader(request.getReader()).readLine();
-            if (StrUtil.isEmpty(body)) {
+            if (CharSequenceUtil.isBlank(body)) {
                 return;
             }
             body = this.handleTag(body);
@@ -100,7 +101,7 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
      * @return 返回处理过后内容
      */
     private String handleTag(String content) {
-        if (StrUtil.isEmpty(content)) {
+        if (CharSequenceUtil.isBlank(content)) {
             return content;
         }
         XssMode mode = xssProperties.getMode();
