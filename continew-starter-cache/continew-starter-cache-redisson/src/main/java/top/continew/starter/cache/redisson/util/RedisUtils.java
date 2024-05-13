@@ -22,7 +22,6 @@ import top.continew.starter.core.constant.StringConstants;
 
 import java.time.Duration;
 import java.util.Collection;
-import java.util.stream.Stream;
 
 /**
  * Redis 工具类
@@ -93,6 +92,28 @@ public class RedisUtils {
     }
 
     /**
+     * 递增 1
+     *
+     * @param key 键
+     * @return 当前值
+     * @since 2.0.1
+     */
+    public static long incr(String key) {
+        return CLIENT.getAtomicLong(key).incrementAndGet();
+    }
+
+    /**
+     * 递减 1
+     *
+     * @param key 键
+     * @return 当前值
+     * @since 2.0.1
+     */
+    public static long decr(String key) {
+        return CLIENT.getAtomicLong(key).decrementAndGet();
+    }
+
+    /**
      * 设置缓存过期时间
      *
      * @param key     键
@@ -130,9 +151,8 @@ public class RedisUtils {
      * @param key 键
      * @return true：存在；false：不存在
      */
-    public static boolean hasKey(String key) {
-        RKeys keys = CLIENT.getKeys();
-        return keys.countExists(key) > 0;
+    public static boolean exists(String key) {
+        return CLIENT.getKeys().countExists(key) > 0;
     }
 
     /**
@@ -142,8 +162,7 @@ public class RedisUtils {
      * @return 缓存列表
      */
     public static Collection<String> keys(String pattern) {
-        Stream<String> stream = CLIENT.getKeys().getKeysStreamByPattern(pattern);
-        return stream.toList();
+        return CLIENT.getKeys().getKeysStreamByPattern(pattern).toList();
     }
 
     /**

@@ -36,7 +36,7 @@ public class BehaviorCaptchaCacheServiceImpl implements CaptchaCacheService {
 
     @Override
     public boolean exists(String key) {
-        return RedisUtils.hasKey(key);
+        return RedisUtils.exists(key);
     }
 
     @Override

@@ -74,6 +74,6 @@ public class JustAuthStateCacheRedisImpl implements AuthStateCache {
      */
     @Override
     public boolean containsKey(String key) {
-        return RedisUtils.hasKey(RedisUtils.formatKey(KEY_PREFIX, key));
+        return RedisUtils.exists(RedisUtils.formatKey(KEY_PREFIX, key));
     }
 }
