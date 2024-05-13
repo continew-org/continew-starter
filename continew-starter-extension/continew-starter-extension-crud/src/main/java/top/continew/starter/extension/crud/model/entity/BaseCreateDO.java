@@ -25,10 +25,14 @@ import java.time.LocalDateTime;
 /**
  * 实体类基类
  *
+ * <p>
+ * 通用字段：创建人、创建时间
+ * </p>
+ *
  * @author Charles7c
- * @since 1.0.0
+ * @since 2.0.1
  */
-public class BaseDO extends BaseIdDO {
+public class BaseCreateDO extends BaseIdDO {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -45,18 +49,6 @@ public class BaseDO extends BaseIdDO {
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 
-    /**
-     * 修改人
-     */
-    @TableField(fill = FieldFill.UPDATE)
-    private Long updateUser;
-
-    /**
-     * 修改时间
-     */
-    @TableField(fill = FieldFill.UPDATE)
-    private LocalDateTime updateTime;
-
     public Long getCreateUser() {
         return createUser;
     }
@@ -71,21 +63,5 @@ public class BaseDO extends BaseIdDO {
 
     public void setCreateTime(LocalDateTime createTime) {
         this.createTime = createTime;
-    }
-
-    public Long getUpdateUser() {
-        return updateUser;
-    }
-
-    public void setUpdateUser(Long updateUser) {
-        this.updateUser = updateUser;
-    }
-
-    public LocalDateTime getUpdateTime() {
-        return updateTime;
-    }
-
-    public void setUpdateTime(LocalDateTime updateTime) {
-        this.updateTime = updateTime;
     }
 }

@@ -39,8 +39,7 @@ import top.continew.starter.data.mybatis.plus.base.BaseMapper;
 import top.continew.starter.data.mybatis.plus.query.QueryWrapperHelper;
 import top.continew.starter.data.mybatis.plus.service.impl.ServiceImpl;
 import top.continew.starter.extension.crud.annotation.TreeField;
-import top.continew.starter.extension.crud.model.entity.BaseDO;
-import top.continew.starter.extension.crud.model.req.BaseReq;
+import top.continew.starter.extension.crud.model.entity.BaseIdDO;
 import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
 import top.continew.starter.extension.crud.model.resp.PageResp;
@@ -65,7 +64,7 @@ import java.util.Optional;
  * @author Charles7c
  * @since 1.0.0
  */
-public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO, L, D, Q, C extends BaseReq> extends ServiceImpl<M, T> implements BaseService<L, D, Q, C> {
+public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, Q, C> extends ServiceImpl<M, T> implements BaseService<L, D, Q, C> {
 
     private final Class<?>[] typeArgumentCache = ClassUtils.getTypeArguments(this.getClass());
     protected final Class<L> listClass = this.currentListClass();
@@ -75,7 +74,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
 
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
-        QueryWrapper<T> queryWrapper = this.handleQueryWrapper(query);
+        QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
         IPage<T> page = baseMapper.selectPage(pageQuery.toPage(), queryWrapper);
         PageResp<L> pageResp = PageResp.build(page, listClass);
         pageResp.getList().forEach(this::fill);
@@ -171,7 +170,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
      * @return 列表信息
      */
     protected <E> List<E> list(Q query, SortQuery sortQuery, Class<E> targetClass) {
-        QueryWrapper<T> queryWrapper = this.handleQueryWrapper(query);
+        QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
         // 设置排序
         this.sort(queryWrapper, sortQuery);
         List<T> entityList = baseMapper.selectList(queryWrapper);
@@ -222,11 +221,12 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseDO,
     }
 
     /**
-     * 处理查询条件
+     * 构建 QueryWrapper
      *
+     * @param query 查询条件
      * @return QueryWrapper
      */
-    protected QueryWrapper<T> handleQueryWrapper(Q query) {
+    protected QueryWrapper<T> buildQueryWrapper(Q query) {
         QueryWrapper<T> queryWrapper = new QueryWrapper<>();
         // 解析并拼接查询条件
         return QueryWrapperHelper.build(query, queryFields, queryWrapper);

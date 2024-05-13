@@ -18,7 +18,6 @@ package top.continew.starter.extension.crud.service;
 
 import cn.hutool.core.lang.tree.Tree;
 import jakarta.servlet.http.HttpServletResponse;
-import top.continew.starter.extension.crud.model.req.BaseReq;
 import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
 import top.continew.starter.extension.crud.model.resp.PageResp;
@@ -35,7 +34,7 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-public interface BaseService<L, D, Q, C extends BaseReq> {
+public interface BaseService<L, D, Q, C> {
 
     /**
      * 分页查询列表
