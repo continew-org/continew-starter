@@ -1,3 +1,28 @@
+## [v2.0.1](https://github.com/Charles7c/continew-starter/compare/v2.0.0...v2.0.1) (2024-05-13)
+
+### ✨ 新特性
+
+- 【cache/redisson】RedisUtils 新增递增、递减方法 ([596605b](https://github.com/Charles7c/continew-starter/commit/596605b27b046fa0488b113b1c3d87c60277e4ec))
+- 【core】新增字符串工具类 ([ca6c709](https://github.com/Charles7c/continew-starter/commit/ca6c7098b124c3121fe626811ea61d53c80a9a4e))
+- 【extension/crud】新增多种实体 Base 模型降低 BaseService 耦合 ([5b76534](https://github.com/Charles7c/continew-starter/commit/5b76534df7a54aa6d696515cfbf8059fcdc4a067))
+
+### 🐛 问题修复
+
+- 【extension/crud】修复查询树列表方法中的错误判断 ([f138e5c](https://github.com/Charles7c/continew-starter/commit/f138e5cd4526d8be0fe5e7ae54833b4541748346))
+
+### 💎 功能优化
+
+- 【web】优化部分方法使用 ([57eef27](https://github.com/Charles7c/continew-starter/commit/57eef274a3e34e8bb4de6073452080b2bbdbee53))
+
+### 📦 依赖升级
+
+- 【dependencies】Spring Boot 3.1.10 => 3.1.11 ([GitHub#2](https://github.com/Charles7c/continew-starter/pull/2))
+- 【dependencies】SaToken 1.37.0 => 1.38.0 ([b5dd5c7](https://github.com/Charles7c/continew-starter/commit/b5dd5c7f18603b5bd5a509c04ef410c1d64bc2e9))
+- 【dependencies】Redisson 3.28.0 => 3.30.0 ([b5dd5c7](https://github.com/Charles7c/continew-starter/commit/b5dd5c7f18603b5bd5a509c04ef410c1d64bc2e9))
+- 【dependencies】Crane4j 2.7.0 => 2.8.0 ([b5dd5c7](https://github.com/Charles7c/continew-starter/commit/b5dd5c7f18603b5bd5a509c04ef410c1d64bc2e9))
+- 【dependencies】AWS S3 1.12.702 => 1.12.720 ([b5dd5c7](https://github.com/Charles7c/continew-starter/commit/b5dd5c7f18603b5bd5a509c04ef410c1d64bc2e9))
+- 【dependencies】IP2Region 3.1.10 => 3.1.11 ([b5dd5c7](https://github.com/Charles7c/continew-starter/commit/b5dd5c7f18603b5bd5a509c04ef410c1d64bc2e9))
+
 ## [v2.0.0](https://github.com/Charles7c/continew-starter/compare/v1.5.1...v2.0.0) (2024-04-17)
 
 ### ✨ 新特性
