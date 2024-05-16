@@ -104,7 +104,7 @@ public class PageResp<L> implements Serializable {
         pageResp.setTotal(list.size());
         // 对列表数据进行分页
         int fromIndex = (page - 1) * size;
-        int toIndex = page * size + size;
+        int toIndex = page * size + fromIndex;
         if (fromIndex > list.size()) {
             pageResp.setList(new ArrayList<>(0));
         } else if (toIndex >= list.size()) {
