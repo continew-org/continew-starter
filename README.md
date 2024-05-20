@@ -7,7 +7,7 @@
 <img src="https://img.shields.io/maven-central/v/top.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/RELEASE-v2.0.1-%23ff3f59.svg" alt="Release" />
+<img src="https://img.shields.io/badge/RELEASE-v2.0.2-%23ff3f59.svg" alt="Release" />
 </a>
 <a href="https://app.codacy.com/gh/Charles7c/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank">
 <img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy Badge" />
@@ -16,7 +16,7 @@
 <img src="https://sonarcloud.io/api/project_badges/measure?project=Charles7c_continew-starter&metric=alert_status" alt="Sonar Status" />
 </a>
 <a href="https://spring.io/projects/spring-boot" target="_blank">
-<img src="https://img.shields.io/badge/Spring Boot-3.1.10-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
+<img src="https://img.shields.io/badge/Spring Boot-3.1.11-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
 </a>
 <a href="https://github.com/Charles7c/continew-starter" target="_blank">
 <img src="https://img.shields.io/badge/Open JDK-17-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
@@ -141,9 +141,9 @@ continew-starter.web:
 
 ### 核心模块
 
-| 模块名称              | 模块说明                             | 依赖版本                                                     |
-| --------------------- | ------------------------------------ | ------------------------------------------------------------ |
-| continew-starter-core | 核心模块：包含线程池、项目等自动配置 | <a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot</a>：3.1.8<br /><a href="https://www.hutool.cn/" target="_blank">Hutool</a>：5.8.25<br />mica-ip2region：3.1.7 |
+| 模块名称              | 模块说明                             | 依赖版本                                                                                                                                                                                      |
+| --------------------- | ------------------------------------ |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| continew-starter-core | 核心模块：包含线程池、项目等自动配置 | <a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot</a>：3.1.11<br /><a href="https://www.hutool.cn/" target="_blank">Hutool</a>：5.8.25<br />mica-ip2region：3.1.7 |
 
 ### JSON模块
 
@@ -186,9 +186,9 @@ continew-starter.web:
 
 ### 文件处理模块
 
-| 模块名称                    | 模块说明       | 依赖版本                                                     |
-| --------------------------- | -------------- | ------------------------------------------------------------ |
-| continew-starter-file-excel | Excel 相关配置 | <a href="https://easyexcel.opensource.alibaba.com/" target="_blank">Easy Excel</a>：3.3.3 |
+| 模块名称                    | 模块说明       | 依赖版本                                                                                     |
+| --------------------------- | -------------- |------------------------------------------------------------------------------------------|
+| continew-starter-file-excel | Excel 相关配置 | <a href="https://easyexcel.opensource.alibaba.com/" target="_blank">Easy Excel</a>：3.3.4 |
 
 ### 验证码模块
 
@@ -199,11 +199,11 @@ continew-starter.web:
 
 ### 缓存模块
 
-| 模块名称                           | 模块说明              | 依赖版本                                                     |
-| ---------------------------------- | --------------------- | ------------------------------------------------------------ |
-| continew-starter-cache-redisson    | Redisson 自动配置     | <a href="https://github.com/redisson/redisson/wiki/Redisson%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D" target="_blank">Redisson</a>：3.26.0 |
-| continew-starter-cache-springcache | Spring Cache 自动配置 |                                                              |
-| continew-starter-cache-jetcache    | JetCache 自动配置     |                                                              |
+| 模块名称                           | 模块说明              | 依赖版本                                                                                                                                 |
+| ---------------------------------- | --------------------- |--------------------------------------------------------------------------------------------------------------------------------------|
+| continew-starter-cache-redisson    | Redisson 自动配置     | <a href="https://github.com/redisson/redisson/wiki/Redisson%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D" target="_blank">Redisson</a>：3.30.0 |
+| continew-starter-cache-springcache | Spring Cache 自动配置 |                                                                                                                                      |
+| continew-starter-cache-jetcache    | JetCache 自动配置     |                                                                                                                                      |
 
 ### 数据访问模块
 
@@ -214,10 +214,10 @@ continew-starter.web:
 
 ### 认证模块
 
-| 模块名称                       | 模块说明          | 依赖版本                                                     |
-| ------------------------------ | ----------------- | ------------------------------------------------------------ |
-| continew-starter-auth-satoken  | SaToken 自动配置  | <a href="https://sa-token.dev33.cn/" target="_blank">Sa-Token</a>：1.37.0 |
-| continew-starter-auth-justauth | JustAuth 自动配置 | <a href="https://justauth.cn/" target="_blank">Just Auth</a>：1.16.6 |
+| 模块名称                       | 模块说明          | 依赖版本                                                                     |
+| ------------------------------ | ----------------- |--------------------------------------------------------------------------|
+| continew-starter-auth-satoken  | SaToken 自动配置  | <a href="https://sa-token.dev33.cn/" target="_blank">Sa-Token</a>：1.38.0 |
+| continew-starter-auth-justauth | JustAuth 自动配置 | <a href="https://justauth.cn/" target="_blank">Just Auth</a>：1.16.6      |
 
 ### 消息模块
 

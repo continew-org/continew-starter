@@ -1,3 +1,15 @@
+## [v2.0.2](https://github.com/Charles7c/continew-starter/compare/v2.0.1...v2.0.2) (2024-05-20)
+
+### ✨ 新特性
+
+- 【file/excel】新增 Easy Excel List 集合转换器 ([1faa46e](https://github.com/Charles7c/continew-starter/commit/1faa46e12505c025e5ca6f1a45158324ac210799))
+
+### 🐛 问题修复
+
+- 【captcha/behavior】修复行为验证码接口请求次数限制 ([Gitee#17](https://gitee.com/continew/continew-starter/pulls/17))
+- 【extension/crud】修复封装分页 dataList 索引计算错误 ([3e60197](https://github.com/Charles7c/continew-starter/commit/3e60197a31f140c863868440944df0427a9cf8e8))
+- 移除部分错误依赖声明 ([881fd37](https://github.com/Charles7c/continew-starter/commit/881fd37dd61836daf3343d9053e9a7c81b005923))
+
 ## [v2.0.1](https://github.com/Charles7c/continew-starter/compare/v2.0.0...v2.0.1) (2024-05-13)
 
 ### ✨ 新特性
