@@ -36,11 +36,11 @@ public class StrUtils {
      *
      * @param str          要转换的字符串
      * @param defaultValue 默认值
-     * @param mapping      针对字符串的转换方法
+     * @param mapper       针对字符串的转换方法
      * @return 转换后的字符串或指定的默认字符串
      * @since 2.0.1
      */
-    public static <T> T blankToDefault(CharSequence str, T defaultValue, Function<String, T> mapping) {
-        return CharSequenceUtil.isBlank(str) ? defaultValue : mapping.apply(str.toString());
+    public static <T> T blankToDefault(CharSequence str, T defaultValue, Function<String, T> mapper) {
+        return CharSequenceUtil.isBlank(str) ? defaultValue : mapper.apply(str.toString());
     }
 }

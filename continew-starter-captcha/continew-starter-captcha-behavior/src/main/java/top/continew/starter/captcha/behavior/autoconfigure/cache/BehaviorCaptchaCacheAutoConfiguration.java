@@ -42,7 +42,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @author Charles7c
  * @since 1.1.0
  */
-@AutoConfiguration()
+@AutoConfiguration
 public class BehaviorCaptchaCacheAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(BehaviorCaptchaCacheAutoConfiguration.class);
