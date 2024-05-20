@@ -62,11 +62,8 @@
         <crane4j.version>2.8.0</crane4j.version>
         <knife4j.version>4.5.0</knife4j.version>
         <tlog.version>1.5.2</tlog.version>
-        <ql-express.version>3.3.2</ql-express.version>
         <snakeyaml.version>2.2</snakeyaml.version>
         <okhttp.version>4.12.0</okhttp.version>
-        <plexus.version>4.0.0</plexus.version>
-        <commons-compress.version>1.26.1</commons-compress.version>
         <ttl.version>2.14.5</ttl.version>
         <ip2region.version>3.1.11</ip2region.version>
         <hutool.version>5.8.27</hutool.version>
@@ -259,13 +256,6 @@
                 <version>${tlog.version}</version>
             </dependency>
 
-            <!-- QLExpress（一种强大的、轻量级的、动态的 Java 平台语言，旨在提高开发人员在不同业务场景中的生产力） -->
-            <dependency>
-                <groupId>com.alibaba</groupId>
-                <artifactId>QLExpress</artifactId>
-                <version>${ql-express.version}</version>
-            </dependency>
-
             <!-- SnakeYAML（适用于 Java 的 YAML 1.1 解析器和发射器） -->
             <dependency>
                 <groupId>org.yaml</groupId>
@@ -273,25 +263,11 @@
                 <version>${snakeyaml.version}</version>
             </dependency>
 
-            <!-- Plexus Utils（各种实用程序类的集合，可轻松处理字符串、文件、命令行等） -->
-            <dependency>
-                <groupId>org.codehaus.plexus</groupId>
-                <artifactId>plexus-utils</artifactId>
-                <version>${plexus.version}</version>
-            </dependency>
-
             <!-- OkHTTP（一个默认高效的 HTTP 客户端） -->
             <dependency>
                 <groupId>com.squareup.okhttp3</groupId>
                 <artifactId>okhttp</artifactId>
                 <version>${okhttp.version}</version>
-            </dependency>
-
-            <!-- Apache Commons Compress（一套用于处理压缩和存档格式的 API） -->
-            <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-compress</artifactId>
-                <version>${commons-compress.version}</version>
             </dependency>
 
             <!-- TTL（线程间传递 ThreadLocal，异步执行时上下文传递的解决方案） -->
