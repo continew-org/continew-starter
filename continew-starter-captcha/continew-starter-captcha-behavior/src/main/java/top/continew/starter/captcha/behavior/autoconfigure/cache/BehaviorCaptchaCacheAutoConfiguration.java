@@ -25,7 +25,7 @@ import org.redisson.client.RedisClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.boot.autoconfigure.AutoConfigureBefore;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -36,29 +36,35 @@ import top.continew.starter.captcha.behavior.enums.StorageType;
 import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * 行为验证码缓存配置
+ * 行为验证码缓存自动配置
  *
  * @author Bull-BCLS
  * @author Charles7c
  * @since 1.1.0
  */
-public class BehaviorCaptchaCacheConfiguration {
+@AutoConfiguration()
+public class BehaviorCaptchaCacheAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(BehaviorCaptchaCacheConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(BehaviorCaptchaCacheAutoConfiguration.class);
 
-    private BehaviorCaptchaCacheConfiguration() {
+    private BehaviorCaptchaCacheAutoConfiguration() {
     }
 
     /**
      * 自定义缓存实现-默认（内存）
      */
+    @AutoConfiguration
     @ConditionalOnMissingBean(CaptchaCacheService.class)
     @ConditionalOnProperty(name = PropertiesConstants.CAPTCHA_BEHAVIOR + ".cache-type", havingValue = "default", matchIfMissing = true)
     public static class Default {
+        @Bean
+        public CaptchaCacheService captchaCacheService() {
+            return new CaptchaCacheServiceMemImpl();
+        }
+
         @PostConstruct
         public void postConstruct() {
-            CaptchaServiceFactory.cacheService.put(StorageType.DEFAULT.name()
-                .toLowerCase(), new CaptchaCacheServiceMemImpl());
+            CaptchaServiceFactory.cacheService.put(StorageType.DEFAULT.name().toLowerCase(), captchaCacheService());
             log.debug("[ContiNew Starter] - Auto Configuration 'Captcha-Behavior-Cache-Default' completed initialization.");
         }
     }
@@ -66,15 +72,19 @@ public class BehaviorCaptchaCacheConfiguration {
     /**
      * 自定义缓存实现-Redis
      */
-    @ConditionalOnMissingBean(CaptchaCacheService.class)
+    @AutoConfiguration(before = RedissonAutoConfiguration.class)
     @ConditionalOnClass(RedisClient.class)
-    @AutoConfigureBefore(RedissonAutoConfiguration.class)
+    @ConditionalOnMissingBean(CaptchaCacheService.class)
     @ConditionalOnProperty(name = PropertiesConstants.CAPTCHA_BEHAVIOR + ".cache-type", havingValue = "redis")
     public static class Redis {
+        @Bean
+        public CaptchaCacheService captchaCacheService() {
+            return new BehaviorCaptchaCacheServiceImpl();
+        }
+
         @PostConstruct
         public void postConstruct() {
-            CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name()
-                .toLowerCase(), new BehaviorCaptchaCacheServiceImpl());
+            CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name().toLowerCase(), captchaCacheService());
             log.debug("[ContiNew Starter] - Auto Configuration 'Captcha-Behavior-Cache-Redis' completed initialization.");
         }
     }
@@ -82,6 +92,7 @@ public class BehaviorCaptchaCacheConfiguration {
     /**
      * 自定义缓存实现
      */
+    @AutoConfiguration
     @ConditionalOnProperty(name = PropertiesConstants.CAPTCHA_BEHAVIOR + ".cache-type", havingValue = "custom")
     public static class Custom {
         @Bean

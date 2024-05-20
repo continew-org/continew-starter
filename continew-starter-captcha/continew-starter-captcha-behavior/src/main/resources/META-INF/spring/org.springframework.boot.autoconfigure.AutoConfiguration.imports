@@ -1,1 +1,2 @@
 top.continew.starter.captcha.behavior.autoconfigure.BehaviorCaptchaAutoConfiguration
+top.continew.starter.captcha.behavior.autoconfigure.cache.BehaviorCaptchaCacheAutoConfiguration

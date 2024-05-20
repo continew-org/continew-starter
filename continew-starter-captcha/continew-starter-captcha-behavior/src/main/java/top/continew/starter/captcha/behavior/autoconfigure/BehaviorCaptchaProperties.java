@@ -16,6 +16,7 @@
 
 package top.continew.starter.captcha.behavior.autoconfigure;
 
+import cn.hutool.core.convert.Convert;
 import com.anji.captcha.model.common.CaptchaTypeEnum;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.captcha.behavior.enums.StorageType;
@@ -75,37 +76,37 @@ public class BehaviorCaptchaProperties {
     /**
      * 历史数据清除开关（0：关闭；1：开启）
      */
-    private Integer historyDataClearEnable = 0;
+    private String historyDataClearEnable = "0";
 
     /**
      * 一分钟内接口请求次数限制开关（0：关闭；1：开启）
      */
-    private Integer reqFrequencyLimitEnable = 0;
+    private String reqFrequencyLimitEnable = "0";
 
     /**
      * 一分钟内验证码最多失败次数限制（默认：5次）
      */
-    private int reqGetLockLimit = 5;
+    private String reqGetLockLimit = "5";
 
     /**
      * 一分钟内验证码最多失败次数限制达标后锁定时间（默认：300秒）
      */
-    private int reqGetLockSeconds = 300;
+    private String reqGetLockSeconds = "300";
 
     /**
      * 获取验证码接口一分钟内请求次数限制（默认：100次）
      */
-    private int reqGetMinuteLimit = 100;
+    private String reqGetMinuteLimit = "100";
 
     /**
      * 校验检验码接口一分内请求次数限制（默认：100次）
      */
-    private int reqCheckMinuteLimit = 100;
+    private String reqCheckMinuteLimit = "100";
 
     /**
      * 二次校验检验码接口一分钟内请求次数限制（默认：100次）
      */
-    private int reqVerifyMinuteLimit = 100;
+    private String reqVerifyMinuteLimit = "100";
 
     /**
      * local缓存的阈值（默认：1000个）
@@ -135,12 +136,12 @@ public class BehaviorCaptchaProperties {
     /**
      * 点选字体样式（默认：BOLD）
      */
-    private int fontStyle = Font.BOLD;
+    private String fontStyle = Convert.toStr(Font.BOLD);
 
     /**
      * 点选字体大小（默认：25）
      */
-    private int fontSize = 25;
+    private String fontSize = "25";
 
     public boolean isEnabled() {
         return enabled;
@@ -206,59 +207,59 @@ public class BehaviorCaptchaProperties {
         this.fontType = fontType;
     }
 
-    public Integer getHistoryDataClearEnable() {
+    public String getHistoryDataClearEnable() {
         return historyDataClearEnable;
     }
 
-    public void setHistoryDataClearEnable(Integer historyDataClearEnable) {
+    public void setHistoryDataClearEnable(String historyDataClearEnable) {
         this.historyDataClearEnable = historyDataClearEnable;
     }
 
-    public Integer getReqFrequencyLimitEnable() {
+    public String getReqFrequencyLimitEnable() {
         return reqFrequencyLimitEnable;
     }
 
-    public void setReqFrequencyLimitEnable(Integer reqFrequencyLimitEnable) {
+    public void setReqFrequencyLimitEnable(String reqFrequencyLimitEnable) {
         this.reqFrequencyLimitEnable = reqFrequencyLimitEnable;
     }
 
-    public int getReqGetLockLimit() {
+    public String getReqGetLockLimit() {
         return reqGetLockLimit;
     }
 
-    public void setReqGetLockLimit(int reqGetLockLimit) {
+    public void setReqGetLockLimit(String reqGetLockLimit) {
         this.reqGetLockLimit = reqGetLockLimit;
     }
 
-    public int getReqGetLockSeconds() {
+    public String getReqGetLockSeconds() {
         return reqGetLockSeconds;
     }
 
-    public void setReqGetLockSeconds(int reqGetLockSeconds) {
+    public void setReqGetLockSeconds(String reqGetLockSeconds) {
         this.reqGetLockSeconds = reqGetLockSeconds;
     }
 
-    public int getReqGetMinuteLimit() {
+    public String getReqGetMinuteLimit() {
         return reqGetMinuteLimit;
     }
 
-    public void setReqGetMinuteLimit(int reqGetMinuteLimit) {
+    public void setReqGetMinuteLimit(String reqGetMinuteLimit) {
         this.reqGetMinuteLimit = reqGetMinuteLimit;
     }
 
-    public int getReqCheckMinuteLimit() {
+    public String getReqCheckMinuteLimit() {
         return reqCheckMinuteLimit;
     }
 
-    public void setReqCheckMinuteLimit(int reqCheckMinuteLimit) {
+    public void setReqCheckMinuteLimit(String reqCheckMinuteLimit) {
         this.reqCheckMinuteLimit = reqCheckMinuteLimit;
     }
 
-    public int getReqVerifyMinuteLimit() {
+    public String getReqVerifyMinuteLimit() {
         return reqVerifyMinuteLimit;
     }
 
-    public void setReqVerifyMinuteLimit(int reqVerifyMinuteLimit) {
+    public void setReqVerifyMinuteLimit(String reqVerifyMinuteLimit) {
         this.reqVerifyMinuteLimit = reqVerifyMinuteLimit;
     }
 
@@ -302,19 +303,19 @@ public class BehaviorCaptchaProperties {
         this.interferenceOptions = interferenceOptions;
     }
 
-    public int getFontStyle() {
+    public String getFontStyle() {
         return fontStyle;
     }
 
-    public void setFontStyle(int fontStyle) {
+    public void setFontStyle(String fontStyle) {
         this.fontStyle = fontStyle;
     }
 
-    public int getFontSize() {
+    public String getFontSize() {
         return fontSize;
     }
 
-    public void setFontSize(int fontSize) {
+    public void setFontSize(String fontSize) {
         this.fontSize = fontSize;
     }
 }

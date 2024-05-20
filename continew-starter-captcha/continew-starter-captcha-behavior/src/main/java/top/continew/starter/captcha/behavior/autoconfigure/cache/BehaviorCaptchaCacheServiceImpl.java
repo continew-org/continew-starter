@@ -16,6 +16,8 @@
 
 package top.continew.starter.captcha.behavior.autoconfigure.cache;
 
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.util.NumberUtil;
 import com.anji.captcha.service.CaptchaCacheService;
 import top.continew.starter.cache.redisson.util.RedisUtils;
 import top.continew.starter.captcha.behavior.enums.StorageType;
@@ -31,7 +33,11 @@ import java.time.Duration;
 public class BehaviorCaptchaCacheServiceImpl implements CaptchaCacheService {
     @Override
     public void set(String key, String value, long expiresInSeconds) {
-        RedisUtils.set(key, value, Duration.ofSeconds(expiresInSeconds));
+        if (NumberUtil.isNumber(value)) {
+            RedisUtils.set(key, Convert.toInt(value), Duration.ofSeconds(expiresInSeconds));
+        } else {
+            RedisUtils.set(key, value, Duration.ofSeconds(expiresInSeconds));
+        }
     }
 
     @Override
@@ -46,11 +52,16 @@ public class BehaviorCaptchaCacheServiceImpl implements CaptchaCacheService {
 
     @Override
     public String get(String key) {
-        return RedisUtils.get(key);
+        return Convert.toStr(RedisUtils.get(key));
     }
 
     @Override
     public String type() {
         return StorageType.REDIS.name().toLowerCase();
+    }
+
+    @Override
+    public Long increment(String key, long val) {
+        return RedisUtils.incr(key);
     }
 }

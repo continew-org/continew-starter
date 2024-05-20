@@ -31,12 +31,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
-import top.continew.starter.captcha.behavior.autoconfigure.cache.BehaviorCaptchaCacheConfiguration;
 import top.continew.starter.core.constant.PropertiesConstants;
 
 import java.util.HashMap;
@@ -62,17 +60,10 @@ public class BehaviorCaptchaAutoConfiguration {
     }
 
     /**
-     * 自定义缓存实现配置
-     */
-    @Configuration
-    @Import({BehaviorCaptchaCacheConfiguration.Default.class, BehaviorCaptchaCacheConfiguration.Redis.class,
-        BehaviorCaptchaCacheConfiguration.Custom.class})
-    protected static class BehaviorCaptchaCacheAutoConfiguration {}
-
-    /**
      * 行为验证码服务接口
      */
     @Bean
+    @DependsOn("captchaCacheService")
     @ConditionalOnMissingBean
     public CaptchaService captchaService() {
         Properties config = new Properties();
