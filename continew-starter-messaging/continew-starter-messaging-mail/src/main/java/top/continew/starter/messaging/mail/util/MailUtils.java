@@ -18,14 +18,17 @@ package top.continew.starter.messaging.mail.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Assert;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.util.StringUtils;
 import top.continew.starter.core.constant.StringConstants;
+import top.continew.starter.messaging.mail.core.MailConfig;
+import top.continew.starter.messaging.mail.core.DynamicMailSenderAutoConfiguration;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -39,9 +42,14 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
+
 public class MailUtils {
 
-    private static final JavaMailSender MAIL_SENDER = SpringUtil.getBean(JavaMailSender.class);
+    private static MailConfig mailConfig; // 邮件配置
+
+    public static void setMailConfig(MailConfig mailConfig) {
+        MailUtils.mailConfig = mailConfig;
+    }
 
     private MailUtils() {
     }
@@ -157,11 +165,20 @@ public class MailUtils {
                             boolean isHtml,
                             File... files) throws MessagingException {
         Assert.isFalse(CollUtil.isEmpty(tos), "请至少指定一名收件人");
-        MimeMessage mimeMessage = MAIL_SENDER.createMimeMessage();
+        JavaMailSender mailSender = DynamicMailSenderAutoConfiguration.build(mailConfig);
+        String form;
+        if (mailConfig != null && StringUtils.hasText(mailConfig.getMailFrom())) {
+            form = mailConfig.getMailFrom();
+        } else {
+            form = SpringUtil.getProperty("spring.mail.username");
+        }
+        MimeMessage mimeMessage = mailSender.createMimeMessage();
+        // 创建邮件发送器
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8
             .displayName());
+
         // 设置基本信息
-        messageHelper.setFrom(SpringUtil.getProperty("spring.mail.username"));
+        messageHelper.setFrom(form);
         messageHelper.setSubject(subject);
         messageHelper.setText(content, isHtml);
         // 设置收信人
@@ -182,7 +199,7 @@ public class MailUtils {
             }
         }
         // 发送邮件
-        MAIL_SENDER.send(mimeMessage);
+        mailSender.send(mimeMessage);
     }
 
     /**
