@@ -16,47 +16,51 @@
 
 package top.continew.starter.messaging.mail.core;
 
+import cn.hutool.core.map.MapUtil;
 import top.continew.starter.core.util.validate.ValidationUtils;
 
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Properties;
 
 /**
- * 邮件配置类
+ * 邮件配置
  *
  * @author KAI
- * @since 1.0.0
+ * @author Charles7c
+ * @since 2.1.0
  */
 public class MailConfig {
 
-    /**
-     * 邮件发送协议 (例如: smtp, smtps)
-     */
-    private String mailProtocol = "smtp";
+    private static final Charset DEFAULT_CHARSET;
+
+    public static final String DEFAULT_PROTOCOL = "smtp";
 
     /**
-     * SMTP 服务器地址
+     * 协议
      */
-    private String mailHost;
+    private String protocol = DEFAULT_PROTOCOL;
 
     /**
-     * SMTP 服务器端口
+     * 服务器地址
      */
-    private int mailPort;
+    private String host;
 
     /**
-     * SMTP 用户名
+     * 服务器端口
      */
-    private String mailUsername;
+    private Integer port;
 
     /**
-     * SMTP 授权码
+     * 用户名
      */
-    private String mailPassword;
+    private String username;
 
     /**
-     * 发件人邮箱地址
+     * 密码（授权码）
      */
-    private String mailFrom;
+    private String password;
 
     /**
      * 是否启用 SSL 连接
@@ -66,54 +70,55 @@ public class MailConfig {
     /**
      * SSL 端口
      */
-    private int sslPort;
+    private Integer sslPort;
 
-    public String getMailProtocol() {
-        return mailProtocol;
+    private Charset defaultEncoding;
+
+    private final Map<String, String> properties;
+
+    public MailConfig() {
+        this.defaultEncoding = DEFAULT_CHARSET;
+        this.properties = MapUtil.newHashMap();
     }
 
-    public void setMailProtocol(String mailProtocol) {
-        this.mailProtocol = mailProtocol;
+    public String getProtocol() {
+        return protocol;
     }
 
-    public String getMailHost() {
-        return mailHost;
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 
-    public void setMailHost(String mailHost) {
-        this.mailHost = mailHost;
+    public String getHost() {
+        return host;
     }
 
-    public int getMailPort() {
-        return mailPort;
+    public void setHost(String host) {
+        this.host = host;
     }
 
-    public void setMailPort(int mailPort) {
-        this.mailPort = mailPort;
+    public Integer getPort() {
+        return port;
     }
 
-    public String getMailUsername() {
-        return mailUsername;
+    public void setPort(Integer port) {
+        this.port = port;
     }
 
-    public void setMailUsername(String mailUsername) {
-        this.mailUsername = mailUsername;
+    public String getUsername() {
+        return username;
     }
 
-    public String getMailPassword() {
-        return mailPassword;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public void setMailPassword(String mailPassword) {
-        this.mailPassword = mailPassword;
+    public String getPassword() {
+        return password;
     }
 
-    public String getMailFrom() {
-        return mailFrom;
-    }
-
-    public void setMailFrom(String mailFrom) {
-        this.mailFrom = mailFrom;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public boolean isSslEnabled() {
@@ -124,62 +129,45 @@ public class MailConfig {
         this.sslEnabled = sslEnabled;
     }
 
-    public int getSslPort() {
+    public Integer getSslPort() {
         return sslPort;
     }
 
-    public void setSslPort(int sslPort) {
+    public void setSslPort(Integer sslPort) {
         this.sslPort = sslPort;
+    }
+
+    public Charset getDefaultEncoding() {
+        return defaultEncoding;
+    }
+
+    public void setDefaultEncoding(Charset defaultEncoding) {
+        this.defaultEncoding = defaultEncoding;
+    }
+
+    public Map<String, String> getProperties() {
+        return properties;
     }
 
     /**
      * 将当前配置转换为 JavaMail 的 Properties 对象
      *
-     * @return 配置好的 Properties 对象
+     * @return Properties 对象
      */
     public Properties toJavaMailProperties() {
         Properties javaMailProperties = new Properties();
-
-        ValidationUtils.throwIf(!this.mailProtocol.equals("smtp"), "不支持的邮件发送协议: " + this.mailProtocol);
-        // 设置邮件发送协议
-        javaMailProperties.put("mail.transport.protocol", this.mailProtocol.toLowerCase());
-
-        // 设置 SMTP 服务器地址
-        ValidationUtils.throwIfBlank(this.mailHost, "SMTP服务器地址不能为空");
-        javaMailProperties.put("mail.smtp.host", this.mailHost);
-
-        // 设置 SMTP 服务器端口
-        ValidationUtils.throwIfNull(this.mailPort, "SMTP服务端口不能为空");
-        javaMailProperties.put("mail.smtp.port", this.mailPort);
-
-        // 设置 SMTP 用户名
-        ValidationUtils.throwIfBlank(this.mailUsername, "SMTP用户名不能为空");
-        javaMailProperties.put("mail.smtp.user", this.mailUsername);
-
-        // 设置 SMTP 授权码
-        ValidationUtils.throwIfBlank(this.mailPassword, "SMTP授权码不能为空");
-        javaMailProperties.put("mail.smtp.password", this.mailPassword);
-
-        // 启用 SMTP 认证
-        javaMailProperties.put("mail.smtp.auth", "true");
-
-        // 设置 SSL 连接
-        javaMailProperties.put("mail.smtp.ssl.enable", this.sslEnabled);
-
-        // 设置默认发件人地址
-        ValidationUtils.throwIfBlank(this.mailFrom, "默认发件人地址不能为空");
-        javaMailProperties.put("mail.from", this.mailFrom);
-
-        // 设置默认编码为 UTF-8
-        javaMailProperties.put("mail.defaultEncoding", "utf-8");
-
-        // 如果启用 SSL，设置 SSL Socket 工厂和端口
-        if (sslEnabled) {
-            ValidationUtils.throwIfNull(this.sslPort, "SSL端口不能为空");
+        javaMailProperties.putAll(this.getProperties());
+        javaMailProperties.put("mail.smtp.auth", true);
+        javaMailProperties.put("mail.smtp.ssl.enable", this.isSslEnabled());
+        if (this.isSslEnabled()) {
+            ValidationUtils.throwIfNull(this.getSslPort(), "邮件配置错误：SSL端口不能为空");
             javaMailProperties.put("mail.smtp.socketFactory.port", this.sslPort);
             javaMailProperties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         }
-
         return javaMailProperties;
+    }
+
+    static {
+        DEFAULT_CHARSET = StandardCharsets.UTF_8;
     }
 }

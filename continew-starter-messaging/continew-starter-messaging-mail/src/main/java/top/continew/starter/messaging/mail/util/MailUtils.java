@@ -24,11 +24,11 @@ import cn.hutool.extra.spring.SpringUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.util.StringUtils;
 import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.messaging.mail.core.MailConfig;
-import top.continew.starter.messaging.mail.core.DynamicMailSenderAutoConfiguration;
+import top.continew.starter.core.util.ExceptionUtils;
+import top.continew.starter.messaging.mail.core.MailConfigService;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -44,12 +44,6 @@ import java.util.List;
  */
 
 public class MailUtils {
-
-    private static MailConfig mailConfig; // 邮件配置
-
-    public static void setMailConfig(MailConfig mailConfig) {
-        MailUtils.mailConfig = mailConfig;
-    }
 
     private MailUtils() {
     }
@@ -165,20 +159,12 @@ public class MailUtils {
                             boolean isHtml,
                             File... files) throws MessagingException {
         Assert.isFalse(CollUtil.isEmpty(tos), "请至少指定一名收件人");
-        JavaMailSender mailSender = DynamicMailSenderAutoConfiguration.build(mailConfig);
-        String form;
-        if (mailConfig != null && StringUtils.hasText(mailConfig.getMailFrom())) {
-            form = mailConfig.getMailFrom();
-        } else {
-            form = SpringUtil.getProperty("spring.mail.username");
-        }
+        JavaMailSender mailSender = getMailSender();
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         // 创建邮件发送器
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8
             .displayName());
-
         // 设置基本信息
-        messageHelper.setFrom(form);
         messageHelper.setSubject(subject);
         messageHelper.setText(content, isHtml);
         // 设置收信人
@@ -223,4 +209,18 @@ public class MailUtils {
         return result;
     }
 
+    /**
+     * 获取邮件 Sender
+     *
+     * @return 邮件 Sender
+     */
+    public static JavaMailSender getMailSender() {
+        JavaMailSenderImpl mailSender = SpringUtil.getBean(JavaMailSenderImpl.class);
+        MailConfigService mailConfigService = ExceptionUtils.exToNull(() -> SpringUtil
+            .getBean(MailConfigService.class));
+        if (mailConfigService != null && mailConfigService.getMailConfig() != null) {
+            mailConfigService.apply(mailConfigService.getMailConfig(), mailSender);
+        }
+        return mailSender;
+    }
 }
