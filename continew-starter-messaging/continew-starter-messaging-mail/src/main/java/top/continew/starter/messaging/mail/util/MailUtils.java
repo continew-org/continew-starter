@@ -23,7 +23,6 @@ import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import top.continew.starter.core.constant.StringConstants;
@@ -159,12 +158,13 @@ public class MailUtils {
                             boolean isHtml,
                             File... files) throws MessagingException {
         Assert.isFalse(CollUtil.isEmpty(tos), "请至少指定一名收件人");
-        JavaMailSender mailSender = getMailSender();
+        JavaMailSenderImpl mailSender = getMailSender();
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         // 创建邮件发送器
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8
             .displayName());
         // 设置基本信息
+        messageHelper.setFrom(mailSender.getUsername());
         messageHelper.setSubject(subject);
         messageHelper.setText(content, isHtml);
         // 设置收信人
@@ -214,7 +214,7 @@ public class MailUtils {
      *
      * @return 邮件 Sender
      */
-    public static JavaMailSender getMailSender() {
+    public static JavaMailSenderImpl getMailSender() {
         JavaMailSenderImpl mailSender = SpringUtil.getBean(JavaMailSenderImpl.class);
         MailConfigService mailConfigService = ExceptionUtils.exToNull(() -> SpringUtil
             .getBean(MailConfigService.class));
