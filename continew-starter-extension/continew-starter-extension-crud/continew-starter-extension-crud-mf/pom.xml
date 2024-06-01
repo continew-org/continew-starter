@@ -5,23 +5,24 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>top.continew</groupId>
-        <artifactId>continew-starter</artifactId>
+        <artifactId>continew-starter-extension-crud</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-extension</artifactId>
-    <packaging>pom</packaging>
-    <description>ContiNew Starter 扩展模块</description>
-
-    <modules>
-        <module>continew-starter-extension-crud</module>
-    </modules>
+    <artifactId>continew-starter-extension-crud-mf</artifactId>
+    <description>ContiNew Starter 扩展模块 - CRUD（增删改查） - MyBatis Flex ORM 模块</description>
 
     <dependencies>
         <!-- 核心模块 -->
         <dependency>
             <groupId>top.continew</groupId>
-            <artifactId>continew-starter-core</artifactId>
+            <artifactId>continew-starter-extension-crud-core</artifactId>
+        </dependency>
+
+        <!-- 数据访问模块 - MyBatis Flex -->
+        <dependency>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-data-mybatis-flex</artifactId>
         </dependency>
     </dependencies>
 </project>
