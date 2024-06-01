@@ -18,9 +18,10 @@ package top.continew.starter.extension.crud.service;
 
 import cn.hutool.core.lang.tree.Tree;
 import jakarta.servlet.http.HttpServletResponse;
-import top.continew.starter.extension.crud.model.query.SortQuery;
-import top.continew.starter.extension.crud.model.resp.PageResp;
 import top.continew.starter.extension.crud.model.query.PageQuery;
+import top.continew.starter.extension.crud.model.query.SortQuery;
+import top.continew.starter.extension.crud.model.resp.LabelValueResp;
+import top.continew.starter.extension.crud.model.resp.PageResp;
 
 import java.util.List;
 
@@ -65,12 +66,22 @@ public interface BaseService<L, D, Q, C> {
     List<L> list(Q query, SortQuery sortQuery);
 
     /**
-     * 查看详情
+     * 查询详情
      *
      * @param id ID
      * @return 详情信息
      */
     D get(Long id);
+
+    /**
+     * 查询字典列表
+     *
+     * @param query     查询条件
+     * @param sortQuery 排序查询条件
+     * @return 字典列表信息
+     * @since 2.1.0
+     */
+    List<LabelValueResp> listDict(Q query, SortQuery sortQuery);
 
     /**
      * 新增

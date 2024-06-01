@@ -23,6 +23,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -34,13 +35,16 @@ import org.springframework.transaction.annotation.Transactional;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.util.ClassUtils;
 import top.continew.starter.core.util.ReflectUtils;
+import top.continew.starter.core.util.validate.CheckUtils;
 import top.continew.starter.core.util.validate.ValidationUtils;
 import top.continew.starter.data.mybatis.plus.base.BaseMapper;
 import top.continew.starter.data.mybatis.plus.query.QueryWrapperHelper;
 import top.continew.starter.data.mybatis.plus.service.impl.ServiceImpl;
+import top.continew.starter.extension.crud.annotation.DictField;
 import top.continew.starter.extension.crud.annotation.TreeField;
 import top.continew.starter.extension.crud.model.entity.BaseIdDO;
 import top.continew.starter.extension.crud.model.query.SortQuery;
+import top.continew.starter.extension.crud.model.resp.LabelValueResp;
 import top.continew.starter.extension.crud.model.resp.PageResp;
 import top.continew.starter.extension.crud.service.BaseService;
 import top.continew.starter.extension.crud.util.TreeUtils;
@@ -48,9 +52,7 @@ import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.file.excel.util.ExcelUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 业务实现基类
@@ -124,6 +126,23 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
         D detail = BeanUtil.toBean(entity, detailClass);
         this.fill(detail);
         return detail;
+    }
+
+    @Override
+    public List<LabelValueResp> listDict(Q query, SortQuery sortQuery) {
+        QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
+        this.sort(queryWrapper, sortQuery);
+        DictField dictField = entityClass.getDeclaredAnnotation(DictField.class);
+        CheckUtils.throwIfNull(dictField, "请添加并配置 @DictField 字典结构信息");
+        // 指定查询字典字段
+        queryWrapper.select(dictField.labelKey(), dictField.valueKey());
+        List<T> entityList = baseMapper.selectList(queryWrapper);
+        // 解析映射
+        Map<String, String> fieldMapping = MapUtil.newHashMap(2);
+        fieldMapping.put(dictField.labelKey(), "label");
+        fieldMapping.put(dictField.valueKey(), "value");
+        return BeanUtil.copyToList(entityList, LabelValueResp.class, CopyOptions.create()
+            .setFieldMapping(fieldMapping));
     }
 
     @Override
