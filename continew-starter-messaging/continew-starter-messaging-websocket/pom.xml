@@ -5,24 +5,18 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>top.continew</groupId>
-        <artifactId>continew-starter</artifactId>
+        <artifactId>continew-starter-messaging</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-messaging</artifactId>
-    <packaging>pom</packaging>
-    <description>ContiNew Starter 消息模块</description>
-
-    <modules>
-        <module>continew-starter-messaging-mail</module>
-        <module>continew-starter-messaging-websocket</module>
-    </modules>
+    <artifactId>continew-starter-messaging-websocket</artifactId>
+    <description>ContiNew Starter 消息模块 - WebSocket</description>
 
     <dependencies>
-        <!-- 核心模块 -->
+        <!-- WebSocket 支持 -->
         <dependency>
-            <groupId>top.continew</groupId>
-            <artifactId>continew-starter-core</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
     </dependencies>
 </project>

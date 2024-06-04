@@ -389,6 +389,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 消息模块 - WebSocket -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-messaging-websocket</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 消息模块 - 邮件 -->
             <dependency>
                 <groupId>top.continew</groupId>

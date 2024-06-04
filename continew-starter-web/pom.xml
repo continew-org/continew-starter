@@ -30,13 +30,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-undertow</artifactId>
-            <!-- 移除 websocket 依赖，后续使用 websocket 可考虑由 Netty 提供。另可解决日志警告：UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used -->
-            <exclusions>
-                <exclusion>
-                    <groupId>io.undertow</groupId>
-                    <artifactId>undertow-websockets-jsr</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- Hibernate Validator -->

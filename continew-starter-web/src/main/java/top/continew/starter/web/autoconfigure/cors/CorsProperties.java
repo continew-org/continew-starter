@@ -33,6 +33,8 @@ import java.util.List;
 @ConfigurationProperties(PropertiesConstants.CORS)
 public class CorsProperties {
 
+    private static final List<String> ALL = Collections.singletonList(StringConstants.ASTERISK);
+
     /**
      * 是否启用跨域配置
      */
@@ -57,8 +59,6 @@ public class CorsProperties {
      * 允许跨域的响应头
      */
     private List<String> exposedHeaders = new ArrayList<>();
-
-    private static final List<String> ALL = Collections.singletonList(StringConstants.ASTERISK);
 
     public boolean isEnabled() {
         return enabled;

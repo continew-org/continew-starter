@@ -114,6 +114,16 @@ public class PropertiesConstants {
      */
     public static final String CAPTCHA_BEHAVIOR = CAPTCHA + StringConstants.DOT + "behavior";
 
+    /**
+     * 消息配置
+     */
+    public static final String MESSAGING = CONTINEW_STARTER + StringConstants.DOT + "messaging";
+
+    /**
+     * WebSocket 配置
+     */
+    public static final String MESSAGING_WEBSOCKET = MESSAGING + StringConstants.DOT + "websocket";
+
     private PropertiesConstants() {
     }
 }
