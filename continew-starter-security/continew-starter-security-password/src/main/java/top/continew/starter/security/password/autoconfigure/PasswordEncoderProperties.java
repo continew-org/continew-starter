@@ -31,7 +31,7 @@ public class PasswordEncoderProperties {
     /**
      * 是否启用密码编解码配置
      */
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * 默认启用的编码器 ID（默认：BCryptPasswordEncoder）

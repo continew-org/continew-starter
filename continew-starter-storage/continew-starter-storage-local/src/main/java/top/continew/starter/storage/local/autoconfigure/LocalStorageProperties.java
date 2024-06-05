@@ -35,7 +35,7 @@ public class LocalStorageProperties {
     /**
      * 是否启用本地存储
      */
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * 存储映射

@@ -46,7 +46,7 @@ import top.continew.starter.messaging.websocket.dao.WebSocketSessionDaoDefaultIm
 @AutoConfiguration
 @EnableWebSocket
 @EnableConfigurationProperties(WebSocketProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.MESSAGING_WEBSOCKET, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.MESSAGING_WEBSOCKET, name = PropertiesConstants.ENABLED, matchIfMissing = true)
 public class WebSocketAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketAutoConfiguration.class);

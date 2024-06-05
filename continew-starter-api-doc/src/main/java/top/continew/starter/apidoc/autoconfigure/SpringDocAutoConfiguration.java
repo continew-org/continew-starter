@@ -54,7 +54,7 @@ import java.util.concurrent.TimeUnit;
  */
 @EnableWebMvc
 @AutoConfiguration
-@ConditionalOnProperty(prefix = PropertiesConstants.SPRINGDOC_SWAGGER_UI, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.SPRINGDOC_SWAGGER_UI, name = PropertiesConstants.ENABLED, matchIfMissing = true)
 @EnableConfigurationProperties(SpringDocExtensionProperties.class)
 @PropertySource(value = "classpath:default-api-doc.yml", factory = GeneralPropertySourceFactory.class)
 public class SpringDocAutoConfiguration implements WebMvcConfigurer {

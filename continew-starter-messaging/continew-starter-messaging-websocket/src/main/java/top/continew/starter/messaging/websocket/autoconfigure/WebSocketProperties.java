@@ -39,7 +39,7 @@ public class WebSocketProperties {
     /**
      * 是否启用 WebSocket
      */
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * 路径

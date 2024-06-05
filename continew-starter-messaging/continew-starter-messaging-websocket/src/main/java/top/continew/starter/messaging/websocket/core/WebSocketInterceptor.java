@@ -16,8 +16,6 @@
 
 package top.continew.starter.messaging.websocket.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -37,7 +35,6 @@ import java.util.Map;
  */
 public class WebSocketInterceptor extends HttpSessionHandshakeInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketInterceptor.class);
     private final WebSocketProperties webSocketProperties;
     private final CurrentUserProvider currentUserProvider;
 

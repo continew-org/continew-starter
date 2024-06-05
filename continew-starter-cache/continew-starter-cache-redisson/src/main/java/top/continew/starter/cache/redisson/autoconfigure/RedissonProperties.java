@@ -34,7 +34,7 @@ public class RedissonProperties {
     /**
      * 是否启用 Redisson
      */
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * Redis 模式

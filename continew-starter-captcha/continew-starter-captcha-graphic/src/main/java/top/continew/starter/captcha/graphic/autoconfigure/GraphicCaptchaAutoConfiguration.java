@@ -35,7 +35,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(GraphicCaptchaProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_GRAPHIC, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_GRAPHIC, name = PropertiesConstants.ENABLED, matchIfMissing = true)
 public class GraphicCaptchaAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(GraphicCaptchaAutoConfiguration.class);

@@ -35,7 +35,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @since 1.0.0
  */
 @AutoConfiguration(before = com.xkcoding.justauth.autoconfigure.JustAuthAutoConfiguration.class)
-@ConditionalOnProperty(prefix = "justauth", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "justauth", name = PropertiesConstants.ENABLED, matchIfMissing = true)
 public class JustAuthAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(JustAuthAutoConfiguration.class);
