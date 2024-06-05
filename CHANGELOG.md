@@ -1,3 +1,12 @@
+## [v2.1.0](https://github.com/Charles7c/continew-starter/compare/v2.0.2...v2.1.0) (2024-06-05)
+
+### ✨ 新特性
+
+- 【messaging/mail】新增动态邮箱配置 ([Gitee#19](https://gitee.com/continew/continew-starter/pulls/19)) ([ee30e86](https://github.com/Charles7c/continew-starter/commit/ee30e861ff536ee3ed6f14ff5ded5af7a513941d)) ([7feda79](https://github.com/Charles7c/continew-starter/commit/7feda79359ea40331eee1e3d4d5fd12000f027c5))
+- 【data/mybatis-flex】新增 continew-starter-data-mybatis-flex 数据访问模块（Mybatis Flex 自动配置） ([Gitee#18](https://gitee.com/continew/continew-starter/pulls/18)) ([124c7ff](https://github.com/Charles7c/continew-starter/commit/124c7ffe11a0e6563d9b513036c53ff66edbb9b3))
+- 【extension/crud】新增查询字典列表方法 ([3d2a427](https://github.com/Charles7c/continew-starter/commit/3d2a4271d5eed676f16f4728b461dc3b298a65a9))
+- 【messaging/websocket】新增 continew-starter-messaging-websocket 消息模块 ([cc079e8](https://github.com/Charles7c/continew-starter/commit/cc079e8bf422825bf9a96ddbd4329fc77d3cbf2c))
+
 ## [v2.0.2](https://github.com/Charles7c/continew-starter/compare/v2.0.1...v2.0.2) (2024-05-20)
 
 ### ✨ 新特性
