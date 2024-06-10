@@ -173,14 +173,14 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
     private void handleWrapperEncrypt(Wrapper wrapper, MappedStatement mappedStatement) throws Exception {
         if(wrapper instanceof AbstractWrapper abstractWrapper){
             String sqlSet = abstractWrapper.getSqlSet();
-            if(StringUtils.isEmpty(sqlSet)){
+            if (StringUtils.isEmpty(sqlSet)) {
                 return;
             }
             String className = CharSequenceUtil.subBefore(mappedStatement.getId(), StringConstants.DOT, true);
             Class<?> mapperClass = Class.forName(className);
-            Optional<Class> baseMapperGenerics = getBaseMapperGenerics(mapperClass);
+            Optional<Class> baseMapperGenerics = getDoByMapperClass(mapperClass, Optional.empty());
             // 获取不到泛型对象 则不进行下面的逻辑
-            if(baseMapperGenerics.isEmpty()){
+            if (baseMapperGenerics.isEmpty()) {
                 return;
             }
             TableInfo tableInfo = TableInfoHelper.getTableInfo(baseMapperGenerics.get());
@@ -189,15 +189,18 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
             for (String sqlFragment : sqlSet.split(Constants.COMMA)) {
                 String columnName = sqlFragment.split(Constants.EQUALS)[0];
                 // 截取其中的 xxx 字符 ：#{ew.paramNameValuePairs.xxx}
-                String paramNameVal = sqlFragment.split(Constants.EQUALS)[1].substring(25,sqlFragment.split(Constants.EQUALS)[1].length()-1);
-                Optional<TableFieldInfo> fieldInfo = fieldList.stream().filter(f -> f.getColumn().equals(columnName)).findAny();
-                if(fieldInfo.isPresent()){
+                String paramNameVal = sqlFragment.split(Constants.EQUALS)[1].substring(25, sqlFragment
+                    .split(Constants.EQUALS)[1].length() - 1);
+                Optional<TableFieldInfo> fieldInfo = fieldList.stream()
+                    .filter(f -> f.getColumn().equals(columnName))
+                    .findAny();
+                if (fieldInfo.isPresent()) {
                     TableFieldInfo tableFieldInfo = fieldInfo.get();
                     FieldEncrypt fieldEncrypt = tableFieldInfo.getField().getAnnotation(FieldEncrypt.class);
-                    if(fieldEncrypt != null){
+                    if (fieldEncrypt != null) {
                         Map<String, Object> paramNameValuePairs = abstractWrapper.getParamNameValuePairs();
                         Object o = paramNameValuePairs.get(paramNameVal);
-                        paramNameValuePairs.put(paramNameVal,this.doEncrypt(o,fieldEncrypt));
+                        paramNameValuePairs.put(paramNameVal, this.doEncrypt(o, fieldEncrypt));
                     }
                 }
             }
@@ -205,17 +208,38 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
     }
 
     /**
-     *  通过 mapper class 获取 mp的 baseMapper 中的泛型对象 ，即 数据库实体对象
-     * @param clazz mapper clazz
-     * @return 数据库实体对象
+     * 从 Mapper 获取泛型
+     * 
+     * @param clazz      mapper class
+     * @param tempResult 临时存储的泛型对象
+     * @return 泛型对象
+     * @throws ClassNotFoundException /
      */
-    private Optional<Class> getBaseMapperGenerics(Class clazz){
+    private Optional<Class> getDoByMapperClass(Class<?> clazz,
+                                               Optional<Class> tempResult) throws ClassNotFoundException {
         Type[] genericInterfaces = clazz.getGenericInterfaces();
         for (Type genericInterface : genericInterfaces) {
-            if (genericInterface instanceof ParameterizedType parameterizedType && parameterizedType.getRawType().equals(BaseMapper.class)) {
-                return Optional.of((Class) parameterizedType.getActualTypeArguments()[0]);
+            if (genericInterface instanceof ParameterizedType parameterizedType) {
+                Type rawType = parameterizedType.getRawType();
+                Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
+
+                // 如果匹配上 BaseMapper 且泛型参数是 Class 类型，则直接返回
+                if (rawType.equals(BaseMapper.class) && actualTypeArguments[0] instanceof Class) {
+                    return Optional.of((Class)actualTypeArguments[0]);
+                } else if (rawType instanceof Class tempClass) {
+                    // 如果泛型参数是 Class 类型，则传递给递归调用
+                    if (actualTypeArguments[0] instanceof Class tempResultClass) {
+                        tempResult = Optional.of(tempResultClass);
+                    }
+                    // 递归调用，继续查找
+                    Optional<Class> innerResult = getDoByMapperClass(tempClass, tempResult);
+                    if (innerResult.isPresent()) {
+                        return innerResult;
+                    }
+                }
             }
         }
-        return Optional.empty();
+        // 如果没有找到，返回传递进来的 tempResult
+        return tempResult;
     }
 }
