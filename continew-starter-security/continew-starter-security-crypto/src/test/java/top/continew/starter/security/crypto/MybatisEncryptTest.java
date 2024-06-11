@@ -17,6 +17,7 @@
 package top.continew.starter.security.crypto;
 
 import cn.hutool.core.lang.Assert;
+import cn.hutool.core.util.ReflectUtil;
 import com.baomidou.mybatisplus.core.MybatisSqlSessionFactoryBuilder;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -28,6 +29,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import top.continew.starter.security.crypto.annotation.FieldEncrypt;
 import top.continew.starter.security.crypto.autoconfigure.CryptoProperties;
 import top.continew.starter.security.crypto.core.MyBatisDecryptInterceptor;
 import top.continew.starter.security.crypto.core.MyBatisEncryptInterceptor;
@@ -36,6 +38,9 @@ import top.continew.starter.security.crypto.mapper.TestUserMapper;
 
 import javax.sql.DataSource;
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.sql.Connection;
 
 /*
@@ -50,6 +55,8 @@ public class MybatisEncryptTest {
     private static SqlSessionFactory sqlSessionFactory;
     private static SqlSession sqlSession;
 
+    private static CryptoProperties cryptoProperties;
+
     @Before
     public void setUp() throws Exception {
         Reader reader = Resources.getResourceAsReader("mybatis-config.xml");
@@ -62,7 +69,7 @@ public class MybatisEncryptTest {
         //        scriptRunner.runScript(Resources.getResourceAsReader("db/data.sql"));
         System.out.println("===================== init db =======================");
 
-        CryptoProperties cryptoProperties = buildCryptoProperties();
+        cryptoProperties = buildCryptoProperties();
         configuration.addInterceptor(new MyBatisEncryptInterceptor(cryptoProperties));
         configuration.addInterceptor(new MyBatisDecryptInterceptor(cryptoProperties));
 
@@ -75,25 +82,47 @@ public class MybatisEncryptTest {
     }
 
     @Test
-    public void getById() {
-        TestUser testUser = insertTestUser(18, "cary", "john.doe@example.com");
+    public void getById() throws Exception {
+        String email = "john.doe@example.com";
+        TestUser testUser = insertTestUser(18, "cary", email);
         System.out.println(testUser);
         TestUserMapper mapper = sqlSession.getMapper(TestUserMapper.class);
-        TestUser testUser1 = mapper.selectById(testUser.getId());
-        System.out.println(testUser1);
+        TestUser selectUser = mapper.selectById(testUser.getId());
+        Assert.equals(email,selectUser.getEmail());
+        String rawEmail = mapper.getRawEmail(testUser.getId());
+        Assert.equals(rawEmail,doEncrypt(email,getFieldEncrypt(testUser.getClass(),"email")));
     }
 
     @Test
-    public void mpUpdate() {
-        TestUser testUser = insertTestUser(18, "cary", "john.doe@example.com");
+    public void mpUpdate() throws Exception {
+        String email = "john.doe@example.com";
+        TestUser testUser = insertTestUser(18, "cary", email);
         TestUserMapper mapper = sqlSession.getMapper(TestUserMapper.class);
+        email = "666@22.com";
         LambdaUpdateWrapper<TestUser> updateWrapper = new UpdateWrapper<TestUser>().lambda()
-            .set(TestUser::getEmail, "666@22.com")
+            .set(TestUser::getEmail, email)
             .set(TestUser::getAge, 19);
         mapper.update(updateWrapper);
 
+        TestUser selectUser = mapper.selectById(testUser.getId());
+        Assert.notEquals("john.doe@example.com",selectUser.getEmail());
+        Assert.equals(email,selectUser.getEmail());
+
+        // 获取未解密的值
         String rawEmail = mapper.getRawEmail(testUser.getId());
-        System.out.println(rawEmail);
+        Assert.equals(rawEmail,doEncrypt(email,getFieldEncrypt(testUser.getClass(),"email")));
+    }
+
+    private FieldEncrypt getFieldEncrypt(Class<?> clazz , String fieldName){
+        Field field = ReflectUtil.getField(clazz, fieldName);
+        return  field.getAnnotation(FieldEncrypt.class);
+    }
+    private Object doEncrypt(Object parameterValue, FieldEncrypt fieldEncrypt) throws Exception {
+        MyBatisEncryptInterceptor myBatisEncryptInterceptor = new MyBatisEncryptInterceptor(cryptoProperties);
+        Method doEncrypt = ReflectUtil.getMethod(MyBatisEncryptInterceptor.class, "doEncrypt", Object.class, FieldEncrypt.class);
+        doEncrypt.setAccessible(true);
+        Object result = doEncrypt.invoke(myBatisEncryptInterceptor, parameterValue, fieldEncrypt);
+        return result;
     }
 
     /**
