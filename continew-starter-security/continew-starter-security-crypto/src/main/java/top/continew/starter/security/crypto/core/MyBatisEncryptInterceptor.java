@@ -110,17 +110,18 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
      * @throws Exception /
      */
     private void encryptMap(HashMap<String, Object> parameterMap, MappedStatement mappedStatement) throws Exception {
-        Map<String, FieldEncrypt> encryptParamMap = super.getEncryptParams(mappedStatement.getId(), parameterMap.isEmpty() ?null:parameterMap.size()/2);
+        Map<String, FieldEncrypt> encryptParamMap = super.getEncryptParams(mappedStatement.getId(), parameterMap
+            .isEmpty() ? null : parameterMap.size() / 2);
         for (Map.Entry<String, FieldEncrypt> encryptParamEntry : encryptParamMap.entrySet()) {
             String parameterName = encryptParamEntry.getKey();
             if (parameterName.startsWith(Constants.ENTITY)) {
                 // 兼容 MyBatis Plus 封装的 update 相关方法，updateById、update
                 Object entity = parameterMap.getOrDefault(parameterName, null);
                 this.doEncrypt(this.getEncryptFields(entity), entity);
-            }else if(parameterName.startsWith(Constants.WRAPPER)){
-                Wrapper wrapper = (Wrapper) parameterMap.getOrDefault(parameterName, null);
+            } else if (parameterName.startsWith(Constants.WRAPPER)) {
+                Wrapper wrapper = (Wrapper)parameterMap.getOrDefault(parameterName, null);
                 // 处理 wrapper 的情况
-               handleWrapperEncrypt(wrapper,mappedStatement);
+                handleWrapperEncrypt(wrapper, mappedStatement);
             } else {
                 FieldEncrypt fieldEncrypt = encryptParamEntry.getValue();
                 parameterMap.put(parameterName, this.doEncrypt(parameterMap.get(parameterName), fieldEncrypt));
@@ -165,13 +166,14 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
     }
 
     /**
-     *  处理 wrapper 的加密情况
-     * @param wrapper wrapper 对象
+     * 处理 wrapper 的加密情况
+     *
+     * @param wrapper         wrapper 对象
      * @param mappedStatement 映射语句
      * @throws Exception /
      */
     private void handleWrapperEncrypt(Wrapper wrapper, MappedStatement mappedStatement) throws Exception {
-        if(wrapper instanceof AbstractWrapper abstractWrapper){
+        if (wrapper instanceof AbstractWrapper abstractWrapper) {
             String sqlSet = abstractWrapper.getSqlSet();
             if (StringUtils.isEmpty(sqlSet)) {
                 return;
@@ -209,30 +211,29 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
 
     /**
      * 从 Mapper 获取泛型
-     * 
-     * @param clazz      mapper class
+     *
+     * @param mapperClass      mapper class
      * @param tempResult 临时存储的泛型对象
-     * @return 泛型对象
-     * @throws ClassNotFoundException /
+     * @return domain 对象
      */
-    private Optional<Class> getDoByMapperClass(Class<?> clazz,
-                                               Optional<Class> tempResult) throws ClassNotFoundException {
-        Type[] genericInterfaces = clazz.getGenericInterfaces();
+    private static Optional<Class> getDoByMapperClass(Class<?> mapperClass, Optional<Class> tempResult) {
+        Type[] genericInterfaces = mapperClass.getGenericInterfaces();
+        Optional<Class> result = tempResult;
         for (Type genericInterface : genericInterfaces) {
             if (genericInterface instanceof ParameterizedType parameterizedType) {
                 Type rawType = parameterizedType.getRawType();
                 Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
-
                 // 如果匹配上 BaseMapper 且泛型参数是 Class 类型，则直接返回
-                if (rawType.equals(BaseMapper.class) && actualTypeArguments[0] instanceof Class) {
-                    return Optional.of((Class)actualTypeArguments[0]);
-                } else if (rawType instanceof Class tempClass) {
+                if (rawType.equals(BaseMapper.class)) {
+                    return actualTypeArguments[0] instanceof Class ?
+                            Optional.of((Class) actualTypeArguments[0]) : result;
+                } else if (rawType instanceof Class interfaceClass) {
                     // 如果泛型参数是 Class 类型，则传递给递归调用
                     if (actualTypeArguments[0] instanceof Class tempResultClass) {
-                        tempResult = Optional.of(tempResultClass);
+                        result = Optional.of(tempResultClass);
                     }
                     // 递归调用，继续查找
-                    Optional<Class> innerResult = getDoByMapperClass(tempClass, tempResult);
+                    Optional<Class> innerResult = getDoByMapperClass(interfaceClass, result);
                     if (innerResult.isPresent()) {
                         return innerResult;
                     }
@@ -240,6 +241,6 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
             }
         }
         // 如果没有找到，返回传递进来的 tempResult
-        return tempResult;
+        return Optional.empty();
     }
 }
