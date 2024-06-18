@@ -63,6 +63,11 @@ public class MailConfig {
     private String password;
 
     /**
+     * 发件人
+     */
+    private String from;
+
+    /**
      * 是否启用 SSL 连接
      */
     private boolean sslEnabled = false;
@@ -121,6 +126,14 @@ public class MailConfig {
         this.password = password;
     }
 
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
     public boolean isSslEnabled() {
         return sslEnabled;
     }
@@ -157,6 +170,7 @@ public class MailConfig {
     public Properties toJavaMailProperties() {
         Properties javaMailProperties = new Properties();
         javaMailProperties.putAll(this.getProperties());
+        javaMailProperties.put("mail.from", this.getFrom());
         javaMailProperties.put("mail.smtp.auth", true);
         javaMailProperties.put("mail.smtp.ssl.enable", this.isSslEnabled());
         if (this.isSslEnabled()) {

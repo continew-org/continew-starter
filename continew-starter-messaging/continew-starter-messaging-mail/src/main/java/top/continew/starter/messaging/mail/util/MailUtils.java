@@ -164,7 +164,8 @@ public class MailUtils {
         MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8
             .displayName());
         // 设置基本信息
-        messageHelper.setFrom(mailSender.getUsername());
+        messageHelper.setFrom(CharSequenceUtil.blankToDefault(mailSender.getJavaMailProperties()
+            .getProperty("mail.from"), mailSender.getUsername()));
         messageHelper.setSubject(subject);
         messageHelper.setText(content, isHtml);
         // 设置收信人
