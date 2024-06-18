@@ -53,7 +53,19 @@ public abstract class AbstractMyBatisInterceptor implements Interceptor {
      * @return 加密参数
      */
     public Map<String, FieldEncrypt> getEncryptParams(String mappedStatementId) {
-        return ENCRYPT_PARAM_CACHE.computeIfAbsent(mappedStatementId, this::getEncryptParamsNoCached);
+        return getEncryptParams(mappedStatementId, null);
+    }
+
+    /**
+     * 获取加密参数
+     *
+     * @param mappedStatementId 映射语句 ID
+     * @param parameterIndex    参数数量
+     * @return 加密参数
+     */
+    public Map<String, FieldEncrypt> getEncryptParams(String mappedStatementId, Integer parameterIndex) {
+        return ENCRYPT_PARAM_CACHE
+            .computeIfAbsent(mappedStatementId, it -> getEncryptParamsNoCached(mappedStatementId, parameterIndex));
     }
 
     /**
@@ -105,9 +117,10 @@ public abstract class AbstractMyBatisInterceptor implements Interceptor {
      * 获取参数列表（无缓存）
      *
      * @param mappedStatementId 映射语句 ID
+     * @param parameterIndex    参数数量
      * @return 参数列表
      */
-    private Map<String, FieldEncrypt> getEncryptParamsNoCached(String mappedStatementId) {
+    private Map<String, FieldEncrypt> getEncryptParamsNoCached(String mappedStatementId, Integer parameterIndex) {
         try {
             String className = CharSequenceUtil.subBefore(mappedStatementId, StringConstants.DOT, true);
             String wrapperMethodName = CharSequenceUtil.subAfter(mappedStatementId, StringConstants.DOT, true);
@@ -117,8 +130,12 @@ public abstract class AbstractMyBatisInterceptor implements Interceptor {
                 .map(suffix -> wrapperMethodName.substring(0, wrapperMethodName.length() - suffix.length()))
                 .orElse(wrapperMethodName);
             // 获取真实方法
-            Optional<Method> methodOptional = Arrays.stream(ReflectUtil.getMethods(Class
-                .forName(className), m -> Objects.equals(m.getName(), methodName))).findFirst();
+            Optional<Method> methodOptional = Arrays.stream(ReflectUtil.getMethods(Class.forName(className), m -> {
+                if (Objects.nonNull(parameterIndex)) {
+                    return Objects.equals(m.getName(), methodName) && m.getParameterCount() == parameterIndex;
+                }
+                return Objects.equals(m.getName(), methodName);
+            })).findFirst();
             if (methodOptional.isEmpty()) {
                 return Collections.emptyMap();
             }
@@ -135,6 +152,8 @@ public abstract class AbstractMyBatisInterceptor implements Interceptor {
                         map.put("param" + (i + 1), fieldEncrypt);
                     }
                 } else if (parameterName.startsWith(Constants.ENTITY)) {
+                    map.put(parameterName, null);
+                } else if (parameterName.startsWith(Constants.WRAPPER)) {
                     map.put(parameterName, null);
                 }
             }
