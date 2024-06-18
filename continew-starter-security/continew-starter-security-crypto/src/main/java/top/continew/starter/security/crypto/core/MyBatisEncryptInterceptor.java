@@ -26,7 +26,6 @@ import com.baomidou.mybatisplus.core.metadata.TableFieldInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
@@ -119,31 +118,14 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
                 Object entity = parameterMap.getOrDefault(parameterName, null);
                 this.doEncrypt(this.getEncryptFields(entity), entity);
             } else if (parameterName.startsWith(Constants.WRAPPER)) {
+                // 处理参数为 Wrapper 的情况
                 Wrapper wrapper = (Wrapper)parameterMap.getOrDefault(parameterName, null);
-                // 处理 wrapper 的情况
-                handleWrapperEncrypt(wrapper, mappedStatement);
+                this.doEncrypt(wrapper, mappedStatement);
             } else {
                 FieldEncrypt fieldEncrypt = encryptParamEntry.getValue();
                 parameterMap.put(parameterName, this.doEncrypt(parameterMap.get(parameterName), fieldEncrypt));
             }
         }
-    }
-
-    /**
-     * 处理加密
-     *
-     * @param parameterValue 参数值
-     * @param fieldEncrypt   字段加密注解
-     * @throws Exception /
-     */
-    private Object doEncrypt(Object parameterValue, FieldEncrypt fieldEncrypt) throws Exception {
-        if (null == parameterValue) {
-            return null;
-        }
-        IEncryptor encryptor = super.getEncryptor(fieldEncrypt);
-        // 优先获取自定义对称加密算法密钥，获取不到时再获取全局配置
-        String password = ObjectUtil.defaultIfBlank(fieldEncrypt.password(), properties.getPassword());
-        return encryptor.encrypt(parameterValue.toString(), password, properties.getPublicKey());
     }
 
     /**
@@ -166,21 +148,21 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
     }
 
     /**
-     * 处理 wrapper 的加密情况
+     * 处理 Wrapper 加密
      *
-     * @param wrapper         wrapper 对象
+     * @param wrapper         Wrapper 对象
      * @param mappedStatement 映射语句
      * @throws Exception /
      */
-    private void handleWrapperEncrypt(Wrapper wrapper, MappedStatement mappedStatement) throws Exception {
+    private void doEncrypt(Wrapper wrapper, MappedStatement mappedStatement) throws Exception {
         if (wrapper instanceof AbstractWrapper abstractWrapper) {
             String sqlSet = abstractWrapper.getSqlSet();
-            if (StringUtils.isEmpty(sqlSet)) {
+            if (CharSequenceUtil.isEmpty(sqlSet)) {
                 return;
             }
             String className = CharSequenceUtil.subBefore(mappedStatement.getId(), StringConstants.DOT, true);
             Class<?> mapperClass = Class.forName(className);
-            Optional<Class> baseMapperGenerics = getDoByMapperClass(mapperClass, Optional.empty());
+            Optional<Class> baseMapperGenerics = getEntityTypeByMapperClass(mapperClass, Optional.empty());
             // 获取不到泛型对象 则不进行下面的逻辑
             if (baseMapperGenerics.isEmpty()) {
                 return;
@@ -190,7 +172,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
             // 将 name=#{ew.paramNameValuePairs.xxx},age=#{ew.paramNameValuePairs.xxx} 切出来
             for (String sqlFragment : sqlSet.split(Constants.COMMA)) {
                 String columnName = sqlFragment.split(Constants.EQUALS)[0];
-                // 截取其中的 xxx 字符 ：#{ew.paramNameValuePairs.xxx}
+                // 截取其中的 xxx 字符，例如：#{ew.paramNameValuePairs.xxx}
                 String paramNameVal = sqlFragment.split(Constants.EQUALS)[1].substring(25, sqlFragment
                     .split(Constants.EQUALS)[1].length() - 1);
                 Optional<TableFieldInfo> fieldInfo = fieldList.stream()
@@ -201,8 +183,8 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
                     FieldEncrypt fieldEncrypt = tableFieldInfo.getField().getAnnotation(FieldEncrypt.class);
                     if (fieldEncrypt != null) {
                         Map<String, Object> paramNameValuePairs = abstractWrapper.getParamNameValuePairs();
-                        Object o = paramNameValuePairs.get(paramNameVal);
-                        paramNameValuePairs.put(paramNameVal, this.doEncrypt(o, fieldEncrypt));
+                        paramNameValuePairs.put(paramNameVal, this.doEncrypt(paramNameValuePairs
+                            .get(paramNameVal), fieldEncrypt));
                     }
                 }
             }
@@ -210,13 +192,30 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
     }
 
     /**
+     * 处理加密
+     *
+     * @param parameterValue 参数值
+     * @param fieldEncrypt   字段加密注解
+     * @throws Exception /
+     */
+    private Object doEncrypt(Object parameterValue, FieldEncrypt fieldEncrypt) throws Exception {
+        if (null == parameterValue) {
+            return null;
+        }
+        IEncryptor encryptor = super.getEncryptor(fieldEncrypt);
+        // 优先获取自定义对称加密算法密钥，获取不到时再获取全局配置
+        String password = ObjectUtil.defaultIfBlank(fieldEncrypt.password(), properties.getPassword());
+        return encryptor.encrypt(parameterValue.toString(), password, properties.getPublicKey());
+    }
+
+    /**
      * 从 Mapper 获取泛型
      *
-     * @param mapperClass      mapper class
-     * @param tempResult 临时存储的泛型对象
-     * @return domain 对象
+     * @param mapperClass Mapper class
+     * @param tempResult  临时存储的泛型对象
+     * @return 泛型
      */
-    private static Optional<Class> getDoByMapperClass(Class<?> mapperClass, Optional<Class> tempResult) {
+    private static Optional<Class> getEntityTypeByMapperClass(Class<?> mapperClass, Optional<Class> tempResult) {
         Type[] genericInterfaces = mapperClass.getGenericInterfaces();
         Optional<Class> result = tempResult;
         for (Type genericInterface : genericInterfaces) {
@@ -225,15 +224,16 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
                 Type[] actualTypeArguments = parameterizedType.getActualTypeArguments();
                 // 如果匹配上 BaseMapper 且泛型参数是 Class 类型，则直接返回
                 if (rawType.equals(BaseMapper.class)) {
-                    return actualTypeArguments[0] instanceof Class ?
-                            Optional.of((Class) actualTypeArguments[0]) : result;
+                    return actualTypeArguments[0] instanceof Class
+                        ? Optional.of((Class)actualTypeArguments[0])
+                        : result;
                 } else if (rawType instanceof Class interfaceClass) {
                     // 如果泛型参数是 Class 类型，则传递给递归调用
                     if (actualTypeArguments[0] instanceof Class tempResultClass) {
                         result = Optional.of(tempResultClass);
                     }
                     // 递归调用，继续查找
-                    Optional<Class> innerResult = getDoByMapperClass(interfaceClass, result);
+                    Optional<Class> innerResult = getEntityTypeByMapperClass(interfaceClass, result);
                     if (innerResult.isPresent()) {
                         return innerResult;
                     }

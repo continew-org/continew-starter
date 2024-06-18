@@ -60,12 +60,12 @@ public abstract class AbstractMyBatisInterceptor implements Interceptor {
      * 获取加密参数
      *
      * @param mappedStatementId 映射语句 ID
-     * @param parameterIndex    参数数量
+     * @param parameterIndex    参数索引
      * @return 加密参数
      */
     public Map<String, FieldEncrypt> getEncryptParams(String mappedStatementId, Integer parameterIndex) {
         return ENCRYPT_PARAM_CACHE
-            .computeIfAbsent(mappedStatementId, it -> getEncryptParamsNoCached(mappedStatementId, parameterIndex));
+            .computeIfAbsent(mappedStatementId, m -> getEncryptParamsNoCached(mappedStatementId, parameterIndex));
     }
 
     /**

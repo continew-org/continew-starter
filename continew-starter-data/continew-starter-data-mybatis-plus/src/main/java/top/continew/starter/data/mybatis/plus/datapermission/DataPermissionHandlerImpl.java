@@ -176,7 +176,6 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      * @param expression     处理前的表达式
      * @return 处理完后的表达式
      */
-    //
     private Expression buildSelfExpression(DataPermission dataPermission,
                                            DataPermissionCurrentUser currentUser,
                                            Expression expression) {
