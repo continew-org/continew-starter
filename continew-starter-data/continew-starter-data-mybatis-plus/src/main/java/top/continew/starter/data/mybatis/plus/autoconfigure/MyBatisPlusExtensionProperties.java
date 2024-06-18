@@ -60,6 +60,11 @@ public class MyBatisPlusExtensionProperties {
     private PaginationProperties pagination;
 
     /**
+     * 启用防全表更新与删除插件
+     */
+    private boolean blockAttackPluginEnabled = true;
+
+    /**
      * 数据权限插件配置属性
      */
     public static class DataPermissionProperties {
@@ -174,5 +179,13 @@ public class MyBatisPlusExtensionProperties {
 
     public void setPagination(PaginationProperties pagination) {
         this.pagination = pagination;
+    }
+
+    public boolean isBlockAttackPluginEnabled() {
+        return blockAttackPluginEnabled;
+    }
+
+    public void setBlockAttackPluginEnabled(boolean blockAttackPluginEnabled) {
+        this.blockAttackPluginEnabled = blockAttackPluginEnabled;
     }
 }

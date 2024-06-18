@@ -77,7 +77,9 @@ public class MybatisPlusAutoConfiguration {
             interceptor.addInnerInterceptor(this.paginationInnerInterceptor(paginationProperties));
         }
         // 防全表更新与删除插件
-        interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
+        if (properties.isBlockAttackPluginEnabled()) {
+            interceptor.addInnerInterceptor(new BlockAttackInnerInterceptor());
+        }
         return interceptor;
     }
 
