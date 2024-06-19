@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.exception.BadRequestException;
 import top.continew.starter.core.exception.BusinessException;
@@ -108,11 +109,29 @@ public class GlobalExceptionHandler {
     /**
      * 拦截文件上传异常-超过上传大小限制
      */
-    @ExceptionHandler(MaxUploadSizeExceededException.class)
-    public R<Void> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e, HttpServletRequest request) {
-        log.warn("请求地址 [{}]，上传文件失败，文件大小超过限制。", request.getRequestURI(), e);
-        String sizeLimit = CharSequenceUtil.subBetween(e.getMessage(), "The maximum size ", " for");
+    @ExceptionHandler(MultipartException.class)
+    public R<Void> handleRequestTooBigException(MultipartException e, HttpServletRequest request) {
+        String msg = e.getMessage();
+        R<Void> defaultFail = R.fail(HttpStatus.BAD_REQUEST.value(), msg);
+        if (CharSequenceUtil.isBlank(msg)) {
+            return defaultFail;
+        }
+
+        String sizeLimit;
+        Throwable cause = e.getCause();
+        if (null != cause) {
+            msg = msg.concat(cause.getMessage().toLowerCase());
+        }
+        if (msg.contains("size") && msg.contains("exceed")) {
+            sizeLimit = CharSequenceUtil.subBetween(msg, "maximum (", ")");
+        } else if (msg.contains("larger than")) {
+            sizeLimit = CharSequenceUtil.subAfter(msg, "larger than ", true);
+        } else {
+            return defaultFail;
+        }
+
         String errorMsg = "请上传小于 %sMB 的文件".formatted(NumberUtil.parseLong(sizeLimit) / 1024 / 1024);
+        log.warn("请求地址 [{}]，上传文件失败，文件大小超过限制。", request.getRequestURI(), e);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
     }
 
