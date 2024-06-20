@@ -7,7 +7,7 @@ on:
 
 jobs:
   release:
-    if: github.repository == 'Charles7c/continew-starter'
+    if: github.repository == 'continew-org/continew-starter'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

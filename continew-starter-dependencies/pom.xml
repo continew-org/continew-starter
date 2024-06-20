@@ -15,7 +15,7 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
     <description>ContiNew Starter 依赖模块</description>
-    <url>https://github.com/Charles7c/continew-starter</url>
+    <url>https://github.com/continew-org/continew-starter</url>
     <licenses>
         <license>
             <name>GNU LESSER GENERAL PUBLIC LICENSE</name>
@@ -36,9 +36,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:git:git@github.com:Charles7c/continew-starter.git</connection>
-        <developerConnection>scm:git:git@github.com:Charles7c/continew-starter.git</developerConnection>
-        <url>https://github.com/Charles7c/continew-starter</url>
+        <connection>scm:git:git@github.com:continew-org/continew-starter.git</connection>
+        <developerConnection>scm:git:git@github.com:continew-org/continew-starter.git</developerConnection>
+        <url>https://github.com/continew-org/continew-starter</url>
     </scm>
 
     <properties>

@@ -1,15 +1,15 @@
 # ContiNew Starter
 
-<a href="https://github.com/Charles7c/continew-starter/blob/dev/LICENSE" target="_blank">
+<a href="https://github.com/continew-org/continew-starter/blob/dev/LICENSE" target="_blank">
 <img src="https://img.shields.io/badge/License-LGPL--3.0-blue.svg" alt="License" />
 </a>
 <a href="https://central.sonatype.com/search?q=continew-starter" target="_blank">
 <img src="https://img.shields.io/maven-central/v/top.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
 </a>
-<a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<a href="https://github.com/continew-org/continew-starter" target="_blank">
 <img src="https://img.shields.io/badge/RELEASE-v2.1.0-%23ff3f59.svg" alt="Release" />
 </a>
-<a href="https://app.codacy.com/gh/Charles7c/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank">
+<a href="https://app.codacy.com/gh/continew-org/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank">
 <img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy Badge" />
 </a>
 <a href="https://sonarcloud.io/summary/new_code?id=Charles7c_continew-starter" target="_blank">
@@ -18,14 +18,14 @@
 <a href="https://spring.io/projects/spring-boot" target="_blank">
 <img src="https://img.shields.io/badge/Spring Boot-3.1.11-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
 </a>
-<a href="https://github.com/Charles7c/continew-starter" target="_blank">
+<a href="https://github.com/continew-org/continew-starter" target="_blank">
 <img src="https://img.shields.io/badge/Open JDK-17-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
 </a>
-<a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/github/stars/Charles7c/continew-starter?style=social" alt="GitHub stars" />
+<a href="https://github.com/continew-org/continew-starter" target="_blank">
+<img src="https://img.shields.io/github/stars/continew-org/continew-starter?style=social" alt="GitHub stars" />
 </a>
-<a href="https://github.com/Charles7c/continew-starter" target="_blank">
-<img src="https://img.shields.io/github/forks/Charles7c/continew-starter?style=social" alt="GitHub forks" />
+<a href="https://github.com/continew-org/continew-starter" target="_blank">
+<img src="https://img.shields.io/github/forks/continew-org/continew-starter?style=social" alt="GitHub forks" />
 </a>
 <a href="https://gitee.com/continew/continew-starter" target="_blank">
 <img src="https://gitee.com/continew/continew-starter/badge/star.svg?theme=white" alt="Gitee stars" />
@@ -65,7 +65,7 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
 
 | 开源平台      | 源码地址                                      |
 | :------------ | :-------------------------------------------- |
-| GitHub        | https://github.com/Charles7c/continew-starter |
+| GitHub        | https://github.com/continew-org/continew-starter |
 | Gitee（码云） | https://gitee.com/continew/continew-starter  |
 
 ## 像数1，2，3一样容易
@@ -252,7 +252,7 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 2. 然后，将 fork 过来的项目（即您的项目）克隆到本地
 3. 切换到当前仍在维护的分支（请务必充分了解分支使用说明，可进群联系维护者确认）
 4. 开始修改代码，修改完成后，将代码 commit 并 push 到您的远程仓库
-5. 在 Gitee 或 Github 上新建 pull request（pr），选择好源和目标，按模板要求填写说明信息后提交即可（多多参考 [已批准合并的 pr 记录](https://github.com/Charles7c/continew-starter/pulls?q=is%3Apr+is%3Amerged)，会大大增加批准合并率）
+5. 在 Gitee 或 Github 上新建 pull request（pr），选择好源和目标，按模板要求填写说明信息后提交即可（多多参考 [已批准合并的 pr 记录](https://github.com/continew-org/continew-starter/pulls?q=is%3Apr+is%3Amerged)，会大大增加批准合并率）
 6. 最后，耐心等待维护者合并您的请求即可
 
 请记住，如果您有任何疑问或需要帮助，我们将随时提供支持。
@@ -260,7 +260,7 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 > [!IMPORTANT]
 > 欢迎大家为 ContiNew Starter 贡献代码，我们非常感谢您的支持！为了更好地管理项目，维护者有一些要求：
 >
-> 1. 请确保代码、配置文件的结构和命名规范良好，完善的代码注释，并遵循阿里巴巴的 <a href="https://github.com/Charles7c/continew-starter/blob/dev/.style/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C(%E9%BB%84%E5%B1%B1%E7%89%88).pdf" target="_blank">《Java开发手册(黄山版)》</a> 中的代码规范，保证代码质量和可维护性
+> 1. 请确保代码、配置文件的结构和命名规范良好，完善的代码注释，并遵循阿里巴巴的 <a href="https://github.com/continew-org/continew-starter/blob/dev/.style/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C(%E9%BB%84%E5%B1%B1%E7%89%88).pdf" target="_blank">《Java开发手册(黄山版)》</a> 中的代码规范，保证代码质量和可维护性
 > 2. 在提交代码前，请按照 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) 编写 commit 的 message（建议在 IntelliJ IDEA 中下载并安装 Git Commit Template 插件，以便按照规范进行 commit）
 > 3. 提交代码之前，请关闭所有代码窗口，执行 `mvn compile` 命令（代码格式化插件会在项目编译时对全局代码进行格式修正），编译通过后，不要再打开查看任何代码窗口，直接提交即可
 
@@ -280,7 +280,7 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 </div>
 <details>
 <summary>无加群意愿</summary>
-💬 如无加群意愿，欢迎在 <a href="https://github.com/Charles7c/continew-starter/issues" target="_blank">Issues</a> 中反馈交流~ 🍻
+💬 如无加群意愿，欢迎在 <a href="https://github.com/continew-org/continew-starter/issues" target="_blank">Issues</a> 中反馈交流~ 🍻
 </details>
 
 ## 鸣谢
@@ -289,8 +289,8 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 
 感谢参与贡献的每一位小伙伴🥰
 
-<a href="https://github.com/Charles7c/continew-starter/graphs/contributors">
-	<img src="https://contrib.rocks/image?repo=Charles7c/continew-starter" />
+<a href="https://github.com/continew-org/continew-starter/graphs/contributors">
+	<img src="https://contrib.rocks/image?repo=continew-org/continew-starter" />
 </a>
 
 ### 特别鸣谢
@@ -304,7 +304,7 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 
 ## License
 
-- 遵循 <a href="https://github.com/Charles7c/continew-starter/blob/dev/LICENSE" target="_blank">LGPL-3.0</a> 开源许可协议
+- 遵循 <a href="https://github.com/continew-org/continew-starter/blob/dev/LICENSE" target="_blank">LGPL-3.0</a> 开源许可协议
 - Copyright © 2022-present <a href="https://blog.charles7c.top" target="_blank">Charles7c</a>
 
 ## GitHub Star 趋势
