@@ -1,26 +1,31 @@
-name: Analysis Code Quality
+name: Scan
 
 on:
-  # 推送时执行
   push:
-    branches: [dev]
-  # 可手动执行
-  workflow_dispatch:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
 
 jobs:
-  # Sonar 扫描
   sonar-scan:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        jdk-version:
+          - 17
     steps:
       - name: Checkout
-        uses: actions/checkout@master
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup Java
-        uses: actions/setup-java@master
+        uses: actions/setup-java@v4
         with:
-          distribution: 'adopt'
-          java-version: 17
+          distribution: "adopt"
+          java-version: ${{ matrix.jdk-version }}
+          cache: "maven"
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
         with:
@@ -34,7 +39,10 @@ jobs:
           key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
           restore-keys: ${{ runner.os }}-m2
       - name: Analyze
-        run: mvn -B verify -Psonar
+        run: |
+          sed -i.bak '/<repositories>/,/<\/repositories>/d' pom.xml
+          sed -i.bak '/<pluginRepositories>/,/<\/pluginRepositories>/d' pom.xml
+          mvn -B verify -Psonar
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
