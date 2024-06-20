@@ -44,8 +44,8 @@ public class IpUtils {
      * @param ip IP 地址
      * @return IP 归属地
      */
-    public static String getAddress(String ip) {
-        if (isInnerIp(ip)) {
+    public static String getIpv4Address(String ip) {
+        if (isInnerIpv4(ip)) {
             return "内网IP";
         }
         Ip2regionSearcher ip2regionSearcher = SpringUtil.getBean(Ip2regionSearcher.class);
@@ -64,7 +64,7 @@ public class IpUtils {
      * @param ip IP 地址
      * @return 是否为内网 IP
      */
-    public static boolean isInnerIp(String ip) {
+    public static boolean isInnerIpv4(String ip) {
         return NetUtil.isInnerIP("0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : HtmlUtil.cleanHtmlTag(ip));
     }
 }

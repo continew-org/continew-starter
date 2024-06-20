@@ -18,6 +18,7 @@ package top.continew.starter.log.core.model;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import org.springframework.http.HttpHeaders;
+import top.continew.starter.core.util.ExceptionUtils;
 import top.continew.starter.core.util.IpUtils;
 import top.continew.starter.log.core.enums.Include;
 import top.continew.starter.web.util.ServletUtils;
@@ -89,7 +90,9 @@ public class LogRequest {
         } else if (includes.contains(Include.REQUEST_PARAM)) {
             this.param = request.getParam();
         }
-        this.address = (includes.contains(Include.IP_ADDRESS)) ? IpUtils.getAddress(this.ip) : null;
+        this.address = (includes.contains(Include.IP_ADDRESS))
+            ? ExceptionUtils.exToNull(() -> IpUtils.getIpv4Address(this.ip))
+            : null;
         if (null == this.headers) {
             return;
         }
