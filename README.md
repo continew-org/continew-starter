@@ -276,7 +276,7 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 - 和众多大佬互相 (huá shuǐ) 交流 (mō yú)
 
 <div align="left">
-  <img src="https://doc.charles7c.top/qrcode.jpg" alt="二维码" width="230px" />
+  <img src="https://continew.top/qrcode.jpg" alt="二维码" width="230px" />
 </div>
 <details>
 <summary>无加群意愿</summary>
