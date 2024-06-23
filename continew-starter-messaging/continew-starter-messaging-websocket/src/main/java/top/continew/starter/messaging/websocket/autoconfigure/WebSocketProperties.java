@@ -52,9 +52,9 @@ public class WebSocketProperties {
     private List<String> allowedOrigins = new ArrayList<>(ALL);
 
     /**
-     * 当前登录用户 Key
+     * 客户端 ID Key
      */
-    private String currentUserKey = "CURRENT_USER";
+    private String clientIdKey = "CLIENT_ID";
 
     public boolean isEnabled() {
         return enabled;
@@ -80,11 +80,11 @@ public class WebSocketProperties {
         this.allowedOrigins = allowedOrigins;
     }
 
-    public String getCurrentUserKey() {
-        return currentUserKey;
+    public String getClientIdKey() {
+        return clientIdKey;
     }
 
-    public void setCurrentUserKey(String currentUserKey) {
-        this.currentUserKey = currentUserKey;
+    public void setClientIdKey(String clientIdKey) {
+        this.clientIdKey = clientIdKey;
     }
 }

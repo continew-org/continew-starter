@@ -14,45 +14,23 @@
  * limitations under the License.
  */
 
-package top.continew.starter.messaging.websocket.model;
+package top.continew.starter.messaging.websocket.core;
 
-import java.io.Serial;
-import java.io.Serializable;
+import org.springframework.http.server.ServletServerHttpRequest;
 
 /**
- * 当前登录用户信息
+ * WebSocket 客户端服务
  *
  * @author Charles7c
  * @since 2.1.0
  */
-public class CurrentUser implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 1L;
+public interface WebSocketClientService {
 
     /**
-     * 用户 ID
+     * 获取当前客户端 ID
+     *
+     * @param request 请求对象
+     * @return 当前客户端 ID
      */
-    private String userId;
-
-    /**
-     * 扩展字段
-     */
-    private Object extend;
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public Object getExtend() {
-        return extend;
-    }
-
-    public void setExtend(Object extend) {
-        this.extend = extend;
-    }
+    String getClientId(ServletServerHttpRequest request);
 }

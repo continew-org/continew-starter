@@ -22,7 +22,6 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 import top.continew.starter.messaging.websocket.autoconfigure.WebSocketProperties;
-import top.continew.starter.messaging.websocket.model.CurrentUser;
 
 import java.util.Map;
 
@@ -36,11 +35,12 @@ import java.util.Map;
 public class WebSocketInterceptor extends HttpSessionHandshakeInterceptor {
 
     private final WebSocketProperties webSocketProperties;
-    private final CurrentUserProvider currentUserProvider;
+    private final WebSocketClientService webSocketClientService;
 
-    public WebSocketInterceptor(WebSocketProperties webSocketProperties, CurrentUserProvider currentUserProvider) {
+    public WebSocketInterceptor(WebSocketProperties webSocketProperties,
+                                WebSocketClientService webSocketClientService) {
         this.webSocketProperties = webSocketProperties;
-        this.currentUserProvider = currentUserProvider;
+        this.webSocketClientService = webSocketClientService;
     }
 
     @Override
@@ -48,8 +48,8 @@ public class WebSocketInterceptor extends HttpSessionHandshakeInterceptor {
                                    ServerHttpResponse response,
                                    WebSocketHandler wsHandler,
                                    Map<String, Object> attributes) {
-        CurrentUser currentUser = currentUserProvider.getCurrentUser((ServletServerHttpRequest)request);
-        attributes.put(webSocketProperties.getCurrentUserKey(), currentUser.getUserId());
+        String clientId = webSocketClientService.getClientId((ServletServerHttpRequest)request);
+        attributes.put(webSocketProperties.getClientIdKey(), clientId);
         return true;
     }
 

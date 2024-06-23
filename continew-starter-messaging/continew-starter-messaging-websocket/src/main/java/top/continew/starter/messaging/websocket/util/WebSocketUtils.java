@@ -44,11 +44,11 @@ public class WebSocketUtils {
     /**
      * 发送消息
      *
-     * @param sessionKey 会话 Key
-     * @param message    消息内容
+     * @param clientId 客户端 ID
+     * @param message  消息内容
      */
-    public static void sendMessage(String sessionKey, String message) {
-        WebSocketSession session = SESSION_DAO.get(sessionKey);
+    public static void sendMessage(String clientId, String message) {
+        WebSocketSession session = SESSION_DAO.get(clientId);
         sendMessage(session, message);
     }
 

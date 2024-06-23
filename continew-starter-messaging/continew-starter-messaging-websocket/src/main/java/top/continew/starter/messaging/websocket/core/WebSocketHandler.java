@@ -22,9 +22,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
-import org.springframework.web.socket.handler.AbstractWebSocketHandler;
+import org.springframework.web.socket.handler.TextWebSocketHandler;
 import top.continew.starter.messaging.websocket.autoconfigure.WebSocketProperties;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
+
+import java.io.IOException;
 
 /**
  * WebSocket 处理器
@@ -33,7 +35,7 @@ import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
  * @author Charles7c
  * @since 2.1.0
  */
-public class WebSocketHandler extends AbstractWebSocketHandler {
+public class WebSocketHandler extends TextWebSocketHandler {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketHandler.class);
     private final WebSocketProperties webSocketProperties;
@@ -46,26 +48,41 @@ public class WebSocketHandler extends AbstractWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        log.info("WebSocket receive message. sessionId: {}, message: {}.", session.getId(), message.getPayload());
+        String clientId = this.getClientId(session);
+        log.info("WebSocket receive message. clientId: {}, message: {}.", clientId, message.getPayload());
         super.handleTextMessage(session, message);
     }
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) {
-        String sessionKey = Convert.toStr(session.getAttributes().get(webSocketProperties.getCurrentUserKey()));
-        webSocketSessionDao.add(sessionKey, session);
-        log.info("WebSocket connect successfully. sessionKey: {}.", sessionKey);
+        String clientId = this.getClientId(session);
+        webSocketSessionDao.add(clientId, session);
+        log.info("WebSocket client connect successfully. clientId: {}.", clientId);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
-        String sessionKey = Convert.toStr(session.getAttributes().get(webSocketProperties.getCurrentUserKey()));
-        webSocketSessionDao.delete(sessionKey);
-        log.info("WebSocket connect closed. sessionKey: {}.", sessionKey);
+        String clientId = this.getClientId(session);
+        webSocketSessionDao.delete(clientId);
+        log.info("WebSocket client connect closed. clientId: {}.", clientId);
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) {
-        log.error("WebSocket transport error. sessionId: {}.", session.getId(), exception);
+    public void handleTransportError(WebSocketSession session, Throwable exception) throws IOException {
+        String clientId = this.getClientId(session);
+        if (session.isOpen()) {
+            session.close();
+        }
+        webSocketSessionDao.delete(clientId);
+    }
+
+    /**
+     * 获取客户端 ID
+     * 
+     * @param session 会话
+     * @return 客户端 ID
+     */
+    private String getClientId(WebSocketSession session) {
+        return Convert.toStr(session.getAttributes().get(webSocketProperties.getClientIdKey()));
     }
 }

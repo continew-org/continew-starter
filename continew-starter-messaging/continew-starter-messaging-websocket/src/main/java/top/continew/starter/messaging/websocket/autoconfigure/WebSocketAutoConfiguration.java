@@ -31,7 +31,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import top.continew.starter.core.constant.PropertiesConstants;
-import top.continew.starter.messaging.websocket.core.CurrentUserProvider;
+import top.continew.starter.messaging.websocket.core.WebSocketClientService;
 import top.continew.starter.messaging.websocket.core.WebSocketInterceptor;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDaoDefaultImpl;
@@ -73,7 +73,7 @@ public class WebSocketAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public HandshakeInterceptor handshakeInterceptor() {
-        return new WebSocketInterceptor(properties, SpringUtil.getBean(CurrentUserProvider.class));
+        return new WebSocketInterceptor(properties, SpringUtil.getBean(WebSocketClientService.class));
     }
 
     /**
@@ -86,12 +86,12 @@ public class WebSocketAutoConfiguration {
     }
 
     /**
-     * 当前用户 Provider（如不提供，则报错）
+     * WebSocket 客户端服务（如不提供，则报错）
      */
     @Bean
     @ConditionalOnMissingBean
-    public CurrentUserProvider currentUserProvider() {
-        throw new NoSuchBeanDefinitionException(CurrentUserProvider.class);
+    public WebSocketClientService webSocketClientService() {
+        throw new NoSuchBeanDefinitionException(WebSocketClientService.class);
     }
 
     @PostConstruct
