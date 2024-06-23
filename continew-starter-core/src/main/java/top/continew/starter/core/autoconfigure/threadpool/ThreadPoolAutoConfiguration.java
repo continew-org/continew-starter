@@ -64,6 +64,7 @@ public class ThreadPoolAutoConfiguration {
     @Bean
     public ThreadPoolTaskExecutor threadPoolTaskExecutor(ThreadPoolProperties properties) {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setThreadNamePrefix("thread-pool");
         // 核心（最小）线程数
         executor.setCorePoolSize(ObjectUtil.defaultIfNull(properties.getCorePoolSize(), corePoolSize));
         // 最大线程数
@@ -98,7 +99,7 @@ public class ThreadPoolAutoConfiguration {
             }
         };
         // 应用关闭时，关闭线程池
-        SpringApplication.getShutdownHandlers().add(() -> shutdown(executor, properties));
+        SpringApplication.getShutdownHandlers().add(() -> this.shutdown(executor, properties));
         log.debug("[ContiNew Starter] - Auto Configuration 'ScheduledExecutorService' completed initialization.");
         return executor;
     }
@@ -107,6 +108,7 @@ public class ThreadPoolAutoConfiguration {
      * 根据相应的配置设置关闭 ExecutorService
      *
      * @see org.springframework.scheduling.concurrent.ExecutorConfigurationSupport#shutdown()
+     * @since 2.0.0
      */
     public void shutdown(ExecutorService executor, ThreadPoolProperties properties) {
         log.debug("[ContiNew Starter] - Shutting down ScheduledExecutorService start.");
@@ -129,6 +131,7 @@ public class ThreadPoolAutoConfiguration {
      *
      * @param task the task to cancel (typically a {@link RunnableFuture})
      * @see RunnableFuture#cancel(boolean)
+     * @since 2.0.0
      */
     protected void cancelRemainingTask(Runnable task) {
         if (task instanceof Future<?> future) {
@@ -138,6 +141,8 @@ public class ThreadPoolAutoConfiguration {
 
     /**
      * Wait for the executor to terminate, according to the value of the properties
+     * 
+     * @since 2.0.0
      */
     private void awaitTerminationIfNecessary(ExecutorService executor, ThreadPoolProperties properties) {
         if (properties.getAwaitTerminationMillis() > 0) {
