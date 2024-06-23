@@ -1,3 +1,23 @@
+## [v2.1.1](https://github.com/continew-org/continew-starter/compare/v2.1.0...v2.1.1) (2024-06-23)
+
+### ✨ 新特性
+
+- 【data/mybatis-plus】新增防全表更新与删除插件启用配置 ([c84539b](https://github.com/continew-org/continew-starter/commit/c84539b4619d2064c8996cd3e574fa5141e124da))
+- 【messaging/mail】邮件支持自定义发件人 ([27b949d](https://github.com/continew-org/continew-starter/commit/27b949dd9d62f68c74d8a12729c4de5fdcc414c9))
+- 【cache/redisson】RedisUtils 新增 List 缓存操作方法 ([92fd0a8](https://github.com/continew-org/continew-starter/commit/92fd0a8ab2c0250981aceb006a86c1e911719970))
+
+### 🐛 问题修复
+
+- 【security/crypto】修复处理 MP Wrapper 时 无法加密的情况 (GitHub#4) ([a235a6e](https://github.com/continew-org/continew-starter/commit/a235a6ea8b574c3f719857bb99d05e874d4e9bd2))
+- 【log/core】兼容日志记录 IPv6 IP 归属地场景 ([0bba30b](https://github.com/continew-org/continew-starter/commit/0bba30b9c4c14e5582b034420f47d0567fdc482a))
+- 【extension/crud】排除 SaToken Starter 中的 Web 依赖 ([6e73472](https://github.com/continew-org/continew-starter/commit/6e73472589f65d63ef5d397e681f5af6b31b43c6))
+
+### 💎 功能优化
+
+- 【web】优化全局文件上传异常-超过上传大小限制的异常判断 ([1bc4ba7](https://github.com/continew-org/continew-starter/commit/1bc4ba76b20f06b2932c1bc20948a6d88d40ab2b))
+- 【core】线程池配置增加默认线程前缀配置 ([a208fa5](https://github.com/continew-org/continew-starter/commit/a208fa59b2a9457bced4dfd3b24f92ce4a73f1f6))
+- 【messaging/websocket】优化 WebSocket 相关配置及命名 ([6c10e80](https://github.com/continew-org/continew-starter/commit/6c10e80d71a7ce768d4fd44006c707c599b3960e))
+
 ## [v2.1.0](https://github.com/continew-org/continew-starter/compare/v2.0.2...v2.1.0) (2024-06-05)
 
 ### ✨ 新特性

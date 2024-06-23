@@ -6,9 +6,6 @@
 <a href="https://central.sonatype.com/search?q=continew-starter" target="_blank">
 <img src="https://img.shields.io/maven-central/v/top.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
 </a>
-<a href="https://github.com/continew-org/continew-starter" target="_blank">
-<img src="https://img.shields.io/badge/RELEASE-v2.1.0-%23ff3f59.svg" alt="Release" />
-</a>
 <a href="https://app.codacy.com/gh/continew-org/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank">
 <img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy Badge" />
 </a>
