@@ -28,6 +28,12 @@
         <dependency>
             <groupId>top.continew</groupId>
             <artifactId>continew-starter-auth-satoken</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-web</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- 文件处理模块 - Excel -->
