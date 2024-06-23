@@ -22,6 +22,7 @@ import top.continew.starter.core.constant.StringConstants;
 
 import java.time.Duration;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Redis 工具类
@@ -54,11 +55,7 @@ public class RedisUtils {
      * @param duration 过期时间
      */
     public static <T> void set(String key, T value, Duration duration) {
-        RBatch batch = CLIENT.createBatch();
-        RBucketAsync<T> bucket = batch.getBucket(key);
-        bucket.setAsync(value);
-        bucket.expireAsync(duration);
-        batch.execute();
+        CLIENT.getBucket(key).set(value, duration);
     }
 
     /**
@@ -70,6 +67,46 @@ public class RedisUtils {
     public static <T> T get(String key) {
         RBucket<T> bucket = CLIENT.getBucket(key);
         return bucket.get();
+    }
+
+    /**
+     * 设置缓存（List 集合）
+     *
+     * @param key   键
+     * @param value 值
+     * @since 2.1.1
+     */
+    public static <T> void setList(String key, List<T> value) {
+        RList<T> list = CLIENT.getList(key);
+        list.addAll(value);
+    }
+
+    /**
+     * 设置缓存（List 集合）
+     *
+     * @param key      键
+     * @param value    值
+     * @param duration 过期时间
+     * @since 2.1.1
+     */
+    public static <T> void setList(String key, List<T> value, Duration duration) {
+        RBatch batch = CLIENT.createBatch();
+        RListAsync<T> list = batch.getList(key);
+        list.addAllAsync(value);
+        list.expireAsync(duration);
+        batch.execute();
+    }
+
+    /**
+     * 查询指定缓存（List 集合）
+     *
+     * @param key 键
+     * @return 值
+     * @since 2.1.1
+     */
+    public static <T> List<T> getList(String key) {
+        RList<T> list = CLIENT.getList(key);
+        return list.readAll();
     }
 
     /**
@@ -111,17 +148,6 @@ public class RedisUtils {
      */
     public static long decr(String key) {
         return CLIENT.getAtomicLong(key).decrementAndGet();
-    }
-
-    /**
-     * 设置缓存过期时间
-     *
-     * @param key     键
-     * @param timeout 过期时间（单位：秒）
-     * @return true：设置成功；false：设置失败
-     */
-    public static boolean expire(String key, long timeout) {
-        return expire(key, Duration.ofSeconds(timeout));
     }
 
     /**
