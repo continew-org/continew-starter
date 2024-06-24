@@ -19,6 +19,8 @@ package top.continew.starter.web.autoconfigure.exception;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.StrUtil;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -36,7 +38,11 @@ import org.springframework.web.multipart.MultipartException;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.exception.BadRequestException;
 import top.continew.starter.core.exception.BusinessException;
+import top.continew.starter.core.exception.GlobalException;
+import top.continew.starter.core.exception.ResultInfoInterface;
+import top.continew.starter.web.autoconfigure.i18n.I18nProperties;
 import top.continew.starter.web.model.R;
+import top.continew.starter.web.util.MessageSourceUtils;
 
 /**
  * 全局异常处理器
@@ -49,6 +55,8 @@ public class GlobalExceptionHandler {
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     private static final String PARAM_FAILED = "请求地址 [{}]，参数验证失败。";
+    @Resource
+    private I18nProperties i18nProperties;
 
     /**
      * 拦截自定义验证异常-错误请求
@@ -151,6 +159,23 @@ public class GlobalExceptionHandler {
     public R<Void> handleServiceException(BusinessException e, HttpServletRequest request) {
         log.error("请求地址 [{}]，发生业务异常。", request.getRequestURI(), e);
         return R.fail(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
+    }
+
+    /**
+     * 拦截全局应用异常
+     */
+    @ExceptionHandler(GlobalException.class)
+    public R<Void> handleGlobalException(GlobalException e, HttpServletRequest request) {
+        log.error("请求地址 [{}]，发生业务异常。", request.getRequestURI(), e);
+        ResultInfoInterface resultInfo = e.getResultInfo();
+        // 未开启，直接返回
+        if (!i18nProperties.getEnabled()) {
+            return R.fail(resultInfo.getCode(), resultInfo.getDefaultMessage());
+        }
+        // 以用户自定的messageKey优先，否则枚举当messageKey
+        String messageKey = StrUtil.blankToDefault(resultInfo.getMessageKey(), resultInfo.toString());
+        String message = MessageSourceUtils.getMessage(messageKey, resultInfo.getDefaultMessage());
+        return R.fail(resultInfo.getCode(), message);
     }
 
     /**

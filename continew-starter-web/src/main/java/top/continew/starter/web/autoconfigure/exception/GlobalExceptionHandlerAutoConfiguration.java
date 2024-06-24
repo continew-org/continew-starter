@@ -26,10 +26,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.web.servlet.error.BasicErrorController;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.validation.beanvalidation.SpringConstraintValidatorFactory;
+import top.continew.starter.web.autoconfigure.i18n.I18nProperties;
 
 /**
  * 全局异常处理器自动配置
@@ -40,6 +42,7 @@ import org.springframework.validation.beanvalidation.SpringConstraintValidatorFa
 @Configuration(proxyBeanMethods = false)
 @ConditionalOnMissingBean(BasicErrorController.class)
 @Import({GlobalExceptionHandler.class, GlobalErrorHandler.class})
+@EnableConfigurationProperties(I18nProperties.class)
 public class GlobalExceptionHandlerAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandlerAutoConfiguration.class);

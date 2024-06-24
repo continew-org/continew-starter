@@ -124,6 +124,11 @@ public class PropertiesConstants {
      */
     public static final String MESSAGING_WEBSOCKET = MESSAGING + StringConstants.DOT + "websocket";
 
+    /**
+     * 国际化配置
+     */
+    public static final String I18N = WEB + StringConstants.DOT + "i18n";
+
     private PropertiesConstants() {
     }
 }
