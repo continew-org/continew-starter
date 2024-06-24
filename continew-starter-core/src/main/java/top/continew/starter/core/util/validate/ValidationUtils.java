@@ -16,9 +16,14 @@
 
 package top.continew.starter.core.util.validate;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import jakarta.validation.ConstraintViolation;
 import top.continew.starter.core.exception.BadRequestException;
 
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -172,5 +177,22 @@ public class ValidationUtils extends Validator {
      */
     public static void throwIf(BooleanSupplier conditionSupplier, String template, Object... params) {
         throwIf(conditionSupplier, CharSequenceUtil.format(template, params), EXCEPTION_TYPE);
+    }
+
+    /**
+     * JSR 303 校验
+     *
+     * @param obj    被校验对象
+     * @param groups 分组
+     */
+    public static void validate(Object obj, Class<?>... groups) {
+        jakarta.validation.Validator validator = SpringUtil.getBean(jakarta.validation.Validator.class);
+        Set<ConstraintViolation<Object>> violations = validator.validate(obj, groups);
+        if (CollUtil.isEmpty(violations)) {
+            return;
+        }
+        throw ReflectUtil.newInstance(EXCEPTION_TYPE, violations.stream()
+            .map(ConstraintViolation::getMessage)
+            .findFirst());
     }
 }
