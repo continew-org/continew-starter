@@ -17,6 +17,7 @@
 package top.continew.starter.core.autoconfigure.threadpool;
 
 import cn.hutool.core.util.ArrayUtil;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -25,40 +26,39 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.exception.BaseException;
 
 import java.util.Arrays;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * 异步任务自动配置
  *
  * @author Charles7c
- * @author Lion Li（<a href="https://gitee.com/dromara/RuoYi-Vue-Plus">RuoYi-Vue-Plus</a>）
  * @since 1.0.0
  */
 @Lazy
 @AutoConfiguration
 @EnableAsync(proxyTargetClass = true)
-@ConditionalOnProperty(prefix = PropertiesConstants.THREAD_POOL, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = "spring.task.execution.extension", name = PropertiesConstants.ENABLED, matchIfMissing = true)
 public class AsyncAutoConfiguration implements AsyncConfigurer {
+
     private static final Logger log = LoggerFactory.getLogger(AsyncAutoConfiguration.class);
 
-    private final ScheduledExecutorService scheduledExecutorService;
+    private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
 
-    public AsyncAutoConfiguration(ScheduledExecutorService scheduledExecutorService) {
-        this.scheduledExecutorService = scheduledExecutorService;
+    public AsyncAutoConfiguration(ThreadPoolTaskExecutor threadPoolTaskExecutor) {
+        this.threadPoolTaskExecutor = threadPoolTaskExecutor;
     }
 
     /**
-     * 异步任务 @Async 执行时，使用 Java 内置线程池
+     * 异步任务线程池配置
      */
     @Override
     public Executor getAsyncExecutor() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'AsyncConfigurer' completed initialization.");
-        return scheduledExecutorService;
+        return threadPoolTaskExecutor;
     }
 
     /**
@@ -78,5 +78,10 @@ public class AsyncAutoConfiguration implements AsyncConfigurer {
             }
             throw new BaseException(sb.toString());
         };
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        log.debug("[ContiNew Starter] - Auto Configuration 'AsyncConfigurer' completed initialization.");
     }
 }

@@ -35,11 +35,6 @@ public class PropertiesConstants {
     public static final String ENABLED = "enabled";
 
     /**
-     * 线程池配置
-     */
-    public static final String THREAD_POOL = CONTINEW_STARTER + StringConstants.DOT + "thread-pool";
-
-    /**
      * Spring Doc 配置
      */
     public static final String SPRINGDOC = "springdoc";
