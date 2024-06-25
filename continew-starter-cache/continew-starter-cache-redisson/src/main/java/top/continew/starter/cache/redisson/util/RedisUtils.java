@@ -207,6 +207,25 @@ public class RedisUtils {
     }
 
     /**
+     * 限流
+     *
+     * @param key          限流key
+     * @param rateType     限流类型
+     * @param rate         速率
+     * @param rateInterval 速率间隔
+     * @return -1 表示失败
+     */
+    public static long rateLimiter(String key, RateType rateType, int rate, int rateInterval, RateIntervalUnit unit) {
+        RRateLimiter rateLimiter = CLIENT.getRateLimiter(key);
+        rateLimiter.trySetRate(rateType, rate, rateInterval, unit);
+        if (rateLimiter.tryAcquire()) {
+            return rateLimiter.availablePermits();
+        } else {
+            return -1L;
+        }
+    }
+
+    /**
      * 格式化键，将各子键用 : 拼接起来
      *
      * @param subKeys 子键列表

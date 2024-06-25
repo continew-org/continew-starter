@@ -473,6 +473,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 安全模块 - 限流 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-security-limiter</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- API 文档模块 -->
             <dependency>
                 <groupId>top.continew</groupId>

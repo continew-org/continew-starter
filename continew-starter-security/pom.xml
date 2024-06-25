@@ -17,6 +17,7 @@
         <module>continew-starter-security-password</module>
         <module>continew-starter-security-mask</module>
         <module>continew-starter-security-crypto</module>
+        <module>continew-starter-security-limiter</module>
     </modules>
 
     <dependencies>
@@ -25,5 +26,12 @@
             <groupId>top.continew</groupId>
             <artifactId>continew-starter-core</artifactId>
         </dependency>
+
+        <!-- Web 模块 -->
+        <dependency>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-web</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

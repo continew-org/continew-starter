@@ -1,0 +1,7 @@
+{
+  "top.continew.starter.security.limiter.annotation.RateLimiter@key":{
+    "method":{
+      "parameters": true
+    }
+  }
+}

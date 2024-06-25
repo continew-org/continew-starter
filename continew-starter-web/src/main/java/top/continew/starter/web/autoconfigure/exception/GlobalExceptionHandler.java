@@ -44,6 +44,8 @@ import top.continew.starter.web.autoconfigure.i18n.I18nProperties;
 import top.continew.starter.web.model.R;
 import top.continew.starter.web.util.MessageSourceUtils;
 
+import java.awt.image.RasterFormatException;
+
 /**
  * 全局异常处理器
  *
@@ -195,4 +197,5 @@ public class GlobalExceptionHandler {
         log.error("请求地址 [{}]，发生未知异常。", request.getRequestURI(), e);
         return R.fail(e.getMessage());
     }
+
 }
