@@ -25,6 +25,7 @@ import top.continew.starter.security.limiter.aop.RateLimiterAspect;
 
 /**
  * 限流配置注入器
+ * 
  * @author KAI
  * @since 2.2.0
  */

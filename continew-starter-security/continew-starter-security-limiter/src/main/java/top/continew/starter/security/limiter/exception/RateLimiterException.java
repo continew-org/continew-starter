@@ -20,6 +20,7 @@ import top.continew.starter.core.exception.BaseException;
 
 /**
  * 限流异常
+ * 
  * @author KAI
  * @since 2.2.0
  */

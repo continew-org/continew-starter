@@ -21,6 +21,7 @@ import org.springframework.util.StringUtils;
 
 /**
  * 限流器配置属性
+ * 
  * @author KAI
  * @since 2.2.0
  */
