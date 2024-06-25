@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
@@ -39,7 +38,6 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.continew.starter.core.autoconfigure.project.ProjectProperties;
-import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import java.util.List;
@@ -54,7 +52,6 @@ import java.util.concurrent.TimeUnit;
  */
 @EnableWebMvc
 @AutoConfiguration
-@ConditionalOnProperty(prefix = PropertiesConstants.SPRINGDOC_SWAGGER_UI, name = PropertiesConstants.ENABLED, matchIfMissing = true)
 @EnableConfigurationProperties(SpringDocExtensionProperties.class)
 @PropertySource(value = "classpath:default-api-doc.yml", factory = GeneralPropertySourceFactory.class)
 public class SpringDocAutoConfiguration implements WebMvcConfigurer {
