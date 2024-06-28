@@ -20,12 +20,12 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * 国际化 配置属性
+ * 国际化配置属性
  *
  * @author Jasmine
  * @since 2.2.0
  */
-@ConfigurationProperties(prefix = PropertiesConstants.I18N)
+@ConfigurationProperties(PropertiesConstants.WEB_I18N)
 public class I18nProperties {
 
     /**

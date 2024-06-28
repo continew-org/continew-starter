@@ -25,7 +25,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @author Jasmine
  * @since 1.3.0
  */
-@ConfigurationProperties(PropertiesConstants.PASSWORD)
+@ConfigurationProperties(PropertiesConstants.SECURITY_PASSWORD)
 public class PasswordEncoderProperties {
 
     /**

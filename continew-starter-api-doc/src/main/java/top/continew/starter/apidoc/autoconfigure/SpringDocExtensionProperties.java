@@ -19,7 +19,6 @@ package top.continew.starter.apidoc.autoconfigure;
 import io.swagger.v3.oas.models.Components;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
-import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
  * API 文档扩展配置属性
@@ -27,7 +26,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @author Charles7c
  * @since 1.0.1
  */
-@ConfigurationProperties(prefix = PropertiesConstants.SPRINGDOC)
+@ConfigurationProperties("springdoc")
 public class SpringDocExtensionProperties {
 
     /**

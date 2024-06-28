@@ -35,16 +35,6 @@ public class PropertiesConstants {
     public static final String ENABLED = "enabled";
 
     /**
-     * Spring Doc 配置
-     */
-    public static final String SPRINGDOC = "springdoc";
-
-    /**
-     * Spring Doc Swagger UI 配置
-     */
-    public static final String SPRINGDOC_SWAGGER_UI = SPRINGDOC + StringConstants.DOT + "swagger-ui";
-
-    /**
      * 安全配置
      */
     public static final String SECURITY = CONTINEW_STARTER + StringConstants.DOT + "security";
@@ -52,12 +42,17 @@ public class PropertiesConstants {
     /**
      * 密码编解码配置
      */
-    public static final String PASSWORD = SECURITY + StringConstants.DOT + "password";
+    public static final String SECURITY_PASSWORD = SECURITY + StringConstants.DOT + "password";
 
     /**
      * 加/解密配置
      */
-    public static final String CRYPTO = SECURITY + StringConstants.DOT + "crypto";
+    public static final String SECURITY_CRYPTO = SECURITY + StringConstants.DOT + "crypto";
+
+    /**
+     * 限流器配置
+     */
+    public static final String SECURITY_LIMITER = SECURITY + StringConstants.DOT + "limiter";
 
     /**
      * Web 配置
@@ -67,17 +62,22 @@ public class PropertiesConstants {
     /**
      * 跨域配置
      */
-    public static final String CORS = WEB + StringConstants.DOT + "cors";
+    public static final String WEB_CORS = WEB + StringConstants.DOT + "cors";
 
     /**
      * 链路配置
      */
-    public static final String TRACE = WEB + StringConstants.DOT + "trace";
+    public static final String WEB_TRACE = WEB + StringConstants.DOT + "trace";
 
     /**
      * XSS 配置
      */
-    public static final String XSS = WEB + StringConstants.DOT + "xss";
+    public static final String WEB_XSS = WEB + StringConstants.DOT + "xss";
+
+    /**
+     * 国际化配置
+     */
+    public static final String WEB_I18N = WEB + StringConstants.DOT + "i18n";
 
     /**
      * 日志配置
@@ -118,11 +118,6 @@ public class PropertiesConstants {
      * WebSocket 配置
      */
     public static final String MESSAGING_WEBSOCKET = MESSAGING + StringConstants.DOT + "websocket";
-
-    /**
-     * 国际化配置
-     */
-    public static final String I18N = WEB + StringConstants.DOT + "i18n";
 
     private PropertiesConstants() {
     }

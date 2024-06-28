@@ -29,7 +29,7 @@ import java.util.List;
  * @author whhya
  * @since 2.0.0
  */
-@ConfigurationProperties(PropertiesConstants.XSS)
+@ConfigurationProperties(PropertiesConstants.WEB_XSS)
 public class XssProperties {
 
     /**

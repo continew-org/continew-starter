@@ -26,7 +26,7 @@ import top.continew.starter.auth.satoken.autoconfigure.dao.SaTokenDaoProperties;
  * @author Charles7c
  * @since 1.0.0
  */
-@ConfigurationProperties(prefix = "sa-token.extension")
+@ConfigurationProperties("sa-token.extension")
 public class SaTokenExtensionProperties {
 
     /**

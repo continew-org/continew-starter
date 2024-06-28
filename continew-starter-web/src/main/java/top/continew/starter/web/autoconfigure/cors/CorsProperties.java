@@ -30,7 +30,7 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-@ConfigurationProperties(PropertiesConstants.CORS)
+@ConfigurationProperties(PropertiesConstants.WEB_CORS)
 public class CorsProperties {
 
     private static final List<String> ALL = Collections.singletonList(StringConstants.ASTERISK);

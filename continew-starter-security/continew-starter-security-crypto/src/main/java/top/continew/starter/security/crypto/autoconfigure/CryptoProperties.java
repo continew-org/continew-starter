@@ -25,7 +25,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @author Charles7c
  * @since 1.4.0
  */
-@ConfigurationProperties(PropertiesConstants.CRYPTO)
+@ConfigurationProperties(PropertiesConstants.SECURITY_CRYPTO)
 public class CryptoProperties {
 
     /**

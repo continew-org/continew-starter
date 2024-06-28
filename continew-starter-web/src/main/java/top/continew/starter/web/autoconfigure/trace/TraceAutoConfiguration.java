@@ -43,7 +43,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
 @AutoConfiguration
 @ConditionalOnWebApplication
 @EnableConfigurationProperties(TraceProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.TRACE, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.WEB_TRACE, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class TraceAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(TraceAutoConfiguration.class);

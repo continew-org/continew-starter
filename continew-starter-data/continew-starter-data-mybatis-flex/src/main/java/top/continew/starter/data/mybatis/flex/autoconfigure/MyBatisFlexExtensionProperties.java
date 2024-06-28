@@ -25,7 +25,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Charles7c
  * @since 1.0.0
  */
-@ConfigurationProperties(prefix = "mybatis-flex.extension")
+@ConfigurationProperties("mybatis-flex.extension")
 public class MyBatisFlexExtensionProperties {
 
     /**

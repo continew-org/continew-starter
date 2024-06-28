@@ -65,7 +65,7 @@ public abstract class AbstractMyBatisInterceptor implements Interceptor {
      */
     public Map<String, FieldEncrypt> getEncryptParams(String mappedStatementId, Integer parameterIndex) {
         return ENCRYPT_PARAM_CACHE
-            .computeIfAbsent(mappedStatementId, m -> getEncryptParamsNoCached(mappedStatementId, parameterIndex));
+            .computeIfAbsent(mappedStatementId, key -> getEncryptParamsNoCached(mappedStatementId, parameterIndex));
     }
 
     /**

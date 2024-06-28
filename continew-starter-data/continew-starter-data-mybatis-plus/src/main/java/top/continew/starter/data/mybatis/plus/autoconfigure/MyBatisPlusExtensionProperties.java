@@ -27,7 +27,7 @@ import top.continew.starter.data.mybatis.plus.autoconfigure.idgenerator.MyBatisP
  * @author Charles7c
  * @since 1.0.0
  */
-@ConfigurationProperties(prefix = "mybatis-plus.extension")
+@ConfigurationProperties("mybatis-plus.extension")
 public class MyBatisPlusExtensionProperties {
 
     /**

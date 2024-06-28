@@ -53,7 +53,7 @@ import java.util.Map;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(PasswordEncoderProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.PASSWORD, name = PropertiesConstants.ENABLED, matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_PASSWORD, name = PropertiesConstants.ENABLED, matchIfMissing = true)
 public class PasswordEncoderAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(PasswordEncoderAutoConfiguration.class);

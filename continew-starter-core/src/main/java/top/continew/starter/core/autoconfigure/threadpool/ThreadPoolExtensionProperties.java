@@ -24,7 +24,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Charles7c
  * @since 1.0.0
  */
-@ConfigurationProperties(prefix = "spring.task")
+@ConfigurationProperties("spring.task")
 public class ThreadPoolExtensionProperties {
 
     /**

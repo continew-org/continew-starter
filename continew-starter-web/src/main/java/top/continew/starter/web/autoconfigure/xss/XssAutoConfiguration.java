@@ -33,7 +33,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
 @AutoConfiguration
 @ConditionalOnWebApplication
 @EnableConfigurationProperties(XssProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.XSS, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.WEB_XSS, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class XssAutoConfiguration {
 
     /**

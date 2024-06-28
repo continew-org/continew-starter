@@ -26,7 +26,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @author Charles7c
  * @since 1.3.0
  */
-@ConfigurationProperties(PropertiesConstants.TRACE)
+@ConfigurationProperties(PropertiesConstants.WEB_TRACE)
 public class TraceProperties {
 
     /**

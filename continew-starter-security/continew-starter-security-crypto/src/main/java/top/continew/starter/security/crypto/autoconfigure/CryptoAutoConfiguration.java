@@ -36,7 +36,7 @@ import top.continew.starter.security.crypto.core.MyBatisEncryptInterceptor;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(CryptoProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.CRYPTO, name = PropertiesConstants.ENABLED, matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_CRYPTO, name = PropertiesConstants.ENABLED, matchIfMissing = true)
 public class CryptoAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(CryptoAutoConfiguration.class);
