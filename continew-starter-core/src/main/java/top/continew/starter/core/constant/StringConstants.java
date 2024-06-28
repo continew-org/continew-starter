@@ -263,6 +263,16 @@ public class StringConstants {
     public static final String CHINESE_COMMA = "，";
 
     /**
+     * 圆括号（左） {@code "("}
+     */
+    public static final String ROUND_BRACKET_START = "(";
+
+    /**
+     * 圆括号（右） {@code ")"}
+     */
+    public static final String ROUND_BRACKET_END = ")";
+
+    /**
      * 路径模式
      */
     public static final String PATH_PATTERN = "/**";

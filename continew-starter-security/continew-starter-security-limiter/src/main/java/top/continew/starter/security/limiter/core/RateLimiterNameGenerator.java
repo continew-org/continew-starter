@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.limiter.annotation;
+package top.continew.starter.security.limiter.core;
 
-import java.lang.annotation.*;
+import java.lang.reflect.Method;
 
 /**
- * 限流组注解
- * 
- * @author KAI
+ * 限流器名称生成器
+ *
+ * @author Charles7c
  * @since 2.2.0
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface RateLimiters {
+@FunctionalInterface
+public interface RateLimiterNameGenerator {
 
     /**
-     * 限流组
+     * Generate a rate limiter name for the given method and its parameters.
+     *
+     * @param target the target instance
+     * @param method the method being called
+     * @param args   the method parameters (with any var-args expanded)
+     * @return a generated rate limiter name
      */
-    RateLimiter[] value();
+    String generate(Object target, Method method, Object... args);
 }

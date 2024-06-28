@@ -17,7 +17,7 @@
 package top.continew.starter.security.limiter.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.util.StringUtils;
+import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
  * 限流器配置属性
@@ -25,32 +25,19 @@ import org.springframework.util.StringUtils;
  * @author KAI
  * @since 2.2.0
  */
-@ConfigurationProperties(prefix = "continew-starter.security.limiter")
+@ConfigurationProperties(PropertiesConstants.SECURITY_LIMITER)
 public class RateLimiterProperties {
-    private boolean enabled = false;
 
-    private String limiterKey = "RateLimiter:";
+    /**
+     * Key 前缀
+     */
+    private String keyPrefix = "RateLimiter";
 
-    public boolean isEnabled() {
-        return enabled;
+    public String getKeyPrefix() {
+        return keyPrefix;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public void setKeyPrefix(String keyPrefix) {
+        this.keyPrefix = keyPrefix;
     }
-
-    public String getLimiterKey() {
-        return limiterKey;
-    }
-
-    public void setLimiterKey(String limiterKey) {
-        //不为空且不以":"结尾，则添加":"
-        if (StringUtils.hasText(limiterKey)) {
-            if (!limiterKey.endsWith(":")) {
-                limiterKey = limiterKey + ":";
-            }
-        }
-        this.limiterKey = limiterKey;
-    }
-
 }

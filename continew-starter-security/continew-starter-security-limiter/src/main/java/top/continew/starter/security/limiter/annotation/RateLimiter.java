@@ -33,40 +33,37 @@ import java.lang.annotation.*;
 public @interface RateLimiter {
 
     /**
-     * LimitType 限流模式
-     * DEFAULT 全局限流
-     * IP IP限流
-     * CLUSTER 实例限流
+     * 类型
      */
-    LimitType limitType() default LimitType.DEFAULT;
+    LimitType type() default LimitType.DEFAULT;
 
     /**
-     * 缓存实例名称
+     * 名称
      */
     String name() default "";
 
     /**
-     * 限流key 支持 Spring EL 表达式
+     * 键（支持 Spring EL 表达式）
      */
     String key() default "";
 
     /**
-     * 单位时间产生的令牌数
+     * 速率（指定时间间隔产生的令牌数）
      */
     int rate() default Integer.MAX_VALUE;
 
     /**
-     * 限流时间
+     * 速率间隔（时间间隔）
      */
-    int rateInterval() default 0;
+    int interval() default 0;
 
     /**
-     * 时间单位，默认毫秒
+     * 速率间隔时间单位（默认：毫秒）
      */
-    RateIntervalUnit timeUnit() default RateIntervalUnit.MILLISECONDS;
+    RateIntervalUnit unit() default RateIntervalUnit.MILLISECONDS;
 
     /**
-     * 拒绝请求时的提示信息
+     * 提示信息
      */
-    String message() default "您操作过于频繁，请稍后再试！";
+    String message() default "操作过于频繁，请稍后再试";
 }

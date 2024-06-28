@@ -8,32 +8,27 @@
     </parent>
 
     <artifactId>continew-starter-security-limiter</artifactId>
-    <description>ContiNew Starter 安全模块 - 限流模块</description>
+    <description>ContiNew Starter 安全模块 - 限流</description>
 
     <dependencies>
-        <!-- Redisson（不仅仅是一个 Redis Java 客户端，Redisson 充分的利用了 Redis 键值数据库提供的一系列优势，为使用者提供了一系列具有分布式特性的常用工具：分布式锁、限流器等） -->
         <dependency>
-            <groupId>org.redisson</groupId>
-            <artifactId>redisson-spring-boot-starter</artifactId>
-        </dependency>
-        <!--aop-->
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjrt</artifactId>
-            <version>1.9.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.aspectj</groupId>
-            <artifactId>aspectjweaver</artifactId>
-            <version>1.9.4</version>
-        </dependency>
-        <!--hutool-->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
-        <!--Redisson缓存 模块-->
+        <!-- Hutool 加密解密模块（封装 JDK 中加密解密算法） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-crypto</artifactId>
+        </dependency>
+
+        <!-- Web 模块 -->
+        <dependency>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-web</artifactId>
+        </dependency>
+
+        <!-- 缓存模块 - Redisson -->
         <dependency>
             <groupId>top.continew</groupId>
             <artifactId>continew-starter-cache-redisson</artifactId>

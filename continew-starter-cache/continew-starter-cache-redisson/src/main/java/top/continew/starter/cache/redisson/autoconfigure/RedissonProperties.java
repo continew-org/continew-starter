@@ -28,7 +28,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  * @author Charles7c
  * @since 1.0.0
  */
-@ConfigurationProperties(prefix = "spring.data.redisson")
+@ConfigurationProperties("spring.data.redisson")
 public class RedissonProperties {
 
     /**
