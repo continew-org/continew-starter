@@ -16,12 +16,6 @@
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
 
-        <!-- Hutool 加密解密模块（封装 JDK 中加密解密算法） -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-crypto</artifactId>
-        </dependency>
-
         <!-- Web 模块 -->
         <dependency>
             <groupId>top.continew</groupId>
