@@ -16,6 +16,7 @@
 
 package top.continew.starter.cache.redisson.util;
 
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import org.redisson.api.*;
 import top.continew.starter.core.constant.StringConstants;
@@ -207,31 +208,12 @@ public class RedisUtils {
     }
 
     /**
-     * 限流
-     *
-     * @param key          限流key
-     * @param rateType     限流类型
-     * @param rate         速率
-     * @param rateInterval 速率间隔
-     * @return -1 表示失败
-     */
-    public static long rateLimiter(String key, RateType rateType, int rate, int rateInterval, RateIntervalUnit unit) {
-        RRateLimiter rateLimiter = CLIENT.getRateLimiter(key);
-        rateLimiter.trySetRate(rateType, rate, rateInterval, unit);
-        if (rateLimiter.tryAcquire()) {
-            return rateLimiter.availablePermits();
-        } else {
-            return -1L;
-        }
-    }
-
-    /**
      * 格式化键，将各子键用 : 拼接起来
      *
      * @param subKeys 子键列表
      * @return 键
      */
     public static String formatKey(String... subKeys) {
-        return String.join(StringConstants.COLON, subKeys);
+        return String.join(StringConstants.COLON, ArrayUtil.removeBlank(subKeys));
     }
 }

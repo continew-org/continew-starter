@@ -45,9 +45,7 @@ public class DefaultRateLimiterNameGenerator implements RateLimiterNameGenerator
                 this.getDescriptor(nameSb, clazz);
             }
             nameSb.append(StringConstants.ROUND_BRACKET_END);
-            String str = nameSb.toString();
-            nameMap.put(method, str);
-            return str;
+            return nameSb.toString();
         });
     }
 
@@ -71,7 +69,7 @@ public class DefaultRateLimiterNameGenerator implements RateLimiterNameGenerator
                 String name = clazz.getName();
                 name = ClassUtil.getShortClassName(name);
                 sb.append(name);
-                sb.append(StringConstants.COLON);
+                sb.append(StringConstants.SEMICOLON);
                 return;
             }
         }
