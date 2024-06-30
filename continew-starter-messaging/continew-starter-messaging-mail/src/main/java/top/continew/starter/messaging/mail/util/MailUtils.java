@@ -27,7 +27,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.util.ExceptionUtils;
-import top.continew.starter.messaging.mail.core.MailConfigService;
+import top.continew.starter.messaging.mail.core.MailConfigurer;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -217,10 +217,9 @@ public class MailUtils {
      */
     public static JavaMailSenderImpl getMailSender() {
         JavaMailSenderImpl mailSender = SpringUtil.getBean(JavaMailSenderImpl.class);
-        MailConfigService mailConfigService = ExceptionUtils.exToNull(() -> SpringUtil
-            .getBean(MailConfigService.class));
-        if (mailConfigService != null && mailConfigService.getMailConfig() != null) {
-            mailConfigService.apply(mailConfigService.getMailConfig(), mailSender);
+        MailConfigurer mailConfigurer = ExceptionUtils.exToNull(() -> SpringUtil.getBean(MailConfigurer.class));
+        if (mailConfigurer != null && mailConfigurer.getMailConfig() != null) {
+            mailConfigurer.apply(mailConfigurer.getMailConfig(), mailSender);
         }
         return mailSender;
     }

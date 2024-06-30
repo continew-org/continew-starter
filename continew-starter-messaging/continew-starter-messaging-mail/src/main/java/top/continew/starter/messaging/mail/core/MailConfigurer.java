@@ -20,12 +20,12 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import top.continew.starter.core.util.validate.ValidationUtils;
 
 /**
- * 邮件配置服务
+ * 邮件配置
  *
  * @author Charles7c
  * @since 2.1.0
  */
-public interface MailConfigService {
+public interface MailConfigurer {
 
     /**
      * 获取邮件配置
