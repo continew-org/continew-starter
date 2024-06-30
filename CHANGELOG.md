@@ -1,3 +1,23 @@
+## [v2.2.0](https://github.com/continew-org/continew-starter/compare/v2.1.1...v2.2.0) (2024-06-30)
+
+### ✨ 新特性
+
+- 新增国际化及全局异常码配置 (Gitee#25) ([ce08f28](https://github.com/continew-org/continew-starter/commit/ce08f28a618bbeb2c501defe71f9018972a4828b))
+- 【core】新增 JSR 303 校验方法 ([3e9a152](https://github.com/continew-org/continew-starter/commit/3e9a15295a79901cf1c5fa603d6a7407e7e2a2ec))
+- 【security/limiter】新增限流器 ([a89765f](https://github.com/continew-org/continew-starter/commit/a89765f49ef9d3b1ce4b3a420507b43792ed69a1)) ([51c4775](https://github.com/continew-org/continew-starter/commit/51c47751f4ef92bb111619ee9ceb7c3ce4e2dba4)) ([7bc25b2](https://github.com/continew-org/continew-starter/commit/7bc25b2f8bdb74ad295c54ab82cdae88f6264096)) ([13788d6](https://github.com/continew-org/continew-starter/commit/13788d6f5796e87900dd83ece955cd921ffc3946))
+- 【core】新增表达式 SPEL 解析工具类 ([13b3f24](https://github.com/continew-org/continew-starter/commit/13b3f2484555b69dd25b280806f98d98d53f75fe))
+
+### 🐛 问题修复
+
+- 【api-doc】修复接口文档配置错误 ([82574cd](https://github.com/continew-org/continew-starter/commit/82574cd5cee923d6dfe447414c0a2453defc8790))
+
+### 💎 功能优化
+
+- 【core】重构线程池自动配置 ([de056aa](https://github.com/continew-org/continew-starter/commit/de056aa0c42621f5d5cf7690f2a42f54ffa1cd7e)) ([0ad7b18](https://github.com/continew-org/continew-starter/commit/0ad7b185212da31d8b6afdab6dd9cd8f72f83acb))
+- 优化属性前缀命名 ([6b90880](https://github.com/continew-org/continew-starter/commit/6b90880c21d4fd7e603397692cf88a98f30194a0))
+- 【captcha/behavior】默认启用行为验证码自动配置 ([635b664](https://github.com/continew-org/continew-starter/commit/635b664d5f92e5d01cadef4c868753eb41279c7d))
+- 【messaging/mail】优化邮件配置服务命名 ([3e4b6ab](https://github.com/continew-org/continew-starter/commit/3e4b6ab3a9590639e1fa606b0d52b29e83ecb890))
+
 ## [v2.1.1](https://github.com/continew-org/continew-starter/compare/v2.1.0...v2.1.1) (2024-06-23)
 
 ### ✨ 新特性

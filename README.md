@@ -156,11 +156,12 @@ continew-starter.web:
 
 ### 安全模块
 
-| 模块名称                           | 模块说明          | 依赖版本 |
-| ---------------------------------- | ----------------- | -------- |
-| continew-starter-security-password | 密码编码器        |          |
-| continew-starter-security-mask     | JSON 脱敏         |          |
+| 模块名称                               | 模块说明      | 依赖版本 |
+|------------------------------------|-----------| -------- |
+| continew-starter-security-password | 密码编码器     |          |
+| continew-starter-security-mask     | JSON 脱敏   |          |
 | continew-starter-security-crypto   | 数据库字段加/解密 |          |
+| continew-starter-security-limiter  | 限流器       |          |
 
 ### Web模块
 

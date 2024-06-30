@@ -43,7 +43,7 @@
 
     <properties>
         <!-- 项目版本号 -->
-        <revision>2.1.1</revision>
+        <revision>2.2.0</revision>
         <sa-token.version>1.38.0</sa-token.version>
         <just-auth.version>1.16.6</just-auth.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
