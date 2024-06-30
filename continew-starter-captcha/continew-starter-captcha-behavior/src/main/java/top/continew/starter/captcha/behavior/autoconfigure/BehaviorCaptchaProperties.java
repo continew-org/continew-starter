@@ -36,7 +36,7 @@ public class BehaviorCaptchaProperties {
     /**
      * 是否启用行为验证码
      */
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * 是否开启 AES 坐标加密（默认：true）

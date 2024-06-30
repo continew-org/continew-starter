@@ -49,7 +49,7 @@ import java.util.Properties;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(BehaviorCaptchaProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_BEHAVIOR, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_BEHAVIOR, name = PropertiesConstants.ENABLED, matchIfMissing = true)
 public class BehaviorCaptchaAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(BehaviorCaptchaAutoConfiguration.class);
