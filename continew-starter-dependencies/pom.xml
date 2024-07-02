@@ -44,6 +44,7 @@
     <properties>
         <!-- 项目版本号 -->
         <revision>2.2.0</revision>
+        <snail-job.version>1.1.0-beta1</snail-job.version>
         <sa-token.version>1.38.0</sa-token.version>
         <just-auth.version>1.16.6</just-auth.version>
         <mybatis-plus.version>3.5.5</mybatis-plus.version>
@@ -76,13 +77,29 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- SnailJob（灵活，可靠和快速的分布式任务重试和分布式任务调度平台） -->
+            <dependency>
+                <groupId>com.aizuda</groupId>
+                <artifactId>snail-job-client-starter</artifactId>
+                <version>${snail-job.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aizuda</groupId>
+                <artifactId>snail-job-client-retry-core</artifactId>
+                <version>${snail-job.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aizuda</groupId>
+                <artifactId>snail-job-client-job-core</artifactId>
+                <version>${snail-job.version}</version>
+            </dependency>
+
             <!-- Sa-Token（轻量级 Java 权限认证框架，让鉴权变得简单、优雅） -->
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-spring-boot3-starter</artifactId>
                 <version>${sa-token.version}</version>
             </dependency>
-
             <!-- Sa-Token 整合 JWT -->
             <dependency>
                 <groupId>cn.dev33</groupId>
@@ -152,14 +169,12 @@
                 <artifactId>jetcache-autoconfigure</artifactId>
                 <version>${jetcache.version}</version>
             </dependency>
-
             <!-- JetCache 注解 -->
             <dependency>
                 <groupId>com.alicp.jetcache</groupId>
                 <artifactId>jetcache-anno</artifactId>
                 <version>${jetcache.version}</version>
             </dependency>
-
             <!-- JetCache Redisson 适配 -->
             <dependency>
                 <groupId>com.alicp.jetcache</groupId>
