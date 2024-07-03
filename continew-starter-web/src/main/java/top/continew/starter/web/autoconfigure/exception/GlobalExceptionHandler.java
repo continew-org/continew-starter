@@ -42,7 +42,7 @@ import top.continew.starter.core.exception.GlobalException;
 import top.continew.starter.core.exception.ResultInfoInterface;
 import top.continew.starter.web.autoconfigure.i18n.I18nProperties;
 import top.continew.starter.web.model.R;
-import top.continew.starter.web.util.MessageSourceUtils;
+import top.continew.starter.core.util.MessageSourceUtils;
 
 /**
  * 全局异常处理器
