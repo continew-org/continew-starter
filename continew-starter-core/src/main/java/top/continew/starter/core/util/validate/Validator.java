@@ -19,9 +19,13 @@ package top.continew.starter.core.util.validate;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -32,6 +36,8 @@ import java.util.function.BooleanSupplier;
  */
 public class Validator {
     private static final Logger log = LoggerFactory.getLogger(Validator.class);
+    private static final jakarta.validation.Validator VALIDATOR = SpringUtil
+        .getBean(jakarta.validation.Validator.class);
 
     protected Validator() {
     }
@@ -193,6 +199,20 @@ public class Validator {
         if (null != conditionSupplier && conditionSupplier.getAsBoolean()) {
             log.error(message);
             throw ReflectUtil.newInstance(exceptionType, message);
+        }
+    }
+
+    /**
+     * JSR 303 校验
+     *
+     * @param obj    被校验对象
+     * @param groups 分组
+     * @since 2.3.0
+     */
+    public static void validate(Object obj, Class<?>... groups) {
+        Set<ConstraintViolation<Object>> violations = VALIDATOR.validate(obj, groups);
+        if (!violations.isEmpty()) {
+            throw new ConstraintViolationException(violations);
         }
     }
 }
