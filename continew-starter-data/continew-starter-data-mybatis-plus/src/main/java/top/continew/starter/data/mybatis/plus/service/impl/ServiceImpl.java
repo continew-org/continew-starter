@@ -36,7 +36,7 @@ import java.util.List;
  */
 public class ServiceImpl<M extends BaseMapper<T>, T> extends com.baomidou.mybatisplus.extension.service.impl.ServiceImpl<M, T> implements IService<T> {
 
-    protected final List<Field> entityFields = ReflectUtils.getNonStaticFields(this.entityClass);
+    protected final List<Field> entityFields = ReflectUtils.getNonStaticFields(this.getEntityClass());
 
     @Override
     public T getById(Serializable id) {
@@ -53,7 +53,7 @@ public class ServiceImpl<M extends BaseMapper<T>, T> extends com.baomidou.mybati
     protected T getById(Serializable id, boolean isCheckExists) {
         T entity = baseMapper.selectById(id);
         if (isCheckExists) {
-            CheckUtils.throwIfNotExists(entity, ClassUtil.getClassName(entityClass, true), "ID", id);
+            CheckUtils.throwIfNotExists(entity, ClassUtil.getClassName(this.getEntityClass(), true), "ID", id);
         }
         return entity;
     }

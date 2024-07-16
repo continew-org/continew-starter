@@ -132,7 +132,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
     public List<LabelValueResp> listDict(Q query, SortQuery sortQuery) {
         QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
         this.sort(queryWrapper, sortQuery);
-        DictField dictField = entityClass.getDeclaredAnnotation(DictField.class);
+        DictField dictField = super.getEntityClass().getDeclaredAnnotation(DictField.class);
         CheckUtils.throwIfNull(dictField, "请添加并配置 @DictField 字典结构信息");
         // 指定查询字典字段
         queryWrapper.select(dictField.labelKey(), dictField.valueKey());
@@ -149,7 +149,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
     @Transactional(rollbackFor = Exception.class)
     public Long add(C req) {
         this.beforeAdd(req);
-        T entity = BeanUtil.copyProperties(req, entityClass);
+        T entity = BeanUtil.copyProperties(req, super.getEntityClass());
         baseMapper.insert(entity);
         this.afterAdd(req, entity);
         return entity.getId();
@@ -169,7 +169,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
     @Transactional(rollbackFor = Exception.class)
     public void delete(List<Long> ids) {
         this.beforeDelete(ids);
-        baseMapper.deleteBatchIds(ids);
+        baseMapper.deleteByIds(ids);
         this.afterDelete(ids);
     }
 
@@ -193,7 +193,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
         // 设置排序
         this.sort(queryWrapper, sortQuery);
         List<T> entityList = baseMapper.selectList(queryWrapper);
-        if (entityClass == targetClass) {
+        if (super.getEntityClass() == targetClass) {
             return (List<E>)entityList;
         }
         return BeanUtil.copyToList(entityList, targetClass);

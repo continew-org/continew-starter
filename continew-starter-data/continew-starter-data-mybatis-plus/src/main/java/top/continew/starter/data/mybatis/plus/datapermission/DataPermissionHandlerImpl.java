@@ -30,9 +30,7 @@ import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.SelectExpressionItem;
-import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.select.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.core.constant.StringConstants;
@@ -124,9 +122,9 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
     private Expression buildDeptAndChildExpression(DataPermission dataPermission,
                                                    DataPermissionCurrentUser currentUser,
                                                    Expression expression) {
-        SubSelect subSelect = new SubSelect();
+        ParenthesedSelect subSelect = new ParenthesedSelect();
         PlainSelect select = new PlainSelect();
-        select.setSelectItems(Collections.singletonList(new SelectExpressionItem(new Column(dataPermission.id()))));
+        select.setSelectItems(Collections.singletonList(new SelectItem<>(new Column(dataPermission.id()))));
         select.setFromItem(new Table(dataPermission.deptTableAlias()));
         EqualsTo equalsTo = new EqualsTo();
         equalsTo.setLeftExpression(new Column(dataPermission.id()));
@@ -135,7 +133,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
         function.setName("find_in_set");
         function.setParameters(new ExpressionList(new LongValue(currentUser.getDeptId()), new Column("ancestors")));
         select.setWhere(new OrExpression(equalsTo, function));
-        subSelect.setSelectBody(select);
+        subSelect.setSelect(select);
         // 构建父查询
         InExpression inExpression = new InExpression();
         inExpression.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
@@ -201,15 +199,15 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
     private Expression buildCustomExpression(DataPermission dataPermission,
                                              DataPermissionCurrentUser.CurrentUserRole role,
                                              Expression expression) {
-        SubSelect subSelect = new SubSelect();
+        ParenthesedSelect subSelect = new ParenthesedSelect();
         PlainSelect select = new PlainSelect();
-        select.setSelectItems(Collections.singletonList(new SelectExpressionItem(new Column(dataPermission.deptId()))));
+        select.setSelectItems(Collections.singletonList(new SelectItem<>(new Column(dataPermission.deptId()))));
         select.setFromItem(new Table(dataPermission.roleDeptTableAlias()));
         EqualsTo equalsTo = new EqualsTo();
         equalsTo.setLeftExpression(new Column(dataPermission.roleId()));
         equalsTo.setRightExpression(new LongValue(role.getRoleId()));
         select.setWhere(equalsTo);
-        subSelect.setSelectBody(select);
+        subSelect.setSelect(select);
         // 构建父查询
         InExpression inExpression = new InExpression();
         inExpression.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));

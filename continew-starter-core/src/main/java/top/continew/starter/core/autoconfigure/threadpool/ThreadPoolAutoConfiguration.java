@@ -22,8 +22,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.task.TaskExecutorCustomizer;
-import org.springframework.boot.task.TaskSchedulerCustomizer;
+import org.springframework.boot.task.ThreadPoolTaskExecutorCustomizer;
+import org.springframework.boot.task.ThreadPoolTaskSchedulerCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -53,7 +53,7 @@ public class ThreadPoolAutoConfiguration {
      */
     @Bean
     @ConditionalOnProperty(prefix = "spring.task.execution.extension", name = PropertiesConstants.ENABLED, matchIfMissing = true)
-    public TaskExecutorCustomizer taskExecutorCustomizer(ThreadPoolExtensionProperties properties) {
+    public ThreadPoolTaskExecutorCustomizer threadPoolTaskExecutorCustomizer(ThreadPoolExtensionProperties properties) {
         return executor -> {
             // 核心（最小）线程数
             executor.setCorePoolSize(corePoolSize);
@@ -74,7 +74,7 @@ public class ThreadPoolAutoConfiguration {
     @ConditionalOnProperty(prefix = "spring.task.scheduling.extension", name = PropertiesConstants.ENABLED, matchIfMissing = true)
     public static class TaskSchedulerConfiguration {
         @Bean
-        public TaskSchedulerCustomizer taskSchedulerCustomizer(ThreadPoolExtensionProperties properties) {
+        public ThreadPoolTaskSchedulerCustomizer threadPoolTaskSchedulerCustomizer(ThreadPoolExtensionProperties properties) {
             return executor -> {
                 executor.setRejectedExecutionHandler(properties.getScheduling()
                     .getRejectedPolicy()
