@@ -36,11 +36,23 @@ import java.util.List;
  */
 public class ServiceImpl<M extends BaseMapper<T>, T> extends com.baomidou.mybatisplus.extension.service.impl.ServiceImpl<M, T> implements IService<T> {
 
-    protected final List<Field> entityFields = ReflectUtils.getNonStaticFields(this.getEntityClass());
+    private List<Field> entityFields;
 
     @Override
     public T getById(Serializable id) {
         return this.getById(id, true);
+    }
+
+    /**
+     * 获取当前实体类型字段
+     *
+     * @return 当前实体类型字段列表
+     */
+    public List<Field> getEntityFields() {
+        if (this.entityFields == null) {
+            this.entityFields = ReflectUtils.getNonStaticFields(this.getEntityClass());
+        }
+        return this.entityFields;
     }
 
     /**

@@ -68,17 +68,16 @@ import java.util.*;
  */
 public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, Q, C> extends ServiceImpl<M, T> implements BaseService<L, D, Q, C> {
 
-    private final Class<?>[] typeArgumentCache = ClassUtils.getTypeArguments(this.getClass());
-    protected final Class<L> listClass = this.currentListClass();
-    protected final Class<D> detailClass = this.currentDetailClass();
-    protected final Class<Q> queryClass = this.currentQueryClass();
-    private final List<Field> queryFields = ReflectUtils.getNonStaticFields(this.queryClass);
+    private Class<L> listClass;
+    private Class<D> detailClass;
+    private Class<Q> queryClass;
+    private List<Field> queryFields;
 
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
         QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
         IPage<T> page = baseMapper.selectPage(pageQuery.toPage(), queryWrapper);
-        PageResp<L> pageResp = PageResp.build(page, listClass);
+        PageResp<L> pageResp = PageResp.build(page, this.getListClass());
         pageResp.getList().forEach(this::fill);
         return pageResp;
     }
@@ -91,7 +90,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
         }
         // 如果构建简单树结构，则不包含基本树结构之外的扩展字段
         TreeNodeConfig treeNodeConfig = TreeUtils.DEFAULT_CONFIG;
-        TreeField treeField = listClass.getDeclaredAnnotation(TreeField.class);
+        TreeField treeField = this.getListClass().getDeclaredAnnotation(TreeField.class);
         if (!isSimple) {
             // 根据 @TreeField 配置生成树结构配置
             treeNodeConfig = TreeUtils.genTreeNodeConfig(treeField);
@@ -104,7 +103,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
             tree.setName(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.nameKey())));
             tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.weightKey())));
             if (!isSimple) {
-                List<Field> fieldList = ReflectUtils.getNonStaticFields(listClass);
+                List<Field> fieldList = ReflectUtils.getNonStaticFields(this.getListClass());
                 fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(), treeField.value(), treeField
                     .parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
                 fieldList.forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, CharSequenceUtil.genGetter(f
@@ -115,7 +114,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
 
     @Override
     public List<L> list(Q query, SortQuery sortQuery) {
-        List<L> list = this.list(query, sortQuery, listClass);
+        List<L> list = this.list(query, sortQuery, this.getListClass());
         list.forEach(this::fill);
         return list;
     }
@@ -123,7 +122,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
     @Override
     public D get(Long id) {
         T entity = super.getById(id, false);
-        D detail = BeanUtil.toBean(entity, detailClass);
+        D detail = BeanUtil.toBean(entity, this.getDetailClass());
         this.fill(detail);
         return detail;
     }
@@ -175,9 +174,57 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
 
     @Override
     public void export(Q query, SortQuery sortQuery, HttpServletResponse response) {
-        List<D> list = this.list(query, sortQuery, detailClass);
+        List<D> list = this.list(query, sortQuery, this.getDetailClass());
         list.forEach(this::fill);
-        ExcelUtils.export(list, "导出数据", detailClass, response);
+        ExcelUtils.export(list, "导出数据", this.getDetailClass(), response);
+    }
+
+    /**
+     * 获取当前列表信息类型
+     *
+     * @return 当前列表信息类型
+     */
+    public Class<L> getListClass() {
+        if (this.listClass == null) {
+            this.listClass = (Class<L>)ClassUtils.getTypeArguments(this.getClass())[2];
+        }
+        return this.listClass;
+    }
+
+    /**
+     * 获取当前详情信息类型
+     *
+     * @return 当前详情信息类型
+     */
+    public Class<D> getDetailClass() {
+        if (this.detailClass == null) {
+            this.detailClass = (Class<D>)ClassUtils.getTypeArguments(this.getClass())[3];
+        }
+        return this.detailClass;
+    }
+
+    /**
+     * 获取当前查询条件类型
+     *
+     * @return 当前查询条件类型
+     */
+    public Class<Q> getQueryClass() {
+        if (this.queryClass == null) {
+            this.queryClass = (Class<Q>)ClassUtils.getTypeArguments(this.getClass())[4];
+        }
+        return this.queryClass;
+    }
+
+    /**
+     * 获取当前查询条件类型字段
+     *
+     * @return 当前查询条件类型字段列表
+     */
+    public List<Field> getQueryFields() {
+        if (this.queryFields == null) {
+            this.queryFields = ReflectUtils.getNonStaticFields(this.getQueryClass());
+        }
+        return queryFields;
     }
 
     /**
@@ -217,7 +264,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
                 } else {
                     checkProperty = property;
                 }
-                Optional<Field> optional = entityFields.stream()
+                Optional<Field> optional = super.getEntityFields().stream()
                     .filter(field -> checkProperty.equals(field.getName()))
                     .findFirst();
                 ValidationUtils.throwIf(optional.isEmpty(), "无效的排序字段 [{}]", property);
@@ -248,7 +295,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
     protected QueryWrapper<T> buildQueryWrapper(Q query) {
         QueryWrapper<T> queryWrapper = new QueryWrapper<>();
         // 解析并拼接查询条件
-        return QueryWrapperHelper.build(query, queryFields, queryWrapper);
+        return QueryWrapperHelper.build(query, this.getQueryFields(), queryWrapper);
     }
 
     /**
@@ -306,32 +353,5 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
      */
     protected void afterDelete(List<Long> ids) {
         /* 删除后置处理 */
-    }
-
-    /**
-     * 获取当前列表信息类型
-     *
-     * @return 当前列表信息类型
-     */
-    protected Class<L> currentListClass() {
-        return (Class<L>)this.typeArgumentCache[2];
-    }
-
-    /**
-     * 获取当前详情信息类型
-     *
-     * @return 当前详情信息类型
-     */
-    protected Class<D> currentDetailClass() {
-        return (Class<D>)this.typeArgumentCache[3];
-    }
-
-    /**
-     * 获取当前查询条件类型
-     *
-     * @return 当前查询条件类型
-     */
-    protected Class<Q> currentQueryClass() {
-        return (Class<Q>)this.typeArgumentCache[4];
     }
 }
