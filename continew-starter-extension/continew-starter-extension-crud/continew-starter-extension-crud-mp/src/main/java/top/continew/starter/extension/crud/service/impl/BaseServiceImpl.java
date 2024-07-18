@@ -138,8 +138,8 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
         List<T> entityList = baseMapper.selectList(queryWrapper);
         // 解析映射
         Map<String, String> fieldMapping = MapUtil.newHashMap(2);
-        fieldMapping.put(dictField.labelKey(), "label");
-        fieldMapping.put(dictField.valueKey(), "value");
+        fieldMapping.put(CharSequenceUtil.toCamelCase(dictField.labelKey()), "label");
+        fieldMapping.put(CharSequenceUtil.toCamelCase(dictField.valueKey()), "value");
         return BeanUtil.copyToList(entityList, LabelValueResp.class, CopyOptions.create()
             .setFieldMapping(fieldMapping));
     }
