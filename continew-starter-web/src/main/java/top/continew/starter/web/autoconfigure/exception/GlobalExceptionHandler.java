@@ -130,14 +130,14 @@ public class GlobalExceptionHandler {
             msg = msg.concat(cause.getMessage().toLowerCase());
         }
         if (msg.contains("size") && msg.contains("exceed")) {
-            sizeLimit = CharSequenceUtil.subBetween(msg, "maximum (", ")");
+            sizeLimit = CharSequenceUtil.subBetween(msg, "the maximum size ", " for");
         } else if (msg.contains("larger than")) {
             sizeLimit = CharSequenceUtil.subAfter(msg, "larger than ", true);
         } else {
             return defaultFail;
         }
 
-        String errorMsg = "请上传小于 %sMB 的文件".formatted(NumberUtil.parseLong(sizeLimit) / 1024 / 1024);
+        String errorMsg = "请上传小于 %sKB 的文件".formatted(NumberUtil.parseLong(sizeLimit) / 1024);
         log.warn("请求地址 [{}]，上传文件失败，文件大小超过限制。", request.getRequestURI(), e);
         return R.fail(HttpStatus.BAD_REQUEST.value(), errorMsg);
     }
