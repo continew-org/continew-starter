@@ -13,7 +13,7 @@
 <img src="https://sonarcloud.io/api/project_badges/measure?project=Charles7c_continew-starter&metric=alert_status" alt="Sonar Status" />
 </a>
 <a href="https://spring.io/projects/spring-boot" target="_blank">
-<img src="https://img.shields.io/badge/Spring Boot-3.1.11-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
+<img src="https://img.shields.io/badge/Spring Boot-3.2.7-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
 </a>
 <a href="https://github.com/continew-org/continew-starter" target="_blank">
 <img src="https://img.shields.io/badge/Open JDK-17-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
@@ -140,96 +140,96 @@ continew-starter.web:
 
 | 模块名称              | 模块说明                             | 依赖版本                                                                                                                                                                                      |
 | --------------------- | ------------------------------------ |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| continew-starter-core | 核心模块：包含线程池、项目等自动配置 | <a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot</a>：3.1.11<br /><a href="https://www.hutool.cn/" target="_blank">Hutool</a>：5.8.25<br />mica-ip2region：3.1.7 |
+| continew-starter-core | 核心模块：包含线程池、项目等自动配置 | <a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot</a>：3.1.11<br /><a href="https://www.hutool.cn/" target="_blank">Hutool</a>：5.8.29<br />mica-ip2region：3.2.6 |
 
 ### JSON模块
 
-| 模块名称                      | 模块说明             | 依赖版本        |
-| ----------------------------- | -------------------- | --------------- |
-| continew-starter-json-jackson | Jackson 序列化等配置 | Jackson：2.15.3 |
+| 模块名称                      | 模块说明             |
+| ----------------------------- | -------------------- |
+| continew-starter-json-jackson | Jackson 序列化等配置 |
 
 ### 接口文档
 
-| 模块名称                 | 模块说明         | 依赖版本                                                     |
-| ------------------------ | ---------------- | ------------------------------------------------------------ |
-| continew-starter-api-doc | Knife4j 自动配置 | <a href="https://doc.xiaominfo.com/" target="_blank">Knife4j</a>：4.5.0 |
+| 模块名称                 | 模块说明         |
+| ------------------------ | ---------------- |
+| continew-starter-api-doc | Knife4j 自动配置 |
 
 ### 安全模块
 
-| 模块名称                               | 模块说明      | 依赖版本 |
-|------------------------------------|-----------| -------- |
-| continew-starter-security-password | 密码编码器     |          |
-| continew-starter-security-mask     | JSON 脱敏   |          |
-| continew-starter-security-crypto   | 数据库字段加/解密 |          |
-| continew-starter-security-limiter  | 限流器       |          |
+| 模块名称                           | 模块说明          |
+| ---------------------------------- | ----------------- |
+| continew-starter-security-password | 密码编码器        |
+| continew-starter-security-mask     | JSON 脱敏         |
+| continew-starter-security-crypto   | 数据库字段加/解密 |
+| continew-starter-security-limiter  | 限流器            |
 
 ### Web模块
 
-| 模块名称             | 模块说明                           | 依赖版本                                                     |
-| -------------------- | ---------------------------------- | ------------------------------------------------------------ |
-| continew-starter-web | 跨域、全局异常、错误处理等自动配置 | <a href="https://undertow.io/" target="_blank">Undertow</a>：2.3.10.Final<br />TLog：1.5.1 |
+| 模块名称             | 模块说明                           |
+| -------------------- | ---------------------------------- |
+| continew-starter-web | 跨域、全局异常、错误处理等自动配置 |
 
 ### 日志模块
 
-| 模块名称                           | 模块说明                                  | 依赖版本 |
-| ---------------------------------- | ----------------------------------------- | -------- |
-| continew-starter-log-core          | 日志核心模块                              |          |
-| continew-starter-log-httptrace-pro | Spring Boot Actuator HttpTrace 重置增强版 |          |
+| 模块名称                           | 模块说明                                  |
+| ---------------------------------- | ----------------------------------------- |
+| continew-starter-log-core          | 日志核心模块                              |
+| continew-starter-log-httptrace-pro | Spring Boot Actuator HttpTrace 重置增强版 |
 
 ### 存储模块
 
-| 模块名称                       | 模块说明 | 依赖版本 |
-| ------------------------------ | -------- | -------- |
-| continew-starter-storage-local | 本地存储 |          |
+| 模块名称                       | 模块说明 |
+| ------------------------------ | -------- |
+| continew-starter-storage-local | 本地存储 |
 
 ### 文件处理模块
 
-| 模块名称                    | 模块说明       | 依赖版本                                                                                     |
-| --------------------------- | -------------- |------------------------------------------------------------------------------------------|
-| continew-starter-file-excel | Excel 相关配置 | <a href="https://easyexcel.opensource.alibaba.com/" target="_blank">Easy Excel</a>：3.3.4 |
+| 模块名称                    | 模块说明       |
+| --------------------------- | -------------- |
+| continew-starter-file-excel | Excel 相关配置 |
 
 ### 验证码模块
 
-| 模块名称                          | 模块说明   | 依赖版本            |
-| --------------------------------- | ---------- | ------------------- |
-| continew-starter-captcha-graphic  | 图形验证码 | Easy Captcha：1.6.2 |
-| continew-starter-captcha-behavior | 行为验证码 | AJ-Captcha：1.3.0   |
+| 模块名称                          | 模块说明   |
+| --------------------------------- | ---------- |
+| continew-starter-captcha-graphic  | 图形验证码 |
+| continew-starter-captcha-behavior | 行为验证码 |
 
 ### 缓存模块
 
-| 模块名称                           | 模块说明              | 依赖版本                                                                                                                                 |
-| ---------------------------------- | --------------------- |--------------------------------------------------------------------------------------------------------------------------------------|
-| continew-starter-cache-redisson    | Redisson 自动配置     | <a href="https://github.com/redisson/redisson/wiki/Redisson%E9%A1%B9%E7%9B%AE%E4%BB%8B%E7%BB%8D" target="_blank">Redisson</a>：3.30.0 |
-| continew-starter-cache-springcache | Spring Cache 自动配置 |                                                                                                                                      |
-| continew-starter-cache-jetcache    | JetCache 自动配置     |                                                                                                                                      |
+| 模块名称                           | 模块说明              |
+| ---------------------------------- | --------------------- |
+| continew-starter-cache-redisson    | Redisson 自动配置     |
+| continew-starter-cache-springcache | Spring Cache 自动配置 |
+| continew-starter-cache-jetcache    | JetCache 自动配置     |
 
 ### 数据访问模块
 
-| 模块名称                               | 模块说明              | 依赖版本                                                    |
-|------------------------------------|-------------------| ----------------------------------------------------------- |
-| continew-starter-data-core         | 数据访问核心模块          |                                                             |
-| continew-starter-data-mybatis-plus | MyBatis Plus 自动配置 | <a href="https://baomidou.com/" target="_blank">MyBatis Plus</a>：3.5.5<br /><a href="https://www.kancloud.cn/tracy5546/dynamic-datasource/2264611" target="_blank">dynamic-datasource-spring-boot-starter</a>：4.3.0<br /><a href="https://github.com/p6spy/p6spy" target="_blank">P6Spy</a>：3.9.1 |
-| continew-starter-data-mybatis-flex | MyBatis Flex 自动配置 |  |
+| 模块名称                           | 模块说明              |
+| ---------------------------------- | --------------------- |
+| continew-starter-data-core         | 数据访问核心模块      |
+| continew-starter-data-mybatis-plus | MyBatis Plus 自动配置 |
+| continew-starter-data-mybatis-flex | MyBatis Flex 自动配置 |
 
 ### 认证模块
 
-| 模块名称                       | 模块说明          | 依赖版本                                                                     |
-| ------------------------------ | ----------------- |--------------------------------------------------------------------------|
-| continew-starter-auth-satoken  | SaToken 自动配置  | <a href="https://sa-token.dev33.cn/" target="_blank">Sa-Token</a>：1.38.0 |
-| continew-starter-auth-justauth | JustAuth 自动配置 | <a href="https://justauth.cn/" target="_blank">Just Auth</a>：1.16.6      |
+| 模块名称                       | 模块说明          |
+| ------------------------------ | ----------------- |
+| continew-starter-auth-satoken  | SaToken 自动配置  |
+| continew-starter-auth-justauth | JustAuth 自动配置 |
 
 ### 消息模块
 
-| 模块名称                                 | 模块说明      | 依赖版本                                                     |
-|--------------------------------------|-----------| ------------------------------------------------------------ |
-| continew-starter-messaging-mail      | 邮件        | Jakarta Mail：1.1.0                                          |
-| continew-starter-messaging-websocket | WebSocket |                                           |
+| 模块名称                             | 模块说明  |
+| ------------------------------------ | --------- |
+| continew-starter-messaging-mail      | 邮件      |
+| continew-starter-messaging-websocket | WebSocket |
 
 ### 扩展模块
 
-| 模块名称                        | 模块说明                                      | 依赖版本 |
-| ------------------------------- | --------------------------------------------- | -------- |
-| continew-starter-extension-crud | 扩展模块：BaseController 自定义 CRUD API 封装 |          |
+| 模块名称                        | 模块说明                                      |
+| ------------------------------- | --------------------------------------------- |
+| continew-starter-extension-crud | 扩展模块：BaseController 自定义 CRUD API 封装 |
 
 ## 贡献代码
 

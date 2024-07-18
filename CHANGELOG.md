@@ -1,3 +1,37 @@
+## [v2.3.0](https://github.com/continew-org/continew-starter/compare/v2.2.0...v2.3.0) (2024-07-18)
+
+### ✨ 新特性
+
+- 【core】新增 JSR 303 校验器自动配置（从 web 模块迁移） ([6809600](https://github.com/continew-org/continew-starter/commit/6809600858ed597567f78581187f6d88a2ea899e))
+- 新增 Snail Job 依赖版本 ([d31d8d2](https://github.com/continew-org/continew-starter/commit/d31d8d209a66884d046763bb8497b2c58cf88506))
+
+### 🐛 问题修复
+
+- 【extension/crud】修复 DictField 映射错误 ([65cfe91](https://github.com/continew-org/continew-starter/commit/65cfe917709320edd9db2ae55390afe64077e3d3))
+- 【extension/crud】修复 Name for argument of type [java.lang.Long] not specified, and parameter name information not available via reflection. 错误 ([c17668c](https://github.com/continew-org/continew-starter/commit/c17668c2d1a9440dd0260fd7d8b2a28f104bbce6))
+- 【web】修复文件上传异常单位显示错误 ([e7566d2](https://github.com/continew-org/continew-starter/commit/e7566d284b53b47577ade59c0b7e9262f9b43758))
+
+### 💎 功能优化
+
+- 【core】优化 JSR 303 校验方法 ([b0f5506](https://github.com/continew-org/continew-starter/commit/b0f55064242615717789b3d62880e482ea72a23a))
+- 【extension/crud】调整 BaseService 相关泛型类型加载为懒加载 ([dca7157](https://github.com/continew-org/continew-starter/commit/dca715709faa9fbd61194ea4177c91475b768694))
+
+### 📦 依赖升级
+
+- SpringBoot 3.1.11 => 3.2.7（TaskExecutor => ThreadPoolTaskExecutor）
+- MyBatisPlus 3.5.5 => 3.5.7（数据权限处理器调整）
+- MyBatisFlex 1.8.9 => 1.9.3
+- dynamic-datasource 4.3.0 => 4.3.1
+- JetCache 2.7.5 => 2.7.6
+- Redisson 3.30.0 => 3.32.0
+- CosID 2.6.8 => 2.9.1
+- EasyExcel 3.3.4 => 4.0.1
+- XFileStorage 2.1.0 => 2.2.0
+- Crane4j 2.8.0 => 2.9.0
+- Hutool 5.8.27 => 5.8.29
+- AWS S3 1.12.720 => 1.12.761
+- IP2Region 3.1.11 => 3.2.6
+
 ## [v2.2.0](https://github.com/continew-org/continew-starter/compare/v2.1.1...v2.2.0) (2024-06-30)
 
 ### ✨ 新特性
