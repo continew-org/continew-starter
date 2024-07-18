@@ -110,7 +110,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @GetMapping("/{id}")
-    public R<D> get(@PathVariable Long id) {
+    public R<D> get(@PathVariable("id") Long id) {
         this.checkPermission(Api.LIST);
         return R.ok(baseService.get(id));
     }
@@ -140,7 +140,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @PutMapping("/{id}")
-    public R<Void> update(@Validated(ValidateGroup.Crud.Update.class) @RequestBody C req, @PathVariable Long id) {
+    public R<Void> update(@Validated(ValidateGroup.Crud.Update.class) @RequestBody C req, @PathVariable("id") Long id) {
         this.checkPermission(Api.UPDATE);
         baseService.update(req, id);
         return R.ok("修改成功");
@@ -156,7 +156,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Parameter(name = "ids", description = "ID 列表", example = "1,2", in = ParameterIn.PATH)
     @ResponseBody
     @DeleteMapping("/{ids}")
-    public R<Void> delete(@PathVariable List<Long> ids) {
+    public R<Void> delete(@PathVariable("ids") List<Long> ids) {
         this.checkPermission(Api.DELETE);
         baseService.delete(ids);
         return R.ok("删除成功");
