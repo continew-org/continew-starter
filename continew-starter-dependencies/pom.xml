@@ -73,6 +73,7 @@
         <flatten.version>1.6.0</flatten.version>
         <spotless.version>2.43.0</spotless.version>
         <sonar.version>3.11.0.3922</sonar.version>
+        <maven-compiler-plugin.verison>3.11.0</maven-compiler-plugin.verison>
     </properties>
 
     <dependencyManagement>
@@ -654,6 +655,12 @@
         </plugins>
         <pluginManagement>
             <plugins>
+                <!-- 编译插件 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.verison}</version>
+                </plugin>
                 <!-- 统一版本号插件 -->
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>

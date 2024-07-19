@@ -76,6 +76,14 @@
 
     <build>
         <plugins>
+            <!-- 编译插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgument>-parameters</compilerArgument>
+                </configuration>
+            </plugin>
             <!-- 代码格式化插件 -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
