@@ -60,10 +60,11 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
 
 ## 项目源码
 
-| 开源平台      | 源码地址                                      |
-| :------------ | :-------------------------------------------- |
+| 开源平台      | 源码地址                                         |
+| :------------ | :----------------------------------------------- |
+| Gitee（码云） | https://gitee.com/continew/continew-starter      |
+| GitCode       | https://gitcode.com/continew/continew-starter    |
 | GitHub        | https://github.com/continew-org/continew-starter |
-| Gitee（码云） | https://gitee.com/continew/continew-starter  |
 
 ## 像数1，2，3一样容易
 
