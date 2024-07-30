@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.data.mybatis.plus.base;
-
-import com.baomidou.mybatisplus.annotation.IEnum;
+package top.continew.starter.core.enums;
 
 import java.io.Serializable;
 
@@ -27,7 +25,14 @@ import java.io.Serializable;
  * @author Charles7c
  * @since 1.0.0
  */
-public interface IBaseEnum<T extends Serializable> extends IEnum<T> {
+public interface BaseEnum<T extends Serializable> {
+
+    /**
+     * 枚举值
+     *
+     * @return 枚举值
+     */
+    T getValue();
 
     /**
      * 枚举描述

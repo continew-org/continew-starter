@@ -25,20 +25,20 @@ import com.alibaba.excel.metadata.data.ReadCellData;
 import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.metadata.property.ExcelContentProperty;
 import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.data.mybatis.plus.base.IBaseEnum;
+import top.continew.starter.core.enums.BaseEnum;
 
 /**
  * Easy Excel 枚举接口转换器
  *
- * @see IBaseEnum
+ * @see BaseEnum
  * @author Charles7c
  * @since 1.2.0
  */
-public class ExcelBaseEnumConverter implements Converter<IBaseEnum<Integer>> {
+public class ExcelBaseEnumConverter implements Converter<BaseEnum<Integer>> {
 
     @Override
-    public Class<IBaseEnum> supportJavaTypeKey() {
-        return IBaseEnum.class;
+    public Class<BaseEnum> supportJavaTypeKey() {
+        return BaseEnum.class;
     }
 
     @Override
@@ -50,17 +50,17 @@ public class ExcelBaseEnumConverter implements Converter<IBaseEnum<Integer>> {
      * 转换为 Java 数据（读取 Excel）
      */
     @Override
-    public IBaseEnum convertToJavaData(ReadCellData<?> cellData,
-                                       ExcelContentProperty contentProperty,
-                                       GlobalConfiguration globalConfiguration) {
-        return this.getEnum(IBaseEnum.class, Convert.toStr(cellData.getData()));
+    public BaseEnum convertToJavaData(ReadCellData<?> cellData,
+                                      ExcelContentProperty contentProperty,
+                                      GlobalConfiguration globalConfiguration) {
+        return this.getEnum(BaseEnum.class, Convert.toStr(cellData.getData()));
     }
 
     /**
      * 转换为 Excel 数据（写入 Excel）
      */
     @Override
-    public WriteCellData<String> convertToExcelData(IBaseEnum<Integer> value,
+    public WriteCellData<String> convertToExcelData(BaseEnum<Integer> value,
                                                     ExcelContentProperty contentProperty,
                                                     GlobalConfiguration globalConfiguration) {
         if (null == value) {
@@ -76,11 +76,11 @@ public class ExcelBaseEnumConverter implements Converter<IBaseEnum<Integer>> {
      * @param description 描述
      * @return 对应枚举 ，获取不到时为 {@code null}
      */
-    private IBaseEnum<Integer> getEnum(Class<?> enumType, String description) {
+    private BaseEnum<Integer> getEnum(Class<?> enumType, String description) {
         Object[] enumConstants = enumType.getEnumConstants();
         for (Object enumConstant : enumConstants) {
-            if (ClassUtil.isAssignable(IBaseEnum.class, enumType)) {
-                IBaseEnum<Integer> baseEnum = (IBaseEnum<Integer>)enumConstant;
+            if (ClassUtil.isAssignable(BaseEnum.class, enumType)) {
+                BaseEnum<Integer> baseEnum = (BaseEnum<Integer>)enumConstant;
                 if (baseEnum.getDescription().equals(description)) {
                     return baseEnum;
                 }

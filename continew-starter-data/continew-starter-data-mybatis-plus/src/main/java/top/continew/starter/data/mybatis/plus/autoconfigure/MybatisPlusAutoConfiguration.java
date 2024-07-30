@@ -17,6 +17,7 @@
 package top.continew.starter.data.mybatis.plus.autoconfigure;
 
 import cn.hutool.extra.spring.SpringUtil;
+import com.baomidou.mybatisplus.autoconfigure.MybatisPlusPropertiesCustomizer;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
@@ -40,6 +41,7 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.continew.starter.data.mybatis.plus.autoconfigure.idgenerator.MyBatisPlusIdGeneratorConfiguration;
 import top.continew.starter.data.mybatis.plus.datapermission.DataPermissionFilter;
 import top.continew.starter.data.mybatis.plus.datapermission.DataPermissionHandlerImpl;
+import top.continew.starter.data.mybatis.plus.handler.MybatisBaseEnumTypeHandler;
 
 /**
  * MyBatis Plus 自动配置
@@ -58,6 +60,16 @@ public class MybatisPlusAutoConfiguration {
     private static final Logger log = LoggerFactory.getLogger(MybatisPlusAutoConfiguration.class);
 
     /**
+     * MyBatis Plus 配置
+     *
+     * @since 2.4.0
+     */
+    @Bean
+    public MybatisPlusPropertiesCustomizer mybatisPlusPropertiesCustomizer() {
+        return properties -> properties.getConfiguration().setDefaultEnumTypeHandler(MybatisBaseEnumTypeHandler.class);
+    }
+
+    /**
      * MyBatis Plus 插件配置
      */
     @Bean
@@ -65,11 +77,9 @@ public class MybatisPlusAutoConfiguration {
     public MybatisPlusInterceptor mybatisPlusInterceptor(MyBatisPlusExtensionProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         // 数据权限插件
-        MyBatisPlusExtensionProperties.DataPermissionProperties dataPermissionProperties = properties
-            .getDataPermission();
+        MyBatisPlusExtensionProperties.DataPermissionProperties dataPermissionProperties = properties.getDataPermission();
         if (null != dataPermissionProperties && dataPermissionProperties.isEnabled()) {
-            interceptor.addInnerInterceptor(new DataPermissionInterceptor(SpringUtil
-                .getBean(DataPermissionHandler.class)));
+            interceptor.addInnerInterceptor(new DataPermissionInterceptor(SpringUtil.getBean(DataPermissionHandler.class)));
         }
         // 分页插件
         MyBatisPlusExtensionProperties.PaginationProperties paginationProperties = properties.getPagination();
@@ -89,8 +99,7 @@ public class MybatisPlusAutoConfiguration {
     @Configuration
     @Import({MyBatisPlusIdGeneratorConfiguration.Default.class, MyBatisPlusIdGeneratorConfiguration.CosId.class,
         MyBatisPlusIdGeneratorConfiguration.Custom.class})
-    protected static class MyBatisPlusIdGeneratorAutoConfiguration {
-    }
+    protected static class MyBatisPlusIdGeneratorAutoConfiguration {}
 
     /**
      * 数据权限处理器
