@@ -56,6 +56,7 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * API 文档自动配置
@@ -141,7 +142,7 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 自定义 openapi 处理器
+     * 自定义 OpenApi 处理器
      */
     @Bean
     public OpenAPIService openApiBuilder(Optional<OpenAPI> openAPI,
@@ -155,54 +156,35 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 展示 枚举类型和值
+     * 自定义参数配置（针对 BaseEnum 展示枚举值和描述）
      *
-     * @return
+     * @since 2.4.0
      */
     @Bean
     public ParameterCustomizer customParameterCustomizer() {
         return (parameterModel, methodParameter) -> {
-            // 判断方法参数类型是否为 IBaseEnum 的子类型
-            if (ClassUtil.isAssignable(BaseEnum.class, methodParameter.getParameterType())) {
-                String description = parameterModel.getDescription();
-                // TODO 会重复调用，有什么优雅的判读方式吗？
-                if (StrUtil.contains(description, "color:red")) {
-                    return parameterModel;
-                }
-                Schema schema = parameterModel.getSchema();
-
-                // 获取方法参数类型的所有枚举常量
-                BaseEnum[] enumConstants = (BaseEnum[])methodParameter.getParameterType().getEnumConstants();
-                List<String> list = new ArrayList<>();
-                Map<Object, String> descMap = new HashMap<>();
-
-                // 遍历枚举常量，获取其值和描述
-                for (BaseEnum constant : enumConstants) {
-                    list.add(constant.getValue().toString());
-                    descMap.put(constant.getValue(), constant.getDescription());
-                }
-
-                // 枚举值类型
-                String enumValueType = EnumTypeUtils.getEnumValueTypeAsString(methodParameter.getParameterType());
-                schema.setType(enumValueType);
-                switch (enumValueType) {
-                    case "integer" -> schema.setFormat("int32");
-                    case "long" -> schema.setFormat("int64");
-                    case "number" -> schema.setFormat("double");
-                }
-
-                // 设置枚举值列表和描述
-                schema.setEnum(list);
-                parameterModel.setDescription(description + "<span style='color:red'>" + descMap + "</span>");
+            Class<?> parameterType = methodParameter.getParameterType();
+            // 判断是否为 BaseEnum 的子类型
+            if (!ClassUtil.isAssignable(BaseEnum.class, parameterType)) {
+                return parameterModel;
             }
+            String description = parameterModel.getDescription();
+            if (StrUtil.contains(description, "color:red")) {
+                return parameterModel;
+            }
+            // 封装参数配置
+            this.configureSchema(parameterModel.getSchema(), parameterType);
+            // 自定义枚举描述
+            parameterModel.setDescription(description + "<span style='color:red'>" + this
+                .getDescMap(parameterType) + "</span>");
             return parameterModel;
         };
     }
 
     /**
-     * 展示 枚举类型和值
+     * 自定义参数配置（针对 BaseEnum 展示枚举值和描述）
      *
-     * @return
+     * @since 2.4.0
      */
     @Bean
     public PropertyCustomizer customPropertyCustomizer() {
@@ -216,34 +198,53 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
             } else {
                 rawClass = Object.class;
             }
-
-            // 检查原始类是否实现了 IBaseEnum 接口
-            if (ClassUtil.isAssignable(BaseEnum.class, rawClass)) {
-                BaseEnum[] enumConstants = (BaseEnum[])rawClass.getEnumConstants();
-                List<String> list = new ArrayList<>();
-                Map<Object, String> descMap = new HashMap<>();
-                // 遍历枚举常量，获取其值和描述
-                for (BaseEnum constant : enumConstants) {
-                    list.add(constant.getValue().toString());
-                    descMap.put(constant.getValue(), constant.getDescription());
-                }
-                // 获取泛型类型
-                String enumValueType = EnumTypeUtils.getEnumValueTypeAsString(rawClass);
-                schema.setType(enumValueType);
-                // 根据枚举值类型设置 schema 的格式
-                switch (enumValueType) {
-                    case "integer" -> schema.setFormat("int32");
-                    case "long" -> schema.setFormat("int64");
-                    case "number" -> schema.setFormat("double");
-                }
-
-                // 设置枚举值列表和描述
-                schema.setEnum(list);
-                schema.setDescription(schema.getDescription() + "<span style='color:red'>" + descMap + "</span>");
+            // 判断是否为 BaseEnum 的子类型
+            if (!ClassUtil.isAssignable(BaseEnum.class, rawClass)) {
                 return schema;
             }
+            // 封装参数配置
+            this.configureSchema(schema, rawClass);
+            // 自定义参数描述
+            schema.setDescription(schema.getDescription() + "<span style='color:red'>" + this
+                .getDescMap(rawClass) + "</span>");
             return schema;
         };
+    }
+
+    /**
+     * 封装 Schema 配置
+     *
+     * @param schema    Schema
+     * @param enumClass 枚举类型
+     * @since 2.4.0
+     */
+    private void configureSchema(Schema schema, Class<?> enumClass) {
+        BaseEnum[] enums = (BaseEnum[])enumClass.getEnumConstants();
+        // 设置枚举可用值
+        List<String> valueList = Arrays.stream(enums).map(e -> e.getValue().toString()).toList();
+        schema.setEnum(valueList);
+        // 设置枚举值类型和格式
+        String enumValueType = EnumTypeUtils.getEnumValueTypeAsString(enumClass);
+        schema.setType(enumValueType);
+        switch (enumValueType) {
+            case "integer" -> schema.setFormat("int32");
+            case "long" -> schema.setFormat("int64");
+            case "number" -> schema.setFormat("double");
+            default -> schema.setFormat(enumValueType);
+        }
+    }
+
+    /**
+     * 获取枚举描述 Map
+     *
+     * @param enumClass 枚举类型
+     * @return 枚举描述 Map
+     * @since 2.4.0
+     */
+    private Map<Object, String> getDescMap(Class<?> enumClass) {
+        BaseEnum[] enums = (BaseEnum[])enumClass.getEnumConstants();
+        return Arrays.stream(enums)
+            .collect(Collectors.toMap(BaseEnum::getValue, BaseEnum::getDescription, (a, b) -> a, LinkedHashMap::new));
     }
 
     @PostConstruct

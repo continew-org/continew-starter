@@ -77,9 +77,11 @@ public class MybatisPlusAutoConfiguration {
     public MybatisPlusInterceptor mybatisPlusInterceptor(MyBatisPlusExtensionProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         // 数据权限插件
-        MyBatisPlusExtensionProperties.DataPermissionProperties dataPermissionProperties = properties.getDataPermission();
+        MyBatisPlusExtensionProperties.DataPermissionProperties dataPermissionProperties = properties
+            .getDataPermission();
         if (null != dataPermissionProperties && dataPermissionProperties.isEnabled()) {
-            interceptor.addInnerInterceptor(new DataPermissionInterceptor(SpringUtil.getBean(DataPermissionHandler.class)));
+            interceptor.addInnerInterceptor(new DataPermissionInterceptor(SpringUtil
+                .getBean(DataPermissionHandler.class)));
         }
         // 分页插件
         MyBatisPlusExtensionProperties.PaginationProperties paginationProperties = properties.getPagination();

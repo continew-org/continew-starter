@@ -24,16 +24,19 @@ import java.lang.reflect.Type;
 /**
  * 枚举类型工具
  *
- * @Author echo
- * @date 2024/07/31
+ * @author echo
+ * @since 2.4.0
  */
 public class EnumTypeUtils {
 
+    private EnumTypeUtils() {
+    }
+
     /**
-     * 获取enum值类型
+     * 获取枚举值类型
      *
-     * @param enumClass enum class
-     * @return {@link String }
+     * @param enumClass 枚举类型
+     * @return 枚举值类型
      */
     public static String getEnumValueTypeAsString(Class<?> enumClass) {
         try {
@@ -44,25 +47,26 @@ public class EnumTypeUtils {
                 // 检查接口是否为参数化类型
                 if (type instanceof ParameterizedType parameterizedType) {
                     // 检查接口的原始类型是否为 BaseEnum
-                    if (parameterizedType.getRawType() == BaseEnum.class) {
-                        Type actualType = parameterizedType.getActualTypeArguments()[0];
-                        // 检查实际类型参数是否为类类型
-                        if (actualType instanceof Class<?> actualClass) {
-                            if (actualClass == Integer.class) {
-                                return "integer";
-                            } else if (actualClass == Long.class) {
-                                return "long";
-                            } else if (actualClass == Double.class) {
-                                return "number";
-                            } else if (actualClass == String.class) {
-                                return "string";
-                            }
+                    if (parameterizedType.getRawType() != BaseEnum.class) {
+                        continue;
+                    }
+                    Type actualType = parameterizedType.getActualTypeArguments()[0];
+                    // 检查实际类型参数是否为类类型
+                    if (actualType instanceof Class<?> actualClass) {
+                        if (actualClass == Integer.class) {
+                            return "integer";
+                        } else if (actualClass == Long.class) {
+                            return "long";
+                        } else if (actualClass == Double.class) {
+                            return "number";
+                        } else if (actualClass == String.class) {
+                            return "string";
                         }
                     }
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
+            // ignored
         }
         return "string";
     }
