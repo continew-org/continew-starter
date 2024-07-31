@@ -1,3 +1,23 @@
+## [v2.4.0](https://github.com/continew-org/continew-starter/compare/v2.3.0...v2.4.0) (2024-07-31)
+
+### ✨ 新特性
+
+- 【json/jackson】新增枚举接口序列化及反序列化配置 ([32935fa](https://github.com/continew-org/continew-starter/commit/32935fa4fafad0a405153f408b2c16c2389b3aa3))
+- 【api-doc】增加对 BaseEnum 枚举接口的详细展示 (Gitee#28) ([ebc73a9](https://github.com/continew-org/continew-starter/commit/ebc73a94e8824aa3233492ab4c013b5c70a71ee8))
+- 【web】新增 BaseEnum 枚举接口参数转换器 ([bed954c](https://github.com/continew-org/continew-starter/commit/bed954ca94b8e2edd897c25d06475da079d0720a))
+- 【web】SpringWebUtils 新增 match 路径匹配方法 ([702dcca](https://github.com/continew-org/continew-starter/commit/702dcca7012a4ac3d779396f12ef9eeb8371f7cb))
+
+### 🐛 问题修复
+
+- EasyExcel 4.0.1 => 3.3.4，暂时回退版本，解决版本冲突问题 ([1479c8d](https://github.com/continew-org/continew-starter/commit/1479c8d9396e92decfbaefd2d71145d2953674ba))
+
+### 💎 功能优化
+
+- 代码编译增加 -parameters 参数 ([c1ebc46](https://github.com/continew-org/continew-starter/commit/c1ebc4621c7c44334cf172708cb061f0fecb5a05))
+- 【data/mybatis-plus】移动枚举接口到 core 模块，和 MP IEnum 枚举接口解耦 ([b27fbd4](https://github.com/continew-org/continew-starter/commit/b27fbd41eb9ec6020f3403a5e3beaef6e2a8fb62))
+- 【extension/crud】移动 ExcelBaseEnumConverter 到 excel 模块 ([730df52](https://github.com/continew-org/continew-starter/commit/730df527970718aa1008d03a35b53064b20ef1ce))
+- 【log】新增 excludePatterns 放行路由配置 ([bd07f9b](https://github.com/continew-org/continew-starter/commit/bd07f9b41f5eabe380c91c18877886fa97e1bc20))
+
 ## [v2.3.0](https://github.com/continew-org/continew-starter/compare/v2.2.0...v2.3.0) (2024-07-18)
 
 ### ✨ 新特性
