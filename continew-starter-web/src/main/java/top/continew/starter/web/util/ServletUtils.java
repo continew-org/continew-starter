@@ -21,8 +21,6 @@ import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import top.continew.starter.core.constant.StringConstants;
 
 import java.util.*;
@@ -36,24 +34,6 @@ import java.util.*;
 public class ServletUtils {
 
     private ServletUtils() {
-    }
-
-    /**
-     * 获取请求对象
-     *
-     * @return /
-     */
-    public static HttpServletRequest getRequest() {
-        return getServletRequestAttributes().getRequest();
-    }
-
-    /**
-     * 获取响应对象
-     *
-     * @return /
-     */
-    public static HttpServletResponse getResponse() {
-        return getServletRequestAttributes().getResponse();
     }
 
     /**
@@ -117,9 +97,5 @@ public class ServletUtils {
             headerMap.put(name, response.getHeader(name));
         }
         return headerMap;
-    }
-
-    private static ServletRequestAttributes getServletRequestAttributes() {
-        return (ServletRequestAttributes)Objects.requireNonNull(RequestContextHolder.getRequestAttributes());
     }
 }

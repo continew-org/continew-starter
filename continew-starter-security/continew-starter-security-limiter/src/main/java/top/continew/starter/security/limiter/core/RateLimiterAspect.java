@@ -36,7 +36,7 @@ import top.continew.starter.security.limiter.annotation.RateLimiters;
 import top.continew.starter.security.limiter.autoconfigure.RateLimiterProperties;
 import top.continew.starter.security.limiter.enums.LimitType;
 import top.continew.starter.security.limiter.exception.RateLimiterException;
-import top.continew.starter.web.util.ServletUtils;
+import top.continew.starter.web.util.SpringWebUtils;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -171,7 +171,7 @@ public class RateLimiterAspect {
         }
         // 获取后缀
         String suffix = switch (rateLimiter.type()) {
-            case IP -> JakartaServletUtil.getClientIP(ServletUtils.getRequest());
+            case IP -> JakartaServletUtil.getClientIP(SpringWebUtils.getRequest());
             case CLUSTER -> redissonClient.getId();
             default -> StringConstants.EMPTY;
         };
