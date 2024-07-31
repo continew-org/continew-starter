@@ -17,7 +17,6 @@
 package top.continew.starter.log.httptracepro.handler;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,7 +25,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -63,7 +61,7 @@ public class LogInterceptor implements HandlerInterceptor {
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
         Clock timestamp = Clock.systemUTC();
-        if (this.isRequestRecord(handler, request)) {
+        if (this.isRequestRecord(handler)) {
             if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
                 log.info("[{}] {}", request.getMethod(), request.getRequestURI());
             }
@@ -194,16 +192,10 @@ public class LogInterceptor implements HandlerInterceptor {
      * 是否要记录日志
      *
      * @param handler 处理器
-     * @param request 请求对象
      * @return true：需要记录；false：不需要记录
      */
-    private boolean isRequestRecord(Object handler, HttpServletRequest request) {
+    private boolean isRequestRecord(Object handler) {
         if (!(handler instanceof HandlerMethod handlerMethod)) {
-            return false;
-        }
-        // 不拦截 /error
-        ServerProperties serverProperties = SpringUtil.getBean(ServerProperties.class);
-        if (request.getRequestURI().equals(serverProperties.getError().getPath())) {
             return false;
         }
         // 如果接口被隐藏，不记录日志

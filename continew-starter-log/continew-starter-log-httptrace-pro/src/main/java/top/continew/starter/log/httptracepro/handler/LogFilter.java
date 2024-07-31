@@ -16,10 +16,12 @@
 
 package top.continew.starter.log.httptracepro.handler;
 
+import cn.hutool.extra.spring.SpringUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.core.Ordered;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -28,6 +30,7 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
 import top.continew.starter.log.core.enums.Include;
 import top.continew.starter.log.httptracepro.autoconfigure.LogProperties;
+import top.continew.starter.web.util.SpringWebUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -63,24 +66,46 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
     protected void doFilterInternal(@NonNull HttpServletRequest request,
                                     @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
-        if (!isRequestValid(request)) {
+        if (!this.isFilter(request)) {
             filterChain.doFilter(request, response);
             return;
         }
         // 包装输入流，可重复读取
-        if (isRequestWrapper(request)) {
+        if (this.isRequestWrapper(request)) {
             request = new ContentCachingRequestWrapper(request);
         }
         // 包装输出流，可重复读取
-        boolean isResponseWrapper = isResponseWrapper(response);
+        boolean isResponseWrapper = this.isResponseWrapper(response);
         if (isResponseWrapper) {
             response = new ContentCachingResponseWrapper(response);
         }
         filterChain.doFilter(request, response);
         // 更新响应（不操作这一步，会导致接口响应空白）
         if (isResponseWrapper) {
-            updateResponse(response);
+            this.updateResponse(response);
         }
+    }
+
+    /**
+     * 是否过滤请求
+     *
+     * @param request 请求对象
+     * @return 是否过滤请求
+     */
+    private boolean isFilter(HttpServletRequest request) {
+        if (!isRequestValid(request)) {
+            return false;
+        }
+        // 不拦截 /error
+        ServerProperties serverProperties = SpringUtil.getBean(ServerProperties.class);
+        if (request.getRequestURI().equals(serverProperties.getError().getPath())) {
+            return false;
+        }
+        // 放行
+        boolean isMatch = logProperties.getExcludePatterns()
+            .stream()
+            .anyMatch(pattern -> SpringWebUtils.match(pattern, request.getRequestURI()));
+        return !isMatch;
     }
 
     /**

@@ -20,7 +20,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.log.core.enums.Include;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -47,6 +49,11 @@ public class LogProperties {
      */
     private Set<Include> includes = new HashSet<>(Include.defaultIncludes());
 
+    /**
+     * 放行路由
+     */
+    private List<String> excludePatterns = new ArrayList<>();
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -69,5 +76,13 @@ public class LogProperties {
 
     public void setIncludes(Set<Include> includes) {
         this.includes = includes;
+    }
+
+    public List<String> getExcludePatterns() {
+        return excludePatterns;
+    }
+
+    public void setExcludePatterns(List<String> excludePatterns) {
+        this.excludePatterns = excludePatterns;
     }
 }
