@@ -172,10 +172,10 @@ continew-starter.web:
 
 ### 日志模块
 
-| 模块名称                           | 模块说明                                  |
-| ---------------------------------- | ----------------------------------------- |
-| continew-starter-log-core          | 日志核心模块                              |
-| continew-starter-log-httptrace-pro | Spring Boot Actuator HttpTrace 重置增强版 |
+| 模块名称                             | 模块说明                                  |
+|----------------------------------| ----------------------------------------- |
+| continew-starter-log-core        | 日志核心模块                              |
+| continew-starter-log-interceptor | 拦截器版（Spring Boot Actuator HttpTrace 增强版） |
 
 ### 存储模块
 

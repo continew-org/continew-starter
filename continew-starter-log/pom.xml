@@ -15,7 +15,7 @@
 
     <modules>
         <module>continew-starter-log-core</module>
-        <module>continew-starter-log-httptrace-pro</module>
+        <module>continew-starter-log-interceptor</module>
     </modules>
 
     <dependencies>

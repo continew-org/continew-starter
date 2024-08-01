@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.httptracepro.autoconfigure;
+package top.continew.starter.log.interceptor.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;

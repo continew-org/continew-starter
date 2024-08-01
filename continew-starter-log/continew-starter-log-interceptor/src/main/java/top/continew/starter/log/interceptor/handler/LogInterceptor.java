@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.httptracepro.handler;
+package top.continew.starter.log.interceptor.handler;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
@@ -33,7 +33,7 @@ import top.continew.starter.log.core.dao.LogDao;
 import top.continew.starter.log.core.enums.Include;
 import top.continew.starter.log.core.model.LogRecord;
 import top.continew.starter.log.core.model.LogResponse;
-import top.continew.starter.log.httptracepro.autoconfigure.LogProperties;
+import top.continew.starter.log.interceptor.autoconfigure.LogProperties;
 
 import java.time.Clock;
 import java.util.Set;

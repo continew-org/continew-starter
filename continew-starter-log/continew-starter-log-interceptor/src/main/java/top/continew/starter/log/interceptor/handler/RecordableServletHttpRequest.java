@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.httptracepro.handler;
+package top.continew.starter.log.interceptor.handler;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.StrUtil;

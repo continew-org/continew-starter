@@ -9,8 +9,8 @@
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-log-httptrace-pro</artifactId>
-    <description>ContiNew Starter 日志模块 - HttpTracePro（Spring Boot Actuator HttpTrace 重置增强版）</description>
+    <artifactId>continew-starter-log-interceptor</artifactId>
+    <description>ContiNew Starter 日志模块 - 拦截器版（Spring Boot Actuator HttpTrace 增强版）</description>
 
     <dependencies>
         <!-- Swagger 注解 -->

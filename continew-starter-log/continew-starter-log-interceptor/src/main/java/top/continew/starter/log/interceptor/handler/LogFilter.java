@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.httptracepro.handler;
+package top.continew.starter.log.interceptor.handler;
 
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.servlet.FilterChain;
@@ -29,7 +29,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
 import top.continew.starter.log.core.enums.Include;
-import top.continew.starter.log.httptracepro.autoconfigure.LogProperties;
+import top.continew.starter.log.interceptor.autoconfigure.LogProperties;
 import top.continew.starter.web.util.SpringWebUtils;
 
 import java.io.IOException;

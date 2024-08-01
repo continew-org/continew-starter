@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.httptracepro.autoconfigure;
+package top.continew.starter.log.interceptor.autoconfigure;
 
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -28,8 +28,8 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.continew.starter.log.core.dao.LogDao;
 import top.continew.starter.log.core.dao.impl.LogDaoDefaultImpl;
-import top.continew.starter.log.httptracepro.handler.LogFilter;
-import top.continew.starter.log.httptracepro.handler.LogInterceptor;
+import top.continew.starter.log.interceptor.handler.LogFilter;
+import top.continew.starter.log.interceptor.handler.LogInterceptor;
 
 /**
  * 日志自动配置
@@ -75,6 +75,6 @@ public class LogAutoConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Log-HttpTracePro' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Log' completed initialization.");
     }
 }
