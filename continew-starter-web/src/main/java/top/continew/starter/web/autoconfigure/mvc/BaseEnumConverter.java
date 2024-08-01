@@ -14,27 +14,36 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.converter;
+package top.continew.starter.web.autoconfigure.mvc;
 
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.core.convert.converter.ConverterFactory;
 import top.continew.starter.core.enums.BaseEnum;
+import top.continew.starter.core.util.validate.ValidationUtils;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * BaseEnum 参数转换器工厂
+ * BaseEnum 参数转换器
  *
  * @author Charles7c
  * @since 2.4.0
  */
-public class BaseEnumConverterFactory implements ConverterFactory<String, BaseEnum> {
+public class BaseEnumConverter<T extends BaseEnum> implements Converter<String, T> {
 
-    private static final Map<Class, Converter> CONVERTER_CACHE = new ConcurrentHashMap<>();
+    private final Map<String, T> enumMap = new HashMap<>();
+
+    public BaseEnumConverter(Class<T> enumType) {
+        T[] enums = enumType.getEnumConstants();
+        for (T e : enums) {
+            enumMap.put(String.valueOf(e.getValue()), e);
+        }
+    }
 
     @Override
-    public <T extends BaseEnum> Converter<String, T> getConverter(Class<T> targetType) {
-        return CONVERTER_CACHE.computeIfAbsent(targetType, key -> new BaseEnumConverter<>(targetType));
+    public T convert(String source) {
+        T t = enumMap.get(source);
+        ValidationUtils.throwIfNull(t, "枚举值非法：{}", source);
+        return t;
     }
 }

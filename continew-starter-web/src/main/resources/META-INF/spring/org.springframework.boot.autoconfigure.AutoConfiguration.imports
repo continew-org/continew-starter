@@ -1,4 +1,4 @@
-top.continew.starter.web.autoconfigure.converter.BaseEnumConverterAutoConfiguration
+top.continew.starter.web.autoconfigure.mvc.WebMvcAutoConfiguration
 top.continew.starter.web.autoconfigure.cors.CorsAutoConfiguration
 top.continew.starter.web.autoconfigure.trace.TraceAutoConfiguration
 top.continew.starter.web.autoconfigure.xss.XssAutoConfiguration
