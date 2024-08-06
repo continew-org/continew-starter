@@ -17,12 +17,12 @@
 package top.continew.starter.web.annotation;
 
 import org.springframework.context.annotation.Import;
-import top.continew.starter.web.autoconfigure.exception.GlobalExceptionHandlerAutoConfiguration;
+import top.continew.starter.web.autoconfigure.response.GlobalResponseAutoConfiguration;
 
 import java.lang.annotation.*;
 
 /**
- * 全局异常、错误处理器启用注解
+ * 全局响应启用注解
  *
  * @author Charles7c
  * @since 1.2.0
@@ -30,6 +30,7 @@ import java.lang.annotation.*;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Import({GlobalExceptionHandlerAutoConfiguration.class})
-public @interface EnableGlobalExceptionHandler {
+@Inherited
+@Import({GlobalResponseAutoConfiguration.class})
+public @interface EnableGlobalResponse {
 }

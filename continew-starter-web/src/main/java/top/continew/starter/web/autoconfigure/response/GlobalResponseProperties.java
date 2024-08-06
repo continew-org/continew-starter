@@ -14,30 +14,18 @@
  * limitations under the License.
  */
 
-package top.continew.starter.core.exception;
+package top.continew.starter.web.autoconfigure.response;
+
+import com.feiniaojin.gracefulresponse.GracefulResponseProperties;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * 统一错误码异常
+ * 全局响应配置属性
  *
- * @author Jasmine
- * @since 2.2.0
+ * @author Charles7c
+ * @since 2.5.0
  */
-public class GlobalException extends Exception {
-
-    private ResultInfoInterface resultInfo;
-
-    public GlobalException() {
-    }
-
-    public GlobalException(ResultInfoInterface resultInfo) {
-        this.resultInfo = resultInfo;
-    }
-
-    public ResultInfoInterface getResultInfo() {
-        return this.resultInfo;
-    }
-
-    public void setResultInfo(ResultInfoInterface resultInfo) {
-        this.resultInfo = resultInfo;
-    }
+@ConfigurationProperties(PropertiesConstants.WEB_RESPONSE)
+public class GlobalResponseProperties extends GracefulResponseProperties {
 }

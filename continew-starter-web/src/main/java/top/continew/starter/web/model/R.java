@@ -16,12 +16,14 @@
 
 package top.continew.starter.web.model;
 
-import cn.hutool.core.date.DateUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.feiniaojin.gracefulresponse.data.Response;
+import com.feiniaojin.gracefulresponse.data.ResponseStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.http.HttpStatus;
+import top.continew.starter.web.autoconfigure.response.GlobalResponseProperties;
 
-import java.io.Serial;
-import java.io.Serializable;
+import java.util.Collections;
 
 /**
  * 响应信息
@@ -30,13 +32,25 @@ import java.io.Serializable;
  * @since 1.0.0
  */
 @Schema(description = "响应信息")
-public class R<T> implements Serializable {
+public class R implements Response {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    private static final GlobalResponseProperties PROPERTIES = SpringUtil.getBean(GlobalResponseProperties.class);
+    private static final String DEFAULT_SUCCESS_CODE = PROPERTIES.getDefaultSuccessCode();
+    private static final String DEFAULT_SUCCESS_MSG = PROPERTIES.getDefaultSuccessMsg();
+    private static final String DEFAULT_ERROR_CODE = PROPERTIES.getDefaultErrorCode();
+    private static final String DEFAULT_ERROR_MSG = PROPERTIES.getDefaultErrorMsg();
 
-    private static final int SUCCESS_CODE = HttpStatus.OK.value();
-    private static final int FAIL_CODE = HttpStatus.INTERNAL_SERVER_ERROR.value();
+    /**
+     * 状态码
+     */
+    @Schema(description = "状态码", example = "1")
+    private String code;
+
+    /**
+     * 状态信息
+     */
+    @Schema(description = "状态信息", example = "操作成功")
+    private String msg;
 
     /**
      * 是否成功
@@ -45,153 +59,60 @@ public class R<T> implements Serializable {
     private boolean success;
 
     /**
-     * 业务状态码
+     * 时间戳
      */
-    @Schema(description = "业务状态码", example = "200")
-    private int code;
-
-    /**
-     * 业务状态信息
-     */
-    @Schema(description = "业务状态信息", example = "操作成功")
-    private String msg;
+    @Schema(description = "时间戳", example = "1691453288000")
+    private final Long timestamp = System.currentTimeMillis();
 
     /**
      * 响应数据
      */
     @Schema(description = "响应数据")
-    private T data;
+    private Object data = Collections.emptyMap();
 
-    /**
-     * 时间戳
-     */
-    @Schema(description = "时间戳", example = "1691453288")
-    private long timestamp = DateUtil.currentSeconds();
-
-    private R() {
+    public R() {
     }
 
-    private R(boolean success, int code, String msg, T data) {
-        this.success = success;
-        this.code = code;
-        this.msg = msg;
+    public R(String code, String msg) {
+        this.setCode(code);
+        this.setMsg(msg);
+    }
+
+    public R(String code, String msg, Object data) {
+        this(code, msg);
         this.data = data;
     }
 
-    /**
-     * 操作成功
-     *
-     * @param <T> 响应数据类型
-     * @return R /
-     */
-    public static <T> R<T> ok() {
-        return new R<>(true, SUCCESS_CODE, "操作成功", null);
+    @Override
+    public void setStatus(ResponseStatus status) {
+        this.setCode(status.getCode());
+        this.setMsg(status.getMsg());
     }
 
-    /**
-     * 操作成功
-     *
-     * @param data 响应数据
-     * @param <T>  响应数据类型
-     * @return R /
-     */
-    public static <T> R<T> ok(T data) {
-        return new R<>(true, SUCCESS_CODE, "操作成功", data);
+    @Override
+    @JsonIgnore
+    public ResponseStatus getStatus() {
+        return null;
     }
 
-    /**
-     * 操作成功
-     *
-     * @param msg 业务状态信息
-     * @param <T> 响应数据类型
-     * @return R /
-     */
-    public static <T> R<T> ok(String msg) {
-        return new R<>(true, SUCCESS_CODE, msg, null);
+    @Override
+    public void setPayload(Object payload) {
+        this.data = payload;
     }
 
-    /**
-     * 操作成功
-     *
-     * @param msg  业务状态信息
-     * @param data 响应数据
-     * @param <T>  响应数据类型
-     * @return R /
-     */
-    public static <T> R<T> ok(String msg, T data) {
-        return new R<>(true, SUCCESS_CODE, msg, data);
+    @Override
+    @JsonIgnore
+    public Object getPayload() {
+        return null;
     }
 
-    /**
-     * 操作失败
-     *
-     * @param <T> 响应数据类型
-     * @return R /
-     */
-    public static <T> R<T> fail() {
-        return new R<>(false, FAIL_CODE, "操作失败", null);
-    }
-
-    /**
-     * 操作失败
-     *
-     * @param msg 业务状态信息
-     * @param <T> 响应数据类型
-     * @return R /
-     */
-    public static <T> R<T> fail(String msg) {
-        return new R<>(false, FAIL_CODE, msg, null);
-    }
-
-    /**
-     * 操作失败
-     *
-     * @param data 响应数据
-     * @param <T>  响应数据类型
-     * @return R /
-     */
-    public static <T> R<T> fail(T data) {
-        return new R<>(false, FAIL_CODE, "操作失败", data);
-    }
-
-    /**
-     * 操作失败
-     *
-     * @param msg  业务状态信息
-     * @param data 响应数据
-     * @param <T>  响应数据类型
-     * @return R /
-     */
-    public static <T> R<T> fail(String msg, T data) {
-        return new R<>(false, FAIL_CODE, msg, data);
-    }
-
-    /**
-     * 操作失败
-     *
-     * @param code 业务状态码
-     * @param msg  业务状态信息
-     * @param <T>  响应数据类型
-     * @return R /
-     */
-    public static <T> R<T> fail(int code, String msg) {
-        return new R<>(false, code, msg, null);
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public int getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(String code) {
         this.code = code;
+        this.success = DEFAULT_SUCCESS_CODE.equals(code);
     }
 
     public String getMsg() {
@@ -202,19 +123,73 @@ public class R<T> implements Serializable {
         this.msg = msg;
     }
 
-    public T getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(T data) {
+    public void setData(Object data) {
         this.data = data;
     }
 
-    public long getTimestamp() {
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public Long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    /**
+     * 操作成功
+     *
+     * @return R /
+     */
+    public static R ok() {
+        return new R(DEFAULT_SUCCESS_CODE, DEFAULT_SUCCESS_MSG);
+    }
+
+    /**
+     * 操作成功
+     *
+     * @param data 响应数据
+     * @return R /
+     */
+    public static R ok(Object data) {
+        return new R(DEFAULT_SUCCESS_CODE, DEFAULT_SUCCESS_MSG, data);
+    }
+
+    /**
+     * 操作成功
+     *
+     * @param msg  业务状态信息
+     * @param data 响应数据
+     * @return R /
+     */
+    public static R ok(String msg, Object data) {
+        return new R(DEFAULT_SUCCESS_CODE, msg, data);
+    }
+
+    /**
+     * 操作失败
+     *
+     * @return R /
+     */
+    public static R fail() {
+        return new R(DEFAULT_ERROR_CODE, DEFAULT_ERROR_MSG);
+    }
+
+    /**
+     * 操作失败
+     *
+     * @param code 业务状态码
+     * @param msg  业务状态信息
+     * @return R /
+     */
+    public static R fail(String code, String msg) {
+        return new R(code, msg);
     }
 }

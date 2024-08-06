@@ -1,0 +1,23 @@
+--- ### 响应配置
+continew-starter.web.response:
+  # 是否开启国际化（默认：false）
+  i18n: false
+  # 响应类全名（配置后 response-style 将不再生效）
+  response-class-full-name: top.continew.starter.web.model.R
+  # 自定义成功响应码（默认：0）
+  default-success-code: 0
+  # 自定义成功提示（默认：ok）
+  default-success-msg: ok
+  # 自定义失败响应码（默认：1）
+  default-error-code: 1
+  # 自定义失败提示（默认：error）
+  default-error-msg: error
+  # 是否打印异常日志（默认：false）
+  print-exception-in-global-advice: true
+  # 是否将原生异常错误信息填充到状态信息中（默认：false）
+  origin-exception-using-detail-message: true
+  # 例外包路径（支持数字, * 和 ** 通配符匹配），该包路径下的 Controller 将被忽略处理
+  exclude-packages:
+    - io.swagger.**
+    - org.springdoc.**
+    - org.springframework.boot.actuate.*

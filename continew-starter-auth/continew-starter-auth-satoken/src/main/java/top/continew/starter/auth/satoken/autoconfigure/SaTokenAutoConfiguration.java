@@ -44,7 +44,6 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
  * @since 1.0.0
  */
 @AutoConfiguration
-@ComponentScan("top.continew.starter.auth.satoken.exception")
 @EnableConfigurationProperties(SaTokenExtensionProperties.class)
 @ConditionalOnProperty(prefix = "sa-token.extension", name = PropertiesConstants.ENABLED, havingValue = "true")
 @PropertySource(value = "classpath:default-auth-satoken.yml", factory = GeneralPropertySourceFactory.class)

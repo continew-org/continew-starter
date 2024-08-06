@@ -44,6 +44,12 @@
             <artifactId>tlog-web-spring-boot-starter</artifactId>
         </dependency>
 
+        <!-- Graceful Response（一个Spring Boot技术栈下的优雅响应处理组件，可以帮助开发者完成响应数据封装、异常处理、错误码填充等过程，提高开发效率，提高代码质量） -->
+        <dependency>
+            <groupId>com.feiniaojin</groupId>
+            <artifactId>graceful-response</artifactId>
+        </dependency>
+
         <!-- API 文档模块 -->
         <dependency>
             <groupId>top.continew</groupId>

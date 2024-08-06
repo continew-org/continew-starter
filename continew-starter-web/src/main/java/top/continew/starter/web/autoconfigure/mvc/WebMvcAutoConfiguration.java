@@ -24,7 +24,6 @@ import org.springframework.format.FormatterRegistry;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -44,8 +43,7 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
     private static final Logger log = LoggerFactory.getLogger(WebMvcAutoConfiguration.class);
     private final MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter;
 
-    public WebMvcAutoConfiguration(MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter,
-                                   ThreadPoolTaskExecutor threadPoolTaskExecutor) {
+    public WebMvcAutoConfiguration(MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter) {
         this.mappingJackson2HttpMessageConverter = mappingJackson2HttpMessageConverter;
     }
 

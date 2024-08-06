@@ -65,6 +65,11 @@ public class PropertiesConstants {
     public static final String WEB_CORS = WEB + StringConstants.DOT + "cors";
 
     /**
+     * 响应配置
+     */
+    public static final String WEB_RESPONSE = WEB + StringConstants.DOT + "response";
+
+    /**
      * 链路配置
      */
     public static final String WEB_TRACE = WEB + StringConstants.DOT + "trace";
@@ -73,11 +78,6 @@ public class PropertiesConstants {
      * XSS 配置
      */
     public static final String WEB_XSS = WEB + StringConstants.DOT + "xss";
-
-    /**
-     * 国际化配置
-     */
-    public static final String WEB_I18N = WEB + StringConstants.DOT + "i18n";
 
     /**
      * 日志配置
