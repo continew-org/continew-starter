@@ -21,7 +21,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.IdUtil;
-import jakarta.servlet.http.HttpServletRequest;
+import cn.hutool.core.util.URLUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +29,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileInputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 
 /**
@@ -83,27 +83,29 @@ public class FileUploadUtils {
     /**
      * 下载
      *
-     * @param request    请求对象
-     * @param response   响应对象
-     * @param file       文件
-     * @param autoDelete 下载后自动删除
+     * @param response 响应对象
+     * @param file     文件
      */
-    public static void download(HttpServletRequest request,
-                                HttpServletResponse response,
-                                File file,
-                                boolean autoDelete) {
-        response.setCharacterEncoding(request.getCharacterEncoding());
+    public static void download(HttpServletResponse response, File file) throws IOException {
+        download(response, new FileInputStream(file), file.getName());
+    }
+
+    /**
+     * 下载
+     *
+     * @param response    响应对象
+     * @param inputStream 文件流
+     * @param fileName    文件名
+     * @since 2.5.0
+     */
+    public static void download(HttpServletResponse response,
+                                InputStream inputStream,
+                                String fileName) throws IOException {
+        byte[] bytes = IoUtil.readBytes(inputStream);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + file.getName());
-        try (FileInputStream fis = new FileInputStream(file)) {
-            IoUtil.copy(fis, response.getOutputStream());
-            response.flushBuffer();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        } finally {
-            if (autoDelete) {
-                file.deleteOnExit();
-            }
-        }
+        response.setContentLength(bytes.length);
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + URLUtil.encode(fileName));
+        IoUtil.write(response.getOutputStream(), true, bytes);
     }
 }
