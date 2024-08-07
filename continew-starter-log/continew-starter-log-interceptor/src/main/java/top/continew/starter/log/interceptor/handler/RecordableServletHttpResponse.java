@@ -22,7 +22,6 @@ import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
-import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.log.core.model.RecordableHttpResponse;
 import top.continew.starter.web.util.ServletUtils;
 
@@ -60,9 +59,10 @@ public final class RecordableServletHttpResponse implements RecordableHttpRespon
         ContentCachingResponseWrapper wrapper = WebUtils
             .getNativeResponse(response, ContentCachingResponseWrapper.class);
         if (null != wrapper) {
-            return StrUtil.utf8Str(wrapper.getContentAsByteArray());
+            String body = StrUtil.utf8Str(wrapper.getContentAsByteArray());
+            return JSONUtil.isTypeJSON(body) ? body : null;
         }
-        return StringConstants.EMPTY;
+        return null;
     }
 
     @Override
