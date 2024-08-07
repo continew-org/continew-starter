@@ -1,3 +1,19 @@
+## [v2.5.0](https://github.com/continew-org/continew-starter/compare/v2.4.0...v2.5.0) (2024-08-07)
+
+### ✨ 新特性
+
+- 【web】重构全局响应处理方案 ([0b41f2d](https://github.com/continew-org/continew-starter/commit/0b41f2d10c5dfb309585b36bde7008cdff6c912a))
+- 【web】FileUploadUtils 新增下载重载方法 ([be3a121](https://github.com/continew-org/continew-starter/commit/be3a121c0901e7c31bd2d30ac3befa74197c8c35))
+
+### 🐛 问题修复
+
+- 【log】仅支持获取 JSON 结构响应体 ([6e76269](https://github.com/continew-org/continew-starter/commit/6e76269bb6f335fa655fab5a5bee85824c1ca9e3))
+
+### 💎 功能优化
+
+- 【web】BaseEnumConverterAutoConfiguration => WebMvcAutoConfiguration ([9ec2e6b](https://github.com/continew-org/continew-starter/commit/9ec2e6b98137ed54fbba25d4e895d28cc39e7d93))
+- 【log】log-httptrace-pro => log-interceptor ([31c3162](https://github.com/continew-org/continew-starter/commit/31c3162563589b71f7bc09797d39abb0177bee27))
+
 ## [v2.4.0](https://github.com/continew-org/continew-starter/compare/v2.3.0...v2.4.0) (2024-07-31)
 
 ### ✨ 新特性
