@@ -1,3 +1,9 @@
+## [v2.5.1](https://github.com/continew-org/continew-starter/compare/v2.5.0...v2.5.1) (2024-08-12)
+
+### 🐛 问题修复
+
+- 【data】移除 SQL 函数接口中的 SQL 拼接 ([6693cd4](https://github.com/continew-org/continew-starter/commit/6693cd49b93244b42dfadd4f4be28e526d764425))
+
 ## [v2.5.0](https://github.com/continew-org/continew-starter/compare/v2.4.0...v2.5.0) (2024-08-07)
 
 ### ✨ 新特性
