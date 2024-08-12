@@ -18,8 +18,6 @@ package top.continew.starter.data.core.enums;
 
 import top.continew.starter.data.core.function.ISqlFunction;
 
-import java.io.Serializable;
-
 /**
  * 数据库类型枚举
  *
@@ -33,8 +31,8 @@ public enum DatabaseType implements ISqlFunction {
      */
     MYSQL("MySQL") {
         @Override
-        public String findInSet(Serializable value, String set) {
-            return "find_in_set('%s', %s) <> 0".formatted(value, set);
+        public String findInSet() {
+            return "find_in_set({0}, {1}) <> 0";
         }
     },
 
@@ -43,8 +41,8 @@ public enum DatabaseType implements ISqlFunction {
      */
     POSTGRE_SQL("PostgreSQL") {
         @Override
-        public String findInSet(Serializable value, String set) {
-            return "(select position(',%s,' in ','||%s||',')) <> 0".formatted(value, set);
+        public String findInSet() {
+            return "(select position(',{0},' in ','||{1}||',')) <> 0";
         }
     },;
 
