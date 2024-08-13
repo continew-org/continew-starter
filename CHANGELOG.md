@@ -1,3 +1,9 @@
+## [v2.5.2](https://github.com/continew-org/continew-starter/compare/v2.5.1...v2.5.2) (2024-08-13)
+
+### 🐛 问题修复
+
+- 【extension/crud】重构排序字段处理，预防 SQL 注入问题 ([c31fa75](https://github.com/continew-org/continew-starter/commit/c31fa753b6d9753d72a2e28bf3184981ed848ac2))
+
 ## [v2.5.1](https://github.com/continew-org/continew-starter/compare/v2.5.0...v2.5.1) (2024-08-12)
 
 ### 🐛 问题修复
