@@ -24,6 +24,12 @@
             <artifactId>spring-data-commons</artifactId>
         </dependency>
 
+        <!-- Web 模块 -->
+        <dependency>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-web</artifactId>
+        </dependency>
+
         <!-- 认证模块 - SaToken -->
         <dependency>
             <groupId>top.continew</groupId>
@@ -36,16 +42,16 @@
             </exclusions>
         </dependency>
 
+        <!-- 数据访问模块 - 核心模块 -->
+        <dependency>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-data-core</artifactId>
+        </dependency>
+
         <!-- 文件处理模块 - Excel -->
         <dependency>
             <groupId>top.continew</groupId>
             <artifactId>continew-starter-file-excel</artifactId>
-        </dependency>
-
-        <!-- Web 模块 -->
-        <dependency>
-            <groupId>top.continew</groupId>
-            <artifactId>continew-starter-web</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -14,33 +14,32 @@
  * limitations under the License.
  */
 
-package top.continew.starter.data.mybatis.flex.query;
+package top.continew.starter.data.mybatis.plus.util;
 
-import com.mybatisflex.core.query.QueryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.springframework.data.domain.Sort;
 import top.continew.starter.core.exception.BadRequestException;
 import top.continew.starter.core.util.ReflectUtils;
 import top.continew.starter.core.util.validate.ValidationUtils;
 import top.continew.starter.data.core.annotation.Query;
 import top.continew.starter.data.core.annotation.QueryIgnore;
 import top.continew.starter.data.core.enums.QueryType;
+import top.continew.starter.data.core.util.SqlInjectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
  * QueryWrapper 助手
  *
- * @author hellokaton
+ * @author Charles7c
  * @author Jasmine
  * @since 1.0.0
  */
@@ -59,11 +58,33 @@ public class QueryWrapperHelper {
      * @param <R>   查询数据类型
      * @return QueryWrapper
      */
-    public static <Q, R> QueryWrapper build(Q query) {
-        QueryWrapper queryWrapper = QueryWrapper.create();
+    public static <Q, R> QueryWrapper<R> build(Q query) {
+        return build(query, Sort.unsorted());
+    }
+
+    /**
+     * 构建 QueryWrapper
+     *
+     * @param query 查询条件
+     * @param sort  排序条件
+     * @param <Q>   查询条件数据类型
+     * @param <R>   查询数据类型
+     * @return QueryWrapper
+     * @since 2.5.2
+     */
+    public static <Q, R> QueryWrapper<R> build(Q query, Sort sort) {
+        QueryWrapper<R> queryWrapper = new QueryWrapper<>();
         // 没有查询条件，直接返回
         if (null == query) {
             return queryWrapper;
+        }
+        // 设置排序条件
+        if (sort != null && sort.isSorted()) {
+            for (Sort.Order order : sort) {
+                String field = CharSequenceUtil.toUnderlineCase(order.getProperty());
+                ValidationUtils.throwIf(SqlInjectionUtils.check(field), "排序字段包含非法字符");
+                queryWrapper.orderBy(true, order.isAscending(), field);
+            }
         }
         // 获取查询条件中所有的字段
         List<Field> fieldList = ReflectUtils.getNonStaticFields(query.getClass());
@@ -77,19 +98,18 @@ public class QueryWrapperHelper {
      * @param fields       查询条件字段列表
      * @param queryWrapper QueryWrapper
      * @param <Q>          查询条件数据类型
+     * @param <R>          查询数据类型
      * @return QueryWrapper
      */
-    public static <Q> QueryWrapper build(Q query, List<Field> fields, QueryWrapper queryWrapper) {
+    public static <Q, R> QueryWrapper<R> build(Q query, List<Field> fields, QueryWrapper<R> queryWrapper) {
         // 没有查询条件，直接返回
         if (null == query) {
             return queryWrapper;
         }
         // 解析并拼接查询条件
         for (Field field : fields) {
-            List<Consumer<QueryWrapper>> consumers = buildWrapperConsumer(query, field);
-            if (CollUtil.isNotEmpty(consumers)) {
-                consumers.forEach(queryWrapper::and);
-            }
+            List<Consumer<QueryWrapper<R>>> consumers = buildWrapperConsumer(query, field);
+            queryWrapper.and(CollUtil.isNotEmpty(consumers), q -> consumers.forEach(q::or));
         }
         return queryWrapper;
     }
@@ -103,7 +123,7 @@ public class QueryWrapperHelper {
      * @param <R>   查询数据类型
      * @return QueryWrapper Consumer
      */
-    private static <Q, R> List<Consumer<QueryWrapper>> buildWrapperConsumer(Q query, Field field) {
+    private static <Q, R> List<Consumer<QueryWrapper<R>>> buildWrapperConsumer(Q query, Field field) {
         boolean accessible = field.canAccess(query);
         try {
             field.setAccessible(true);
@@ -128,7 +148,7 @@ public class QueryWrapperHelper {
             QueryType queryType = queryAnnotation.type();
             String[] columns = queryAnnotation.columns();
             final int columnLength = ArrayUtil.length(columns);
-            List<Consumer<QueryWrapper>> consumers = new ArrayList<>(columnLength);
+            List<Consumer<QueryWrapper<R>>> consumers = new ArrayList<>(columnLength);
             if (columnLength <= 1) {
                 String columnName = columnLength == 1 ? columns[0] : CharSequenceUtil.toUnderlineCase(fieldName);
                 parse(queryType, columnName, fieldValue, consumers);
@@ -161,7 +181,7 @@ public class QueryWrapperHelper {
     private static <R> void parse(QueryType queryType,
                                   String columnName,
                                   Object fieldValue,
-                                  List<Consumer<QueryWrapper>> consumers) {
+                                  List<Consumer<QueryWrapper<R>>> consumers) {
         switch (queryType) {
             case EQ -> consumers.add(q -> q.eq(columnName, fieldValue));
             case NE -> consumers.add(q -> q.ne(columnName, fieldValue));

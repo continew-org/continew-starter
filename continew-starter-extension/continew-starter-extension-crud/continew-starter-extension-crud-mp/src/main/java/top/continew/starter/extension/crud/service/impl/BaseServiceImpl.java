@@ -20,15 +20,15 @@ import cn.crane4j.core.support.OperateTemplate;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,21 +38,24 @@ import top.continew.starter.core.util.ReflectUtils;
 import top.continew.starter.core.util.validate.CheckUtils;
 import top.continew.starter.core.util.validate.ValidationUtils;
 import top.continew.starter.data.mybatis.plus.base.BaseMapper;
-import top.continew.starter.data.mybatis.plus.query.QueryWrapperHelper;
 import top.continew.starter.data.mybatis.plus.service.impl.ServiceImpl;
+import top.continew.starter.data.mybatis.plus.util.QueryWrapperHelper;
 import top.continew.starter.extension.crud.annotation.DictField;
 import top.continew.starter.extension.crud.annotation.TreeField;
 import top.continew.starter.extension.crud.model.entity.BaseIdDO;
+import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
 import top.continew.starter.extension.crud.model.resp.LabelValueResp;
 import top.continew.starter.extension.crud.model.resp.PageResp;
 import top.continew.starter.extension.crud.service.BaseService;
 import top.continew.starter.extension.crud.util.TreeUtils;
-import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.file.excel.util.ExcelUtils;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * 业务实现基类
@@ -76,7 +79,8 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
         QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
-        IPage<T> page = baseMapper.selectPage(pageQuery.toPage(), queryWrapper);
+        this.sort(queryWrapper, pageQuery);
+        IPage<T> page = baseMapper.selectPage(new Page<>(pageQuery.getPage(), pageQuery.getSize()), queryWrapper);
         PageResp<L> pageResp = PageResp.build(page, this.getListClass());
         pageResp.getList().forEach(this::fill);
         return pageResp;
@@ -253,23 +257,24 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
      * @param sortQuery    排序查询条件
      */
     protected void sort(QueryWrapper<T> queryWrapper, SortQuery sortQuery) {
-        Sort sort = Opt.ofNullable(sortQuery).orElseGet(SortQuery::new).getSort();
+        if (sortQuery == null || sortQuery.getSort().isUnsorted()) {
+            return;
+        }
+        Sort sort = sortQuery.getSort();
         for (Sort.Order order : sort) {
-            if (null != order) {
-                String property = order.getProperty();
-                String checkProperty;
-                // 携带表别名则获取 . 后面的字段名
-                if (property.contains(StringConstants.DOT)) {
-                    checkProperty = CollUtil.getLast(CharSequenceUtil.split(property, StringConstants.DOT));
-                } else {
-                    checkProperty = property;
-                }
-                Optional<Field> optional = super.getEntityFields().stream()
-                    .filter(field -> checkProperty.equals(field.getName()))
-                    .findFirst();
-                ValidationUtils.throwIf(optional.isEmpty(), "无效的排序字段 [{}]", property);
-                queryWrapper.orderBy(true, order.isAscending(), CharSequenceUtil.toUnderlineCase(property));
+            String property = order.getProperty();
+            String checkProperty;
+            // 携带表别名则获取 . 后面的字段名
+            if (property.contains(StringConstants.DOT)) {
+                checkProperty = CollUtil.getLast(CharSequenceUtil.split(property, StringConstants.DOT));
+            } else {
+                checkProperty = property;
             }
+            Optional<Field> optional = super.getEntityFields().stream()
+                .filter(field -> checkProperty.equals(field.getName()))
+                .findFirst();
+            ValidationUtils.throwIf(optional.isEmpty(), "无效的排序字段 [{}]", property);
+            queryWrapper.orderBy(true, order.isAscending(), CharSequenceUtil.toUnderlineCase(property));
         }
     }
 
