@@ -109,8 +109,10 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor {
      * @throws Exception /
      */
     private void encryptMap(HashMap<String, Object> parameterMap, MappedStatement mappedStatement) throws Exception {
-        Map<String, FieldEncrypt> encryptParamMap = super.getEncryptParams(mappedStatement.getId(), parameterMap
-            .isEmpty() ? null : parameterMap.size() / 2);
+        Map<String, FieldEncrypt> encryptParamMap = super.getEncryptParams(mappedStatement);
+        if (encryptParamMap.isEmpty() && !parameterMap.isEmpty()) {
+            encryptParamMap = super.getEncryptParams(mappedStatement, parameterMap.size() / 2);
+        }
         for (Map.Entry<String, FieldEncrypt> encryptParamEntry : encryptParamMap.entrySet()) {
             String parameterName = encryptParamEntry.getKey();
             if (parameterName.startsWith(Constants.ENTITY)) {
