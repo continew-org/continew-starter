@@ -21,6 +21,8 @@ import cn.hutool.core.util.ArrayUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Sort;
 import top.continew.starter.core.constant.StringConstants;
+import top.continew.starter.core.util.validate.ValidationUtils;
+import top.continew.starter.data.core.util.SqlInjectionUtils;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -54,25 +56,34 @@ public class SortQuery implements Serializable {
         if (ArrayUtil.isEmpty(sort)) {
             return Sort.unsorted();
         }
-
+        ValidationUtils.throwIf(sort.length < 2, "排序条件非法");
         List<Sort.Order> orders = new ArrayList<>(sort.length);
         if (CharSequenceUtil.contains(sort[0], StringConstants.COMMA)) {
             // e.g "sort=createTime,desc&sort=name,asc"
             for (String s : sort) {
                 List<String> sortList = CharSequenceUtil.splitTrim(s, StringConstants.COMMA);
-                Sort.Order order = new Sort.Order(Sort.Direction.valueOf(sortList.get(1).toUpperCase()), sortList
-                    .get(0));
-                orders.add(order);
+                orders.add(this.getOrder(sortList.get(0), sortList.get(1)));
             }
         } else {
             // e.g "sort=createTime,desc"
-            Sort.Order order = new Sort.Order(Sort.Direction.valueOf(sort[1].toUpperCase()), sort[0]);
-            orders.add(order);
+            orders.add(this.getOrder(sort[0], sort[1]));
         }
         return Sort.by(orders);
     }
 
     public void setSort(String[] sort) {
         this.sort = sort;
+    }
+
+    /**
+     * 获取排序条件
+     *
+     * @param field     字段
+     * @param direction 排序方向
+     * @return 排序条件
+     */
+    private Sort.Order getOrder(String field, String direction) {
+        ValidationUtils.throwIf(SqlInjectionUtils.check(field), "排序字段包含非法字符");
+        return new Sort.Order(Sort.Direction.valueOf(direction.toUpperCase()), field);
     }
 }

@@ -22,7 +22,6 @@ import com.mybatisflex.core.paginate.Page;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.io.Serial;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -35,22 +34,17 @@ import java.util.List;
  * @since 1.0.0
  */
 @Schema(description = "分页信息")
-public class PageResp<L> implements Serializable {
+public class PageResp<L> extends BasePageResp<L> {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 列表数据
-     */
-    @Schema(description = "列表数据")
-    private List<L> list;
+    public PageResp() {
+    }
 
-    /**
-     * 总记录数
-     */
-    @Schema(description = "总记录数", example = "10")
-    private long total;
+    public PageResp(final List<L> list, final long total) {
+        super(list, total);
+    }
 
     /**
      * 基于 MyBatis Plus 分页数据构建分页信息，并将源数据转换为指定类型数据
@@ -65,10 +59,7 @@ public class PageResp<L> implements Serializable {
         if (null == page) {
             return empty();
         }
-        PageResp<L> pageResp = new PageResp<>();
-        pageResp.setList(BeanUtil.copyToList(page.getRecords(), targetClass));
-        pageResp.setTotal(page.getTotalRow());
-        return pageResp;
+        return new PageResp<>(BeanUtil.copyToList(page.getRecords(), targetClass), page.getTotalRow());
     }
 
     /**
@@ -82,10 +73,7 @@ public class PageResp<L> implements Serializable {
         if (null == page) {
             return empty();
         }
-        PageResp<L> pageResp = new PageResp<>();
-        pageResp.setList(page.getRecords());
-        pageResp.setTotal(page.getTotalRow());
-        return pageResp;
+        return new PageResp<>(page.getRecords(), page.getTotalRow());
     }
 
     /**
@@ -123,24 +111,6 @@ public class PageResp<L> implements Serializable {
      * @return 分页信息
      */
     private static <L> PageResp<L> empty() {
-        PageResp<L> pageResp = new PageResp<>();
-        pageResp.setList(Collections.emptyList());
-        return pageResp;
-    }
-
-    public List<L> getList() {
-        return list;
-    }
-
-    public void setList(List<L> list) {
-        this.list = list;
-    }
-
-    public long getTotal() {
-        return total;
-    }
-
-    public void setTotal(long total) {
-        this.total = total;
+        return new PageResp<>(Collections.emptyList(), 0L);
     }
 }

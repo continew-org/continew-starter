@@ -20,7 +20,6 @@ import cn.crane4j.core.support.OperateTemplate;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.text.CharSequenceUtil;
@@ -35,7 +34,7 @@ import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.util.ReflectUtils;
 import top.continew.starter.core.util.validate.ValidationUtils;
 import top.continew.starter.data.mybatis.flex.base.BaseMapper;
-import top.continew.starter.data.mybatis.flex.query.QueryWrapperHelper;
+import top.continew.starter.data.mybatis.flex.util.QueryWrapperHelper;
 import top.continew.starter.data.mybatis.flex.service.impl.ServiceImpl;
 import top.continew.starter.extension.crud.annotation.TreeField;
 import top.continew.starter.extension.crud.model.query.PageQuery;
@@ -73,6 +72,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
         QueryWrapper queryWrapper = this.buildQueryWrapper(query);
+        this.sort(queryWrapper, pageQuery);
         Page<T> page = mapper.paginate(pageQuery.getPage(), pageQuery.getSize(), queryWrapper);
         PageResp<L> pageResp = PageResp.build(page, listClass);
         pageResp.getList().forEach(this::fill);
@@ -185,12 +185,12 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
      * @param sortQuery    排序查询条件
      */
     protected void sort(QueryWrapper queryWrapper, SortQuery sortQuery) {
-        Sort sort = Opt.ofNullable(sortQuery).orElseGet(SortQuery::new).getSort();
+        if (sortQuery == null || sortQuery.getSort().isUnsorted()) {
+            return;
+        }
+        Sort sort = sortQuery.getSort();
         List<Field> entityFields = ReflectUtils.getNonStaticFields(this.entityClass);
         for (Sort.Order order : sort) {
-            if (null == order) {
-                continue;
-            }
             String property = order.getProperty();
             String checkProperty;
             // 携带表别名则获取 . 后面的字段名
