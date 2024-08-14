@@ -1,3 +1,15 @@
+## [v2.5.2](https://github.com/continew-org/continew-starter/compare/v2.5.1...v2.5.2) (2024-08-14)
+
+### 💎 功能优化
+
+- 【api-doc】重构接口文档枚举展示处理 ([bf51837](https://github.com/continew-org/continew-starter/commit/bf51837991746c5576d7baffcc2296fe8ca91586)) ([4c4f98a](https://github.com/continew-org/continew-starter/commit/4c4f98a86e6d10b2b52814406bd0dc3d248c8486))
+- 【web】针对最新响应风格增加全局响应格式 ([bf51837](https://github.com/continew-org/continew-starter/commit/bf51837991746c5576d7baffcc2296fe8ca91586)) ([4c4f98a](https://github.com/continew-org/continew-starter/commit/4c4f98a86e6d10b2b52814406bd0dc3d248c8486))
+
+### 🐛 问题修复
+
+- 【extension/crud】重构排序字段处理，预防 SQL 注入问题 ([c31fa75](https://github.com/continew-org/continew-starter/commit/c31fa753b6d9753d72a2e28bf3184981ed848ac2)) ([22ebdfe](https://github.com/continew-org/continew-starter/commit/22ebdfeb9f30a8832825424a05343acfaf31643b))
+- 【security/crypto】修复 updateById 修改未正确加密的问题 ([b0a2a8c](https://github.com/continew-org/continew-starter/commit/b0a2a8c927171795e3ed89a820caf829f76c80ee))
+
 ## [v2.5.1](https://github.com/continew-org/continew-starter/compare/v2.5.0...v2.5.1) (2024-08-12)
 
 ### 🐛 问题修复
