@@ -48,15 +48,13 @@ import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.continew.starter.apidoc.handler.GenericEnumHandler;
 import top.continew.starter.apidoc.handler.OpenApiHandler;
-import top.continew.starter.apidoc.util.EnumTypeUtils;
 import top.continew.starter.core.autoconfigure.project.ProjectProperties;
-import top.continew.starter.core.enums.BaseEnum;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * API 文档自动配置
@@ -158,94 +156,14 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
     /**
      * 自定义参数配置（针对 BaseEnum 展示枚举值和描述）
      *
+     * @return {@link GenericEnumHandler }
      * @since 2.4.0
      */
     @Bean
-    public ParameterCustomizer customParameterCustomizer() {
-        return (parameterModel, methodParameter) -> {
-            Class<?> parameterType = methodParameter.getParameterType();
-            // 判断是否为 BaseEnum 的子类型
-            if (!ClassUtil.isAssignable(BaseEnum.class, parameterType)) {
-                return parameterModel;
-            }
-            String description = parameterModel.getDescription();
-            if (StrUtil.contains(description, "color:red")) {
-                return parameterModel;
-            }
-            // 封装参数配置
-            this.configureSchema(parameterModel.getSchema(), parameterType);
-            // 自定义枚举描述
-            parameterModel.setDescription(description + "<span style='color:red'>" + this
-                .getDescMap(parameterType) + "</span>");
-            return parameterModel;
-        };
+    public GenericEnumHandler customParameterCustomizer() {
+        return new GenericEnumHandler();
     }
 
-    /**
-     * 自定义参数配置（针对 BaseEnum 展示枚举值和描述）
-     *
-     * @since 2.4.0
-     */
-    @Bean
-    public PropertyCustomizer customPropertyCustomizer() {
-        return (schema, type) -> {
-            Class<?> rawClass;
-            // 获取原始类的类型
-            if (type.getType() instanceof SimpleType) {
-                rawClass = ((SimpleType)type.getType()).getRawClass();
-            } else if (type.getType() instanceof CollectionType) {
-                rawClass = ((CollectionType)type.getType()).getContentType().getRawClass();
-            } else {
-                rawClass = Object.class;
-            }
-            // 判断是否为 BaseEnum 的子类型
-            if (!ClassUtil.isAssignable(BaseEnum.class, rawClass)) {
-                return schema;
-            }
-            // 封装参数配置
-            this.configureSchema(schema, rawClass);
-            // 自定义参数描述
-            schema.setDescription(schema.getDescription() + "<span style='color:red'>" + this
-                .getDescMap(rawClass) + "</span>");
-            return schema;
-        };
-    }
-
-    /**
-     * 封装 Schema 配置
-     *
-     * @param schema    Schema
-     * @param enumClass 枚举类型
-     * @since 2.4.0
-     */
-    private void configureSchema(Schema schema, Class<?> enumClass) {
-        BaseEnum[] enums = (BaseEnum[])enumClass.getEnumConstants();
-        // 设置枚举可用值
-        List<String> valueList = Arrays.stream(enums).map(e -> e.getValue().toString()).toList();
-        schema.setEnum(valueList);
-        // 设置枚举值类型和格式
-        String enumValueType = EnumTypeUtils.getEnumValueTypeAsString(enumClass);
-        schema.setType(enumValueType);
-        switch (enumValueType) {
-            case "integer" -> schema.setFormat("int32");
-            case "long" -> schema.setFormat("int64");
-            case "number" -> schema.setFormat("double");
-            default -> schema.setFormat(enumValueType);
-        }
-    }
-
-    /**
-     * 获取枚举描述 Map
-     *
-     * @param enumClass 枚举类型
-     * @return 枚举描述 Map
-     * @since 2.4.0
-     */
-    private Map<Object, String> getDescMap(Class<?> enumClass) {
-        BaseEnum[] enums = (BaseEnum[])enumClass.getEnumConstants();
-        return Arrays.stream(enums)
-            .collect(Collectors.toMap(BaseEnum::getValue, BaseEnum::getDescription, (a, b) -> a, LinkedHashMap::new));
-    }
 
     @PostConstruct
     public void postConstruct() {

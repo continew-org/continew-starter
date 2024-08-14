@@ -37,6 +37,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import java.util.Locale;
+import top.continew.starter.web.handler.DocGenericResponseHandler;
 
 /**
  * 全局响应自动配置
@@ -141,6 +142,16 @@ public class GlobalResponseAutoConfiguration {
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setDefaultLocale(Locale.CHINA);
         return messageSource;
+    }
+
+    /**
+     * SpringDoc 通用响应处理 - 仅处理 doc 文档响应格式
+     *
+     * @return {@link DocGenericResponseHandler }
+     */
+    @Bean
+    public DocGenericResponseHandler genericResponseHandler() {
+        return new DocGenericResponseHandler();
     }
 
     @PostConstruct

@@ -32,7 +32,7 @@ import java.util.Collections;
  * @since 1.0.0
  */
 @Schema(description = "响应信息")
-public class R implements Response {
+public class R<T> implements Response {
 
     private static final GlobalResponseProperties PROPERTIES = SpringUtil.getBean(GlobalResponseProperties.class);
     private static final String DEFAULT_SUCCESS_CODE = PROPERTIES.getDefaultSuccessCode();
@@ -68,7 +68,7 @@ public class R implements Response {
      * 响应数据
      */
     @Schema(description = "响应数据")
-    private Object data = Collections.emptyMap();
+    private T data;
 
     public R() {
     }
@@ -78,7 +78,7 @@ public class R implements Response {
         this.setMsg(msg);
     }
 
-    public R(String code, String msg, Object data) {
+    public R(String code, String msg, T data) {
         this(code, msg);
         this.data = data;
     }
@@ -97,7 +97,7 @@ public class R implements Response {
 
     @Override
     public void setPayload(Object payload) {
-        this.data = payload;
+        this.data = (T)payload;
     }
 
     @Override
@@ -123,11 +123,11 @@ public class R implements Response {
         this.msg = msg;
     }
 
-    public Object getData() {
+    public T getData() {
         return data;
     }
 
-    public void setData(Object data) {
+    public void setData(T data) {
         this.data = data;
     }
 
