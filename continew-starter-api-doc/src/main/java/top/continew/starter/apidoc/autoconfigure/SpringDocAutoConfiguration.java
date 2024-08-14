@@ -17,16 +17,11 @@
 package top.continew.starter.apidoc.autoconfigure;
 
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.StrUtil;
-import com.fasterxml.jackson.databind.type.CollectionType;
-import com.fasterxml.jackson.databind.type.SimpleType;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import jakarta.annotation.PostConstruct;
@@ -48,7 +43,7 @@ import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import top.continew.starter.apidoc.handler.GenericEnumHandler;
+import top.continew.starter.apidoc.handler.BaseEnumParameterHandler;
 import top.continew.starter.apidoc.handler.OpenApiHandler;
 import top.continew.starter.core.autoconfigure.project.ProjectProperties;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
@@ -154,16 +149,15 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
     }
 
     /**
-     * 自定义参数配置（针对 BaseEnum 展示枚举值和描述）
+     * 自定义 BaseEnum 枚举参数配置（针对实现了 BaseEnum 的枚举，优化其枚举值和描述展示）
      *
-     * @return {@link GenericEnumHandler }
+     * @return {@link BaseEnumParameterHandler }
      * @since 2.4.0
      */
     @Bean
-    public GenericEnumHandler customParameterCustomizer() {
-        return new GenericEnumHandler();
+    public BaseEnumParameterHandler customParameterCustomizer() {
+        return new BaseEnumParameterHandler();
     }
-
 
     @PostConstruct
     public void postConstruct() {

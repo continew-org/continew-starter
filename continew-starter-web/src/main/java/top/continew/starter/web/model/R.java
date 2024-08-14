@@ -23,8 +23,6 @@ import com.feiniaojin.gracefulresponse.data.ResponseStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import top.continew.starter.web.autoconfigure.response.GlobalResponseProperties;
 
-import java.util.Collections;
-
 /**
  * 响应信息
  *
@@ -49,7 +47,7 @@ public class R<T> implements Response {
     /**
      * 状态信息
      */
-    @Schema(description = "状态信息", example = "操作成功")
+    @Schema(description = "状态信息", example = "ok")
     private String msg;
 
     /**

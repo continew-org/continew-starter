@@ -37,7 +37,6 @@ import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import java.util.Locale;
-import top.continew.starter.web.handler.DocGenericResponseHandler;
 
 /**
  * 全局响应自动配置
@@ -145,13 +144,14 @@ public class GlobalResponseAutoConfiguration {
     }
 
     /**
-     * SpringDoc 通用响应处理 - 仅处理 doc 文档响应格式
+     * SpringDoc 全局响应处理器
      *
-     * @return {@link DocGenericResponseHandler }
+     * @return {@link ApiDocGlobalResponseHandler }
      */
     @Bean
-    public DocGenericResponseHandler genericResponseHandler() {
-        return new DocGenericResponseHandler();
+    @ConditionalOnMissingBean
+    public ApiDocGlobalResponseHandler apiDocGlobalResponseHandler() {
+        return new ApiDocGlobalResponseHandler();
     }
 
     @PostConstruct
