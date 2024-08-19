@@ -104,7 +104,7 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
         // 放行
         boolean isMatch = logProperties.getExcludePatterns()
             .stream()
-            .anyMatch(pattern -> SpringWebUtils.match(pattern, request.getRequestURI()));
+            .anyMatch(pattern -> SpringWebUtils.isMatch(pattern, request.getRequestURI()));
         return !isMatch;
     }
 

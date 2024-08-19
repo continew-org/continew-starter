@@ -16,8 +16,8 @@
 
 package top.continew.starter.web.util;
 
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +35,8 @@ import org.springframework.web.util.pattern.PathPattern;
 import org.springframework.web.util.pattern.PathPatternParser;
 import top.continew.starter.core.constant.StringConstants;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -70,12 +72,36 @@ public class SpringWebUtils {
     /**
      * 路径是否匹配
      *
-     * @param pattern 匹配模式
+     * @param path     路径
+     * @param patterns 匹配模式列表
+     * @return 是否匹配
+     * @since 2.6.0
+     */
+    public static boolean isMatch(String path, List<String> patterns) {
+        return patterns.stream().anyMatch(pattern -> isMatch(path, pattern));
+    }
+
+    /**
+     * 路径是否匹配
+     *
+     * @param path     路径
+     * @param patterns 匹配模式列表
+     * @return 是否匹配
+     * @since 2.6.0
+     */
+    public static boolean isMatch(String path, String... patterns) {
+        return Arrays.stream(patterns).anyMatch(pattern -> isMatch(path, pattern));
+    }
+
+    /**
+     * 路径是否匹配
+     *
      * @param path    路径
+     * @param pattern 匹配模式
      * @return 是否匹配
      * @since 2.4.0
      */
-    public static boolean match(String pattern, String path) {
+    public static boolean isMatch(String path, String pattern) {
         PathPattern pathPattern = PathPatternParser.defaultInstance.parse(pattern);
         PathContainer pathContainer = PathContainer.parsePath(path);
         return pathPattern.matches(pathContainer);

@@ -21,9 +21,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.server.PathContainer;
-import org.springframework.web.util.pattern.PathPattern;
-import org.springframework.web.util.pattern.PathPatternParser;
+import top.continew.starter.web.util.SpringWebUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -57,14 +55,15 @@ public class XssFilter implements Filter {
         if (servletRequest instanceof HttpServletRequest request && xssProperties.isEnabled()) {
             // 放行路由：忽略 XSS 过滤
             List<String> excludePatterns = xssProperties.getExcludePatterns();
-            if (CollectionUtil.isNotEmpty(excludePatterns) && isMatchPath(request.getServletPath(), excludePatterns)) {
+            if (CollectionUtil.isNotEmpty(excludePatterns) && SpringWebUtils.isMatch(request
+                .getServletPath(), excludePatterns)) {
                 filterChain.doFilter(request, servletResponse);
                 return;
             }
             // 拦截路由：执行 XSS 过滤
             List<String> includePatterns = xssProperties.getIncludePatterns();
             if (CollectionUtil.isNotEmpty(includePatterns)) {
-                if (isMatchPath(request.getServletPath(), includePatterns)) {
+                if (SpringWebUtils.isMatch(request.getServletPath(), includePatterns)) {
                     filterChain.doFilter(new XssServletRequestWrapper(request, xssProperties), servletResponse);
                 } else {
                     filterChain.doFilter(request, servletResponse);
@@ -76,23 +75,5 @@ public class XssFilter implements Filter {
             return;
         }
         filterChain.doFilter(servletRequest, servletResponse);
-    }
-
-    /**
-     * 判断数组中是否存在匹配的路径
-     *
-     * @param requestUrl   请求地址
-     * @param pathPatterns 指定匹配路径
-     * @return true：匹配；false：不匹配
-     */
-    private static boolean isMatchPath(String requestUrl, List<String> pathPatterns) {
-        for (String pattern : pathPatterns) {
-            PathPattern pathPattern = PathPatternParser.defaultInstance.parse(pattern);
-            PathContainer pathContainer = PathContainer.parsePath(requestUrl);
-            if (pathPattern.matches(pathContainer)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
