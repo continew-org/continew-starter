@@ -16,8 +16,6 @@
 
 package top.continew.starter.data.mybatis.plus.datapermission;
 
-import org.springframework.core.annotation.AliasFor;
-
 import java.lang.annotation.*;
 
 /**
@@ -32,15 +30,8 @@ import java.lang.annotation.*;
 public @interface DataPermission {
 
     /**
-     * Alias for the {@link #tableAlias()} attribute.
-     */
-    @AliasFor("tableAlias")
-    String value() default "";
-
-    /**
      * 表别名
      */
-    @AliasFor("value")
     String tableAlias() default "";
 
     /**
