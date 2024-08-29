@@ -50,6 +50,11 @@ import java.util.Locale;
 public class GlobalResponseAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalResponseAutoConfiguration.class);
+    private final GlobalResponseProperties globalResponseProperties;
+
+    public GlobalResponseAutoConfiguration(GlobalResponseProperties globalResponseProperties) {
+        this.globalResponseProperties = globalResponseProperties;
+    }
 
     /**
      * 全局异常处理
@@ -151,7 +156,7 @@ public class GlobalResponseAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public ApiDocGlobalResponseHandler apiDocGlobalResponseHandler() {
-        return new ApiDocGlobalResponseHandler();
+        return new ApiDocGlobalResponseHandler(globalResponseProperties);
     }
 
     @PostConstruct
