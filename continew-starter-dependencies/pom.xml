@@ -373,14 +373,14 @@
             <!-- 数据访问模块 - MyBatis Plus -->
             <dependency>
                 <groupId>top.continew</groupId>
-                <artifactId>continew-starter-data-mybatis-plus</artifactId>
+                <artifactId>continew-starter-data-mp</artifactId>
                 <version>${revision}</version>
             </dependency>
 
             <!-- 数据访问模块 - MyBatis Flex -->
             <dependency>
                 <groupId>top.continew</groupId>
-                <artifactId>continew-starter-data-mybatis-flex</artifactId>
+                <artifactId>continew-starter-data-mf</artifactId>
                 <version>${revision}</version>
             </dependency>
 

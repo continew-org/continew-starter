@@ -15,8 +15,8 @@
 
     <modules>
         <module>continew-starter-data-core</module>
-        <module>continew-starter-data-mybatis-plus</module>
-        <module>continew-starter-data-mybatis-flex</module>
+        <module>continew-starter-data-mp</module>
+        <module>continew-starter-data-mf</module>
     </modules>
 
     <dependencies>

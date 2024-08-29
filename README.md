@@ -206,11 +206,11 @@ continew-starter.web:
 
 ### 数据访问模块
 
-| 模块名称                           | 模块说明              |
-| ---------------------------------- | --------------------- |
-| continew-starter-data-core         | 数据访问核心模块      |
-| continew-starter-data-mybatis-plus | MyBatis Plus 自动配置 |
-| continew-starter-data-mybatis-flex | MyBatis Flex 自动配置 |
+| 模块名称                       | 模块说明              |
+|----------------------------| --------------------- |
+| continew-starter-data-core | 数据访问核心模块      |
+| continew-starter-data-mp   | MyBatis Plus 自动配置 |
+| continew-starter-data-mf   | MyBatis Flex 自动配置 |
 
 ### 认证模块
 
