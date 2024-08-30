@@ -30,7 +30,6 @@ import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
 import top.continew.starter.log.core.enums.Include;
 import top.continew.starter.log.interceptor.autoconfigure.LogProperties;
-import top.continew.starter.web.util.SpringWebUtils;
 
 import java.io.IOException;
 import java.net.URI;
@@ -70,12 +69,13 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
             filterChain.doFilter(request, response);
             return;
         }
+        boolean isMatch = logProperties.isMatch(request.getRequestURI());
         // 包装输入流，可重复读取
-        if (this.isRequestWrapper(request)) {
+        if (!isMatch && this.isRequestWrapper(request)) {
             request = new ContentCachingRequestWrapper(request);
         }
         // 包装输出流，可重复读取
-        boolean isResponseWrapper = this.isResponseWrapper(response);
+        boolean isResponseWrapper = !isMatch && this.isResponseWrapper(response);
         if (isResponseWrapper) {
             response = new ContentCachingResponseWrapper(response);
         }
@@ -98,14 +98,7 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
         }
         // 不拦截 /error
         ServerProperties serverProperties = SpringUtil.getBean(ServerProperties.class);
-        if (request.getRequestURI().equals(serverProperties.getError().getPath())) {
-            return false;
-        }
-        // 放行
-        boolean isMatch = logProperties.getExcludePatterns()
-            .stream()
-            .anyMatch(pattern -> SpringWebUtils.isMatch(pattern, request.getRequestURI()));
-        return !isMatch;
+        return !request.getRequestURI().equals(serverProperties.getError().getPath());
     }
 
     /**

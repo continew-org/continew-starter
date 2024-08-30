@@ -109,17 +109,6 @@ public class LogRecord {
         /**
          * 结束日志记录
          *
-         * @param response 响应信息
-         * @param includes 包含信息
-         * @return 日志记录
-         */
-        public LogRecord finish(RecordableHttpResponse response, Set<Include> includes) {
-            return finish(Clock.systemUTC(), response, includes);
-        }
-
-        /**
-         * 结束日志记录
-         *
          * @param clock    时间
          * @param response 响应信息
          * @param includes 包含信息

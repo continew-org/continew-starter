@@ -19,9 +19,9 @@ package top.continew.starter.log.interceptor.autoconfigure;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.log.core.enums.Include;
+import top.continew.starter.web.util.SpringWebUtils;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -41,6 +41,9 @@ public class LogProperties {
 
     /**
      * 是否打印日志，开启后可打印访问日志（类似于 Nginx access log）
+     * <p>
+     * 不记录日志也支持开启打印访问日志
+     * </p>
      */
     private Boolean isPrint = false;
 
@@ -84,5 +87,15 @@ public class LogProperties {
 
     public void setExcludePatterns(List<String> excludePatterns) {
         this.excludePatterns = excludePatterns;
+    }
+
+    /**
+     * 是否匹配放行路由
+     *
+     * @param uri 请求 URI
+     * @return 是否匹配
+     */
+    public boolean isMatch(String uri) {
+        return this.getExcludePatterns().stream().anyMatch(pattern -> SpringWebUtils.isMatch(pattern, uri));
     }
 }
