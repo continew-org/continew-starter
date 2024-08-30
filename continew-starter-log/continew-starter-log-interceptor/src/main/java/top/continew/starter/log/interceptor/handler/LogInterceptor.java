@@ -36,6 +36,7 @@ import top.continew.starter.log.core.model.LogResponse;
 import top.continew.starter.log.interceptor.autoconfigure.LogProperties;
 
 import java.time.Clock;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -115,7 +116,8 @@ public class LogInterceptor implements HandlerInterceptor {
      * @return 日志包含信息
      */
     private Set<Include> getIncludes(Log methodLog, Log classLog) {
-        Set<Include> includeSet = logProperties.getIncludes();
+        Set<Include> oriIncludeSet = logProperties.getIncludes();
+        Set<Include> includeSet = new HashSet<>(oriIncludeSet);
         if (null != classLog) {
             this.processInclude(includeSet, classLog);
         }
