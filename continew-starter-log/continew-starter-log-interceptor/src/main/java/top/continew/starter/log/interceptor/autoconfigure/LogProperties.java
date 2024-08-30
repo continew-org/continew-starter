@@ -47,7 +47,7 @@ public class LogProperties {
     /**
      * 包含信息
      */
-    private Set<Include> includes = new HashSet<>(Include.defaultIncludes());
+    private Set<Include> includes = Include.defaultIncludes();
 
     /**
      * 放行路由
