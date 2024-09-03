@@ -34,7 +34,6 @@ import top.continew.starter.log.core.enums.Include;
 import top.continew.starter.log.core.model.LogRecord;
 import top.continew.starter.log.interceptor.autoconfigure.LogProperties;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
@@ -51,7 +50,7 @@ public class LogInterceptor implements HandlerInterceptor {
     private static final Logger log = LoggerFactory.getLogger(LogInterceptor.class);
     private final LogDao logDao;
     private final LogProperties logProperties;
-    private final TransmittableThreadLocal<Clock> timeTtl = new TransmittableThreadLocal<>();
+    private final TransmittableThreadLocal<Instant> timeTtl = new TransmittableThreadLocal<>();
     private final TransmittableThreadLocal<LogRecord.Started> logTtl = new TransmittableThreadLocal<>();
 
     public LogInterceptor(LogDao logDao, LogProperties logProperties) {
@@ -63,7 +62,7 @@ public class LogInterceptor implements HandlerInterceptor {
     public boolean preHandle(@NonNull HttpServletRequest request,
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
-        Clock startTime = Clock.systemUTC();
+        Instant startTime = Instant.now();
         if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
             log.info("[{}] {}", request.getMethod(), request.getRequestURI());
             timeTtl.set(startTime);
@@ -81,9 +80,9 @@ public class LogInterceptor implements HandlerInterceptor {
                                 @NonNull Object handler,
                                 Exception e) {
         try {
-            Clock endTime = Clock.systemUTC();
+            Instant endTime = Instant.now();
             if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
-                Duration timeTaken = Duration.between(Instant.now(timeTtl.get()), Instant.now(endTime));
+                Duration timeTaken = Duration.between(timeTtl.get(), endTime);
                 log.info("[{}] {} {} {}ms", request.getMethod(), request.getRequestURI(), response
                     .getStatus(), timeTaken.toMillis());
             }

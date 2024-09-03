@@ -18,7 +18,6 @@ package top.continew.starter.log.core.model;
 
 import top.continew.starter.log.core.enums.Include;
 
-import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Set;
@@ -78,7 +77,7 @@ public class LogRecord {
      * @return 日志记录器
      */
     public static Started start(RecordableHttpRequest request) {
-        return start(Clock.systemUTC(), request);
+        return start(Instant.now(), request);
     }
 
     /**
@@ -88,7 +87,7 @@ public class LogRecord {
      * @param request   请求信息
      * @return 日志记录器
      */
-    public static Started start(Clock timestamp, RecordableHttpRequest request) {
+    public static Started start(Instant timestamp, RecordableHttpRequest request) {
         return new Started(timestamp, request);
     }
 
@@ -101,8 +100,8 @@ public class LogRecord {
 
         private final RecordableHttpRequest request;
 
-        private Started(Clock clock, RecordableHttpRequest request) {
-            this.timestamp = Instant.now(clock);
+        private Started(Instant timestamp, RecordableHttpRequest request) {
+            this.timestamp = timestamp;
             this.request = request;
         }
 
@@ -114,10 +113,10 @@ public class LogRecord {
          * @param includes 包含信息
          * @return 日志记录
          */
-        public LogRecord finish(Clock clock, RecordableHttpResponse response, Set<Include> includes) {
+        public LogRecord finish(Instant timestamp, RecordableHttpResponse response, Set<Include> includes) {
             LogRequest logRequest = new LogRequest(this.request, includes);
             LogResponse logResponse = new LogResponse(response, includes);
-            Duration duration = Duration.between(this.timestamp, Instant.now(clock));
+            Duration duration = Duration.between(this.timestamp, timestamp);
             return new LogRecord(this.timestamp, logRequest, logResponse, duration);
         }
     }
