@@ -35,9 +35,9 @@ public class TraceProperties {
     private boolean enabled = false;
 
     /**
-     * 响应头名称
+     * 链路 ID 名称
      */
-    private String headerName = "traceId";
+    private String traceIdName = "traceId";
 
     /**
      * TLog 配置
@@ -53,12 +53,12 @@ public class TraceProperties {
         this.enabled = enabled;
     }
 
-    public String getHeaderName() {
-        return headerName;
+    public String getTraceIdName() {
+        return traceIdName;
     }
 
-    public void setHeaderName(String headerName) {
-        this.headerName = headerName;
+    public void setTraceIdName(String traceIdName) {
+        this.traceIdName = traceIdName;
     }
 
     public TLogProperties getTlog() {

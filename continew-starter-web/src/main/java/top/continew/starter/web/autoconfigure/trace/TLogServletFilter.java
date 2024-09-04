@@ -52,9 +52,9 @@ public class TLogServletFilter implements Filter {
             try {
                 TLogWebCommon.loadInstance().preHandle(httpServletRequest);
                 // 把 traceId 放入 response 的 header，为了方便有些人有这样的需求，从前端拿整条链路的 traceId
-                String headerName = traceProperties.getHeaderName();
-                if (CharSequenceUtil.isNotBlank(headerName)) {
-                    httpServletResponse.addHeader(headerName, TLogContext.getTraceId());
+                String traceIdName = traceProperties.getTraceIdName();
+                if (CharSequenceUtil.isNotBlank(traceIdName)) {
+                    httpServletResponse.addHeader(traceIdName, TLogContext.getTraceId());
                 }
                 chain.doFilter(request, response);
             } finally {
