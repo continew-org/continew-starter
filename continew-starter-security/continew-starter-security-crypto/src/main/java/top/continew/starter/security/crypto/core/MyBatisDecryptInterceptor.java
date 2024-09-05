@@ -36,7 +36,7 @@ import java.util.List;
  * @since 1.4.0
  */
 @Intercepts({@Signature(type = ResultSetHandler.class, method = "handleResultSets", args = {Statement.class})})
-public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor {
+public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implements Interceptor {
 
     private CryptoProperties properties;
 
@@ -65,6 +65,9 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor {
             for (Field field : fieldList) {
                 IEncryptor encryptor = super.getEncryptor(field.getAnnotation(FieldEncrypt.class));
                 Object fieldValue = ReflectUtil.getFieldValue(result, field);
+                if (null == fieldValue) {
+                    continue;
+                }
                 // 优先获取自定义对称加密算法密钥，获取不到时再获取全局配置
                 String password = ObjectUtil.defaultIfBlank(field.getAnnotation(FieldEncrypt.class)
                     .password(), properties.getPassword());

@@ -273,6 +273,11 @@ public class StringConstants {
     public static final String ROUND_BRACKET_END = ")";
 
     /**
+     * 等号（=）
+     */
+    public static final String EQUALS = "=";
+
+    /**
      * 路径模式
      */
     public static final String PATH_PATTERN = "/**";

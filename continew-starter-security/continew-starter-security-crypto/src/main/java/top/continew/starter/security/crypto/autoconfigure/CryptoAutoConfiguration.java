@@ -50,7 +50,7 @@ public class CryptoAutoConfiguration {
      * MyBatis 加密拦截器配置
      */
     @Bean
-    @ConditionalOnMissingBean(MyBatisEncryptInterceptor.class)
+    @ConditionalOnMissingBean
     public MyBatisEncryptInterceptor myBatisEncryptInterceptor() {
         return new MyBatisEncryptInterceptor(properties);
     }

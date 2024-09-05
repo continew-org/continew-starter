@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import jakarta.annotation.PostConstruct;
 import org.mybatis.spring.annotation.MapperScan;
@@ -42,6 +43,8 @@ import top.continew.starter.data.mp.autoconfigure.idgenerator.MyBatisPlusIdGener
 import top.continew.starter.data.mp.datapermission.DataPermissionFilter;
 import top.continew.starter.data.mp.datapermission.DataPermissionHandlerImpl;
 import top.continew.starter.data.mp.handler.MybatisBaseEnumTypeHandler;
+
+import java.util.Map;
 
 /**
  * MyBatis Plus 自动配置
@@ -76,6 +79,11 @@ public class MybatisPlusAutoConfiguration {
     @ConditionalOnMissingBean
     public MybatisPlusInterceptor mybatisPlusInterceptor(MyBatisPlusExtensionProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        // 其他拦截器
+        Map<String, InnerInterceptor> innerInterceptors = SpringUtil.getBeansOfType(InnerInterceptor.class);
+        if (!innerInterceptors.isEmpty()) {
+            innerInterceptors.values().forEach(interceptor::addInnerInterceptor);
+        }
         // 数据权限插件
         MyBatisPlusExtensionProperties.DataPermissionProperties dataPermissionProperties = properties
             .getDataPermission();
