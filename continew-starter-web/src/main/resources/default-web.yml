@@ -4,6 +4,8 @@ continew-starter.web.response:
   i18n: false
   # 响应类全名（配置后 response-style 将不再生效）
   response-class-full-name: top.continew.starter.web.model.R
+  # 自定义失败 HTTP 状态码（默认：200，建议业务和通信状态码区分）
+  default-http-status-code-on-error: 200
   # 自定义成功响应码（默认：0）
   default-success-code: 0
   # 自定义成功提示（默认：ok）

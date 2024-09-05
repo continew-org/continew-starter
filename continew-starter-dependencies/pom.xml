@@ -61,7 +61,7 @@
         <nashorn.version>15.4</nashorn.version>
         <x-file-storage.version>2.2.0</x-file-storage.version>
         <aws-s3.version>1.12.761</aws-s3.version>
-        <graceful-response.version>4.0.1-boot3</graceful-response.version>
+        <graceful-response.version>5.0.0-boot3</graceful-response.version>
         <crane4j.version>2.9.0</crane4j.version>
         <knife4j.version>4.5.0</knife4j.version>
         <tlog.version>1.5.2</tlog.version>
