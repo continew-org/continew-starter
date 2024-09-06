@@ -17,6 +17,7 @@
 package top.continew.starter.security.crypto.core;
 
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
@@ -34,7 +35,6 @@ import top.continew.starter.security.crypto.autoconfigure.CryptoProperties;
 import top.continew.starter.security.crypto.encryptor.IEncryptor;
 
 import java.lang.reflect.Field;
-import java.sql.SQLException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,20 +66,12 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             return;
         }
         if (parameterObject instanceof Map parameterMap) {
-            Set set = new HashSet<>(parameterMap.values());
-            for (Object parameter : set) {
-                if (parameter instanceof AbstractWrapper || parameter instanceof String) {
-                    continue;
-                }
-                this.encryptEntity(super.getEncryptFields(parameter), parameter);
-            }
+            this.encryptQueryParameter(parameterMap, mappedStatement);
         }
     }
 
     @Override
-    public void beforeUpdate(Executor executor,
-                             MappedStatement mappedStatement,
-                             Object parameterObject) throws SQLException {
+    public void beforeUpdate(Executor executor, MappedStatement mappedStatement, Object parameterObject) {
         if (null == parameterObject) {
             return;
         }
@@ -106,12 +98,39 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         }
         // 别名带有 ew（针对 MP 的 UpdateWrapper、LambdaUpdateWrapper 等参数）
         if (parameterMap.containsKey(Constants.WRAPPER) && null != (parameter = parameterMap.get(Constants.WRAPPER))) {
-            this.encryptWrapper(parameter, mappedStatement);
+            this.encryptUpdateWrapper(parameter, mappedStatement);
         }
     }
 
     /**
-     * 处理 Wrapper 类型参数加密（针对 MP 的 UpdateWrapper、LambdaUpdateWrapper 等参数）
+     * 加密查询参数（针对 Map 类型参数）
+     *
+     * @param parameterMap    参数
+     * @param mappedStatement 映射语句
+     */
+    private void encryptQueryParameter(Map<String, Object> parameterMap, MappedStatement mappedStatement) {
+        Map<String, FieldEncrypt> encryptParameterMap = super.getEncryptParameters(mappedStatement);
+        for (Map.Entry<String, Object> parameterEntrySet : parameterMap.entrySet()) {
+            String parameterName = parameterEntrySet.getKey();
+            Object parameterValue = parameterEntrySet.getValue();
+            if (null == parameterValue || ClassUtil.isBasicType(parameterValue
+                .getClass()) || parameterValue instanceof AbstractWrapper) {
+                continue;
+            }
+            if (parameterValue instanceof String str) {
+                FieldEncrypt fieldEncrypt = encryptParameterMap.get(parameterName);
+                if (null != fieldEncrypt) {
+                    parameterMap.put(parameterName, this.doEncrypt(str, fieldEncrypt));
+                }
+            } else {
+                // 实体参数
+                this.encryptEntity(super.getEncryptFields(parameterValue), parameterValue);
+            }
+        }
+    }
+
+    /**
+     * 处理 UpdateWrapper 类型参数加密（针对 MP 的 UpdateWrapper、LambdaUpdateWrapper 等参数）
      *
      * @param parameter       Wrapper 参数
      * @param mappedStatement 映射语句
@@ -120,7 +139,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      * @author wangshaopeng@talkweb.com.cn（<a
      *         href="https://blog.csdn.net/tianmaxingkonger/article/details/130986784">基于Mybatis-Plus拦截器实现MySQL数据加解密</a>）
      */
-    private void encryptWrapper(Object parameter, MappedStatement mappedStatement) {
+    private void encryptUpdateWrapper(Object parameter, MappedStatement mappedStatement) {
         if (parameter instanceof AbstractWrapper updateWrapper) {
             String sqlSet = updateWrapper.getSqlSet();
             if (CharSequenceUtil.isBlank(sqlSet)) {
@@ -146,12 +165,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
                 if (matcher.matches()) {
                     String valueKey = matcher.group(1);
                     Object value = updateWrapper.getParamNameValuePairs().get(valueKey);
-                    Object ciphertext;
-                    try {
-                        ciphertext = this.doEncrypt(value, fieldEncrypt);
-                    } catch (Exception e) {
-                        throw new BaseException(e);
-                    }
+                    Object ciphertext = this.doEncrypt(value, fieldEncrypt);
                     updateWrapper.getParamNameValuePairs().put(valueKey, ciphertext);
                 }
             }
@@ -189,15 +203,18 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      *
      * @param parameterValue 参数值
      * @param fieldEncrypt   字段加密注解
-     * @throws Exception /
      */
-    private Object doEncrypt(Object parameterValue, FieldEncrypt fieldEncrypt) throws Exception {
+    private Object doEncrypt(Object parameterValue, FieldEncrypt fieldEncrypt) {
         if (null == parameterValue) {
             return null;
         }
         IEncryptor encryptor = super.getEncryptor(fieldEncrypt);
         // 优先获取自定义对称加密算法密钥，获取不到时再获取全局配置
         String password = ObjectUtil.defaultIfBlank(fieldEncrypt.password(), properties.getPassword());
-        return encryptor.encrypt(parameterValue.toString(), password, properties.getPublicKey());
+        try {
+            return encryptor.encrypt(parameterValue.toString(), password, properties.getPublicKey());
+        } catch (Exception e) {
+            throw new BaseException(e);
+        }
     }
 }
