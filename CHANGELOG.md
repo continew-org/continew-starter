@@ -1,3 +1,38 @@
+## [v2.6.0](https://github.com/continew-org/continew-starter/compare/v2.5.2...v2.6.0) (2024-09-06)
+
+### ✨ 新特性
+
+- 【web】新增 isMatch 路径是否匹配方法 ([e55eb17](https://github.com/continew-org/continew-starter/commit/e55eb17d64d7b42c6e64b18a645cda9558f08d58))
+- 【log】不记录日志也支持开启打印访问日志 ([16b6e9b](https://github.com/continew-org/continew-starter/commit/16b6e9b466578d935ab9a8a85a5eac4d09025dee))
+
+### 💎 功能优化
+
+- 【data】移除 DataPermission 注解的 value 属性 ([d3fa00d](https://github.com/continew-org/continew-starter/commit/d3fa00d14ce95ab1bedaebbce8304e29df5da8fd))
+- 【data】mybatis-plus => mp，mybatis-flex => mf ([5e0eea2](https://github.com/continew-org/continew-starter/commit/5e0eea2ed801b526da9f65b8cb2942b3b7b050ef))
+- 【web】提升接口文档响应类型优化扩展性 ([784a56f](https://github.com/continew-org/continew-starter/commit/784a56fd4f85ae170b8a56dd0a64a33a7bff98bc))
+- 【web】链路追踪配置属性响应头名称 => 链路 ID 名称 ([260f484](https://github.com/continew-org/continew-starter/commit/260f484af98d112927edec4316c0375e628dd3ba))
+- 【log】优化接口耗时相关时间类型使用 ([4caf0a0](https://github.com/continew-org/continew-starter/commit/4caf0a0db69779a5ea409ec7e01c4044817afc94))
+
+### 🐛 问题修复
+
+- 【log】修复日志全局 includes 配置会被局部修改的问题 ([eac5c1f](https://github.com/continew-org/continew-starter/commit/eac5c1fa79f7f91217b0525a07e0f1314f8efe24))
+- 【data】还原 SQL 函数接口 ([9e5f33b](https://github.com/continew-org/continew-starter/commit/9e5f33b2c9b804741f9b77eab5b67ab3c4a8b220))
+- 【crypto】修复由于升级 mybatis plus 引发的更新场景加密失效问题  ([e9b81f9](https://github.com/continew-org/continew-starter/commit/e9b81f946603e2f9e44b50471102b2551b9d50ac)) ([9fdbfdf](https://github.com/continew-org/continew-starter/commit/9fdbfdf8bb6719d3d044c71a2a8ceab85ccef8f1))
+
+### 📦 依赖升级
+
+- Graceful Response 4.0.1-boot3 => 5.0.0-boot3 ([2208dbd](https://github.com/continew-org/continew-starter/commit/2208dbd0282964aab76b02e811d6689ba69d75fd))
+- Snail Job 1.1.0 => 1.1.2
+- Sa Token 1.38.0 => 1.39.0
+- MyBatis Flex 1.9.3 => 1.9.7
+- Redisson 3.32.0 => 3.35.0
+- Cos ID 2.9.1 => 2.9.6
+- SMS4J 3.2.1 => 3.3.2
+- X File Storage 2.2.0 => 2.2.1
+- Hutool 5.8.32 => 5.8.29
+- aws-java-sdk-s3 1.12.761 => 1.12.771
+- snakeyaml 2.2 => 2.3
+
 ## [v2.5.2](https://github.com/continew-org/continew-starter/compare/v2.5.1...v2.5.2) (2024-08-14)
 
 ### 💎 功能优化
