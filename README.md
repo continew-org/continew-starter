@@ -72,6 +72,11 @@ ContiNew Starter 就是将脚手架项目中的通用基础配置进行了封装
 
 第一种方式：如您使用的是 Spring Boot Parent 的方式，则替换 Spring Boot Parent 为 ContiNew Starter
 
+> 最新稳定版（latest-version）
+<a href="https://central.sonatype.com/search?q=continew-starter" target="_blank" rel="noopener" style="display: inline-block;">
+<img src="https://img.shields.io/maven-central/v/top.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
+</a>
+
 ```xml
 <parent>
     <groupId>top.continew</groupId>
@@ -137,100 +142,48 @@ continew-starter.web:
 
 ## 模块结构
 
-### 核心模块
-
-| 模块名称              | 模块说明                             | 依赖版本                                                                                                                                                                                      |
-| --------------------- | ------------------------------------ |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| continew-starter-core | 核心模块：包含线程池、项目等自动配置 | <a href="https://spring.io/projects/spring-boot" target="_blank">Spring Boot</a>：3.1.11<br /><a href="https://www.hutool.cn/" target="_blank">Hutool</a>：5.8.29<br />mica-ip2region：3.2.6 |
-
-### JSON模块
-
-| 模块名称                      | 模块说明             |
-| ----------------------------- | -------------------- |
-| continew-starter-json-jackson | Jackson 序列化等配置 |
-
-### 接口文档
-
-| 模块名称                 | 模块说明         |
-| ------------------------ | ---------------- |
-| continew-starter-api-doc | Knife4j 自动配置 |
-
-### 安全模块
-
-| 模块名称                           | 模块说明          |
-| ---------------------------------- | ----------------- |
-| continew-starter-security-password | 密码编码器        |
-| continew-starter-security-mask     | JSON 脱敏         |
-| continew-starter-security-crypto   | 数据库字段加/解密 |
-| continew-starter-security-limiter  | 限流器            |
-
-### Web模块
-
-| 模块名称             | 模块说明                           |
-| -------------------- | ---------------------------------- |
-| continew-starter-web | 跨域、全局异常、错误处理等自动配置 |
-
-### 日志模块
-
-| 模块名称                             | 模块说明                                  |
-|----------------------------------| ----------------------------------------- |
-| continew-starter-log-core        | 日志核心模块                              |
-| continew-starter-log-interceptor | 拦截器版（Spring Boot Actuator HttpTrace 增强版） |
-
-### 存储模块
-
-| 模块名称                       | 模块说明 |
-| ------------------------------ | -------- |
-| continew-starter-storage-local | 本地存储 |
-
-### 文件处理模块
-
-| 模块名称                    | 模块说明       |
-| --------------------------- | -------------- |
-| continew-starter-file-excel | Excel 相关配置 |
-
-### 验证码模块
-
-| 模块名称                          | 模块说明   |
-| --------------------------------- | ---------- |
-| continew-starter-captcha-graphic  | 图形验证码 |
-| continew-starter-captcha-behavior | 行为验证码 |
-
-### 缓存模块
-
-| 模块名称                           | 模块说明              |
-| ---------------------------------- | --------------------- |
-| continew-starter-cache-redisson    | Redisson 自动配置     |
-| continew-starter-cache-springcache | Spring Cache 自动配置 |
-| continew-starter-cache-jetcache    | JetCache 自动配置     |
-
-### 数据访问模块
-
-| 模块名称                       | 模块说明              |
-|----------------------------| --------------------- |
-| continew-starter-data-core | 数据访问核心模块      |
-| continew-starter-data-mp   | MyBatis Plus 自动配置 |
-| continew-starter-data-mf   | MyBatis Flex 自动配置 |
-
-### 认证模块
-
-| 模块名称                       | 模块说明          |
-| ------------------------------ | ----------------- |
-| continew-starter-auth-satoken  | SaToken 自动配置  |
-| continew-starter-auth-justauth | JustAuth 自动配置 |
-
-### 消息模块
-
-| 模块名称                             | 模块说明  |
-| ------------------------------------ | --------- |
-| continew-starter-messaging-mail      | 邮件      |
-| continew-starter-messaging-websocket | WebSocket |
-
-### 扩展模块
-
-| 模块名称                        | 模块说明                                      |
-| ------------------------------- | --------------------------------------------- |
-| continew-starter-extension-crud | 扩展模块：BaseController 自定义 CRUD API 封装 |
+```
+continew-starter
+├─ continew-starter-core（核心模块：包含线程池等自动配置）
+├─ continew-starter-json（JSON 模块）
+│  └─ continew-starter-json-jackson
+├─ continew-starter-api-doc（接口文档模块：Spring Doc + Knife4j）
+├─ continew-starter-web（Web 开发模块：包含跨域、全局异常+响应、链路追踪等自动配置）
+├─ continew-starter-auth（认证模块）
+│  ├─ continew-starter-auth-satoken（国产轻量认证鉴权）
+│  └─ continew-starter-auth-justauth（第三方登录）
+├─ continew-starter-data（数据访问模块）
+│  ├─ continew-starter-data-core（通用模块）
+│  ├─ continew-starter-data-mp（MyBatis Plus）
+│  └─ continew-starter-data-mf（MyBatis Flex）
+├─ continew-starter-cache（缓存模块）
+│  ├─ continew-starter-cache-redisson（Redisson）
+│  ├─ continew-starter-cache-jetcache（JetCache 多级缓存）
+│  └─ continew-starter-cache-springcache（Spring 缓存）
+├─ continew-starter-security（安全模块）
+│  ├─ continew-starter-security-crypto（加密：字段加解密）
+│  ├─ continew-starter-security-mask（脱敏：JSON 数据脱敏）
+│  ├─ continew-starter-security-limiter（限流）
+│  └─ continew-starter-security-password（密码编码器）
+├─ continew-starter-captcha（验证码模块）
+│  ├─ continew-starter-captcha-graphic（静态验证码）
+│  └─ continew-starter-captcha-behavior（动态验证码）
+├─ continew-starter-messaging（消息模块）
+│  ├─ continew-starter-messaging-mail（邮件）
+│  └─ continew-starter-messaging-websocket（WebSocket）
+├─ continew-starter-log（日志模块）
+│  ├─ continew-starter-log-core（通用模块）
+│  └─ continew-starter-log-interceptor（拦截器版（Spring Boot Actuator HttpTrace 增强版））
+├─ continew-starter-file（文件处理模块）
+│  └─ continew-starter-file-excel（Easy Excel）
+├─ continew-starter-storage（存储模块）
+│  └─ continew-starter-storage-local（本地存储）
+└─ continew-starter-extension（扩展模块）
+   └─ continew-starter-extension-crud（CRUD 模块）
+     ├─ continew-starter-extension-crud-core（通用模块）
+     ├─ continew-starter-extension-crud-mp（MyBatis Plus）
+     └─ continew-starter-extension-crud-mf（MyBatis Flex）
+```
 
 ## 贡献代码
 
