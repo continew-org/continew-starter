@@ -19,12 +19,6 @@
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
         </dependency>
 
-        <!-- Dynamic Datasource（基于 Spring Boot 的快速集成多数据源的启动器） -->
-        <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>dynamic-datasource-spring-boot3-starter</artifactId>
-        </dependency>
-
         <!-- P6Spy（SQL 性能分析组件） -->
         <dependency>
             <groupId>p6spy</groupId>
