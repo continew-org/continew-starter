@@ -60,6 +60,11 @@ public class MyBatisPlusExtensionProperties {
     private PaginationProperties pagination;
 
     /**
+     * 启用乐观锁插件
+     */
+    private boolean optimisticLockerEnabled = false;
+
+    /**
      * 启用防全表更新与删除插件
      */
     private boolean blockAttackPluginEnabled = true;
@@ -179,6 +184,14 @@ public class MyBatisPlusExtensionProperties {
 
     public void setPagination(PaginationProperties pagination) {
         this.pagination = pagination;
+    }
+
+    public boolean isOptimisticLockerEnabled() {
+        return optimisticLockerEnabled;
+    }
+
+    public void setOptimisticLockerEnabled(boolean optimisticLockerEnabled) {
+        this.optimisticLockerEnabled = optimisticLockerEnabled;
     }
 
     public boolean isBlockAttackPluginEnabled() {

@@ -20,10 +20,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusPropertiesCustomizer;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
-import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.DataPermissionInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.*;
 import jakarta.annotation.PostConstruct;
 import org.mybatis.spring.annotation.MapperScan;
 import org.slf4j.Logger;
@@ -95,6 +92,10 @@ public class MybatisPlusAutoConfiguration {
         MyBatisPlusExtensionProperties.PaginationProperties paginationProperties = properties.getPagination();
         if (null != paginationProperties && paginationProperties.isEnabled()) {
             interceptor.addInnerInterceptor(this.paginationInnerInterceptor(paginationProperties));
+        }
+        // 乐观锁插件
+        if (properties.isOptimisticLockerEnabled()) {
+            interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
         }
         // 防全表更新与删除插件
         if (properties.isBlockAttackPluginEnabled()) {
