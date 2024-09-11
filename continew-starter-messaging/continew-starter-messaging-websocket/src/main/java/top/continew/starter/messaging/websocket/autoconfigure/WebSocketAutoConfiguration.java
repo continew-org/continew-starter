@@ -16,7 +16,6 @@
 
 package top.continew.starter.messaging.websocket.autoconfigure;
 
-import cn.hutool.extra.spring.SpringUtil;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,15 +64,14 @@ public class WebSocketAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public WebSocketHandler webSocketHandler() {
-        return new top.continew.starter.messaging.websocket.core.WebSocketHandler(properties, SpringUtil
-            .getBean(WebSocketSessionDao.class));
+    public WebSocketHandler webSocketHandler(WebSocketSessionDao webSocketSessionDao) {
+        return new top.continew.starter.messaging.websocket.core.WebSocketHandler(properties, webSocketSessionDao);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public HandshakeInterceptor handshakeInterceptor() {
-        return new WebSocketInterceptor(properties, SpringUtil.getBean(WebSocketClientService.class));
+    public HandshakeInterceptor handshakeInterceptor(WebSocketClientService webSocketClientService) {
+        return new WebSocketInterceptor(properties, webSocketClientService);
     }
 
     /**
