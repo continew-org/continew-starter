@@ -39,7 +39,7 @@ import top.continew.starter.security.limiter.core.RateLimiterNameGenerator;
 @AutoConfiguration
 @EnableConfigurationProperties(RateLimiterProperties.class)
 @ComponentScan({"top.continew.starter.security.limiter.core"})
-@ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_LIMITER, name = PropertiesConstants.ENABLED, matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_LIMITER, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class RateLimiterAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimiterAutoConfiguration.class);

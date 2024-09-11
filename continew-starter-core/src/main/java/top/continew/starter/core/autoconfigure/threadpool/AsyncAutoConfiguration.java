@@ -42,7 +42,7 @@ import java.util.concurrent.Executor;
 @Lazy
 @AutoConfiguration
 @EnableAsync(proxyTargetClass = true)
-@ConditionalOnProperty(prefix = "spring.task.execution.extension", name = PropertiesConstants.ENABLED, matchIfMissing = true)
+@ConditionalOnProperty(prefix = "spring.task.execution.extension", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class AsyncAutoConfiguration implements AsyncConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(AsyncAutoConfiguration.class);

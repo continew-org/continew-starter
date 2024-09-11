@@ -46,7 +46,7 @@ import java.util.List;
  * @since 1.0.0
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "spring.data.redisson", name = PropertiesConstants.ENABLED, matchIfMissing = true)
+@ConditionalOnProperty(prefix = "spring.data.redisson", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(RedissonProperties.class)
 public class RedissonAutoConfiguration {
 

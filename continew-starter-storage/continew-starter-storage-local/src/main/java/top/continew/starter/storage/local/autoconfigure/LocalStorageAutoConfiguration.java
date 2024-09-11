@@ -40,7 +40,7 @@ import java.util.Map;
 @EnableWebMvc
 @AutoConfiguration
 @EnableConfigurationProperties(LocalStorageProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.STORAGE_LOCAL, name = PropertiesConstants.ENABLED, matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.STORAGE_LOCAL, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class LocalStorageAutoConfiguration implements WebMvcConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(LocalStorageAutoConfiguration.class);

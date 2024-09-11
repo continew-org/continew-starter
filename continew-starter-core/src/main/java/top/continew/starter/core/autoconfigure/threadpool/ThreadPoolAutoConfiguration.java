@@ -52,7 +52,7 @@ public class ThreadPoolAutoConfiguration {
      * 异步任务线程池配置
      */
     @Bean
-    @ConditionalOnProperty(prefix = "spring.task.execution.extension", name = PropertiesConstants.ENABLED, matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "spring.task.execution.extension", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
     public ThreadPoolTaskExecutorCustomizer threadPoolTaskExecutorCustomizer(ThreadPoolExtensionProperties properties) {
         return executor -> {
             // 核心（最小）线程数
@@ -71,7 +71,7 @@ public class ThreadPoolAutoConfiguration {
      * 定时任务线程池配置
      */
     @EnableScheduling
-    @ConditionalOnProperty(prefix = "spring.task.scheduling.extension", name = PropertiesConstants.ENABLED, matchIfMissing = true)
+    @ConditionalOnProperty(prefix = "spring.task.scheduling.extension", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
     public static class TaskSchedulerConfiguration {
         @Bean
         public ThreadPoolTaskSchedulerCustomizer threadPoolTaskSchedulerCustomizer(ThreadPoolExtensionProperties properties) {
