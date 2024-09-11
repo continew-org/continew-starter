@@ -22,9 +22,6 @@ import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.UpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.toolkit.ChainWrappers;
-import com.baomidou.mybatisplus.extension.toolkit.Db;
-
-import java.util.Collection;
 
 /**
  * Mapper 基类
@@ -34,26 +31,6 @@ import java.util.Collection;
  * @since 1.0.0
  */
 public interface BaseMapper<T> extends com.baomidou.mybatisplus.core.mapper.BaseMapper<T> {
-
-    /**
-     * 批量插入记录
-     *
-     * @param entityList 实体列表
-     * @return 是否成功
-     */
-    default boolean insertBatch(Collection<T> entityList) {
-        return Db.saveBatch(entityList);
-    }
-
-    /**
-     * 批量更新记录
-     *
-     * @param entityList 实体列表
-     * @return 是否成功
-     */
-    default boolean updateBatchById(Collection<T> entityList) {
-        return Db.updateBatchById(entityList);
-    }
 
     /**
      * 链式查询
