@@ -146,12 +146,15 @@ public class OpenApiHandler extends OpenAPIService {
         super(openAPI, securityParser, springDocConfigProperties, propertyResolverUtils, openApiBuilderCustomizers, serverBaseUrlCustomizers, javadocProvider);
         if (openAPI.isPresent()) {
             this.openAPI = openAPI.get();
-            if (this.openAPI.getComponents() == null)
+            if (this.openAPI.getComponents() == null) {
                 this.openAPI.setComponents(new Components());
-            if (this.openAPI.getPaths() == null)
+            }
+            if (this.openAPI.getPaths() == null) {
                 this.openAPI.setPaths(new Paths());
-            if (!CollectionUtils.isEmpty(this.openAPI.getServers()))
+            }
+            if (!CollectionUtils.isEmpty(this.openAPI.getServers())) {
                 this.isServersPresent = true;
+            }
         }
         this.propertyResolverUtils = propertyResolverUtils;
         this.securityParser = securityParser;
@@ -159,8 +162,9 @@ public class OpenApiHandler extends OpenAPIService {
         this.openApiBuilderCustomisers = openApiBuilderCustomizers;
         this.serverBaseUrlCustomizers = serverBaseUrlCustomizers;
         this.javadocProvider = javadocProvider;
-        if (springDocConfigProperties.isUseFqn())
+        if (springDocConfigProperties.isUseFqn()) {
             TypeNameResolver.std.setUseFqn(true);
+        }
     }
 
     @Override
@@ -172,10 +176,11 @@ public class OpenApiHandler extends OpenAPIService {
         buildTagsFromMethod(handlerMethod.getMethod(), tags, tagsStr, locale);
         buildTagsFromClass(handlerMethod.getBeanType(), tags, tagsStr, locale);
 
-        if (!CollectionUtils.isEmpty(tagsStr))
+        if (!CollectionUtils.isEmpty(tagsStr)) {
             tagsStr = tagsStr.stream()
                 .map(str -> propertyResolverUtils.resolve(str, locale))
                 .collect(Collectors.toSet());
+        }
 
         if (springdocTags.containsKey(handlerMethod)) {
             Tag tag = springdocTags.get(handlerMethod);
@@ -186,9 +191,9 @@ public class OpenApiHandler extends OpenAPIService {
         }
 
         if (!CollectionUtils.isEmpty(tagsStr)) {
-            if (CollectionUtils.isEmpty(operation.getTags()))
+            if (CollectionUtils.isEmpty(operation.getTags())) {
                 operation.setTags(new ArrayList<>(tagsStr));
-            else {
+            } else {
                 Set<String> operationTagsSet = new HashSet<>(operation.getTags());
                 operationTagsSet.addAll(tagsStr);
                 operation.getTags().clear();
@@ -223,8 +228,9 @@ public class OpenApiHandler extends OpenAPIService {
         if (!CollectionUtils.isEmpty(tags)) {
             // Existing tags
             List<Tag> openApiTags = openAPI.getTags();
-            if (!CollectionUtils.isEmpty(openApiTags))
+            if (!CollectionUtils.isEmpty(openApiTags)) {
                 tags.addAll(openApiTags);
+            }
             openAPI.setTags(new ArrayList<>(tags));
         }
 
@@ -232,10 +238,11 @@ public class OpenApiHandler extends OpenAPIService {
         io.swagger.v3.oas.annotations.security.SecurityRequirement[] securityRequirements = securityParser
             .getSecurityRequirements(handlerMethod);
         if (securityRequirements != null) {
-            if (securityRequirements.length == 0)
+            if (securityRequirements.length == 0) {
                 operation.setSecurity(Collections.emptyList());
-            else
+            } else {
                 securityParser.buildSecurityRequirement(securityRequirements, operation);
+            }
         }
 
         return operation;
@@ -263,8 +270,9 @@ public class OpenApiHandler extends OpenAPIService {
             tagsSet.forEach(tag -> {
                 tag.name(propertyResolverUtils.resolve(tag.getName(), locale));
                 tag.description(propertyResolverUtils.resolve(tag.getDescription(), locale));
-                if (tags.stream().noneMatch(t -> t.getName().equals(tag.getName())))
+                if (tags.stream().noneMatch(t -> t.getName().equals(tag.getName()))) {
                     tags.add(tag);
+                }
             });
         });
     }

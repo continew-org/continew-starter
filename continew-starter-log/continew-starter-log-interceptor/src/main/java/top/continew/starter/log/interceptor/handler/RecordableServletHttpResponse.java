@@ -25,7 +25,7 @@ import org.springframework.web.util.WebUtils;
 import top.continew.starter.log.core.model.RecordableHttpResponse;
 import top.continew.starter.web.util.ServletUtils;
 
-import java.util.*;
+import java.util.Map;
 
 /**
  * 可记录的 HTTP 响应信息适配器

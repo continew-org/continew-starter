@@ -28,9 +28,9 @@ import jakarta.servlet.http.HttpServletRequest;
  * 重写 TLog 配置以适配 Spring Boot 3.x
  * </p>
  *
- * @see com.yomahub.tlog.web.common.TLogWebCommon
  * @author Bryan.Zhang
  * @author Jasmine
+ * @see com.yomahub.tlog.web.common.TLogWebCommon
  * @since 1.3.0
  */
 public class TLogWebCommon extends TLogRPCHandler {

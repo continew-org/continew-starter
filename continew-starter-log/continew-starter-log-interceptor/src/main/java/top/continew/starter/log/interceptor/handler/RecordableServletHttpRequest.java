@@ -30,7 +30,8 @@ import top.continew.starter.log.core.model.RecordableHttpRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * 可记录的 HTTP 请求信息适配器

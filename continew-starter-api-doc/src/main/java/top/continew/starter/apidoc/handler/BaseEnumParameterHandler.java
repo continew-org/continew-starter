@@ -26,12 +26,12 @@ import io.swagger.v3.oas.models.parameters.Parameter;
 import org.springdoc.core.customizers.ParameterCustomizer;
 import org.springdoc.core.customizers.PropertyCustomizer;
 import org.springframework.core.MethodParameter;
+import top.continew.starter.apidoc.util.DocUtils;
+import top.continew.starter.core.enums.BaseEnum;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
-import top.continew.starter.apidoc.util.DocUtils;
-import top.continew.starter.core.enums.BaseEnum;
 
 /**
  * 自定义 BaseEnum 枚举参数处理器

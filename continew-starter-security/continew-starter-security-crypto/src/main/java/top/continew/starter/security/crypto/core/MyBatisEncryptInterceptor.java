@@ -35,7 +35,10 @@ import top.continew.starter.security.crypto.autoconfigure.CryptoProperties;
 import top.continew.starter.security.crypto.encryptor.IEncryptor;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -134,10 +137,10 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      *
      * @param parameter       Wrapper 参数
      * @param mappedStatement 映射语句
-     * @since 2.1.1
      * @author cary
      * @author wangshaopeng@talkweb.com.cn（<a
      *         href="https://blog.csdn.net/tianmaxingkonger/article/details/130986784">基于Mybatis-Plus拦截器实现MySQL数据加解密</a>）
+     * @since 2.1.1
      */
     private void encryptUpdateWrapper(Object parameter, MappedStatement mappedStatement) {
         if (parameter instanceof AbstractWrapper updateWrapper) {

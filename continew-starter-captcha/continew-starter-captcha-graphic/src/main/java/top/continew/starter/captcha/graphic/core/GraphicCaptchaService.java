@@ -16,8 +16,8 @@
 
 package top.continew.starter.captcha.graphic.core;
 
-import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ReflectUtil;
 import com.wf.captcha.base.Captcha;
 import top.continew.starter.captcha.graphic.autoconfigure.GraphicCaptchaProperties;
 

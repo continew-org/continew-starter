@@ -31,5 +31,4 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import({CrudRestControllerAutoConfiguration.class})
-public @interface EnableCrudRestController {
-}
+public @interface EnableCrudRestController {}

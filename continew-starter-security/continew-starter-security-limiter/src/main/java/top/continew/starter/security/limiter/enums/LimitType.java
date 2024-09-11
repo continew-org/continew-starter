@@ -18,7 +18,7 @@ package top.continew.starter.security.limiter.enums;
 
 /**
  * 限流类型
- * 
+ *
  * @author KAI
  * @since 2.2.0
  */

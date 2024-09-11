@@ -21,7 +21,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
  * 限流器配置属性
- * 
+ *
  * @author KAI
  * @since 2.2.0
  */

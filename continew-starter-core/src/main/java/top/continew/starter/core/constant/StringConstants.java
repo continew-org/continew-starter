@@ -120,8 +120,7 @@ public class StringConstants {
     public static final String DOT = StrPool.DOT;
 
     /**
-     * 字符串常量：双点 {@code ".."} <br>
-     * 用途：作为指向上级文件夹的路径，如：{@code "../path"}
+     * 字符串常量：双点 {@code ".."} <br> 用途：作为指向上级文件夹的路径，如：{@code "../path"}
      */
     public static final String DOUBLE_DOT = StrPool.DOUBLE_DOT;
 
@@ -136,8 +135,7 @@ public class StringConstants {
     public static final String BACKSLASH = StrPool.BACKSLASH;
 
     /**
-     * 字符串常量：回车符 {@code "\r"} <br>
-     * 解释：该字符常用于表示 Linux 系统和 MacOS 系统下的文本换行
+     * 字符串常量：回车符 {@code "\r"} <br> 解释：该字符常用于表示 Linux 系统和 MacOS 系统下的文本换行
      */
     public static final String CR = StrPool.CR;
 
@@ -147,8 +145,7 @@ public class StringConstants {
     public static final String LF = StrPool.LF;
 
     /**
-     * 字符串常量：Windows 换行 {@code "\r\n"} <br>
-     * 解释：该字符串常用于表示 Windows 系统下的文本换行
+     * 字符串常量：Windows 换行 {@code "\r\n"} <br> 解释：该字符串常用于表示 Windows 系统下的文本换行
      */
     public static final String CRLF = StrPool.CRLF;
 

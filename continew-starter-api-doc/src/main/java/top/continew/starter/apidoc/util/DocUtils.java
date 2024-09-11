@@ -16,14 +16,15 @@
 
 package top.continew.starter.apidoc.util;
 
+import org.springframework.web.bind.annotation.RestController;
+import top.continew.starter.core.enums.BaseEnum;
+
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.springframework.web.bind.annotation.RestController;
-import top.continew.starter.core.enums.BaseEnum;
 
 /**
  * 接口文档工具类

@@ -31,7 +31,7 @@ import top.continew.starter.security.limiter.core.RateLimiterNameGenerator;
 
 /**
  * 限流器自动配置
- * 
+ *
  * @author KAI
  * @author Charles7c
  * @since 2.2.0

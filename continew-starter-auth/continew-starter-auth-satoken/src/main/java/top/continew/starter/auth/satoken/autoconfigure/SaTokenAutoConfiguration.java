@@ -29,7 +29,10 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.continew.starter.auth.satoken.autoconfigure.dao.SaTokenDaoConfiguration;
@@ -78,8 +81,7 @@ public class SaTokenAutoConfiguration implements WebMvcConfigurer {
     @Configuration
     @Import({SaTokenDaoConfiguration.Default.class, SaTokenDaoConfiguration.Redis.class,
         SaTokenDaoConfiguration.Custom.class})
-    protected static class SaTokenDaoAutoConfiguration {
-    }
+    protected static class SaTokenDaoAutoConfiguration {}
 
     /**
      * 整合 JWT（简单模式）

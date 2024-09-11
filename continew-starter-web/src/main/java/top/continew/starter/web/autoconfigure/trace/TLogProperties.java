@@ -23,9 +23,9 @@ package top.continew.starter.web.autoconfigure.trace;
  * 重写 TLog 配置以适配 Spring Boot 3.x
  * </p>
  *
- * @see com.yomahub.tlog.springboot.property.TLogProperty
  * @author Bryan.Zhang
  * @author Jasmine
+ * @see com.yomahub.tlog.springboot.property.TLogProperty
  * @since 1.3.0
  */
 public class TLogProperties {
