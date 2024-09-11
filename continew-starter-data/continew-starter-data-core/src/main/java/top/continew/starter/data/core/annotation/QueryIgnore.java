@@ -27,12 +27,4 @@ import java.lang.annotation.*;
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface QueryIgnore {
-
-    /**
-     * 获取是否忽略查询解析
-     *
-     * @return 是否忽略查询解析
-     */
-    boolean value() default true;
-}
+public @interface QueryIgnore {}
