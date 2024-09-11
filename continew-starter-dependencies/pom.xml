@@ -346,18 +346,29 @@
                 <artifactId>continew-starter-extension-crud-core</artifactId>
                 <version>${revision}</version>
             </dependency>
-
             <!-- 扩展模块 - CRUD - MyBatis Plus ORM 模块 -->
             <dependency>
                 <groupId>top.continew</groupId>
                 <artifactId>continew-starter-extension-crud-mp</artifactId>
                 <version>${revision}</version>
             </dependency>
-
             <!-- 扩展模块 - CRUD - MyBatis Flex ORM 模块 -->
             <dependency>
                 <groupId>top.continew</groupId>
                 <artifactId>continew-starter-extension-crud-mf</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 扩展模块 - 多租户 - 核心模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-extension-tenant-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <!-- 扩展模块 - 多租户 - MyBatis Plus ORM 模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-extension-tenant-mp</artifactId>
                 <version>${revision}</version>
             </dependency>
 

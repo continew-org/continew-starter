@@ -119,6 +119,11 @@ public class PropertiesConstants {
      */
     public static final String MESSAGING_WEBSOCKET = MESSAGING + StringConstants.DOT + "websocket";
 
+    /**
+     * 多租户配置
+     */
+    public static final String TENANT = CONTINEW_STARTER + StringConstants.DOT + "tenant";
+
     private PropertiesConstants() {
     }
 }
