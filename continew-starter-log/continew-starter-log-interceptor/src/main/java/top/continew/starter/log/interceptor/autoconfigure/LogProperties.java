@@ -96,6 +96,6 @@ public class LogProperties {
      * @return 是否匹配
      */
     public boolean isMatch(String uri) {
-        return this.getExcludePatterns().stream().anyMatch(pattern -> SpringWebUtils.isMatch(pattern, uri));
+        return this.getExcludePatterns().stream().anyMatch(pattern -> SpringWebUtils.isMatch(uri, pattern));
     }
 }
