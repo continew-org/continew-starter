@@ -28,14 +28,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
-import top.continew.starter.log.core.enums.Include;
 import top.continew.starter.log.interceptor.autoconfigure.LogProperties;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
-import java.util.Set;
 
 /**
  * 日志过滤器
@@ -123,9 +121,7 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
      * @return true：是；false：否
      */
     private boolean isRequestWrapper(HttpServletRequest request) {
-        Set<Include> includeSet = logProperties.getIncludes();
-        return !(request instanceof ContentCachingRequestWrapper) && (includeSet
-            .contains(Include.REQUEST_BODY) || includeSet.contains(Include.REQUEST_PARAM));
+        return !(request instanceof ContentCachingRequestWrapper);
     }
 
     /**
@@ -135,9 +131,7 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
      * @return true：是；false：否
      */
     private boolean isResponseWrapper(HttpServletResponse response) {
-        Set<Include> includeSet = logProperties.getIncludes();
-        return !(response instanceof ContentCachingResponseWrapper) && (includeSet
-            .contains(Include.RESPONSE_BODY) || includeSet.contains(Include.RESPONSE_PARAM));
+        return !(response instanceof ContentCachingResponseWrapper);
     }
 
     /**
