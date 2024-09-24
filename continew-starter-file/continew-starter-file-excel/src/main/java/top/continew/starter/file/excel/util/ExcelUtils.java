@@ -27,8 +27,10 @@ import org.slf4j.LoggerFactory;
 import top.continew.starter.core.exception.BaseException;
 import top.continew.starter.file.excel.converter.ExcelBigNumberConverter;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Excel 工具类
@@ -52,21 +54,23 @@ public class ExcelUtils {
      * @param response 响应对象
      */
     public static <T> void export(List<T> list, String fileName, Class<T> clazz, HttpServletResponse response) {
-        export(list, fileName, "Sheet1", clazz, response);
+        export(list, fileName, "Sheet1", Collections.emptySet(), clazz, response);
     }
 
     /**
      * 导出
      *
-     * @param list      导出数据集合
-     * @param fileName  文件名
-     * @param sheetName 工作表名称
-     * @param clazz     导出数据类型
-     * @param response  响应对象
+     * @param list                    导出数据集合
+     * @param fileName                文件名
+     * @param sheetName               工作表名称
+     * @param excludeColumnFieldNames 排除字段
+     * @param clazz                   导出数据类型
+     * @param response                响应对象
      */
     public static <T> void export(List<T> list,
                                   String fileName,
                                   String sheetName,
+                                  Set<String> excludeColumnFieldNames,
                                   Class<T> clazz,
                                   HttpServletResponse response) {
         try {
@@ -81,6 +85,7 @@ public class ExcelUtils {
                 // 自动转换大数值
                 .registerConverter(new ExcelBigNumberConverter())
                 .sheet(sheetName)
+                .excludeColumnFieldNames(excludeColumnFieldNames)
                 .doWrite(list);
         } catch (Exception e) {
             log.error("Export excel occurred an error: {}. fileName: {}.", e.getMessage(), fileName, e);
