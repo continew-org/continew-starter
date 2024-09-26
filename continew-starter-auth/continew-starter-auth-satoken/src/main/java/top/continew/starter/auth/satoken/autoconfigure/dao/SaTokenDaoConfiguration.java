@@ -60,7 +60,7 @@ public class SaTokenDaoConfiguration {
     }
 
     /**
-     * 自定义持久层实现-Redis
+     * 自定义持久层实现-Redis（默认）
      */
     @ConditionalOnMissingBean(SaTokenDao.class)
     @ConditionalOnClass(RedisClient.class)
@@ -73,7 +73,7 @@ public class SaTokenDaoConfiguration {
 
         @Bean
         public SaTokenDao saTokenDao() {
-            return new SaTokenDaoRedisImpl();
+            return new SaTokenDaoRedisDefaultImpl();
         }
     }
 

@@ -26,7 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import top.continew.starter.core.constant.PropertiesConstants;
-import top.continew.starter.extension.tenant.handler.TenantLineHandlerImpl;
+import top.continew.starter.extension.tenant.handler.DefaultTenantLineHandler;
 
 /**
  * 多租户自动配置
@@ -64,12 +64,12 @@ public class TenantAutoConfiguration {
         }
 
         /**
-         * 租户行级隔离处理器
+         * 租户行级隔离处理器（默认）
          */
         @Bean
         @ConditionalOnMissingBean
         public TenantLineHandler tenantLineHandler(TenantProperties properties) {
-            return new TenantLineHandlerImpl(properties);
+            return new DefaultTenantLineHandler(properties);
         }
     }
 }

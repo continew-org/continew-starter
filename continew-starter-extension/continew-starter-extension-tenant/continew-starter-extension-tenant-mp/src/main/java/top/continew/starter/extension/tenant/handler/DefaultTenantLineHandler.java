@@ -8,16 +8,16 @@ import top.continew.starter.extension.tenant.autoconfigure.TenantProperties;
 import top.continew.starter.extension.tenant.context.TenantContextHolder;
 
 /**
- * 租户行级隔离处理器
+ * 默认租户行级隔离处理器
  *
  * @author Charles7c
  * @since 2.7.0
  */
-public class TenantLineHandlerImpl implements TenantLineHandler {
+public class DefaultTenantLineHandler implements TenantLineHandler {
 
     private final TenantProperties tenantProperties;
 
-    public TenantLineHandlerImpl(TenantProperties tenantProperties) {
+    public DefaultTenantLineHandler(TenantProperties tenantProperties) {
         this.tenantProperties = tenantProperties;
     }
 

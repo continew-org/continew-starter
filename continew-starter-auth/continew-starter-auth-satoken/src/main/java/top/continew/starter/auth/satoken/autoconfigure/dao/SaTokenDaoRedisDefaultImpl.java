@@ -26,12 +26,12 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Sa-Token 持久层 Redis 实现（参考：Sa-Token/sa-token-plugin/sa-token-dao-redisx/SaTokenDaoOfRedis.java）
+ * 默认 Sa-Token 持久层 Redis 实现（参考：Sa-Token/sa-token-plugin/sa-token-dao-redisx/SaTokenDaoOfRedis.java）
  *
  * @author Charles7c
  * @since 1.0.0
  */
-public class SaTokenDaoRedisImpl implements SaTokenDao {
+public class SaTokenDaoRedisDefaultImpl implements SaTokenDao {
 
     @Override
     public String get(String key) {

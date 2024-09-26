@@ -22,12 +22,12 @@ import top.continew.starter.cache.redisson.util.RedisUtils;
 import java.time.Duration;
 
 /**
- * JustAuth State 缓存 Redis 实现
+ * 默认 State 缓存 Redis 实现
  *
  * @author Charles7c
  * @since 1.0.0
  */
-public class JustAuthStateCacheRedisImpl implements AuthStateCache {
+public class AuthStateCacheRedisDefaultImpl implements AuthStateCache {
 
     private static final String KEY_PREFIX = "SOCIAL_AUTH_STATE";
 
