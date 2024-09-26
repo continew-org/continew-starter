@@ -19,7 +19,6 @@ package top.continew.starter.data.mp.autoconfigure;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusPropertiesCustomizer;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.*;
 import jakarta.annotation.PostConstruct;
 import org.mybatis.spring.annotation.MapperScan;
@@ -37,8 +36,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.continew.starter.data.mp.autoconfigure.idgenerator.MyBatisPlusIdGeneratorConfiguration;
-import top.continew.starter.data.mp.datapermission.DataPermissionFilter;
-import top.continew.starter.data.mp.datapermission.DataPermissionHandlerImpl;
 import top.continew.starter.data.mp.handler.MybatisBaseEnumTypeHandler;
 
 import java.util.Map;
@@ -81,13 +78,6 @@ public class MybatisPlusAutoConfiguration {
         if (!innerInterceptors.isEmpty()) {
             innerInterceptors.values().forEach(interceptor::addInnerInterceptor);
         }
-        // 数据权限插件
-        MyBatisPlusExtensionProperties.DataPermissionProperties dataPermissionProperties = properties
-            .getDataPermission();
-        if (null != dataPermissionProperties && dataPermissionProperties.isEnabled()) {
-            interceptor.addInnerInterceptor(new DataPermissionInterceptor(SpringUtil
-                .getBean(DataPermissionHandler.class)));
-        }
         // 分页插件
         MyBatisPlusExtensionProperties.PaginationProperties paginationProperties = properties.getPagination();
         if (null != paginationProperties && paginationProperties.isEnabled()) {
@@ -111,16 +101,6 @@ public class MybatisPlusAutoConfiguration {
     @Import({MyBatisPlusIdGeneratorConfiguration.Default.class, MyBatisPlusIdGeneratorConfiguration.CosId.class,
         MyBatisPlusIdGeneratorConfiguration.Custom.class})
     protected static class MyBatisPlusIdGeneratorAutoConfiguration {}
-
-    /**
-     * 数据权限处理器
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnEnabledDataPermission
-    public DataPermissionHandler dataPermissionHandler(DataPermissionFilter dataPermissionFilter) {
-        return new DataPermissionHandlerImpl(dataPermissionFilter);
-    }
 
     /**
      * 分页插件配置（<a href="https://baomidou.com/pages/97710a/#paginationinnerinterceptor">PaginationInnerInterceptor</a>）

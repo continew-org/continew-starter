@@ -50,11 +50,6 @@ public class MyBatisPlusExtensionProperties {
     private MyBatisPlusIdGeneratorProperties idGenerator;
 
     /**
-     * 数据权限插件配置
-     */
-    private DataPermissionProperties dataPermission;
-
-    /**
      * 分页插件配置
      */
     private PaginationProperties pagination;
@@ -68,25 +63,6 @@ public class MyBatisPlusExtensionProperties {
      * 启用防全表更新与删除插件
      */
     private boolean blockAttackPluginEnabled = true;
-
-    /**
-     * 数据权限插件配置属性
-     */
-    public static class DataPermissionProperties {
-
-        /**
-         * 是否启用数据权限插件
-         */
-        private boolean enabled = false;
-
-        public boolean isEnabled() {
-            return enabled;
-        }
-
-        public void setEnabled(boolean enabled) {
-            this.enabled = enabled;
-        }
-    }
 
     /**
      * 分页插件配置属性
@@ -168,14 +144,6 @@ public class MyBatisPlusExtensionProperties {
 
     public void setIdGenerator(MyBatisPlusIdGeneratorProperties idGenerator) {
         this.idGenerator = idGenerator;
-    }
-
-    public DataPermissionProperties getDataPermission() {
-        return dataPermission;
-    }
-
-    public void setDataPermission(DataPermissionProperties dataPermission) {
-        this.dataPermission = dataPermission;
     }
 
     public PaginationProperties getPagination() {

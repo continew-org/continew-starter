@@ -14,27 +14,30 @@
  * limitations under the License.
  */
 
-package top.continew.starter.data.mp.datapermission;
+package top.continew.starter.extension.datapermission.autoconfigure;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * 数据权限过滤器接口
+ * 数据权限配置属性
  *
  * @author Charles7c
- * @since 1.1.0
+ * @since 2.7.0
  */
-public interface DataPermissionFilter {
+@ConfigurationProperties(PropertiesConstants.DATA_PERMISSION)
+public class DataPermissionProperties {
 
     /**
-     * 是否过滤
-     *
-     * @return true：过滤；false：不过滤
+     * 是否启用多租户
      */
-    boolean isFilter();
+    private boolean enabled = true;
 
-    /**
-     * 获取当前用户信息
-     *
-     * @return 当前用户信息
-     */
-    DataPermissionCurrentUser getCurrentUser();
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 }

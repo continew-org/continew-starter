@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package top.continew.starter.data.mp.datapermission;
+package top.continew.starter.extension.datapermission.model;
 
 import java.util.Set;
 
 /**
- * 当前用户信息
+ * 用户上下文
  *
  * @author Charles7c
  * @since 1.1.0
  */
-public class DataPermissionCurrentUser {
+public class UserContext {
 
     /**
      * 用户 ID
@@ -34,52 +34,12 @@ public class DataPermissionCurrentUser {
     /**
      * 角色列表
      */
-    private Set<CurrentUserRole> roles;
+    private Set<RoleContext> roles;
 
     /**
      * 部门 ID
      */
     private String deptId;
-
-    /**
-     * 当前用户角色信息
-     */
-    public static class CurrentUserRole {
-
-        /**
-         * 角色 ID
-         */
-        private String roleId;
-
-        /**
-         * 数据权限
-         */
-        private DataScope dataScope;
-
-        public CurrentUserRole() {
-        }
-
-        public CurrentUserRole(String roleId, DataScope dataScope) {
-            this.roleId = roleId;
-            this.dataScope = dataScope;
-        }
-
-        public String getRoleId() {
-            return roleId;
-        }
-
-        public void setRoleId(String roleId) {
-            this.roleId = roleId;
-        }
-
-        public DataScope getDataScope() {
-            return dataScope;
-        }
-
-        public void setDataScope(DataScope dataScope) {
-            this.dataScope = dataScope;
-        }
-    }
 
     public String getUserId() {
         return userId;
@@ -89,11 +49,11 @@ public class DataPermissionCurrentUser {
         this.userId = userId;
     }
 
-    public Set<CurrentUserRole> getRoles() {
+    public Set<RoleContext> getRoles() {
         return roles;
     }
 
-    public void setRoles(Set<CurrentUserRole> roles) {
+    public void setRoles(Set<RoleContext> roles) {
         this.roles = roles;
     }
 

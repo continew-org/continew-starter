@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.data.mp.datapermission;
+package top.continew.starter.extension.datapermission.handler;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
@@ -36,25 +36,30 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.core.constant.StringConstants;
+import top.continew.starter.extension.datapermission.annotation.DataPermission;
+import top.continew.starter.extension.datapermission.enums.DataScope;
+import top.continew.starter.extension.datapermission.filter.DataPermissionUserContextProvider;
+import top.continew.starter.extension.datapermission.model.RoleContext;
+import top.continew.starter.extension.datapermission.model.UserContext;
 
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Set;
 
 /**
- * 数据权限处理器实现类
+ * 默认数据权限处理器
  *
  * @author <a href="https://gitee.com/baomidou/mybatis-plus/issues/I37I90">DataPermissionInterceptor 如何使用？</a>
  * @author Charles7c
  * @since 1.1.0
  */
-public class DataPermissionHandlerImpl implements DataPermissionHandler {
+public class DefaultDataPermissionHandler implements DataPermissionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(DataPermissionHandlerImpl.class);
-    private final DataPermissionFilter dataPermissionFilter;
+    private static final Logger log = LoggerFactory.getLogger(DefaultDataPermissionHandler.class);
+    private final DataPermissionUserContextProvider dataPermissionUserContextProvider;
 
-    public DataPermissionHandlerImpl(DataPermissionFilter dataPermissionFilter) {
-        this.dataPermissionFilter = dataPermissionFilter;
+    public DefaultDataPermissionHandler(DataPermissionUserContextProvider dataPermissionUserContextProvider) {
+        this.dataPermissionUserContextProvider = dataPermissionUserContextProvider;
     }
 
     @Override
@@ -70,7 +75,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
                 if (null == dataPermission || !CharSequenceUtil.equalsAny(methodName, name, name + "_COUNT")) {
                     continue;
                 }
-                if (dataPermissionFilter.isFilter()) {
+                if (dataPermissionUserContextProvider.isFilter()) {
                     return buildDataScopeFilter(dataPermission, where);
                 }
             }
@@ -89,19 +94,19 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      */
     private Expression buildDataScopeFilter(DataPermission dataPermission, Expression where) {
         Expression expression = null;
-        DataPermissionCurrentUser currentUser = dataPermissionFilter.getCurrentUser();
-        Set<DataPermissionCurrentUser.CurrentUserRole> roles = currentUser.getRoles();
-        for (DataPermissionCurrentUser.CurrentUserRole role : roles) {
-            DataScope dataScope = role.getDataScope();
+        UserContext userContext = dataPermissionUserContextProvider.getUserContext();
+        Set<RoleContext> roles = userContext.getRoles();
+        for (RoleContext roleContext : roles) {
+            DataScope dataScope = roleContext.getDataScope();
             if (DataScope.ALL.equals(dataScope)) {
                 return where;
             }
             switch (dataScope) {
                 case DEPT_AND_CHILD -> expression = this
-                    .buildDeptAndChildExpression(dataPermission, currentUser, expression);
-                case DEPT -> expression = this.buildDeptExpression(dataPermission, currentUser, expression);
-                case SELF -> expression = this.buildSelfExpression(dataPermission, currentUser, expression);
-                case CUSTOM -> expression = this.buildCustomExpression(dataPermission, role, expression);
+                    .buildDeptAndChildExpression(dataPermission, userContext, expression);
+                case DEPT -> expression = this.buildDeptExpression(dataPermission, userContext, expression);
+                case SELF -> expression = this.buildSelfExpression(dataPermission, userContext, expression);
+                case CUSTOM -> expression = this.buildCustomExpression(dataPermission, roleContext, expression);
                 default -> throw new IllegalArgumentException("暂不支持 [%s] 数据权限".formatted(dataScope));
             }
         }
@@ -117,12 +122,12 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      * </p>
      *
      * @param dataPermission 数据权限
-     * @param currentUser    当前用户
+     * @param userContext    用户上下文
      * @param expression     处理前的表达式
      * @return 处理完后的表达式
      */
     private Expression buildDeptAndChildExpression(DataPermission dataPermission,
-                                                   DataPermissionCurrentUser currentUser,
+                                                   UserContext userContext,
                                                    Expression expression) {
         ParenthesedSelect subSelect = new ParenthesedSelect();
         PlainSelect select = new PlainSelect();
@@ -130,10 +135,10 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
         select.setFromItem(new Table(dataPermission.deptTableAlias()));
         EqualsTo equalsTo = new EqualsTo();
         equalsTo.setLeftExpression(new Column(dataPermission.id()));
-        equalsTo.setRightExpression(new LongValue(currentUser.getDeptId()));
+        equalsTo.setRightExpression(new LongValue(userContext.getDeptId()));
         Function function = new Function();
         function.setName("find_in_set");
-        function.setParameters(new ExpressionList(new LongValue(currentUser.getDeptId()), new Column("ancestors")));
+        function.setParameters(new ExpressionList(new LongValue(userContext.getDeptId()), new Column("ancestors")));
         select.setWhere(new OrExpression(equalsTo, function));
         subSelect.setSelect(select);
         // 构建父查询
@@ -151,16 +156,16 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      * </p>
      *
      * @param dataPermission 数据权限
-     * @param currentUser    当前用户
+     * @param userContext    用户上下文
      * @param expression     处理前的表达式
      * @return 处理完后的表达式
      */
     private Expression buildDeptExpression(DataPermission dataPermission,
-                                           DataPermissionCurrentUser currentUser,
+                                           UserContext userContext,
                                            Expression expression) {
         EqualsTo equalsTo = new EqualsTo();
         equalsTo.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
-        equalsTo.setRightExpression(new LongValue(currentUser.getDeptId()));
+        equalsTo.setRightExpression(new LongValue(userContext.getDeptId()));
         return null != expression ? new OrExpression(expression, equalsTo) : equalsTo;
     }
 
@@ -172,16 +177,16 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      * </p>
      *
      * @param dataPermission 数据权限
-     * @param currentUser    当前用户
+     * @param userContext    用户上下文
      * @param expression     处理前的表达式
      * @return 处理完后的表达式
      */
     private Expression buildSelfExpression(DataPermission dataPermission,
-                                           DataPermissionCurrentUser currentUser,
+                                           UserContext userContext,
                                            Expression expression) {
         EqualsTo equalsTo = new EqualsTo();
         equalsTo.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.userId()));
-        equalsTo.setRightExpression(new LongValue(currentUser.getUserId()));
+        equalsTo.setRightExpression(new LongValue(userContext.getUserId()));
         return null != expression ? new OrExpression(expression, equalsTo) : equalsTo;
     }
 
@@ -194,12 +199,12 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
      * </p>
      *
      * @param dataPermission 数据权限
-     * @param role           当前用户角色
+     * @param roleContext           角色上下文
      * @param expression     处理前的表达式
      * @return 处理完后的表达式
      */
     private Expression buildCustomExpression(DataPermission dataPermission,
-                                             DataPermissionCurrentUser.CurrentUserRole role,
+                                             RoleContext roleContext,
                                              Expression expression) {
         ParenthesedSelect subSelect = new ParenthesedSelect();
         PlainSelect select = new PlainSelect();
@@ -207,7 +212,7 @@ public class DataPermissionHandlerImpl implements DataPermissionHandler {
         select.setFromItem(new Table(dataPermission.roleDeptTableAlias()));
         EqualsTo equalsTo = new EqualsTo();
         equalsTo.setLeftExpression(new Column(dataPermission.roleId()));
-        equalsTo.setRightExpression(new LongValue(role.getRoleId()));
+        equalsTo.setRightExpression(new LongValue(roleContext.getRoleId()));
         select.setWhere(equalsTo);
         subSelect.setSelect(select);
         // 构建父查询

@@ -359,6 +359,19 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 扩展模块 - 数据权限 - 核心模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-extension-datapermission-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <!-- 扩展模块 - 数据权限 - MyBatis Plus ORM 模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-extension-datapermission-mp</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 扩展模块 - 多租户 - 核心模块 -->
             <dependency>
                 <groupId>top.continew</groupId>

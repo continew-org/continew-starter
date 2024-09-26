@@ -14,53 +14,38 @@
  * limitations under the License.
  */
 
-package top.continew.starter.data.mp.datapermission;
-
-import java.lang.annotation.*;
+package top.continew.starter.extension.datapermission.enums;
 
 /**
- * 数据权限注解
+ * 数据权限枚举
  *
  * @author Charles7c
  * @since 1.1.0
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface DataPermission {
+public enum DataScope {
 
     /**
-     * 表别名
+     * 全部数据权限
      */
-    String tableAlias() default "";
+    ALL,
 
     /**
-     * ID
+     * 本部门及以下数据权限
      */
-    String id() default "id";
+    DEPT_AND_CHILD,
 
     /**
-     * 部门 ID
+     * 本部门数据权限
      */
-    String deptId() default "dept_id";
+    DEPT,
 
     /**
-     * 用户 ID
+     * 仅本人数据权限
      */
-    String userId() default "create_user";
+    SELF,
 
     /**
-     * 角色 ID（角色和部门关联表）
+     * 自定义数据权限
      */
-    String roleId() default "role_id";
-
-    /**
-     * 部门表别名
-     */
-    String deptTableAlias() default "sys_dept";
-
-    /**
-     * 角色和部门关联表别名
-     */
-    String roleDeptTableAlias() default "sys_role_dept";
+    CUSTOM,
 }

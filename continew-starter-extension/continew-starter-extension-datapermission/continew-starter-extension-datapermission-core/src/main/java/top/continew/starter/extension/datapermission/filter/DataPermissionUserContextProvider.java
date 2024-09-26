@@ -14,38 +14,29 @@
  * limitations under the License.
  */
 
-package top.continew.starter.data.mp.datapermission;
+package top.continew.starter.extension.datapermission.filter;
+
+import top.continew.starter.extension.datapermission.model.UserContext;
 
 /**
- * 数据权限枚举
+ * 数据权限用户上下文提供者
  *
  * @author Charles7c
  * @since 1.1.0
  */
-public enum DataScope {
+public interface DataPermissionUserContextProvider {
 
     /**
-     * 全部数据权限
+     * 是否过滤
+     *
+     * @return true：过滤；false：不过滤
      */
-    ALL,
+    boolean isFilter();
 
     /**
-     * 本部门及以下数据权限
+     * 获取用户上下文
+     *
+     * @return 用户上下文
      */
-    DEPT_AND_CHILD,
-
-    /**
-     * 本部门数据权限
-     */
-    DEPT,
-
-    /**
-     * 仅本人数据权限
-     */
-    SELF,
-
-    /**
-     * 自定义数据权限
-     */
-    CUSTOM,
+    UserContext getUserContext();
 }
