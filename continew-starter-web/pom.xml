@@ -54,6 +54,7 @@
         <dependency>
             <groupId>top.continew</groupId>
             <artifactId>continew-starter-api-doc</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!-- JSON 模块 - Jackson -->

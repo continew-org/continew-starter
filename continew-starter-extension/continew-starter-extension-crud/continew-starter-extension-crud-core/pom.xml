@@ -53,5 +53,11 @@
             <groupId>top.continew</groupId>
             <artifactId>continew-starter-file-excel</artifactId>
         </dependency>
+
+        <!-- API 文档模块 -->
+        <dependency>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-api-doc</artifactId>
+        </dependency>
     </dependencies>
 </project>

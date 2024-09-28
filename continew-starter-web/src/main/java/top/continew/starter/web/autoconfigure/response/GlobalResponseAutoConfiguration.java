@@ -28,6 +28,8 @@ import com.feiniaojin.gracefulresponse.defaults.DefaultResponseStatusFactoryImpl
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springdoc.core.parsers.ReturnTypeParser;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -219,6 +221,7 @@ public class GlobalResponseAutoConfiguration {
      * @return {@link ApiDocGlobalResponseHandler }
      */
     @Bean
+    @ConditionalOnClass(ReturnTypeParser.class)
     @ConditionalOnMissingBean
     public ApiDocGlobalResponseHandler apiDocGlobalResponseHandler() {
         return new ApiDocGlobalResponseHandler(globalResponseProperties);
