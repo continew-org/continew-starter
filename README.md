@@ -179,10 +179,16 @@ continew-starter
 ├─ continew-starter-storage（存储模块）
 │  └─ continew-starter-storage-local（本地存储）
 └─ continew-starter-extension（扩展模块）
+   ├─ continew-starter-extension-datapermission（数据权限模块）
+   │  ├─ continew-starter-extension-datapermission-core（通用模块）
+   │  └─ continew-starter-extension-datapermission-mp（MyBatis Plus）
+   ├─ continew-starter-extension-tenant（多租户模块）
+   │  ├─ continew-starter-extension-tenant-core（通用模块）
+   │  └─ continew-starter-extension-tenant-mp（MyBatis Plus）
    └─ continew-starter-extension-crud（CRUD 模块）
-     ├─ continew-starter-extension-crud-core（通用模块）
-     ├─ continew-starter-extension-crud-mp（MyBatis Plus）
-     └─ continew-starter-extension-crud-mf（MyBatis Flex）
+      ├─ continew-starter-extension-crud-core（通用模块）
+      ├─ continew-starter-extension-crud-mp（MyBatis Plus）
+      └─ continew-starter-extension-crud-mf（MyBatis Flex）
 ```
 
 ## 贡献代码

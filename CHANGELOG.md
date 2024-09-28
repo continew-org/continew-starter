@@ -1,3 +1,36 @@
+## [v2.7.0](https://github.com/continew-org/continew-starter/compare/v2.6.0...v2.7.0) (2024-09-28)
+
+### ✨ 新特性
+
+- 【data/mp】新增乐观锁插件启用配置（默认关闭） ([08ef09c](https://github.com/continew-org/continew-starter/commit/08ef09c9b594dca75b39e36add38998826b234bf))
+- 【extension/tenant】新增 continew-starter-extension-tenant 多租户模块 ([1a97a1b](https://github.com/continew-org/continew-starter/commit/1a97a1b709ee0c04300fd39758506fd479da0713)) ([f843791](https://github.com/continew-org/continew-starter/commit/f8437918de342ee45d15df30c20de5e8d3b18379))
+- 【extension/datapermission】新增数据权限模块（原 data/mp 中数据权限移除） ([7666d56](https://github.com/continew-org/continew-starter/commit/7666d56019bb309dca004d43b0717f6bb0e56c8f))
+
+### 💎 功能优化
+
+- 【data/mp】移除多数据源依赖，如需使用可手动引入 ([06d3a6c](https://github.com/continew-org/continew-starter/commit/06d3a6ca412b0bdeba9c0e460db6a0b05215b6b3))
+- 完善 ConditionalOnProperty 配置 ([0cede6b](https://github.com/continew-org/continew-starter/commit/0cede6bf9fc89e0c5009e9721b5cea2cf73b890c))
+- 优化部分代码写法 ([1fc80cd](https://github.com/continew-org/continew-starter/commit/1fc80cda9eb5b377b30d834692dff58d8f93053b))
+- 优化代码格式 ([46773df](https://github.com/continew-org/continew-starter/commit/46773df9dd2dc473459d58fc17f650d3da260545))
+- 【data/mp】移除 QueryIgnore 的无用属性 ([0c334da](https://github.com/continew-org/continew-starter/commit/0c334dadcce9d74301dbcc3c336dc28ffc4cf62e))
+- 【file/excel】导出方法增加排除字段参数 ([3535ac6](https://github.com/continew-org/continew-starter/commit/3535ac64f79c7c3d8e03d8ed2a996ebdfab1ff92))
+- 统一部分命名风格 ([f858395](https://github.com/continew-org/continew-starter/commit/f85839559ad7002dffbe3c5999a75e801ef9c4d1))
+- 优化部分依赖传递范围 ([cd69b2a](https://github.com/continew-org/continew-starter/commit/cd69b2adb67cf17b12619f06b8e81492cbb41c26))
+
+### 🐛 问题修复
+
+- 【log/interceptor】修复 continew-starter.log.exclude-patterns 配置不生效的问题 ([ca1b92c](https://github.com/continew-org/continew-starter/commit/ca1b92cde3cf8f9d9ee0b7420f5b13f200e80781))
+- 【log/interceptor】修复全局配置和局部配置包含请求、响应体冲突 ([be4dec5](https://github.com/continew-org/continew-starter/commit/be4dec5a3039625e62d346dbb148206b602af6aa))
+
+### 📦 依赖升级
+
+- Spring Boot 3.2.7 => 3.2.10 ([802dcb5](https://github.com/continew-org/continew-starter/commit/802dcb5735562e911e3a51741cfcf17dbe59a89e))
+- MyBatis Plus 3.5.7 => 3.5.8
+- Redisson 3.35.0 => 3.36.0
+- CosID 2.9.6 => 2.9.8
+- SMS4J 3.2.1 => 3.3.3
+- X File Storage 2.2.0 => 2.2.1
+
 ## [v2.6.0](https://github.com/continew-org/continew-starter/compare/v2.5.2...v2.6.0) (2024-09-06)
 
 ### ✨ 新特性
@@ -27,9 +60,7 @@
 - MyBatis Flex 1.9.3 => 1.9.7
 - Redisson 3.32.0 => 3.35.0
 - Cos ID 2.9.1 => 2.9.6
-- SMS4J 3.2.1 => 3.3.2
-- X File Storage 2.2.0 => 2.2.1
-- Hutool 5.8.32 => 5.8.29
+- Hutool 5.8.29 => 5.8.32
 - aws-java-sdk-s3 1.12.761 => 1.12.771
 - snakeyaml 2.2 => 2.3
 
