@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package top.continew.starter.data.mp.autoconfigure;
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import top.continew.starter.core.constant.PropertiesConstants;
+package top.continew.starter.extension.tenant.annotation;
 
 import java.lang.annotation.*;
 
 /**
- * 是否启用数据权限注解
+ * 多租户数据源级隔离忽略注解
  *
  * @author Charles7c
- * @since 1.1.0
+ * @since 2.7.0
  */
-@Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE, ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
 @Documented
-@ConditionalOnProperty(prefix = "mybatis-plus.extension.data-permission", name = PropertiesConstants.ENABLED, havingValue = "true")
-public @interface ConditionalOnEnabledDataPermission {
+public @interface TenantDataSourceIgnore {
 }

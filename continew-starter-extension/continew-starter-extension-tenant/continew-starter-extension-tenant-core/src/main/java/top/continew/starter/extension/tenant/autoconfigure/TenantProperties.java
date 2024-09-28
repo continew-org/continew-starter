@@ -47,6 +47,11 @@ public class TenantProperties {
     private String tenantIdColumn = "tenant_id";
 
     /**
+     * 请求头中租户 ID 键名
+     */
+    private String tenantIdHeader = "X-Tenant-Id";
+
+    /**
      * 超级租户 ID
      */
     private Long superTenantId = 1L;
@@ -78,6 +83,14 @@ public class TenantProperties {
 
     public void setTenantIdColumn(String tenantIdColumn) {
         this.tenantIdColumn = tenantIdColumn;
+    }
+
+    public String getTenantIdHeader() {
+        return tenantIdHeader;
+    }
+
+    public void setTenantIdHeader(String tenantIdHeader) {
+        this.tenantIdHeader = tenantIdHeader;
     }
 
     public Long getSuperTenantId() {
