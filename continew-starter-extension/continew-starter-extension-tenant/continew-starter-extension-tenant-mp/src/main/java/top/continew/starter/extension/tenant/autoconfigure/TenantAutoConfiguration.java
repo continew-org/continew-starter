@@ -111,7 +111,9 @@ public class TenantAutoConfiguration {
          */
         @Bean
         @ConditionalOnMissingBean
-        public TenantDataSourceHandler tenantDataSourceHandler(TenantDataSourceProvider tenantDataSourceProvider, DynamicRoutingDataSource dynamicRoutingDataSource, DefaultDataSourceCreator dataSourceCreator) {
+        public TenantDataSourceHandler tenantDataSourceHandler(TenantDataSourceProvider tenantDataSourceProvider,
+                                                               DynamicRoutingDataSource dynamicRoutingDataSource,
+                                                               DefaultDataSourceCreator dataSourceCreator) {
             return new DefaultTenantDataSourceHandler(tenantDataSourceProvider, dynamicRoutingDataSource, dataSourceCreator);
         }
 

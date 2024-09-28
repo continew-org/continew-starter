@@ -22,12 +22,12 @@ import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.Parenthesis;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.ParenthesedExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.ParenthesedSelect;
@@ -110,7 +110,7 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
                 default -> throw new IllegalArgumentException("暂不支持 [%s] 数据权限".formatted(dataScope));
             }
         }
-        return null != where ? new AndExpression(where, new Parenthesis(expression)) : expression;
+        return null != where ? new AndExpression(where, new ParenthesedExpressionList<>(expression)) : expression;
     }
 
     /**
@@ -138,7 +138,7 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
         equalsTo.setRightExpression(new LongValue(userContext.getDeptId()));
         Function function = new Function();
         function.setName("find_in_set");
-        function.setParameters(new ExpressionList(new LongValue(userContext.getDeptId()), new Column("ancestors")));
+        function.setParameters(new ExpressionList<>(new LongValue(userContext.getDeptId()), new Column("ancestors")));
         select.setWhere(new OrExpression(equalsTo, function));
         subSelect.setSelect(select);
         // 构建父查询
@@ -199,7 +199,7 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
      * </p>
      *
      * @param dataPermission 数据权限
-     * @param roleContext           角色上下文
+     * @param roleContext    角色上下文
      * @param expression     处理前的表达式
      * @return 处理完后的表达式
      */
