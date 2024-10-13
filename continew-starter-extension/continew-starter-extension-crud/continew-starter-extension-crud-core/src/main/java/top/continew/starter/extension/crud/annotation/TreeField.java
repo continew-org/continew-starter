@@ -71,4 +71,11 @@ public @interface TreeField {
      * @return 递归深度
      */
     int deep() default -1;
+
+    /**
+     * 根节点 ID
+     *
+     * @return 根节点 ID
+     */
+    long rootId() default 0L;
 }

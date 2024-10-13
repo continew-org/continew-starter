@@ -72,21 +72,6 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     }
 
     /**
-     * 查询树列表
-     *
-     * @param query     查询条件
-     * @param sortQuery 排序查询条件
-     * @return 树列表信息
-     */
-    @Operation(summary = "查询树列表", description = "查询树列表")
-    @ResponseBody
-    @GetMapping("/tree")
-    public List<Tree<Long>> tree(Q query, SortQuery sortQuery) {
-        this.checkPermission(Api.LIST);
-        return baseService.tree(query, sortQuery, false);
-    }
-
-    /**
      * 查询列表
      *
      * @param query     查询条件
@@ -99,6 +84,21 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     public List<L> list(Q query, SortQuery sortQuery) {
         this.checkPermission(Api.LIST);
         return baseService.list(query, sortQuery);
+    }
+
+    /**
+     * 查询树列表
+     *
+     * @param query     查询条件
+     * @param sortQuery 排序查询条件
+     * @return 树列表信息
+     */
+    @Operation(summary = "查询树列表", description = "查询树列表")
+    @ResponseBody
+    @GetMapping("/tree")
+    public List<Tree<Long>> tree(Q query, SortQuery sortQuery) {
+        this.checkPermission(Api.LIST);
+        return baseService.tree(query, sortQuery, false);
     }
 
     /**

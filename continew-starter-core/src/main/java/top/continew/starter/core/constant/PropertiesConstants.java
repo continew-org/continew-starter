@@ -120,6 +120,11 @@ public class PropertiesConstants {
     public static final String MESSAGING_WEBSOCKET = MESSAGING + StringConstants.DOT + "websocket";
 
     /**
+     * CRUD 配置
+     */
+    public static final String CRUD = CONTINEW_STARTER + StringConstants.DOT + "crud";
+
+    /**
      * 数据权限配置
      */
     public static final String DATA_PERMISSION = CONTINEW_STARTER + StringConstants.DOT + "data-permission";

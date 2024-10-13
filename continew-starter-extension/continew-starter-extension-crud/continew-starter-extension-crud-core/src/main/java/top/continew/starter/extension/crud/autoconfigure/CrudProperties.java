@@ -14,58 +14,32 @@
  * limitations under the License.
  */
 
-package top.continew.starter.extension.crud.enums;
+package top.continew.starter.extension.crud.autoconfigure;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
+import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * API 类型枚举
+ * CRUD 配置属性
  *
  * @author Charles7c
- * @since 1.0.0
+ * @since 2.7.2
  */
-public enum Api {
+@ConfigurationProperties(PropertiesConstants.CRUD)
+public class CrudProperties {
 
     /**
-     * 所有 API
+     * 树配置
      */
-    ALL,
+    @NestedConfigurationProperty
+    private CrudTreeProperties tree;
 
-    /**
-     * 分页
-     */
-    PAGE,
+    public CrudTreeProperties getTree() {
+        return tree;
+    }
 
-    /**
-     * 列表
-     */
-    LIST,
-
-    /**
-     * 树列表
-     */
-    TREE,
-
-    /**
-     * 详情
-     */
-    GET,
-
-    /**
-     * 新增
-     */
-    ADD,
-
-    /**
-     * 修改
-     */
-    UPDATE,
-
-    /**
-     * 删除
-     */
-    DELETE,
-
-    /**
-     * 导出
-     */
-    EXPORT,
+    public void setTree(CrudTreeProperties tree) {
+        this.tree = tree;
+    }
 }

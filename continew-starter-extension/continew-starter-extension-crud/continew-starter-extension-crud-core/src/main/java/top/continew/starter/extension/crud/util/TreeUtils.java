@@ -16,17 +16,9 @@
 
 package top.continew.starter.extension.crud.util;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
-import cn.hutool.core.lang.tree.TreeUtil;
-import cn.hutool.core.lang.tree.parser.NodeParser;
-import cn.hutool.core.util.ReflectUtil;
 import top.continew.starter.core.util.validate.CheckUtils;
 import top.continew.starter.extension.crud.annotation.TreeField;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 树工具类
@@ -37,44 +29,13 @@ import java.util.List;
 public class TreeUtils {
 
     /**
-     * 默认字段配置对象（根据前端树结构灵活调整名称）
+     * 默认字段配置对象
      */
     public static final TreeNodeConfig DEFAULT_CONFIG = TreeNodeConfig.DEFAULT_CONFIG.setNameKey("title")
         .setIdKey("key")
         .setWeightKey("sort");
 
     private TreeUtils() {
-    }
-
-    /**
-     * 树构建
-     *
-     * @param <T>        转换的实体 为数据源里的对象类型
-     * @param <E>        ID类型
-     * @param list       源数据集合
-     * @param nodeParser 转换器
-     * @return List 树列表
-     */
-    public static <T, E> List<Tree<E>> build(List<T> list, NodeParser<T, E> nodeParser) {
-        return build(list, DEFAULT_CONFIG, nodeParser);
-    }
-
-    /**
-     * 树构建
-     *
-     * @param <T>            转换的实体 为数据源里的对象类型
-     * @param <E>            ID类型
-     * @param list           源数据集合
-     * @param treeNodeConfig 配置
-     * @param nodeParser     转换器
-     * @return List 树列表
-     */
-    public static <T, E> List<Tree<E>> build(List<T> list, TreeNodeConfig treeNodeConfig, NodeParser<T, E> nodeParser) {
-        if (CollUtil.isEmpty(list)) {
-            return new ArrayList<>(0);
-        }
-        E parentId = (E)ReflectUtil.getFieldValue(list.get(0), treeNodeConfig.getParentIdKey());
-        return TreeUtil.build(list, parentId, treeNodeConfig, nodeParser);
     }
 
     /**

@@ -22,12 +22,14 @@ import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
+import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.mybatisflex.core.paginate.Page;
 import com.mybatisflex.core.query.QueryWrapper;
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import top.continew.starter.core.constant.StringConstants;
@@ -37,12 +39,13 @@ import top.continew.starter.data.mf.base.BaseMapper;
 import top.continew.starter.data.mf.service.impl.ServiceImpl;
 import top.continew.starter.data.mf.util.QueryWrapperHelper;
 import top.continew.starter.extension.crud.annotation.TreeField;
+import top.continew.starter.extension.crud.autoconfigure.CrudProperties;
+import top.continew.starter.extension.crud.autoconfigure.CrudTreeProperties;
 import top.continew.starter.extension.crud.model.entity.BaseIdDO;
 import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
 import top.continew.starter.extension.crud.model.resp.PageResp;
 import top.continew.starter.extension.crud.service.BaseService;
-import top.continew.starter.extension.crud.util.TreeUtils;
 import top.continew.starter.file.excel.util.ExcelUtils;
 
 import java.lang.reflect.Field;
@@ -80,40 +83,46 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
     }
 
     @Override
+    public List<L> list(Q query, SortQuery sortQuery) {
+        List<L> list = this.list(query, sortQuery, listClass);
+        list.forEach(this::fill);
+        return list;
+    }
+
+    @Override
     public List<Tree<Long>> tree(Q query, SortQuery sortQuery, boolean isSimple) {
         List<L> list = this.list(query, sortQuery);
         if (CollUtil.isEmpty(list)) {
             return new ArrayList<>(0);
         }
         // 如果构建简单树结构，则不包含基本树结构之外的扩展字段
-        TreeNodeConfig treeNodeConfig = TreeUtils.DEFAULT_CONFIG;
-        TreeField treeField = listClass.getDeclaredAnnotation(TreeField.class);
-        if (!isSimple) {
-            // 根据 @TreeField 配置生成树结构配置
-            treeNodeConfig = TreeUtils.genTreeNodeConfig(treeField);
+        CrudProperties crudProperties = SpringUtil.getBean(CrudProperties.class);
+        CrudTreeProperties treeProperties = crudProperties.getTree();
+        TreeNodeConfig treeNodeConfig;
+        Long rootId;
+        if (isSimple) {
+            treeNodeConfig = treeProperties.genTreeNodeConfig();
+            rootId = treeProperties.getRootId();
+        } else {
+            TreeField treeField = listClass.getDeclaredAnnotation(TreeField.class);
+            treeNodeConfig = treeProperties.genTreeNodeConfig(treeField);
+            rootId = treeField.rootId();
         }
         // 构建树
-        return TreeUtils.build(list, treeNodeConfig, (node, tree) -> {
-            // 转换器
-            tree.setId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.value())));
-            tree.setParentId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.parentIdKey())));
-            tree.setName(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.nameKey())));
-            tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.weightKey())));
+        return TreeUtil.build(list, rootId, treeNodeConfig, (node, tree) -> {
+            tree.setId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getIdKey())));
+            tree.setParentId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getParentIdKey())));
+            tree.setName(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getNameKey())));
+            tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getWeightKey())));
             if (!isSimple) {
                 List<Field> fieldList = ReflectUtils.getNonStaticFields(listClass);
-                fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(), treeField.value(), treeField
-                    .parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
+                fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(), treeNodeConfig
+                    .getIdKey(), treeNodeConfig.getParentIdKey(), treeNodeConfig.getNameKey(), treeNodeConfig
+                        .getWeightKey(), treeNodeConfig.getChildrenKey()));
                 fieldList.forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, CharSequenceUtil.genGetter(f
                     .getName()))));
             }
         });
-    }
-
-    @Override
-    public List<L> list(Q query, SortQuery sortQuery) {
-        List<L> list = this.list(query, sortQuery, listClass);
-        list.forEach(this::fill);
-        return list;
     }
 
     @Override

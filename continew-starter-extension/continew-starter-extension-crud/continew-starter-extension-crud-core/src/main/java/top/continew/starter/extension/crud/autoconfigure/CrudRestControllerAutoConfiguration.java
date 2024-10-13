@@ -20,6 +20,7 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
@@ -36,6 +37,7 @@ import org.springframework.web.servlet.resource.ResourceUrlProvider;
  * @since 1.0.0
  */
 @Configuration
+@EnableConfigurationProperties(CrudProperties.class)
 public class CrudRestControllerAutoConfiguration extends DelegatingWebMvcConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(CrudRestControllerAutoConfiguration.class);

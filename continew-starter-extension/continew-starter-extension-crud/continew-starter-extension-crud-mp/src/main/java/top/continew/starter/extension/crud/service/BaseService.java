@@ -47,16 +47,6 @@ public interface BaseService<L, D, Q, C> {
     PageResp<L> page(Q query, PageQuery pageQuery);
 
     /**
-     * 查询树列表
-     *
-     * @param query     查询条件
-     * @param sortQuery 排序查询条件
-     * @param isSimple  是否为简单树结构（不包含基本树结构之外的扩展字段）
-     * @return 树列表信息
-     */
-    List<Tree<Long>> tree(Q query, SortQuery sortQuery, boolean isSimple);
-
-    /**
      * 查询列表
      *
      * @param query     查询条件
@@ -64,6 +54,20 @@ public interface BaseService<L, D, Q, C> {
      * @return 列表信息
      */
     List<L> list(Q query, SortQuery sortQuery);
+
+    /**
+     * 查询树列表
+     * <p>
+     * 虽然提供了查询条件，但不建议使用，容易因缺失根节点导致树节点丢失。
+     * 建议在前端进行查询过滤，如需使用建议重写方法。
+     * </p>
+     *
+     * @param query     查询条件
+     * @param sortQuery 排序查询条件
+     * @param isSimple  是否为简单树结构（不包含基本树结构之外的扩展字段）
+     * @return 树列表信息
+     */
+    List<Tree<Long>> tree(Q query, SortQuery sortQuery, boolean isSimple);
 
     /**
      * 查询详情
