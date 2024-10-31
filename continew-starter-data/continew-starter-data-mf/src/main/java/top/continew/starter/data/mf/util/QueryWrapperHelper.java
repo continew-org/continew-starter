@@ -199,7 +199,9 @@ public class QueryWrapperHelper {
             case LT -> consumers.add(q -> q.lt(columnName, fieldValue));
             case LE -> consumers.add(q -> q.le(columnName, fieldValue));
             case BETWEEN -> {
-                List<Object> between = new ArrayList<>((List<Object>)fieldValue);
+                List<Object> between = new ArrayList<>(ArrayUtil.isArray(fieldValue)
+                    ? CollUtil.toList(fieldValue)
+                    : (List<Object>)fieldValue);
                 ValidationUtils.throwIf(between.size() != 2, "[{}] 必须是一个范围", columnName);
                 consumers.add(q -> q.between(columnName, between.get(0), between.get(1)));
             }
@@ -208,11 +210,15 @@ public class QueryWrapperHelper {
             case LIKE_RIGHT -> consumers.add(q -> q.likeRight(columnName, fieldValue));
             case IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
-                consumers.add(q -> q.in(columnName, (Collection<Object>)fieldValue));
+                consumers.add(q -> q.in(columnName, ArrayUtil.isArray(fieldValue)
+                    ? CollUtil.toList(fieldValue)
+                    : (Collection<Object>)fieldValue));
             }
             case NOT_IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
-                consumers.add(q -> q.notIn(columnName, (Collection<Object>)fieldValue));
+                consumers.add(q -> q.notIn(columnName, ArrayUtil.isArray(fieldValue)
+                    ? CollUtil.toList(fieldValue)
+                    : (Collection<Object>)fieldValue));
             }
             case IS_NULL -> consumers.add(q -> q.isNull(columnName));
             case IS_NOT_NULL -> consumers.add(q -> q.isNotNull(columnName));
