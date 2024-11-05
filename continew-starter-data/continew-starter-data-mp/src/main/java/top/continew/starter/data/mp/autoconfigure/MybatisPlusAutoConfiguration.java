@@ -107,9 +107,8 @@ public class MybatisPlusAutoConfiguration {
      */
     private PaginationInnerInterceptor paginationInnerInterceptor(MyBatisPlusExtensionProperties.PaginationProperties paginationProperties) {
         // 对于单一数据库类型来说，都建议配置该值，避免每次分页都去抓取数据库类型
-        PaginationInnerInterceptor paginationInnerInterceptor = null != paginationProperties.getDbType()
-            ? new PaginationInnerInterceptor(paginationProperties.getDbType())
-            : new PaginationInnerInterceptor();
+        PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor(paginationProperties
+            .getDbType());
         paginationInnerInterceptor.setOverflow(paginationProperties.isOverflow());
         paginationInnerInterceptor.setMaxLimit(paginationProperties.getMaxLimit());
         return paginationInnerInterceptor;
