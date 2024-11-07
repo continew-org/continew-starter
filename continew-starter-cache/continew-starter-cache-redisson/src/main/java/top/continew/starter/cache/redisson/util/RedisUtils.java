@@ -24,6 +24,8 @@ import top.continew.starter.core.constant.StringConstants;
 import java.time.Duration;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Redis 工具类
@@ -205,6 +207,80 @@ public class RedisUtils {
         RRateLimiter rateLimiter = CLIENT.getRateLimiter(key);
         rateLimiter.trySetRate(rateType, rate, rateInterval, RateIntervalUnit.SECONDS);
         return rateLimiter.tryAcquire(1);
+    }
+
+    /**
+     * 尝试获取锁
+     *
+     * @param key        键
+     * @param expireTime 锁过期时间（单位：毫秒）
+     * @param timeout    获取锁超时时间（单位：毫秒）
+     * @return true：成功；false：失败
+     * @since 2.7.2
+     */
+    public static boolean tryLock(String key, long expireTime, long timeout) {
+        return tryLock(key, expireTime, timeout, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * 释放锁
+     *
+     * @param key 键
+     * @return true：释放成功；false：释放失败
+     * @since 2.7.2
+     */
+    public static boolean unlock(String key) {
+        RLock lock = getLock(key);
+        return unlock(lock);
+    }
+
+    /**
+     * 尝试获取锁
+     *
+     * @param key        键
+     * @param expireTime 锁过期时间
+     * @param timeout    获取锁超时时间
+     * @param unit       时间单位
+     * @return true：成功；false：失败
+     * @since 2.7.2
+     */
+    public static boolean tryLock(String key, long expireTime, long timeout, TimeUnit unit) {
+        RLock lock = getLock(key);
+        try {
+            return lock.tryLock(timeout, expireTime, unit);
+        } catch (InterruptedException e) {
+            return false;
+        }
+    }
+
+    /**
+     * 释放锁
+     *
+     * @param lock 锁实例
+     * @return true：释放成功；false：释放失败
+     * @since 2.7.2
+     */
+    public static boolean unlock(RLock lock) {
+        if (lock.isHeldByCurrentThread()) {
+            try {
+                lock.unlockAsync().get();
+                return true;
+            } catch (ExecutionException | InterruptedException e) {
+                return false;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 获取锁实例
+     *
+     * @param key 键
+     * @return 锁实例
+     * @since 2.7.2
+     */
+    public static RLock getLock(String key) {
+        return CLIENT.getLock(key);
     }
 
     /**
