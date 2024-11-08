@@ -54,11 +54,11 @@ public class LabelValueResp<T> implements Serializable {
     private Boolean disabled;
 
     /**
-     * 扩展
+     * 额外数据
      */
-    @Schema(description = "扩展")
+    @Schema(description = "额外数据")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private Object extend;
+    private Object extra;
 
     public LabelValueResp() {
     }
@@ -68,10 +68,10 @@ public class LabelValueResp<T> implements Serializable {
         this.value = value;
     }
 
-    public LabelValueResp(String label, T value, Object extend) {
+    public LabelValueResp(String label, T value, Object extra) {
         this.label = label;
         this.value = value;
-        this.extend = extend;
+        this.extra = extra;
     }
 
     public LabelValueResp(String label, T value, Boolean disabled) {
@@ -104,11 +104,11 @@ public class LabelValueResp<T> implements Serializable {
         this.disabled = disabled;
     }
 
-    public Object getExtend() {
-        return extend;
+    public Object getExtra() {
+        return extra;
     }
 
-    public void setExtend(Object extend) {
-        this.extend = extend;
+    public void setExtra(Object extra) {
+        this.extra = extra;
     }
 }

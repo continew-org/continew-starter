@@ -33,7 +33,7 @@ public class CrudProperties {
      * 树配置
      */
     @NestedConfigurationProperty
-    private CrudTreeProperties tree;
+    private CrudTreeProperties tree = new CrudTreeProperties();
 
     public CrudTreeProperties getTree() {
         return tree;

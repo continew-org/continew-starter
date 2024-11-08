@@ -54,10 +54,7 @@ import top.continew.starter.extension.crud.service.BaseService;
 import top.continew.starter.file.excel.util.ExcelUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * 业务实现基类
@@ -146,12 +143,16 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
         DictField dictField = super.getEntityClass().getDeclaredAnnotation(DictField.class);
         CheckUtils.throwIfNull(dictField, "请添加并配置 @DictField 字典结构信息");
         // 指定查询字典字段
-        queryWrapper.select(dictField.labelKey(), dictField.valueKey());
+        Set<String> columns = CollUtil.newLinkedHashSet(dictField.labelKey(), dictField.valueKey(), dictField
+            .extraKey());
+        columns.removeIf(CharSequenceUtil::isBlank);
+        queryWrapper.select(columns.toArray(String[]::new));
         List<T> entityList = baseMapper.selectList(queryWrapper);
         // 解析映射
         Map<String, String> fieldMapping = MapUtil.newHashMap(2);
         fieldMapping.put(CharSequenceUtil.toCamelCase(dictField.labelKey()), "label");
         fieldMapping.put(CharSequenceUtil.toCamelCase(dictField.valueKey()), "value");
+        fieldMapping.put(CharSequenceUtil.toCamelCase(dictField.extraKey()), "extra");
         return BeanUtil.copyToList(entityList, LabelValueResp.class, CopyOptions.create()
             .setFieldMapping(fieldMapping));
     }

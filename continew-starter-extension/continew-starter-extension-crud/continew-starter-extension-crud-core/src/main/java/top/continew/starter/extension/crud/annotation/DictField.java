@@ -42,4 +42,11 @@ public @interface DictField {
      * @return 值字段名
      */
     String valueKey() default "id";
+
+    /**
+     * 额外信息字段名
+     *
+     * @return 额外信息字段名
+     */
+    String extraKey() default "";
 }
