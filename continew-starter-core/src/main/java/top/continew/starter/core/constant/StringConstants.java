@@ -255,6 +255,11 @@ public class StringConstants {
     public static final String QUESTION_MARK = "?";
 
     /**
+     * 管道符
+     */
+    public static final String PIPE = "|";
+
+    /**
      * 中文逗号
      */
     public static final String CHINESE_COMMA = "，";

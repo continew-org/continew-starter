@@ -18,13 +18,13 @@ package top.continew.starter.core.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.NetUtil;
-import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HtmlUtil;
 import net.dreamlu.mica.ip2region.core.Ip2regionSearcher;
 import net.dreamlu.mica.ip2region.core.IpInfo;
 import top.continew.starter.core.constant.StringConstants;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -50,12 +50,13 @@ public class IpUtils {
         }
         Ip2regionSearcher ip2regionSearcher = SpringUtil.getBean(Ip2regionSearcher.class);
         IpInfo ipInfo = ip2regionSearcher.memorySearch(ip);
-        if (null != ipInfo) {
-            Set<String> regionSet = CollUtil.newLinkedHashSet(ipInfo.getAddress(), ipInfo.getIsp());
-            regionSet.removeIf(CharSequenceUtil::isBlank);
-            return String.join(StringConstants.SPACE, regionSet);
+        if (null == ipInfo) {
+            return null;
         }
-        return null;
+        Set<String> regionSet = CollUtil.newLinkedHashSet(ipInfo.getCountry(), ipInfo.getRegion(), ipInfo
+            .getProvince(), ipInfo.getCity(), ipInfo.getIsp());
+        regionSet.removeIf(Objects::isNull);
+        return String.join(StringConstants.PIPE, regionSet);
     }
 
     /**
