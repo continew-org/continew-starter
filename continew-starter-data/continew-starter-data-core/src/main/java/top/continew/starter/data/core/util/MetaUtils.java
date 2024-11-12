@@ -16,18 +16,21 @@
 
 package top.continew.starter.data.core.util;
 
-import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.db.Db;
-import cn.hutool.db.Entity;
+import cn.hutool.db.DbRuntimeException;
+import cn.hutool.db.DbUtil;
 import cn.hutool.db.meta.Column;
 import cn.hutool.db.meta.MetaUtil;
+import cn.hutool.db.meta.Table;
+import cn.hutool.db.meta.TableType;
 import top.continew.starter.core.exception.BusinessException;
 import top.continew.starter.data.core.enums.DatabaseType;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -80,7 +83,7 @@ public class MetaUtils {
      * @param dataSource 数据源
      * @return 表信息列表
      */
-    public static List<Table> getTables(DataSource dataSource) throws SQLException {
+    public static List<Table> getTables(DataSource dataSource) {
         return getTables(dataSource, null);
     }
 
@@ -90,27 +93,39 @@ public class MetaUtils {
      * @param dataSource 数据源
      * @param tableName  表名称
      * @return 表信息列表
+     * @author looly
+     * @since 2.7.2
      */
-    public static List<Table> getTables(DataSource dataSource, String tableName) throws SQLException {
-        String querySql = "SHOW TABLE STATUS";
-        List<Entity> tableEntityList;
-        Db db = Db.use(dataSource);
-        if (CharSequenceUtil.isNotBlank(tableName)) {
-            tableEntityList = db.query("%s WHERE NAME = ?".formatted(querySql), tableName);
-        } else {
-            tableEntityList = db.query(querySql);
+    public static List<Table> getTables(DataSource dataSource, String tableName) {
+        List<Table> tables = new ArrayList<>();
+        Connection conn = null;
+        try {
+            conn = dataSource.getConnection();
+            String catalog = MetaUtil.getCatalog(conn);
+            String schema = MetaUtil.getSchema(conn);
+            final DatabaseMetaData metaData = conn.getMetaData();
+            try (final ResultSet rs = metaData.getTables(catalog, schema, tableName, Convert
+                .toStrArray(TableType.TABLE))) {
+                if (null != rs) {
+                    String name;
+                    while (rs.next()) {
+                        name = rs.getString("TABLE_NAME");
+                        if (CharSequenceUtil.isNotBlank(name)) {
+                            final Table table = Table.create(name);
+                            table.setCatalog(catalog);
+                            table.setSchema(schema);
+                            table.setComment(MetaUtil.getRemarks(metaData, catalog, schema, name));
+                            tables.add(table);
+                        }
+                    }
+                }
+            }
+            return tables;
+        } catch (Exception e) {
+            throw new DbRuntimeException("Get tables error!", e);
+        } finally {
+            DbUtil.close(conn);
         }
-        List<Table> tableList = new ArrayList<>(tableEntityList.size());
-        for (Entity tableEntity : tableEntityList) {
-            Table table = new Table(tableEntity.getStr("NAME"));
-            table.setComment(tableEntity.getStr("COMMENT"));
-            table.setEngine(tableEntity.getStr("ENGINE"));
-            table.setCharset(tableEntity.getStr("COLLATION"));
-            table.setCreateTime(DateUtil.toLocalDateTime(tableEntity.getDate("CREATE_TIME")));
-            table.setUpdateTime(DateUtil.toLocalDateTime(tableEntity.getDate("UPDATE_TIME")));
-            tableList.add(table);
-        }
-        return tableList;
     }
 
     /**
@@ -121,7 +136,7 @@ public class MetaUtils {
      * @return 列信息列表
      */
     public static Collection<Column> getColumns(DataSource dataSource, String tableName) {
-        cn.hutool.db.meta.Table table = MetaUtil.getTableMeta(dataSource, tableName);
+        Table table = MetaUtil.getTableMeta(dataSource, tableName);
         return table.getColumns();
     }
 }
