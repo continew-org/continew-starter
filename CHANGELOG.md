@@ -1,3 +1,19 @@
+## [v2.7.2](https://github.com/continew-org/continew-starter/compare/v2.7.1...v2.7.2) (2024-11-12)
+
+### ✨ 新特性
+
+- 【extension/crud】支持树结构全局配置 ([5891c4a](https://github.com/continew-org/continew-starter/commit/5891c4aa61b14ba11a387a478fb3616dfc52217c))
+- 【extension/crud】查询字典列表新增支持 extraKeys 额外信息字段 ([9b7ea33](https://github.com/continew-org/continew-starter/commit/9b7ea33c0b6714e2ea631aa26f0650e78857079a)) ([a8c6ea3](https://github.com/continew-org/continew-starter/commit/a8c6ea30797811d885f294f28eb95afb935ad7b4))
+- 【cache/redisson】RedisUtils 新增上锁、释放锁方法 ([04498ff](https://github.com/continew-org/continew-starter/commit/04498ffe56b062bce1200292b23d2c31341771e6))
+
+### 💎 功能优化
+
+- 【extension/crud】移除 TreeUtils ([f4b2310](https://github.com/continew-org/continew-starter/commit/f4b23102a9a31b2120f40a8288bc0aedc36e11b4))
+- 【data/mp】移除冗余的数据库类型判空处理 ([bd60411](https://github.com/continew-org/continew-starter/commit/bd60411f3e4fa87c26e492df96fbfb088ea3ce85))
+- 【core】重构 IP 工具类获取归属地的返回格式（更方便数据处理） ([e9b9d8b](https://github.com/continew-org/continew-starter/commit/e9b9d8b82e7e28be82c9ed518582d88f507cfac2))
+- 【data】Query 范围查询支持数组数据 ([673e586](https://github.com/continew-org/continew-starter/commit/673e586aafc8578f0c7ab063ca9df9b1265f88d5))
+- 【data】重构 MetaUtils 获取表信息方法 ([1ce5eb3](https://github.com/continew-org/continew-starter/commit/1ce5eb3b734b13ccd47e3848117daf3c2d7d0afa))
+
 ## [v2.7.0](https://github.com/continew-org/continew-starter/compare/v2.6.0...v2.7.0) (2024-09-28)
 
 ### ✨ 新特性
