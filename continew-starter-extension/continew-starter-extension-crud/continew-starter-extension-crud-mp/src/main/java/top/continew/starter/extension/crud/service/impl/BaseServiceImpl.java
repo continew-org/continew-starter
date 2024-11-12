@@ -20,6 +20,7 @@ import cn.crane4j.core.support.OperateTemplate;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
@@ -98,30 +99,30 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
         if (CollUtil.isEmpty(list)) {
             return new ArrayList<>(0);
         }
-        // 如果构建简单树结构，则不包含基本树结构之外的扩展字段
         CrudProperties crudProperties = SpringUtil.getBean(CrudProperties.class);
         CrudTreeProperties treeProperties = crudProperties.getTree();
+        TreeField treeField = listClass.getDeclaredAnnotation(TreeField.class);
         TreeNodeConfig treeNodeConfig;
         Long rootId;
+        // 简单树（下拉列表）使用全局配置结构，复杂树（表格）使用局部配置
         if (isSimple) {
             treeNodeConfig = treeProperties.genTreeNodeConfig();
             rootId = treeProperties.getRootId();
         } else {
-            TreeField treeField = listClass.getDeclaredAnnotation(TreeField.class);
             treeNodeConfig = treeProperties.genTreeNodeConfig(treeField);
             rootId = treeField.rootId();
         }
         // 构建树
         return TreeUtil.build(list, rootId, treeNodeConfig, (node, tree) -> {
-            tree.setId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getIdKey())));
-            tree.setParentId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getParentIdKey())));
-            tree.setName(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getNameKey())));
-            tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getWeightKey())));
+            tree.setId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.value())));
+            tree.setParentId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.parentIdKey())));
+            tree.setName(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.nameKey())));
+            tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.weightKey())));
+            // 如果构建简单树结构，则不包含扩展字段
             if (!isSimple) {
                 List<Field> fieldList = ReflectUtils.getNonStaticFields(listClass);
-                fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(), treeNodeConfig
-                    .getIdKey(), treeNodeConfig.getParentIdKey(), treeNodeConfig.getNameKey(), treeNodeConfig
-                        .getWeightKey(), treeNodeConfig.getChildrenKey()));
+                fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(), treeField.value(), treeField
+                    .parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
                 fieldList.forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, CharSequenceUtil.genGetter(f
                     .getName()))));
             }
@@ -138,23 +139,40 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
 
     @Override
     public List<LabelValueResp> listDict(Q query, SortQuery sortQuery) {
-        QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
-        this.sort(queryWrapper, sortQuery);
         DictField dictField = super.getEntityClass().getDeclaredAnnotation(DictField.class);
         CheckUtils.throwIfNull(dictField, "请添加并配置 @DictField 字典结构信息");
-        // 指定查询字典字段
-        Set<String> columns = CollUtil.newLinkedHashSet(dictField.labelKey(), dictField.valueKey(), dictField
-            .extraKey());
-        columns.removeIf(CharSequenceUtil::isBlank);
-        queryWrapper.select(columns.toArray(String[]::new));
-        List<T> entityList = baseMapper.selectList(queryWrapper);
+        List<L> list = this.list(query, sortQuery);
         // 解析映射
-        Map<String, String> fieldMapping = MapUtil.newHashMap(2);
-        fieldMapping.put(CharSequenceUtil.toCamelCase(dictField.labelKey()), "label");
-        fieldMapping.put(CharSequenceUtil.toCamelCase(dictField.valueKey()), "value");
-        fieldMapping.put(CharSequenceUtil.toCamelCase(dictField.extraKey()), "extra");
-        return BeanUtil.copyToList(entityList, LabelValueResp.class, CopyOptions.create()
-            .setFieldMapping(fieldMapping));
+        List<LabelValueResp> respList = new ArrayList<>(list.size());
+        String labelKey = dictField.labelKey().contains(StringConstants.DOT)
+            ? CharSequenceUtil.subAfter(dictField.labelKey(), StringConstants.DOT, true)
+            : dictField.labelKey();
+        String valueKey = dictField.valueKey().contains(StringConstants.DOT)
+            ? CharSequenceUtil.subAfter(dictField.valueKey(), StringConstants.DOT, true)
+            : dictField.valueKey();
+        List<String> extraFieldNames = Arrays.stream(dictField.extraKeys())
+            .map(extraKey -> extraKey.contains(StringConstants.DOT)
+                ? CharSequenceUtil.subAfter(extraKey, StringConstants.DOT, true)
+                : extraKey)
+            .map(CharSequenceUtil::toCamelCase)
+            .toList();
+        for (L entity : list) {
+            LabelValueResp<Object> labelValueResp = new LabelValueResp<>();
+            labelValueResp.setLabel(Convert.toStr(ReflectUtil.getFieldValue(entity, CharSequenceUtil
+                .toCamelCase(labelKey))));
+            labelValueResp.setValue(ReflectUtil.getFieldValue(entity, CharSequenceUtil.toCamelCase(valueKey)));
+            respList.add(labelValueResp);
+            if (CollUtil.isEmpty(extraFieldNames)) {
+                continue;
+            }
+            // 额外数据
+            Map<String, Object> extraMap = MapUtil.newHashMap(dictField.extraKeys().length);
+            for (String extraFieldName : extraFieldNames) {
+                extraMap.put(extraFieldName, ReflectUtil.getFieldValue(entity, extraFieldName));
+            }
+            labelValueResp.setExtra(extraMap);
+        }
+        return respList;
     }
 
     @Override

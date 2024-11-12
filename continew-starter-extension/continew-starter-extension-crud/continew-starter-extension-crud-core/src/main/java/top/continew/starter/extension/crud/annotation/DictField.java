@@ -48,5 +48,5 @@ public @interface DictField {
      *
      * @return 额外信息字段名
      */
-    String extraKey() default "";
+    String[] extraKeys() default {};
 }

@@ -95,30 +95,30 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
         if (CollUtil.isEmpty(list)) {
             return new ArrayList<>(0);
         }
-        // 如果构建简单树结构，则不包含基本树结构之外的扩展字段
         CrudProperties crudProperties = SpringUtil.getBean(CrudProperties.class);
         CrudTreeProperties treeProperties = crudProperties.getTree();
+        TreeField treeField = listClass.getDeclaredAnnotation(TreeField.class);
         TreeNodeConfig treeNodeConfig;
         Long rootId;
+        // 简单树（下拉列表）使用全局配置结构，复杂树（表格）使用局部配置
         if (isSimple) {
             treeNodeConfig = treeProperties.genTreeNodeConfig();
             rootId = treeProperties.getRootId();
         } else {
-            TreeField treeField = listClass.getDeclaredAnnotation(TreeField.class);
             treeNodeConfig = treeProperties.genTreeNodeConfig(treeField);
             rootId = treeField.rootId();
         }
         // 构建树
         return TreeUtil.build(list, rootId, treeNodeConfig, (node, tree) -> {
-            tree.setId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getIdKey())));
-            tree.setParentId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getParentIdKey())));
-            tree.setName(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getNameKey())));
-            tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeNodeConfig.getWeightKey())));
+            tree.setId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.value())));
+            tree.setParentId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.parentIdKey())));
+            tree.setName(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.nameKey())));
+            tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.weightKey())));
+            // 如果构建简单树结构，则不包含扩展字段
             if (!isSimple) {
                 List<Field> fieldList = ReflectUtils.getNonStaticFields(listClass);
-                fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(), treeNodeConfig
-                    .getIdKey(), treeNodeConfig.getParentIdKey(), treeNodeConfig.getNameKey(), treeNodeConfig
-                        .getWeightKey(), treeNodeConfig.getChildrenKey()));
+                fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(), treeField.value(), treeField
+                    .parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
                 fieldList.forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, CharSequenceUtil.genGetter(f
                     .getName()))));
             }
