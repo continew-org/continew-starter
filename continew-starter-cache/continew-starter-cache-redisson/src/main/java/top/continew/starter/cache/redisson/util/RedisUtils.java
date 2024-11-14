@@ -195,6 +195,167 @@ public class RedisUtils {
     }
 
     /**
+     * 添加元素到 ZSet 中
+     *
+     * @param key   键
+     * @param value 值
+     * @param score 分数
+     * @return true：添加成功；false：添加失败
+     * @since 2.7.3
+     */
+    public static <T> boolean zAdd(String key, T value, double score) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.add(score, value);
+    }
+
+    /**
+     * 查询 ZSet 中指定元素的分数
+     *
+     * @param key   键
+     * @param value 值
+     * @return 分数（null 表示元素不存在）
+     * @since 2.7.3
+     */
+    public static <T> Double zScore(String key, T value) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.getScore(value);
+    }
+
+    /**
+     * 查询 ZSet 中指定元素的排名
+     *
+     * @param key   键
+     * @param value 值
+     * @return 排名（从 0 开始，null 表示元素不存在）
+     * @since 2.7.3
+     */
+    public static <T> Integer zRank(String key, T value) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.rank(value);
+    }
+
+    /**
+     * 查询 ZSet 中的元素个数
+     *
+     * @param key 键
+     * @return 元素个数
+     * @since 2.7.3
+     */
+    public static <T> int zSize(String key) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.size();
+    }
+
+    /**
+     * 从 ZSet 中删除指定元素
+     *
+     * @param key   键
+     * @param value 值
+     * @return true：删除成功；false：删除失败
+     * @since 2.7.3
+     */
+    public static <T> boolean zRemove(String key, T value) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.remove(value);
+    }
+
+    /**
+     * 删除 ZSet 中指定分数范围内的元素
+     *
+     * @param key 键
+     * @param min 最小分数（包含）
+     * @param max 最大分数（包含）
+     * @return 删除的元素个数
+     * @since 2.7.3
+     */
+    public static <T> int zRemoveRangeByScore(String key, double min, double max) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.removeRangeByScore(min, true, max, true);
+    }
+
+    /**
+     * 删除 ZSet 中指定排名范围内的元素
+     *
+     * <p>
+     * 索引从 0 开始。<code>-1<code> 表示最高分，<code>-2<code> 表示第二高分。
+     * </p>
+     *
+     * @param key        键
+     * @param startIndex 起始索引
+     * @param endIndex   结束索引
+     * @return 删除的元素个数
+     * @since 2.7.3
+     */
+    public static <T> int zRemoveRangeByRank(String key, int startIndex, int endIndex) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.removeRangeByRank(startIndex, endIndex);
+    }
+
+    /**
+     * 根据分数范围查询 ZSet 中的元素列表
+     *
+     * @param key 键
+     * @param min 最小分数（包含）
+     * @param max 最大分数（包含）
+     * @return 元素列表
+     * @since 2.7.3
+     */
+    public static <T> Collection<T> zRangeByScore(String key, double min, double max) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.valueRange(min, true, max, true);
+    }
+
+    /**
+     * 根据分数范围查询 ZSet 中的元素列表
+     *
+     * @param key    键
+     * @param min    最小分数（包含）
+     * @param max    最大分数（包含）
+     * @param offset 偏移量
+     * @param count  数量
+     * @return 元素列表
+     * @since 2.7.3
+     */
+    public static <T> Collection<T> zRangeByScore(String key, double min, double max, int offset, int count) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.valueRange(min, true, max, true, offset, count);
+    }
+
+    /**
+     * 根据分数范围查询 ZSet 中的元素个数
+     *
+     * @param key 键
+     * @param min 最小分数（包含）
+     * @param max 最大分数（包含）
+     * @return 元素个数
+     * @since 2.7.3
+     */
+    public static <T> int zCountRangeByScore(String key, double min, double max) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        return zSet.count(min, true, max, true);
+    }
+
+    /**
+     * 计算 ZSet 中多个元素的分数之和
+     *
+     * @param key    键
+     * @param values 值列表
+     * @return 分数之和
+     * @since 2.7.3
+     */
+    public static <T> double zSum(String key, Collection<T> values) {
+        RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
+        double sum = 0;
+        for (T value : values) {
+            Double score = zSet.getScore(value);
+            if (score != null) {
+                sum += score;
+            }
+        }
+        return sum;
+    }
+
+    /**
      * 限流
      *
      * @param key          键
