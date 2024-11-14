@@ -111,8 +111,8 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @GetMapping("/{id}")
-    public D get(@PathVariable("id") Long id) {
-        this.checkPermission(Api.LIST);
+    public D detail(@PathVariable("id") Long id) {
+        this.checkPermission(Api.DETAIL);
         return baseService.get(id);
     }
 
