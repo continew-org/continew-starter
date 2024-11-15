@@ -1,3 +1,23 @@
+## [v2.7.3](https://github.com/continew-org/continew-starter/compare/v2.7.2...v2.7.3) (2024-11-15)
+
+### ✨ 新特性
+
+- 【cache/redisson】RedisUtils 新增 ZSet 相关方法 ([56edcee](https://github.com/continew-org/continew-starter/commit/56edceec7e7c61bbd06a1995c2351441302ac969))
+- 【core】新增枚举校验器 EnumValue ([c7bee00](https://github.com/continew-org/continew-starter/commit/c7bee0033ef794784b9c9fd39f61a245abff0c62))
+
+### 💎 功能优化
+
+- 【extension/crud】查询详情命名调整，GET -> DETAIL，增加详情权限校验 ([4b77d5c](https://github.com/continew-org/continew-starter/commit/4b77d5cb3ff93e7d8d207196948352294c6cdcc6))
+- 【core】拆分字符串常量和字符常量 ([2e9079a](https://github.com/continew-org/continew-starter/commit/2e9079a909db8df57ed7de49c95d9daeb9616f4a))
+
+### 🐛 问题修复
+
+- 【data/mp】修复普通枚举类型处理错误 ([efb84c9](https://github.com/continew-org/continew-starter/commit/efb84c936f1012c3ac4b6264599f6fb1f5ae5f97))
+
+### 📦 依赖升级
+
+- CosID 2.9.8 => 2.9.9 ([e3433be](https://github.com/continew-org/continew-starter/commit/e3433bed01e9bccc1179c04acc82df843434d9af))
+
 ## [v2.7.2](https://github.com/continew-org/continew-starter/compare/v2.7.1...v2.7.2) (2024-11-12)
 
 ### ✨ 新特性
