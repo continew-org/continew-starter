@@ -18,7 +18,7 @@ package top.continew.starter.security.mask.annotation;
 
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import top.continew.starter.core.constant.StringConstants;
+import top.continew.starter.core.constant.CharConstants;
 import top.continew.starter.security.mask.core.JsonMaskSerializer;
 import top.continew.starter.security.mask.enums.MaskType;
 import top.continew.starter.security.mask.strategy.IMaskStrategy;
@@ -72,5 +72,5 @@ public @interface JsonMask {
     /**
      * 脱敏符号（默认：*）
      */
-    char character() default StringConstants.C_ASTERISK;
+    char character() default CharConstants.ASTERISK;
 }

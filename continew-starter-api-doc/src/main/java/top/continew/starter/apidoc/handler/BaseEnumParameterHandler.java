@@ -16,8 +16,8 @@
 
 package top.continew.starter.apidoc.handler;
 
+import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ClassUtil;
-import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.type.CollectionType;
 import com.fasterxml.jackson.databind.type.SimpleType;
 import io.swagger.v3.core.converter.AnnotatedType;
@@ -52,7 +52,7 @@ public class BaseEnumParameterHandler implements ParameterCustomizer, PropertyCu
             return parameterModel;
         }
         String description = parameterModel.getDescription();
-        if (StrUtil.contains(description, "color:red")) {
+        if (CharSequenceUtil.contains(description, "color:red")) {
             return parameterModel;
         }
         // 自定义枚举描述并封装参数配置

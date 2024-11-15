@@ -16,7 +16,7 @@
 
 package top.continew.starter.data.mf.datapermission;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.mybatisflex.core.dialect.impl.CommonsDialectImpl;
 import com.mybatisflex.core.query.QueryWrapper;
 
@@ -152,7 +152,7 @@ public class DataPermissionDialect extends CommonsDialectImpl {
      * @return 带表别名字段
      */
     private String buildColumn(String tableAlias, String columnName) {
-        if (StrUtil.isNotEmpty(tableAlias)) {
+        if (CharSequenceUtil.isNotEmpty(tableAlias)) {
             return "%s.%s".formatted(tableAlias, columnName);
         }
         return columnName;
