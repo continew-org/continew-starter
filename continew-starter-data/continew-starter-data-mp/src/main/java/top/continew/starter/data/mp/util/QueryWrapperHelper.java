@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Sort;
 import top.continew.starter.core.exception.BadRequestException;
 import top.continew.starter.core.util.ReflectUtils;
-import top.continew.starter.core.util.validate.ValidationUtils;
+import top.continew.starter.core.validation.ValidationUtils;
 import top.continew.starter.data.core.annotation.Query;
 import top.continew.starter.data.core.annotation.QueryIgnore;
 import top.continew.starter.data.core.enums.QueryType;

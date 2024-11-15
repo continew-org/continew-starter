@@ -18,7 +18,7 @@ package top.continew.starter.data.mp.service.impl;
 
 import cn.hutool.core.util.ClassUtil;
 import top.continew.starter.core.util.ReflectUtils;
-import top.continew.starter.core.util.validate.CheckUtils;
+import top.continew.starter.core.validation.CheckUtils;
 import top.continew.starter.data.mp.base.BaseMapper;
 import top.continew.starter.data.mp.service.IService;
 
