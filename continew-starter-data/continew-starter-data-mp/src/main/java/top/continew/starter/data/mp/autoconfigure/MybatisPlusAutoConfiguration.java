@@ -36,7 +36,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.continew.starter.data.mp.autoconfigure.idgenerator.MyBatisPlusIdGeneratorConfiguration;
-import top.continew.starter.data.mp.handler.MybatisBaseEnumTypeHandler;
+import top.continew.starter.data.mp.handler.CompositeBaseEnumTypeHandler;
 
 import java.util.Map;
 
@@ -63,7 +63,8 @@ public class MybatisPlusAutoConfiguration {
      */
     @Bean
     public MybatisPlusPropertiesCustomizer mybatisPlusPropertiesCustomizer() {
-        return properties -> properties.getConfiguration().setDefaultEnumTypeHandler(MybatisBaseEnumTypeHandler.class);
+        return properties -> properties.getConfiguration()
+            .setDefaultEnumTypeHandler(CompositeBaseEnumTypeHandler.class);
     }
 
     /**
