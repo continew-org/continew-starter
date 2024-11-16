@@ -18,7 +18,6 @@ package top.continew.starter.web.autoconfigure.mvc;
 
 import org.springframework.core.convert.converter.Converter;
 import top.continew.starter.core.enums.BaseEnum;
-import top.continew.starter.core.util.validate.ValidationUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +41,6 @@ public class BaseEnumConverter<T extends BaseEnum> implements Converter<String, 
 
     @Override
     public T convert(String source) {
-        T t = enumMap.get(source);
-        ValidationUtils.throwIfNull(t, "枚举值非法：{}", source);
-        return t;
+        return enumMap.get(source);
     }
 }

@@ -16,6 +16,7 @@
 
 package top.continew.starter.core.validation.constraints;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.text.CharSequenceUtil;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -54,20 +55,20 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
         }
         // 优先校验 enumValues
         if (enumValues.length > 0) {
-            return Arrays.asList(enumValues).contains(value.toString());
+            return Arrays.asList(enumValues).contains(Convert.toStr(value));
         }
         Enum[] enumConstants = enumClass.getEnumConstants();
         if (enumConstants.length == 0) {
             return false;
         }
         if (CharSequenceUtil.isBlank(enumMethod)) {
-            return findEnumValue(enumConstants, Enum::toString, value.toString());
+            return findEnumValue(enumConstants, Enum::toString, Convert.toStr(value));
         }
         try {
             // 枚举类指定了方法名，则调用指定方法获取枚举值
             Method method = enumClass.getMethod(enumMethod);
             for (Enum enumConstant : enumConstants) {
-                if (method.invoke(enumConstant).equals(value)) {
+                if (Convert.toStr(method.invoke(enumConstant)).equals(Convert.toStr(value))) {
                     return true;
                 }
             }

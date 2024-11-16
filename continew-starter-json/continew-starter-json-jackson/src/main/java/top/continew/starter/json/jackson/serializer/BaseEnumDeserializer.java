@@ -16,6 +16,7 @@
 
 package top.continew.starter.json.jackson.serializer;
 
+import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.fasterxml.jackson.core.JsonParser;
@@ -26,6 +27,7 @@ import top.continew.starter.core.enums.BaseEnum;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.Objects;
 
 /**
  * 枚举接口 BaseEnum 反序列化器
@@ -66,7 +68,7 @@ public class BaseEnumDeserializer extends JsonDeserializer<BaseEnum> {
         for (Object enumConstant : enumConstants) {
             if (ClassUtil.isAssignable(BaseEnum.class, fieldTypeClass)) {
                 BaseEnum baseEnum = (BaseEnum)enumConstant;
-                if (baseEnum.getValue().equals(Integer.valueOf(value))) {
+                if (Objects.equals(Convert.toStr(baseEnum.getValue()), Convert.toStr(value))) {
                     return baseEnum;
                 }
             }
