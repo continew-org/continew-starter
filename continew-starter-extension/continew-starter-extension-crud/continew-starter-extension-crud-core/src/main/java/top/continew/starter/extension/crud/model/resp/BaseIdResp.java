@@ -42,27 +42,10 @@ public class BaseIdResp<T extends Serializable> implements Serializable {
         this.id = id;
     }
 
-    BaseIdResp(final T id) {
+    public BaseIdResp() {
+    }
+
+    public BaseIdResp(final T id) {
         this.id = id;
-    }
-
-    public static <T extends Serializable> BaseIdRespBuilder<T> builder() {
-        return new BaseIdRespBuilder();
-    }
-
-    public static class BaseIdRespBuilder<T extends Serializable> {
-        private T id;
-
-        BaseIdRespBuilder() {
-        }
-
-        public BaseIdRespBuilder<T> id(final T id) {
-            this.id = id;
-            return this;
-        }
-
-        public BaseIdResp<T> build() {
-            return new BaseIdResp(this.id);
-        }
     }
 }

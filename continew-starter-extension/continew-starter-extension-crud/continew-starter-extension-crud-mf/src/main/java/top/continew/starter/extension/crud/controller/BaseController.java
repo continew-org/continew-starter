@@ -127,7 +127,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @PostMapping
     public BaseIdResp<Long> add(@Validated(ValidateGroup.Crud.Add.class) @RequestBody C req) {
         this.checkPermission(Api.ADD);
-        return BaseIdResp.<Long>builder().id(baseService.add(req)).build();
+        return new BaseIdResp<>(baseService.add(req));
     }
 
     /**
