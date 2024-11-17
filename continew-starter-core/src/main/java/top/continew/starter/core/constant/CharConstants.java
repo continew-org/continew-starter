@@ -77,6 +77,16 @@ public class CharConstants {
     public static final char DASHED = '-';
 
     /**
+     * 加号 {@code '+'}
+     */
+    public static final char PLUS = '+';
+
+    /**
+     * 等号 {@code '='}
+     */
+    public static final char EQUALS = '=';
+
+    /**
      * 星号 {@code '*'}
      */
     public static final char ASTERISK = '*';
@@ -145,11 +155,6 @@ public class CharConstants {
      * 单引号 {@code '\''}
      */
     public static final char SINGLE_QUOTE = '\'';
-
-    /**
-     * 等号 {@code '='}
-     */
-    public static final char EQUALS = '=';
 
     /**
      * 回车符 {@code '\r'}

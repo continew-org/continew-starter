@@ -95,6 +95,16 @@ public class StringConstants {
     public static final String DASHED = "-";
 
     /**
+     * 加号 {@code "+"}
+     */
+    public static final String PLUS = "+";
+
+    /**
+     * 等号 {@code "="}
+     */
+    public static final String EQUALS = "=";
+
+    /**
      * 星号 {@code "*"}
      */
     public static final String ASTERISK = "*";
@@ -163,11 +173,6 @@ public class StringConstants {
      * 单引号 {@code "'"}
      */
     public static final String SINGLE_QUOTE = "'";
-
-    /**
-     * 等号 {@code "="}
-     */
-    public static final String EQUALS = "=";
 
     /**
      * 回车符 {@code "\r"}
