@@ -17,7 +17,7 @@
 package top.continew.starter.extension.crud.autoconfigure;
 
 import cn.hutool.core.lang.tree.TreeNodeConfig;
-import top.continew.starter.core.util.validate.CheckUtils;
+import top.continew.starter.core.validation.CheckUtils;
 import top.continew.starter.extension.crud.annotation.TreeField;
 
 /**

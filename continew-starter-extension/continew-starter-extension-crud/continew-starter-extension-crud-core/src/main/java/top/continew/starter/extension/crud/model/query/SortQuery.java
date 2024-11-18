@@ -21,7 +21,7 @@ import cn.hutool.core.util.ArrayUtil;
 import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.data.domain.Sort;
 import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.core.util.validate.ValidationUtils;
+import top.continew.starter.core.validation.ValidationUtils;
 import top.continew.starter.data.core.util.SqlInjectionUtils;
 
 import java.io.Serial;

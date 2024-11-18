@@ -17,7 +17,7 @@
 package top.continew.starter.messaging.mail.core;
 
 import cn.hutool.core.map.MapUtil;
-import top.continew.starter.core.util.validate.ValidationUtils;
+import top.continew.starter.core.validation.ValidationUtils;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
