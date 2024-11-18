@@ -1,3 +1,15 @@
+## [v2.7.4](https://github.com/continew-org/continew-starter/compare/v2.7.3...v2.7.4) (2024-11-18)
+
+### 💎 功能优化
+
+- 【core】增加 + 号字符串/字符常量 ([464b87c](https://github.com/continew-org/continew-starter/commit/464b87c9c7789bc142538bc146ecfe4358c12a50))
+- 【core】移除多余的校验工具类 ([fd9d2bb](https://github.com/continew-org/continew-starter/commit/fd9d2bb370caef4e9f9e3874e113c381ab4e5eb9))
+
+### 🐛 问题修复
+
+- 【extension/crud】修复新增响应结构 BaseIdResp 无法被继承问题 ([27ce092](https://github.com/continew-org/continew-starter/commit/27ce092b796a66f1c59d8715cf5648edab9efa65))
+- 【json/jackson】修复 BaseEnum 反序列化数据类型仅支持数值的问题 ([b11013e](https://github.com/continew-org/continew-starter/commit/b11013ee80cb00022890d950ff7f666909de2082))
+
 ## [v2.7.3](https://github.com/continew-org/continew-starter/compare/v2.7.2...v2.7.3) (2024-11-15)
 
 ### ✨ 新特性
