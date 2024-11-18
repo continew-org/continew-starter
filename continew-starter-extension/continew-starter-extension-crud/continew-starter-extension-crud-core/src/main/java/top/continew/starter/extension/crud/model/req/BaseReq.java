@@ -20,7 +20,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 请求基类
+ * 请求参数基类
  *
  * @author Charles7c
  * @since 1.0.0

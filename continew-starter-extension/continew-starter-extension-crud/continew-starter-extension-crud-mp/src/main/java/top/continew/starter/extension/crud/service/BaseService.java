@@ -90,7 +90,7 @@ public interface BaseService<L, D, Q, C> {
     /**
      * 新增
      *
-     * @param req 创建信息
+     * @param req 创建参数
      * @return 自增 ID
      */
     Long add(C req);
@@ -98,7 +98,7 @@ public interface BaseService<L, D, Q, C> {
     /**
      * 修改
      *
-     * @param req 修改信息
+     * @param req 修改参数
      * @param id  ID
      */
     void update(C req, Long id);

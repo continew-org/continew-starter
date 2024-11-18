@@ -29,7 +29,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 响应基类
+ * 响应参数基类
  *
  * @author Charles7c
  * @since 1.0.0
