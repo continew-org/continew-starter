@@ -33,10 +33,7 @@ import top.continew.starter.data.core.enums.QueryType;
 import top.continew.starter.data.core.util.SqlInjectionUtils;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -193,8 +190,9 @@ public class QueryWrapperHelper {
             case LT -> consumers.add(q -> q.lt(columnName, fieldValue));
             case LE -> consumers.add(q -> q.le(columnName, fieldValue));
             case BETWEEN -> {
+                // 数组转集合
                 List<Object> between = new ArrayList<>(ArrayUtil.isArray(fieldValue)
-                    ? CollUtil.toList(fieldValue)
+                    ? List.of((Object[])fieldValue)
                     : (List<Object>)fieldValue);
                 ValidationUtils.throwIf(between.size() != 2, "[{}] 必须是一个范围", columnName);
                 consumers.add(q -> q.between(columnName, between.get(0), between.get(1)));
@@ -205,13 +203,13 @@ public class QueryWrapperHelper {
             case IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
                 consumers.add(q -> q.in(columnName, ArrayUtil.isArray(fieldValue)
-                    ? CollUtil.toList(fieldValue)
+                    ? List.of((Object[])fieldValue)
                     : (Collection<Object>)fieldValue));
             }
             case NOT_IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
                 consumers.add(q -> q.notIn(columnName, ArrayUtil.isArray(fieldValue)
-                    ? CollUtil.toList(fieldValue)
+                    ? List.of((Object[])fieldValue)
                     : (Collection<Object>)fieldValue));
             }
             case IS_NULL -> consumers.add(q -> q.isNull(columnName));
