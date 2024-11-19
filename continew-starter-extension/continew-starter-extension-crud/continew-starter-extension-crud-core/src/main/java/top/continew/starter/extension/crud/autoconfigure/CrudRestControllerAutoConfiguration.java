@@ -19,44 +19,53 @@ package top.continew.starter.extension.crud.autoconfigure;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.AutoConfiguration;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.format.support.FormattingConversionService;
-import org.springframework.web.accept.ContentNegotiationManager;
-import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.servlet.resource.ResourceUrlProvider;
+import top.continew.starter.extension.crud.annotation.CrudApi;
+import top.continew.starter.extension.crud.aop.CrudApiAnnotationAdvisor;
+import top.continew.starter.extension.crud.aop.CrudApiAnnotationInterceptor;
+import top.continew.starter.extension.crud.handler.CrudApiHandler;
+import top.continew.starter.extension.crud.handler.DefaultCrudApiHandler;
 
 /**
  * CRUD REST Controller 自动配置
  *
  * @author Charles7c
- * @since 1.0.0
+ * @since 2.7.5
  */
-@Configuration
+@AutoConfiguration
 @EnableConfigurationProperties(CrudProperties.class)
-public class CrudRestControllerAutoConfiguration extends DelegatingWebMvcConfiguration {
+public class CrudRestControllerAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(CrudRestControllerAutoConfiguration.class);
 
     /**
-     * CRUD 请求映射器处理器映射器（覆盖默认 RequestMappingHandlerMapping）
+     * CRUD API 注解通知
      */
-    @Override
-    public RequestMappingHandlerMapping createRequestMappingHandlerMapping() {
-        return new CrudRequestMappingHandlerMapping();
+    @Bean
+    @ConditionalOnMissingBean
+    public CrudApiAnnotationAdvisor crudApiAnnotationAdvisor(CrudApiAnnotationInterceptor crudApiAnnotationInterceptor) {
+        return new CrudApiAnnotationAdvisor(crudApiAnnotationInterceptor, CrudApi.class);
     }
 
+    /**
+     * CRUD API 注解拦截器
+     */
     @Bean
-    @Primary
-    @Override
-    public RequestMappingHandlerMapping requestMappingHandlerMapping(@Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
-                                                                     @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-                                                                     @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
-        return super.requestMappingHandlerMapping(contentNegotiationManager, conversionService, resourceUrlProvider);
+    @ConditionalOnMissingBean
+    public CrudApiAnnotationInterceptor crudApiAnnotationInterceptor(CrudApiHandler crudApiHandler) {
+        return new CrudApiAnnotationInterceptor(crudApiHandler);
+    }
+
+    /**
+     * CRUD API 处理器（默认）
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public CrudApiHandler crudApiHandler() {
+        return new DefaultCrudApiHandler();
     }
 
     @PostConstruct

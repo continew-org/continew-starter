@@ -30,18 +30,6 @@
             <artifactId>continew-starter-web</artifactId>
         </dependency>
 
-        <!-- 认证模块 - SaToken -->
-        <dependency>
-            <groupId>top.continew</groupId>
-            <artifactId>continew-starter-auth-satoken</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
         <!-- 数据访问模块 - 核心模块 -->
         <dependency>
             <groupId>top.continew</groupId>

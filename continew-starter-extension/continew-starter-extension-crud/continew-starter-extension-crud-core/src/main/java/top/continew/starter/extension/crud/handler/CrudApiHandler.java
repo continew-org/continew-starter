@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package top.continew.starter.extension.crud.annotation;
+package top.continew.starter.extension.crud.handler;
 
-import org.springframework.context.annotation.Import;
-import top.continew.starter.extension.crud.autoconfigure.CrudRequestMappingAutoConfiguration;
-import top.continew.starter.extension.crud.autoconfigure.CrudRestControllerAutoConfiguration;
+import top.continew.starter.extension.crud.annotation.CrudApi;
 
-import java.lang.annotation.*;
+import java.lang.reflect.Method;
 
 /**
- * CRUD REST Controller 启用注解
+ * CRUD API 处理器
  *
  * @author Charles7c
- * @since 1.2.0
+ * @since 2.7.5
  */
-@Target({ElementType.TYPE})
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-@Import({CrudRequestMappingAutoConfiguration.class, CrudRestControllerAutoConfiguration.class})
-public @interface EnableCrudRestController {}
+public interface CrudApiHandler {
+
+    /**
+     * 前置处理
+     *
+     * @param crudApi      CRUD API 注解
+     * @param targetMethod 目标方法
+     * @param targetClass  目标类
+     * @throws Exception 处理异常
+     */
+    void preHandle(CrudApi crudApi, Method targetMethod, Class<?> targetClass) throws Exception;
+}

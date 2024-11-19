@@ -16,9 +16,7 @@
 
 package top.continew.starter.extension.crud.controller;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.lang.tree.Tree;
-import cn.hutool.core.text.CharSequenceUtil;
 import com.feiniaojin.gracefulresponse.api.ExcludeFromGracefulResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -27,8 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.extension.crud.annotation.CrudRequestMapping;
+import top.continew.starter.extension.crud.annotation.CrudApi;
 import top.continew.starter.extension.crud.enums.Api;
 import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
@@ -63,11 +60,11 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
      * @param pageQuery 分页查询条件
      * @return 分页信息
      */
+    @CrudApi(Api.PAGE)
     @Operation(summary = "分页查询列表", description = "分页查询列表")
     @ResponseBody
     @GetMapping
     public PageResp<L> page(Q query, @Validated PageQuery pageQuery) {
-        this.checkPermission(Api.LIST);
         return baseService.page(query, pageQuery);
     }
 
@@ -78,11 +75,11 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
      * @param sortQuery 排序查询条件
      * @return 列表信息
      */
+    @CrudApi(Api.LIST)
     @Operation(summary = "查询列表", description = "查询列表")
     @ResponseBody
     @GetMapping("/list")
     public List<L> list(Q query, SortQuery sortQuery) {
-        this.checkPermission(Api.LIST);
         return baseService.list(query, sortQuery);
     }
 
@@ -93,11 +90,11 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
      * @param sortQuery 排序查询条件
      * @return 树列表信息
      */
+    @CrudApi(Api.TREE)
     @Operation(summary = "查询树列表", description = "查询树列表")
     @ResponseBody
     @GetMapping("/tree")
     public List<Tree<Long>> tree(Q query, SortQuery sortQuery) {
-        this.checkPermission(Api.LIST);
         return baseService.tree(query, sortQuery, false);
     }
 
@@ -107,41 +104,41 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
      * @param id ID
      * @return 详情信息
      */
+    @CrudApi(Api.DETAIL)
     @Operation(summary = "查询详情", description = "查询详情")
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @GetMapping("/{id}")
     public D detail(@PathVariable("id") Long id) {
-        this.checkPermission(Api.DETAIL);
         return baseService.get(id);
     }
 
     /**
      * 新增
      *
-     * @param req 创建信息
-     * @return 自增 ID
+     * @param req 创建参数
+     * @return ID
      */
+    @CrudApi(Api.ADD)
     @Operation(summary = "新增数据", description = "新增数据")
     @ResponseBody
     @PostMapping
     public BaseIdResp<Long> add(@Validated(ValidateGroup.Crud.Add.class) @RequestBody C req) {
-        this.checkPermission(Api.ADD);
         return new BaseIdResp<>(baseService.add(req));
     }
 
     /**
      * 修改
      *
-     * @param req 修改信息
+     * @param req 修改参数
      * @param id  ID
      */
+    @CrudApi(Api.UPDATE)
     @Operation(summary = "修改数据", description = "修改数据")
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @PutMapping("/{id}")
     public void update(@Validated(ValidateGroup.Crud.Update.class) @RequestBody C req, @PathVariable("id") Long id) {
-        this.checkPermission(Api.UPDATE);
         baseService.update(req, id);
     }
 
@@ -150,12 +147,12 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
      *
      * @param ids ID 列表
      */
+    @CrudApi(Api.DELETE)
     @Operation(summary = "删除数据", description = "删除数据")
     @Parameter(name = "ids", description = "ID 列表", example = "1,2", in = ParameterIn.PATH)
     @ResponseBody
     @DeleteMapping("/{ids}")
     public void delete(@PathVariable("ids") List<Long> ids) {
-        this.checkPermission(Api.DELETE);
         baseService.delete(ids);
     }
 
@@ -166,24 +163,11 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
      * @param sortQuery 排序查询条件
      * @param response  响应对象
      */
+    @CrudApi(Api.EXPORT)
     @ExcludeFromGracefulResponse
     @Operation(summary = "导出数据", description = "导出数据")
     @GetMapping("/export")
     public void export(Q query, SortQuery sortQuery, HttpServletResponse response) {
-        this.checkPermission(Api.EXPORT);
         baseService.export(query, sortQuery, response);
-    }
-
-    /**
-     * 根据 API 类型进行权限验证
-     *
-     * @param api API 类型
-     */
-    protected void checkPermission(Api api) {
-        CrudRequestMapping crudRequestMapping = this.getClass().getDeclaredAnnotation(CrudRequestMapping.class);
-        String path = crudRequestMapping.value();
-        String permissionPrefix = String.join(StringConstants.COLON, CharSequenceUtil
-            .splitTrim(path, StringConstants.SLASH));
-        StpUtil.checkPermission("%s:%s".formatted(permissionPrefix, api.name().toLowerCase()));
     }
 }
