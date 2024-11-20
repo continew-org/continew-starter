@@ -20,8 +20,8 @@ import cn.hutool.core.lang.tree.Tree;
 import jakarta.servlet.http.HttpServletResponse;
 import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
+import top.continew.starter.extension.crud.model.resp.BasePageResp;
 import top.continew.starter.extension.crud.model.resp.LabelValueResp;
-import top.continew.starter.extension.crud.model.resp.PageResp;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ public interface BaseService<L, D, Q, C> {
      * @param pageQuery 分页查询条件
      * @return 分页列表信息
      */
-    PageResp<L> page(Q query, PageQuery pageQuery);
+    BasePageResp<L> page(Q query, PageQuery pageQuery);
 
     /**
      * 查询列表
@@ -70,7 +70,7 @@ public interface BaseService<L, D, Q, C> {
     List<Tree<Long>> tree(Q query, SortQuery sortQuery, boolean isSimple);
 
     /**
-     * 查看详情
+     * 查询详情
      *
      * @param id ID
      * @return 详情信息
@@ -83,13 +83,14 @@ public interface BaseService<L, D, Q, C> {
      * @param query     查询条件
      * @param sortQuery 排序查询条件
      * @return 字典列表信息
+     * @since 2.1.0
      */
     List<LabelValueResp> listDict(Q query, SortQuery sortQuery);
 
     /**
      * 新增
      *
-     * @param req 创建信息
+     * @param req 创建参数
      * @return 自增 ID
      */
     Long add(C req);
@@ -97,7 +98,7 @@ public interface BaseService<L, D, Q, C> {
     /**
      * 修改
      *
-     * @param req 修改信息
+     * @param req 修改参数
      * @param id  ID
      */
     void update(C req, Long id);

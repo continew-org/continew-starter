@@ -31,7 +31,7 @@ import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
 import top.continew.starter.extension.crud.model.req.BaseReq;
 import top.continew.starter.extension.crud.model.resp.BaseIdResp;
-import top.continew.starter.extension.crud.model.resp.PageResp;
+import top.continew.starter.extension.crud.model.resp.BasePageResp;
 import top.continew.starter.extension.crud.service.BaseService;
 import top.continew.starter.extension.crud.util.ValidateGroup;
 
@@ -64,7 +64,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Operation(summary = "分页查询列表", description = "分页查询列表")
     @ResponseBody
     @GetMapping
-    public PageResp<L> page(Q query, @Validated PageQuery pageQuery) {
+    public BasePageResp<L> page(Q query, @Validated PageQuery pageQuery) {
         return baseService.page(query, pageQuery);
     }
 
