@@ -23,7 +23,9 @@ import org.springframework.core.BridgeMethodResolver;
 import org.springframework.core.annotation.AnnotatedElementUtils;
 import org.springframework.util.ClassUtils;
 import top.continew.starter.extension.crud.annotation.CrudApi;
+import top.continew.starter.extension.crud.controller.BaseController;
 import top.continew.starter.extension.crud.handler.CrudApiHandler;
+import top.continew.starter.extension.crud.handler.CrudApiStrategy;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -36,12 +38,6 @@ import java.util.Objects;
  */
 public class CrudApiAnnotationInterceptor implements MethodInterceptor {
 
-    private final CrudApiHandler handler;
-
-    public CrudApiAnnotationInterceptor(CrudApiHandler handler) {
-        this.handler = handler;
-    }
-
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         // 获取目标类
@@ -51,7 +47,13 @@ public class CrudApiAnnotationInterceptor implements MethodInterceptor {
         Method targetMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
         // 获取 @CrudApi 注解
         CrudApi crudApi = AnnotatedElementUtils.findMergedAnnotation(targetMethod, CrudApi.class);
-        handler.preHandle(crudApi, targetMethod, targetClass);
+        // 获取处理器
+        CrudApiHandler<?> crudApiHandler = CrudApiStrategy.INSTANCE.handlerMap.get(targetClass);
+        if (crudApiHandler != null) {
+            crudApiHandler.preHandle(crudApi, targetMethod, targetClass);
+        } else {
+            CrudApiStrategy.INSTANCE.handlerMap.get(BaseController.class).preHandle(crudApi, targetMethod, targetClass);
+        }
         return invocation.proceed();
     }
 }

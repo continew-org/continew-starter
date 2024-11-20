@@ -53,7 +53,7 @@ public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMappi
         // 过滤 API，如果非本类中定义，且 API 列表中不包含，则忽略
         Api[] apiArr = crudRequestMapping.api();
         Api api = ExceptionUtils.exToNull(() -> Api.valueOf(method.getName().toUpperCase()));
-        if (method.getDeclaringClass() != handlerType && !ArrayUtil.containsAny(apiArr, Api.ALL, api)) {
+        if (method.getDeclaringClass() != handlerType && !ArrayUtil.contains(apiArr, api)) {
             return null;
         }
         // 拼接路径（合并了 @RequestMapping 的部分能力）

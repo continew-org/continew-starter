@@ -25,11 +25,6 @@ package top.continew.starter.extension.crud.enums;
 public enum Api {
 
     /**
-     * 所有 API
-     */
-    ALL,
-
-    /**
      * 分页
      */
     PAGE,

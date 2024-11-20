@@ -17,6 +17,7 @@
 package top.continew.starter.extension.crud.handler;
 
 import top.continew.starter.extension.crud.annotation.CrudApi;
+import top.continew.starter.extension.crud.controller.BaseController;
 
 import java.lang.reflect.Method;
 
@@ -26,7 +27,12 @@ import java.lang.reflect.Method;
  * @author Charles7c
  * @since 2.7.5
  */
-public class DefaultCrudApiHandler implements CrudApiHandler {
+public class DefaultCrudApiHandler implements CrudApiHandler<BaseController> {
+
+    @Override
+    public Class getHandlerControllerClass() {
+        return BaseController.class;
+    }
 
     @Override
     public void preHandle(CrudApi crudApi, Method targetMethod, Class<?> targetClass) {
