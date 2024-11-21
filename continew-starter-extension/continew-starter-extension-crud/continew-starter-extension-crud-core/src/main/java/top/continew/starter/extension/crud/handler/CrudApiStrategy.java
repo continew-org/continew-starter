@@ -60,11 +60,11 @@ public final class CrudApiStrategy {
     }
 
     /**
-     * 移除一个注解处理器
+     * 移除一个处理器
      *
      * @param controllerClass 控制器类
      */
-    public void removeAnnotationHandler(Class<?> controllerClass) {
+    public void removeHandler(Class<?> controllerClass) {
         handlerMap.remove(controllerClass);
     }
 }

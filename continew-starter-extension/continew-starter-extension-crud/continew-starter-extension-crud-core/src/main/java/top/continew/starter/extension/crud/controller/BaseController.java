@@ -33,7 +33,7 @@ import top.continew.starter.extension.crud.model.req.BaseReq;
 import top.continew.starter.extension.crud.model.resp.BaseIdResp;
 import top.continew.starter.extension.crud.model.resp.BasePageResp;
 import top.continew.starter.extension.crud.service.BaseService;
-import top.continew.starter.extension.crud.util.ValidateGroup;
+import top.continew.starter.extension.crud.validation.CrudValidateGroup;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ import java.util.List;
  * @param <L> 列表类型
  * @param <D> 详情类型
  * @param <Q> 查询条件
- * @param <C> 创建或修改类型
+ * @param <C> 创建或修改参数类型
  * @author Charles7c
  * @since 1.0.0
  */
@@ -123,7 +123,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Operation(summary = "新增数据", description = "新增数据")
     @ResponseBody
     @PostMapping
-    public BaseIdResp<Long> add(@Validated(ValidateGroup.Crud.Add.class) @RequestBody C req) {
+    public BaseIdResp<Long> add(@Validated(CrudValidateGroup.Add.class) @RequestBody C req) {
         return new BaseIdResp<>(baseService.add(req));
     }
 
@@ -138,7 +138,7 @@ public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q,
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @PutMapping("/{id}")
-    public void update(@Validated(ValidateGroup.Crud.Update.class) @RequestBody C req, @PathVariable("id") Long id) {
+    public void update(@Validated(CrudValidateGroup.Update.class) @RequestBody C req, @PathVariable("id") Long id) {
         baseService.update(req, id);
     }
 

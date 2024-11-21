@@ -17,7 +17,7 @@
 package top.continew.starter.file.excel.converter;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.text.CharSequenceUtil;
 import com.alibaba.excel.converters.Converter;
 import com.alibaba.excel.enums.CellDataTypeEnum;
 import com.alibaba.excel.metadata.GlobalConfiguration;
@@ -57,7 +57,7 @@ public class ExcelListConverter implements Converter<List> {
                                   ExcelContentProperty contentProperty,
                                   GlobalConfiguration globalConfiguration) {
         String stringValue = cellData.getStringValue();
-        return StrUtil.split(stringValue, StringConstants.COMMA);
+        return CharSequenceUtil.split(stringValue, StringConstants.COMMA);
     }
 
     @Override

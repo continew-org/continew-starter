@@ -64,7 +64,7 @@ import java.util.*;
  * @param <L> 列表类型
  * @param <D> 详情类型
  * @param <Q> 查询条件
- * @param <C> 创建或修改类型
+ * @param <C> 创建或修改参数类型
  * @author Charles7c
  * @since 1.0.0
  */

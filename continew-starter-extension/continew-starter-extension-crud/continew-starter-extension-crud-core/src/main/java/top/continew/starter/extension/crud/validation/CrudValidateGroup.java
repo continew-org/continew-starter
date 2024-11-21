@@ -14,30 +14,25 @@
  * limitations under the License.
  */
 
-package top.continew.starter.extension.crud.util;
+package top.continew.starter.extension.crud.validation;
 
 import jakarta.validation.groups.Default;
 
 /**
- * 分组校验
+ * CRUD 分组校验
  *
  * @author Charles7c
  * @since 1.0.0
  */
-public interface ValidateGroup extends Default {
+public interface CrudValidateGroup extends Default {
 
     /**
-     * 分组校验-增删改查
+     * CRUD 分组校验-新增
      */
-    interface Crud extends ValidateGroup {
-        /**
-         * 分组校验-创建
-         */
-        interface Add extends Crud {}
+    interface Add extends CrudValidateGroup {}
 
-        /**
-         * 分组校验-修改
-         */
-        interface Update extends Crud {}
-    }
+    /**
+     * CRUD 分组校验-修改
+     */
+    interface Update extends CrudValidateGroup {}
 }
