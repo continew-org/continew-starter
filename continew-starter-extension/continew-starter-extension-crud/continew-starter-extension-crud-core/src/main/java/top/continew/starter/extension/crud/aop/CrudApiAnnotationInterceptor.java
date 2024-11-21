@@ -50,9 +50,10 @@ public class CrudApiAnnotationInterceptor implements MethodInterceptor {
         // 获取处理器
         CrudApiHandler<?> crudApiHandler = CrudApiStrategy.INSTANCE.handlerMap.get(targetClass);
         if (crudApiHandler != null) {
-            crudApiHandler.preHandle(crudApi, targetMethod, targetClass);
+            crudApiHandler.preHandle(crudApi, invocation.getArguments(), targetMethod, targetClass);
         } else {
-            CrudApiStrategy.INSTANCE.handlerMap.get(BaseController.class).preHandle(crudApi, targetMethod, targetClass);
+            CrudApiStrategy.INSTANCE.handlerMap.get(BaseController.class)
+                .preHandle(crudApi, invocation.getArguments(), targetMethod, targetClass);
         }
         return invocation.proceed();
     }

@@ -40,9 +40,10 @@ public interface CrudApiHandler<T extends BaseController> {
      * 前置处理
      *
      * @param crudApi      CRUD API 注解
+     * @param args         方法参数
      * @param targetMethod 目标方法
      * @param targetClass  目标类
      * @throws Exception 处理异常
      */
-    void preHandle(CrudApi crudApi, Method targetMethod, Class<?> targetClass) throws Exception;
+    void preHandle(CrudApi crudApi, Object[] args, Method targetMethod, Class<?> targetClass) throws Exception;
 }

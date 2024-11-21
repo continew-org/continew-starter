@@ -35,7 +35,7 @@ public class DefaultCrudApiHandler implements CrudApiHandler<BaseController> {
     }
 
     @Override
-    public void preHandle(CrudApi crudApi, Method targetMethod, Class<?> targetClass) {
+    public void preHandle(CrudApi crudApi, Object[] args, Method targetMethod, Class<?> targetClass) {
         // do nothing
     }
 }
