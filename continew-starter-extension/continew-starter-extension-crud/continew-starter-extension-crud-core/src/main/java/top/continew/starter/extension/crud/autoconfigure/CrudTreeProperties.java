@@ -35,25 +35,21 @@ public class CrudTreeProperties {
 
     /**
      * 父 ID 字段名
-     *
      */
     private String parentIdKey = "parentId";
 
     /**
      * 名称字段名
-     *
      */
     private String nameKey = "name";
 
     /**
      * 排序字段名
-     *
      */
     private String weightKey = "weight";
 
     /**
      * 子列表字段名
-     *
      */
     private String childrenKey = "children";
 

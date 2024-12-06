@@ -68,8 +68,8 @@ public class DataPermissionDialect extends CommonsDialectImpl {
      * 构建自定义数据权限表达式
      *
      * <p>
-     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.dept_id in (select dept_id from sys_role_dept
-     * where role_id = xxx);
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.dept_id in (select dept_id from sys_role_dept where
+     * role_id = xxx);
      * </p>
      *
      * @param dataPermission 数据权限
@@ -124,8 +124,8 @@ public class DataPermissionDialect extends CommonsDialectImpl {
      * 构建本部门及以下数据权限表达式
      *
      * <p>
-     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.dept_id in (select id from sys_dept where id =
-     * xxx or find_in_set(xxx, ancestors));
+     * 处理完后的 SQL 示例：<br /> select t1.* from table as t1 where t1.dept_id in (select id from sys_dept where id = xxx or
+     * find_in_set(xxx, ancestors));
      * </p>
      *
      * @param dataPermission 数据权限
