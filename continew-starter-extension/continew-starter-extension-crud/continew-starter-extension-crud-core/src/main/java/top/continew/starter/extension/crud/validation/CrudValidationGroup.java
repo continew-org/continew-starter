@@ -24,15 +24,15 @@ import jakarta.validation.groups.Default;
  * @author Charles7c
  * @since 1.0.0
  */
-public interface CrudValidateGroup extends Default {
+public interface CrudValidationGroup extends Default {
 
     /**
      * CRUD 分组校验-新增
      */
-    interface Add extends CrudValidateGroup {}
+    interface Add extends CrudValidationGroup {}
 
     /**
      * CRUD 分组校验-修改
      */
-    interface Update extends CrudValidateGroup {}
+    interface Update extends CrudValidationGroup {}
 }
