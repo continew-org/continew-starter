@@ -43,7 +43,7 @@
 
     <properties>
         <!-- 项目版本号 -->
-        <revision>2.7.4</revision>
+        <revision>2.7.5</revision>
         <snail-job.version>1.1.2</snail-job.version>
         <sa-token.version>1.39.0</sa-token.version>
         <just-auth.version>1.16.6</just-auth.version>

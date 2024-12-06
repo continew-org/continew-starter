@@ -1,3 +1,16 @@
+## [v2.7.5](https://github.com/continew-org/continew-starter/compare/v2.7.4...v2.7.5) (2024-12-06)
+
+### 💎 功能优化
+
+- 【extension/crud】重构 BaseController 内权限校验，BaseController => AbstractBaseController ([3edf79c](https://github.com/continew-org/continew-starter/commit/3edf79cf3bdba91010776c95902414fa7481c39e)) ([15f8706](https://github.com/continew-org/continew-starter/commit/15f87068c65e4afd83ee7020bde2707870012fb9)) ([16da470](https://github.com/continew-org/continew-starter/commit/16da470008d44ebf37cbe9e292ac8db8fc04ceb5)) ([2a5ace0](https://github.com/continew-org/continew-starter/commit/2a5ace003329422589af834431ac2bd8fa30ac28))
+- 【extension/crud】调整 BaseController、BaseService 到 crud-core 模块 ([3a0c3e0](https://github.com/continew-org/continew-starter/commit/3a0c3e02b03837789bfc433a335b062ec5dab511))
+- 【extension/crud】优化部分代码，ValidateGroup => CrudValidationGroup ([f2a30e8](https://github.com/continew-org/continew-starter/commit/f2a30e8b74b828644970be0b05920a32d6eb514a)) ([6a6c559](https://github.com/continew-org/continew-starter/commit/6a6c559d2f53f25888259a7e5d020281408aaa9f))
+- 【data】使用 Hutool 工具方法替换反射 API，以解决扫描问题 ([93ab4e5](https://github.com/continew-org/continew-starter/commit/93ab4e50cc1957ab772b31c9c433f9fc3d29da33))
+
+### 🐛 问题修复
+
+- 【data/mp】修复 Query 范围查询数组类型数据解析错误 ([6b3bc83](https://github.com/continew-org/continew-starter/commit/6b3bc832de25acdb2be418ad7626e9b6e234adde))
+
 ## [v2.7.4](https://github.com/continew-org/continew-starter/compare/v2.7.3...v2.7.4) (2024-11-18)
 
 ### 💎 功能优化
