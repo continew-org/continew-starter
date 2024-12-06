@@ -17,7 +17,6 @@
 package top.continew.starter.extension.crud.handler;
 
 import top.continew.starter.extension.crud.annotation.CrudApi;
-import top.continew.starter.extension.crud.controller.BaseController;
 
 import java.lang.reflect.Method;
 
@@ -27,14 +26,7 @@ import java.lang.reflect.Method;
  * @author Charles7c
  * @since 2.7.5
  */
-public interface CrudApiHandler<T extends BaseController> {
-
-    /**
-     * 获取处理器控制器类
-     *
-     * @return 处理器控制器类
-     */
-    Class<T> getHandlerControllerClass();
+public interface CrudApiHandler {
 
     /**
      * 前置处理

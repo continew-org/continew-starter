@@ -27,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import top.continew.starter.extension.crud.annotation.CrudApi;
 import top.continew.starter.extension.crud.enums.Api;
+import top.continew.starter.extension.crud.handler.CrudApiHandler;
 import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
 import top.continew.starter.extension.crud.model.req.BaseReq;
@@ -38,7 +39,7 @@ import top.continew.starter.extension.crud.validation.CrudValidationGroup;
 import java.util.List;
 
 /**
- * 控制器基类
+ * 控制器抽象基类
  *
  * @param <S> 业务接口
  * @param <L> 列表类型
@@ -48,7 +49,7 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-public abstract class BaseController<S extends BaseService<L, D, Q, C>, L, D, Q, C extends BaseReq> {
+public abstract class AbstractBaseController<S extends BaseService<L, D, Q, C>, L, D, Q, C extends BaseReq> implements CrudApiHandler {
 
     @Autowired
     protected S baseService;

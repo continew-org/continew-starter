@@ -19,7 +19,6 @@ package top.continew.starter.extension.crud.autoconfigure;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -27,10 +26,6 @@ import org.springframework.context.annotation.Bean;
 import top.continew.starter.extension.crud.annotation.CrudApi;
 import top.continew.starter.extension.crud.aop.CrudApiAnnotationAdvisor;
 import top.continew.starter.extension.crud.aop.CrudApiAnnotationInterceptor;
-import top.continew.starter.extension.crud.handler.CrudApiHandler;
-import top.continew.starter.extension.crud.handler.CrudApiStrategy;
-
-import java.util.List;
 
 /**
  * CRUD REST Controller 自动配置
@@ -43,18 +38,6 @@ import java.util.List;
 public class CrudRestControllerAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(CrudRestControllerAutoConfiguration.class);
-
-    /**
-     * 注入自定义处理器
-     *
-     * @param handlerList 自定义处理器集合
-     */
-    @Autowired(required = false)
-    public void setCrudApiHandler(List<CrudApiHandler<?>> handlerList) {
-        for (CrudApiHandler<?> handler : handlerList) {
-            CrudApiStrategy.INSTANCE.registerHandler(handler);
-        }
-    }
 
     /**
      * CRUD API 注解通知
