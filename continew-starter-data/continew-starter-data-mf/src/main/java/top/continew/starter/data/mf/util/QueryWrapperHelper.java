@@ -16,10 +16,12 @@
 
 package top.continew.starter.data.mf.util;
 
+import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.ReflectUtil;
 import com.mybatisflex.core.query.QueryWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -133,23 +135,21 @@ public class QueryWrapperHelper {
      * @return QueryWrapper Consumer
      */
     private static <Q, R> List<Consumer<QueryWrapper>> buildWrapperConsumer(Q query, Field field) {
-        boolean accessible = field.canAccess(query);
         try {
-            field.setAccessible(true);
             // 如果字段值为空，直接返回
-            Object fieldValue = field.get(query);
+            Object fieldValue = ReflectUtil.getFieldValue(query, field);
             if (ObjectUtil.isEmpty(fieldValue)) {
                 return Collections.emptyList();
             }
             // 设置了 @QueryIgnore 注解，直接忽略
-            QueryIgnore queryIgnoreAnnotation = field.getAnnotation(QueryIgnore.class);
+            QueryIgnore queryIgnoreAnnotation = AnnotationUtil.getAnnotation(field, QueryIgnore.class);
             if (null != queryIgnoreAnnotation) {
                 return Collections.emptyList();
             }
             // 建议：数据库表列建议采用下划线连接法命名，程序变量建议采用驼峰法命名
-            String fieldName = field.getName();
+            String fieldName = ReflectUtil.getFieldName(field);
             // 没有 @Query 注解，默认等值查询
-            Query queryAnnotation = field.getAnnotation(Query.class);
+            Query queryAnnotation = AnnotationUtil.getAnnotation(field, Query.class);
             if (null == queryAnnotation) {
                 return Collections.singletonList(q -> q.eq(CharSequenceUtil.toUnderlineCase(fieldName), fieldValue));
             }
@@ -173,8 +173,6 @@ public class QueryWrapperHelper {
         } catch (Exception e) {
             log.error("Build query wrapper occurred an error: {}. Query: {}, Field: {}.", e
                 .getMessage(), query, field, e);
-        } finally {
-            field.setAccessible(accessible);
         }
         return Collections.emptyList();
     }
