@@ -93,12 +93,10 @@ public class PageResp<L> extends BasePageResp<L> {
         pageResp.setTotal(list.size());
         // 对列表数据进行分页
         int fromIndex = (page - 1) * size;
-        int toIndex = page * size + fromIndex;
-        if (fromIndex > list.size()) {
+        if (fromIndex >= list.size()) {
             pageResp.setList(new ArrayList<>(0));
-        } else if (toIndex >= list.size()) {
-            pageResp.setList(list.subList(fromIndex, list.size()));
         } else {
+            int toIndex = Math.min(fromIndex + size, list.size());
             pageResp.setList(list.subList(fromIndex, toIndex));
         }
         return pageResp;
