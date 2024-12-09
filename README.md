@@ -13,7 +13,7 @@
 <img src="https://sonarcloud.io/api/project_badges/measure?project=Charles7c_continew-starter&metric=alert_status" alt="Sonar Status" />
 </a>
 <a href="https://spring.io/projects/spring-boot" target="_blank">
-<img src="https://img.shields.io/badge/Spring Boot-3.2.7-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
+<img src="https://img.shields.io/badge/Spring Boot-3.2.10-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
 </a>
 <a href="https://github.com/continew-org/continew-starter" target="_blank">
 <img src="https://img.shields.io/badge/Open JDK-17-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
@@ -224,22 +224,11 @@ ContiNew Starter 的分支目前分为下个大版本的开发分支和上个大
 
 ## 反馈交流
 
-💬 欢迎各位小伙伴儿扫描下方二维码加好友，备注 `cnadmin`，拉你进群，探讨技术、提提需求~   
-
-加入交流群后，你将会：
-
-- 第一时间收到框架动态
-- 第一时间收到框架更新通知
-- 第一时间收到框架 Bug 通知
-- 和众多大佬互相 (huá shuǐ) 交流 (mō yú)
+欢迎各位小伙伴儿扫描下方二维码加入项目交流群，与项目维护团队及其他大佬用户实时交流讨论。
 
 <div align="left">
-  <img src="https://continew.top/qrcode.jpg" alt="二维码" width="230px" />
+  <img src=".image/qrcode.jpg" alt="二维码" height="230px" />
 </div>
-<details>
-<summary>无加群意愿</summary>
-💬 如无加群意愿，欢迎在 <a href="https://github.com/continew-org/continew-starter/issues" target="_blank">Issues</a> 中反馈交流~ 🍻
-</details>
 
 ## 鸣谢
 
