@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.core.model;
+package top.continew.starter.log.core.http.recordable;
 
 import java.net.URI;
 import java.util.Map;

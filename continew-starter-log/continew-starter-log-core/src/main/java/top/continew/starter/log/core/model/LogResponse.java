@@ -17,6 +17,7 @@
 package top.continew.starter.log.core.model;
 
 import top.continew.starter.log.core.enums.Include;
+import top.continew.starter.log.core.http.recordable.RecordableHttpResponse;
 
 import java.util.Map;
 import java.util.Set;

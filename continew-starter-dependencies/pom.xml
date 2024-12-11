@@ -490,6 +490,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 日志模块 - 基于 AOP 实现日志记录 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-log-aop</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 日志模块 - 核心模块 -->
             <dependency>
                 <groupId>top.continew</groupId>
@@ -680,7 +687,8 @@
                         <configuration>
                             <artifacts>
                                 <artifact>
-                                    <file>${project.build.directory}/effective-pom/continew-starter-dependencies.xml</file>
+                                    <file>${project.build.directory}/effective-pom/continew-starter-dependencies.xml
+                                    </file>
                                     <type>effective-pom</type>
                                 </artifact>
                             </artifacts>

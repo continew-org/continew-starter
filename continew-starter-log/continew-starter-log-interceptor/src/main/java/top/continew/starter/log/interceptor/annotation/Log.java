@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.core.annotation;
+package top.continew.starter.log.interceptor.annotation;
 
 import top.continew.starter.log.core.enums.Include;
 

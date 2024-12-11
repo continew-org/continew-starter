@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>top.continew</groupId>
+        <artifactId>continew-starter-log</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <artifactId>continew-starter-log-aop</artifactId>
+    <description>ContiNew Starter 日志模块 - 基于 AOP 实现日志记录</description>
+
+
+    <dependencies>
+        <!-- 日志模块 - 核心模块 -->
+        <dependency>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-log-core</artifactId>
+        </dependency>
+    </dependencies>
+</project>

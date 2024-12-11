@@ -14,22 +14,45 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.interceptor.autoconfigure;
+package top.continew.starter.log.core.http.recordable;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import top.continew.starter.core.constant.PropertiesConstants;
-
-import java.lang.annotation.*;
+import java.util.Map;
 
 /**
- * 是否启用日志记录注解
+ * 可记录的 HTTP 响应信息
  *
+ * @author Andy Wilkinson（Spring Boot Actuator）
  * @author Charles7c
+ * @see RecordableHttpRequest
  * @since 1.1.0
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
-@Documented
-@ConditionalOnProperty(prefix = PropertiesConstants.LOG, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
-public @interface ConditionalOnEnabledLog {
+public interface RecordableHttpResponse {
+
+    /**
+     * 获取状态码
+     *
+     * @return 状态码
+     */
+    int getStatus();
+
+    /**
+     * 获取响应头
+     *
+     * @return 响应头
+     */
+    Map<String, String> getHeaders();
+
+    /**
+     * 获取响应体
+     *
+     * @return 响应体
+     */
+    String getBody();
+
+    /**
+     * 获取响应参数
+     *
+     * @return 响应参数
+     */
+    Map<String, Object> getParam();
 }

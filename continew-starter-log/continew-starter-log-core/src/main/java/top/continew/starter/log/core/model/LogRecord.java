@@ -17,6 +17,8 @@
 package top.continew.starter.log.core.model;
 
 import top.continew.starter.log.core.enums.Include;
+import top.continew.starter.log.core.http.recordable.RecordableHttpRequest;
+import top.continew.starter.log.core.http.recordable.RecordableHttpResponse;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -62,6 +64,11 @@ public class LogRecord {
      * 时间戳
      */
     private final Instant timestamp;
+
+    /**
+     * 错误信息
+     */
+    private String errorMsg;
 
     public LogRecord(Instant timestamp, LogRequest request, LogResponse response, Duration timeTaken) {
         this.timestamp = timestamp;
@@ -163,5 +170,12 @@ public class LogRecord {
 
     public Instant getTimestamp() {
         return timestamp;
+    }
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+    public void setErrorMsg(String errorMsg) {
+        this.errorMsg = errorMsg;
     }
 }

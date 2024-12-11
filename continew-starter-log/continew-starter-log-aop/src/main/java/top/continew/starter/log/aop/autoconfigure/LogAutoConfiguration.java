@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.interceptor.autoconfigure;
+package top.continew.starter.log.aop.autoconfigure;
 
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -24,13 +24,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.continew.starter.log.aop.annotation.ConditionalOnEnabledLog;
+import top.continew.starter.log.aop.aspect.ConsoleLogAspect;
+import top.continew.starter.log.aop.aspect.LogAspect;
 import top.continew.starter.log.core.dao.LogDao;
 import top.continew.starter.log.core.dao.impl.LogDaoDefaultImpl;
-import top.continew.starter.log.interceptor.annotation.ConditionalOnEnabledLog;
-import top.continew.starter.log.interceptor.handler.LogFilter;
-import top.continew.starter.log.interceptor.handler.LogInterceptor;
 
 /**
  * 日志自动配置
@@ -42,7 +40,7 @@ import top.continew.starter.log.interceptor.handler.LogInterceptor;
 @ConditionalOnEnabledLog
 @EnableConfigurationProperties(LogProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-public class LogAutoConfiguration implements WebMvcConfigurer {
+public class LogAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(LogAutoConfiguration.class);
     private final LogProperties logProperties;
@@ -51,18 +49,26 @@ public class LogAutoConfiguration implements WebMvcConfigurer {
         this.logProperties = logProperties;
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LogInterceptor(logDao(), logProperties));
-    }
-
     /**
-     * 日志过滤器
+     * 记录日志切面
+     *
+     * @return {@link LogAspect }
      */
     @Bean
     @ConditionalOnMissingBean
-    public LogFilter logFilter() {
-        return new LogFilter(logProperties);
+    public LogAspect logAspect() {
+        return new LogAspect(logDao(),logProperties);
+    }
+
+    /**
+     * 控制台输出日志切面
+     *
+     * @return {@link LogAspect }
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public ConsoleLogAspect consoleLogAspect() {
+        return new ConsoleLogAspect(logProperties);
     }
 
     /**
@@ -76,6 +82,6 @@ public class LogAutoConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Log-interceptor' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Log-aop' completed initialization.");
     }
 }
