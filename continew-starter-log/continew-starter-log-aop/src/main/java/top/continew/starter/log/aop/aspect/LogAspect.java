@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2022-present Charles7c Authors. All Rights Reserved.
+ * <p>
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE 3.0;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.gnu.org/licenses/lgpl.html
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package top.continew.starter.log.aop.aspect;
 
 import cn.hutool.core.text.CharSequenceUtil;
@@ -58,14 +74,13 @@ public class LogAspect {
     @Before(value = "pointcutService()")
     public void doBefore() {
         Instant startTime = Instant.now();
-        ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
         if (attributes != null) {
             HttpServletRequest request = attributes.getRequest();
             LogRecord.Started startedLogRecord = LogRecord.start(startTime, new RecordableServletHttpRequest(request));
             logTtl.set(startedLogRecord);
         }
     }
-
 
     /**
      * 处理请求后执行 - 正常返回
@@ -98,7 +113,7 @@ public class LogAspect {
     private void handleAfterCompletion(JoinPoint joinPoint, Exception ex) {
         try {
             Instant endTime = Instant.now();
-            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
             if (attributes == null) {
                 return;
             }
@@ -110,7 +125,7 @@ public class LogAspect {
             }
 
             // 获取方法和类注解信息
-            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+            MethodSignature signature = (MethodSignature)joinPoint.getSignature();
             Method method = signature.getMethod();
             Class<?> targetClass = joinPoint.getTarget().getClass();
 
@@ -122,9 +137,7 @@ public class LogAspect {
 
             // 完成日志记录
             LogRecord finishedLogRecord = startedLogRecord
-                    .finish(endTime,
-                            new RecordableServletHttpResponse(response, response.getStatus()),
-                            includeSet);
+                .finish(endTime, new RecordableServletHttpResponse(response, response.getStatus()), includeSet);
             // 记录异常
             if (ex != null) {
                 finishedLogRecord.getResponse().setStatus(1);

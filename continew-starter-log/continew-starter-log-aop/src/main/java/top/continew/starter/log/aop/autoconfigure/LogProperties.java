@@ -49,7 +49,6 @@ public class LogProperties {
      */
     private Set<Include> includes = Include.defaultIncludes();
 
-
     public boolean isEnabled() {
         return enabled;
     }

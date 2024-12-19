@@ -16,6 +16,9 @@
 
 package top.continew.starter.extension.tenant.context;
 
+import top.continew.starter.extension.tenant.config.TenantDataSource;
+import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
+
 /**
  * 租户上下文
  *
@@ -29,11 +32,37 @@ public class TenantContext {
      */
     private Long tenantId;
 
+    /**
+     * 隔离级别
+     */
+    private TenantIsolationLevel isolationLevel;
+
+    /**
+     * 数据源信息
+     */
+    private TenantDataSource dataSource;
+
     public Long getTenantId() {
         return tenantId;
     }
 
     public void setTenantId(Long tenantId) {
         this.tenantId = tenantId;
+    }
+
+    public TenantIsolationLevel getIsolationLevel() {
+        return isolationLevel;
+    }
+
+    public void setIsolationLevel(TenantIsolationLevel isolationLevel) {
+        this.isolationLevel = isolationLevel;
+    }
+
+    public TenantDataSource getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(TenantDataSource dataSource) {
+        this.dataSource = dataSource;
     }
 }

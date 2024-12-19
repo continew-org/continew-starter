@@ -30,7 +30,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ResolvableType;
 import top.continew.starter.core.constant.PropertiesConstants;
-import top.continew.starter.extension.tenant.config.TenantDataSourceProvider;
+import top.continew.starter.extension.tenant.config.TenantProvider;
 import top.continew.starter.extension.tenant.handler.*;
 
 /**
@@ -49,85 +49,76 @@ public class TenantAutoConfiguration {
     private TenantAutoConfiguration() {
     }
 
-    /**
-     * 租户隔离级别：行级
-     */
-    @AutoConfiguration
-    @ConditionalOnProperty(name = PropertiesConstants.TENANT + ".isolation-level", havingValue = "line", matchIfMissing = true)
-    public static class Line {
-        static {
-            log.debug("[ContiNew Starter] - Auto Configuration 'Tenant-Line' completed initialization.");
-        }
-
-        /**
-         * 租户行级隔离拦截器
-         */
-        @Bean
-        @ConditionalOnMissingBean
-        public TenantLineInnerInterceptor tenantLineInnerInterceptor(TenantLineHandler tenantLineHandler) {
-            return new TenantLineInnerInterceptor(tenantLineHandler);
-        }
-
-        /**
-         * 租户行级隔离处理器（默认）
-         */
-        @Bean
-        @ConditionalOnMissingBean
-        public TenantLineHandler tenantLineHandler(TenantProperties properties) {
-            return new DefaultTenantLineHandler(properties);
-        }
+    static {
+        log.debug("[ContiNew Starter] - Auto Configuration 'Tenant' completed initialization.");
     }
 
     /**
-     * 租户隔离级别：数据源级
+     * 租户行级隔离拦截器
      */
-    @AutoConfiguration
-    @ConditionalOnProperty(name = PropertiesConstants.TENANT + ".isolation-level", havingValue = "datasource")
-    public static class DataSource {
-        static {
-            log.debug("[ContiNew Starter] - Auto Configuration 'Tenant-DataSource' completed initialization.");
-        }
-
-        /**
-         * 租户数据源级隔离通知
-         */
-        @Bean
-        @ConditionalOnMissingBean
-        public TenantDataSourceAdvisor tenantDataSourceAdvisor(TenantDataSourceInterceptor tenantDataSourceInterceptor) {
-            return new TenantDataSourceAdvisor(tenantDataSourceInterceptor);
-        }
-
-        /**
-         * 租户数据源级隔离拦截器
-         */
-        @Bean
-        @ConditionalOnMissingBean
-        public TenantDataSourceInterceptor tenantDataSourceInterceptor(TenantDataSourceHandler tenantDataSourceHandler) {
-            return new TenantDataSourceInterceptor(tenantDataSourceHandler);
-        }
-
-        /**
-         * 租户数据源级隔离处理器（默认）
-         */
-        @Bean
-        @ConditionalOnMissingBean
-        public TenantDataSourceHandler tenantDataSourceHandler(TenantDataSourceProvider tenantDataSourceProvider,
-                                                               DynamicRoutingDataSource dynamicRoutingDataSource,
-                                                               DefaultDataSourceCreator dataSourceCreator) {
-            return new DefaultTenantDataSourceHandler(tenantDataSourceProvider, dynamicRoutingDataSource, dataSourceCreator);
-        }
-
-        /**
-         * 多租户数据源提供者
-         */
-        @Bean
-        @ConditionalOnMissingBean
-        public TenantDataSourceProvider tenantDataSourceProvider() {
-            if (log.isErrorEnabled()) {
-                log.error("Consider defining a bean of type '{}' in your configuration.", ResolvableType
-                    .forClass(TenantDataSourceProvider.class));
-            }
-            throw new NoSuchBeanDefinitionException(TenantDataSourceProvider.class);
-        }
+    @Bean
+    @ConditionalOnMissingBean
+    public TenantLineInnerInterceptor tenantLineInnerInterceptor(TenantLineHandler tenantLineHandler) {
+        return new TenantLineInnerInterceptor(tenantLineHandler);
     }
+
+    /**
+     * 租户行级隔离处理器（默认）
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TenantLineHandler tenantLineHandler(TenantProperties properties) {
+        return new DefaultTenantLineHandler(properties);
+    }
+
+    /**
+     * 租户数据源级隔离通知
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TenantDataSourceAdvisor tenantDataSourceAdvisor(TenantDataSourceInterceptor tenantDataSourceInterceptor) {
+        return new TenantDataSourceAdvisor(tenantDataSourceInterceptor);
+    }
+
+    /**
+     * 租户数据源级隔离拦截器
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TenantDataSourceInterceptor tenantDataSourceInterceptor(TenantDataSourceHandler tenantDataSourceHandler) {
+        return new TenantDataSourceInterceptor(tenantDataSourceHandler);
+    }
+
+    /**
+     * 租户数据源级隔离处理器（默认）
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TenantDataSourceHandler tenantDataSourceHandler(javax.sql.DataSource dataSource,
+                                                           DefaultDataSourceCreator dataSourceCreator) {
+        return new DefaultTenantDataSourceHandler((DynamicRoutingDataSource)dataSource, dataSourceCreator);
+    }
+
+    /**
+     * 多租户数据源提供者
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TenantProvider tenantDataSourceProvider() {
+        if (log.isErrorEnabled()) {
+            log.error("Consider defining a bean of type '{}' in your configuration.", ResolvableType
+                .forClass(TenantProvider.class));
+        }
+        throw new NoSuchBeanDefinitionException(TenantProvider.class);
+    }
+
+    /**
+     * 租户处理器
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public TenantHandler tenantHandler(TenantDataSourceHandler tenantDataSourceHandler, TenantProvider tenantProvider) {
+        return new DefaultTenantHandler(tenantDataSourceHandler, tenantProvider);
+    }
+
 }

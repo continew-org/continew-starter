@@ -17,6 +17,7 @@
 package top.continew.starter.extension.tenant.context;
 
 import com.alibaba.ttl.TransmittableThreadLocal;
+import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
 
 import java.util.Optional;
 
@@ -65,5 +66,14 @@ public class TenantContextHolder {
      */
     public static Long getTenantId() {
         return Optional.ofNullable(getContext()).map(TenantContext::getTenantId).orElse(null);
+    }
+
+    /**
+     * 获取隔离级别
+     */
+    public static TenantIsolationLevel getIsolationLevel() {
+        return Optional.ofNullable(getContext())
+            .map(TenantContext::getIsolationLevel)
+            .orElse(TenantIsolationLevel.LINE);
     }
 }

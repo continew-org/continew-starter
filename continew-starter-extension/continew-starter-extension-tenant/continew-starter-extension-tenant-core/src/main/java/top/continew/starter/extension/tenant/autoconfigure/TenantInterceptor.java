@@ -16,11 +16,11 @@
 
 package top.continew.starter.extension.tenant.autoconfigure;
 
-import cn.hutool.core.convert.Convert;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.core.Ordered;
 import org.springframework.web.servlet.HandlerInterceptor;
-import top.continew.starter.extension.tenant.context.TenantContext;
+import top.continew.starter.extension.tenant.config.TenantProvider;
 import top.continew.starter.extension.tenant.context.TenantContextHolder;
 
 /**
@@ -29,20 +29,25 @@ import top.continew.starter.extension.tenant.context.TenantContextHolder;
  * @author Charles7c
  * @since 2.7.0
  */
-public class TenantInterceptor implements HandlerInterceptor {
+public class TenantInterceptor implements HandlerInterceptor, Ordered {
 
     private final TenantProperties tenantProperties;
+    private final TenantProvider tenantProvider;
 
-    public TenantInterceptor(TenantProperties tenantProperties) {
+    public TenantInterceptor(TenantProperties tenantProperties, TenantProvider tenantProvider) {
         this.tenantProperties = tenantProperties;
+        this.tenantProvider = tenantProvider;
     }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String tenantId = request.getHeader(tenantProperties.getTenantIdHeader());
-        TenantContext tenantContext = new TenantContext();
-        tenantContext.setTenantId(Convert.toLong(tenantId));
-        TenantContextHolder.setContext(tenantContext);
+        TenantContextHolder.setContext(tenantProvider.getByTenantId(tenantId, true));
         return true;
+    }
+
+    @Override
+    public int getOrder() {
+        return Integer.MIN_VALUE;
     }
 }

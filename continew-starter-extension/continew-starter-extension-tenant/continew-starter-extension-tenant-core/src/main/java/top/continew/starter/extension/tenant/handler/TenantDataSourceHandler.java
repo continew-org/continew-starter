@@ -31,9 +31,8 @@ public interface TenantDataSourceHandler {
     /**
      * 切换数据源
      *
-     * @param dataSourceName 数据源名称
      */
-    void changeDataSource(String dataSourceName);
+    void changeDataSource(TenantDataSource tenantDataSource);
 
     /**
      * 是否存在指定数据源
