@@ -65,7 +65,7 @@ public class TenantDataSourceAdvisor extends AbstractPointcutAdvisor implements 
      */
     private Pointcut buildPointcut() {
         AspectJExpressionPointcut cut = new AspectJExpressionPointcut();
-        cut.setExpression("!@annotation(top.continew.starter.extension.tenant.annotation.TenantDataSourceIgnore)");
+        cut.setExpression("execution(* *..controller..*(..))");
         return new ComposablePointcut((Pointcut)cut);
     }
 }

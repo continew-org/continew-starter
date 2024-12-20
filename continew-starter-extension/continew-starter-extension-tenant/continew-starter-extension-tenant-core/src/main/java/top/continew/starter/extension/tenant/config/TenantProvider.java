@@ -16,19 +16,22 @@
 
 package top.continew.starter.extension.tenant.config;
 
+import top.continew.starter.extension.tenant.context.TenantContext;
+
 /**
- * 租户数据源提供者
+ * 租户数据提供者
  *
  * @author Charles7c
  * @since 2.7.0
  */
-public interface TenantDataSourceProvider {
+public interface TenantProvider {
 
     /**
-     * 根据租户 ID 获取数据源配置
+     * 根据租户ID获取租户数据
      *
      * @param tenantId 租户 ID
+     * @param verify   是否验证租户有效性
      * @return 数据源配置
      */
-    TenantDataSource getByTenantId(String tenantId);
+    TenantContext getByTenantId(String tenantId, boolean verify);
 }

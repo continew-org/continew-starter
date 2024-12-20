@@ -57,7 +57,7 @@ public class LogAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public LogAspect logAspect() {
-        return new LogAspect(logDao(),logProperties);
+        return new LogAspect(logDao(), logProperties);
     }
 
     /**

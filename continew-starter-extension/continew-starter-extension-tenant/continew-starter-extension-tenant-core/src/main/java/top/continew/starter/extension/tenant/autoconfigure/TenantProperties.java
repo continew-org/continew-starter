@@ -18,7 +18,6 @@ package top.continew.starter.extension.tenant.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;
-import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
 
 import java.util.List;
 
@@ -35,11 +34,6 @@ public class TenantProperties {
      * 是否启用多租户
      */
     private boolean enabled = true;
-
-    /**
-     * 租户隔离级别
-     */
-    private TenantIsolationLevel isolationLevel = TenantIsolationLevel.LINE;
 
     /**
      * 租户 ID 列名
@@ -67,14 +61,6 @@ public class TenantProperties {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
-    }
-
-    public TenantIsolationLevel getIsolationLevel() {
-        return isolationLevel;
-    }
-
-    public void setIsolationLevel(TenantIsolationLevel isolationLevel) {
-        this.isolationLevel = isolationLevel;
     }
 
     public String getTenantIdColumn() {

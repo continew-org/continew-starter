@@ -22,6 +22,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
 import top.continew.starter.extension.tenant.autoconfigure.TenantProperties;
 import top.continew.starter.extension.tenant.context.TenantContextHolder;
+import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
 
 /**
  * 默认租户行级隔离处理器
@@ -54,7 +55,8 @@ public class DefaultTenantLineHandler implements TenantLineHandler {
     @Override
     public boolean ignoreTable(String tableName) {
         Long tenantId = TenantContextHolder.getTenantId();
-        if (null != tenantId && tenantId.equals(tenantProperties.getSuperTenantId())) {
+        if ((null != tenantId && tenantId.equals(tenantProperties
+            .getSuperTenantId())) || TenantIsolationLevel.DATASOURCE.equals(TenantContextHolder.getIsolationLevel())) {
             return true;
         }
         return CollUtil.contains(tenantProperties.getIgnoreTables(), tableName);

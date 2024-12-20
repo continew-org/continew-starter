@@ -22,6 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.continew.starter.core.constant.PropertiesConstants;
+import top.continew.starter.extension.tenant.config.TenantProvider;
 
 /**
  * 多租户 Web MVC 自动配置
@@ -35,13 +36,15 @@ import top.continew.starter.core.constant.PropertiesConstants;
 public class TenantWebMvcAutoConfiguration implements WebMvcConfigurer {
 
     private final TenantProperties tenantProperties;
+    private final TenantProvider tenantProvider;
 
-    public TenantWebMvcAutoConfiguration(TenantProperties tenantProperties) {
+    public TenantWebMvcAutoConfiguration(TenantProperties tenantProperties, TenantProvider tenantProvider) {
         this.tenantProperties = tenantProperties;
+        this.tenantProvider = tenantProvider;
     }
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new TenantInterceptor(tenantProperties));
+        registry.addInterceptor(new TenantInterceptor(tenantProperties, tenantProvider));
     }
 }

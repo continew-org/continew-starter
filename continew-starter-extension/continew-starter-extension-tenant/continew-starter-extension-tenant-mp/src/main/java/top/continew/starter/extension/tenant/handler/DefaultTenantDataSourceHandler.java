@@ -24,7 +24,6 @@ import com.baomidou.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.extension.tenant.config.TenantDataSource;
-import top.continew.starter.extension.tenant.config.TenantDataSourceProvider;
 
 import javax.sql.DataSource;
 
@@ -39,30 +38,25 @@ public class DefaultTenantDataSourceHandler implements TenantDataSourceHandler {
     private static final Logger log = LoggerFactory.getLogger(DefaultTenantDataSourceHandler.class);
     private final DynamicRoutingDataSource dynamicRoutingDataSource;
     private final DefaultDataSourceCreator dataSourceCreator;
-    private final TenantDataSourceProvider tenantDataSourceProvider;
 
-    public DefaultTenantDataSourceHandler(TenantDataSourceProvider tenantDataSourceProvider,
-                                          DynamicRoutingDataSource dynamicRoutingDataSource,
+    public DefaultTenantDataSourceHandler(DynamicRoutingDataSource dynamicRoutingDataSource,
                                           DefaultDataSourceCreator dataSourceCreator) {
-        this.tenantDataSourceProvider = tenantDataSourceProvider;
         this.dynamicRoutingDataSource = dynamicRoutingDataSource;
         this.dataSourceCreator = dataSourceCreator;
     }
 
     @Override
-    public void changeDataSource(String dataSourceName) {
-        if (!this.containsDataSource(dataSourceName)) {
-            TenantDataSource tenantDataSource = tenantDataSourceProvider.getByTenantId(dataSourceName);
-            if (null == tenantDataSource) {
-                throw new IllegalArgumentException("Data source [%s] configuration not found"
-                    .formatted(dataSourceName));
+    public void changeDataSource(TenantDataSource tenantDataSource) {
+        if (tenantDataSource != null) {
+            String dataSourceName = tenantDataSource.getPoolName();
+            if (!this.containsDataSource(dataSourceName)) {
+                DataSource datasource = this.createDataSource(tenantDataSource);
+                dynamicRoutingDataSource.addDataSource(dataSourceName, datasource);
+                log.info("Load data source: {}", dataSourceName);
             }
-            DataSource datasource = this.createDataSource(tenantDataSource);
-            dynamicRoutingDataSource.addDataSource(dataSourceName, datasource);
-            log.info("Load data source: {}", dataSourceName);
+            DynamicDataSourceContextHolder.push(dataSourceName);
+            log.info("Change data source: {}", dataSourceName);
         }
-        DynamicDataSourceContextHolder.push(dataSourceName);
-        log.info("Change data source: {}", dataSourceName);
     }
 
     @Override
