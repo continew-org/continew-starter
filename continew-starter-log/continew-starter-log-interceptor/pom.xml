@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>continew-starter-log-interceptor</artifactId>
-    <description>ContiNew Starter 日志模块 - 拦截器版（Spring Boot Actuator HttpTrace 增强版）</description>
+    <description>ContiNew Starter 日志模块 - 基于拦截器实现（Spring Boot Actuator HttpTrace 增强版）</description>
 
     <dependencies>
         <!-- Swagger 注解 -->

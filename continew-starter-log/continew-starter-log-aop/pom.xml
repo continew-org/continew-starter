@@ -7,8 +7,9 @@
         <artifactId>continew-starter-log</artifactId>
         <version>${revision}</version>
     </parent>
+
     <artifactId>continew-starter-log-aop</artifactId>
-    <description>ContiNew Starter 日志模块 - 基于 AOP 实现日志记录</description>
+    <description>ContiNew Starter 日志模块 - 基于 AOP 实现</description>
 
 
     <dependencies>

@@ -483,14 +483,14 @@
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 日志模块 - 拦截器版（Spring Boot Actuator HttpTrace 增强版） -->
+            <!-- 日志模块 - 基于拦截器实现（Spring Boot Actuator HttpTrace 增强版） -->
             <dependency>
                 <groupId>top.continew</groupId>
                 <artifactId>continew-starter-log-interceptor</artifactId>
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 日志模块 - 基于 AOP 实现日志记录 -->
+            <!-- 日志模块 - 基于 AOP 实现 -->
             <dependency>
                 <groupId>top.continew</groupId>
                 <artifactId>continew-starter-log-aop</artifactId>
