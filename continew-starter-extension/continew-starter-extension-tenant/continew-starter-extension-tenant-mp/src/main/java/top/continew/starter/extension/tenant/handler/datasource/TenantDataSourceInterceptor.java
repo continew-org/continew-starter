@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package top.continew.starter.extension.tenant.handler;
+package top.continew.starter.extension.tenant.handler.datasource;
 
 import com.baomidou.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import top.continew.starter.extension.tenant.context.TenantContextHolder;
 import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
+import top.continew.starter.extension.tenant.handler.TenantDataSourceHandler;
 
 /**
  * 租户数据源级隔离拦截器
@@ -38,20 +39,19 @@ public class TenantDataSourceInterceptor implements MethodInterceptor {
 
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
-        if (TenantContextHolder.getIsolationLevel() == TenantIsolationLevel.DATASOURCE) {
-            // 切换数据源
-            boolean isPush = false;
-            try {
-                tenantDataSourceHandler.changeDataSource(TenantContextHolder.getContext().getDataSource());
-                isPush = true;
-                return invocation.proceed();
-            } finally {
-                if (isPush) {
-                    DynamicDataSourceContextHolder.poll();
-                }
+        if (TenantIsolationLevel.LINE.equals(TenantContextHolder.getIsolationLevel())) {
+            return invocation.proceed();
+        }
+        // 切换数据源
+        boolean isPush = false;
+        try {
+            tenantDataSourceHandler.changeDataSource(TenantContextHolder.getDataSource());
+            isPush = true;
+            return invocation.proceed();
+        } finally {
+            if (isPush) {
+                DynamicDataSourceContextHolder.poll();
             }
         }
-        return invocation.proceed();
-
     }
 }

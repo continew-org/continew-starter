@@ -20,6 +20,7 @@ import com.baomidou.dynamic.datasource.DynamicRoutingDataSource;
 import com.baomidou.dynamic.datasource.creator.DefaultDataSourceCreator;
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
+import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -31,10 +32,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.core.ResolvableType;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.extension.tenant.config.TenantProvider;
-import top.continew.starter.extension.tenant.handler.*;
+import top.continew.starter.extension.tenant.handler.DefaultTenantHandler;
+import top.continew.starter.extension.tenant.handler.TenantDataSourceHandler;
+import top.continew.starter.extension.tenant.handler.TenantHandler;
+import top.continew.starter.extension.tenant.handler.datasource.DefaultTenantDataSourceHandler;
+import top.continew.starter.extension.tenant.handler.datasource.TenantDataSourceAdvisor;
+import top.continew.starter.extension.tenant.handler.datasource.TenantDataSourceInterceptor;
+import top.continew.starter.extension.tenant.handler.line.DefaultTenantLineHandler;
 
 /**
- * 多租户自动配置
+ * 租户自动配置
  *
  * @author Charles7c
  * @since 2.7.0
@@ -45,12 +52,10 @@ import top.continew.starter.extension.tenant.handler.*;
 public class TenantAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(TenantAutoConfiguration.class);
+    private final TenantProperties tenantProperties;
 
-    private TenantAutoConfiguration() {
-    }
-
-    static {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Tenant' completed initialization.");
+    private TenantAutoConfiguration(TenantProperties tenantProperties) {
+        this.tenantProperties = tenantProperties;
     }
 
     /**
@@ -100,11 +105,11 @@ public class TenantAutoConfiguration {
     }
 
     /**
-     * 多租户数据源提供者
+     * 租户提供者
      */
     @Bean
     @ConditionalOnMissingBean
-    public TenantProvider tenantDataSourceProvider() {
+    public TenantProvider tenantProvider() {
         if (log.isErrorEnabled()) {
             log.error("Consider defining a bean of type '{}' in your configuration.", ResolvableType
                 .forClass(TenantProvider.class));
@@ -118,7 +123,11 @@ public class TenantAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public TenantHandler tenantHandler(TenantDataSourceHandler tenantDataSourceHandler, TenantProvider tenantProvider) {
-        return new DefaultTenantHandler(tenantDataSourceHandler, tenantProvider);
+        return new DefaultTenantHandler(tenantProperties, tenantDataSourceHandler, tenantProvider);
     }
 
+    @PostConstruct
+    public void postConstruct() {
+        log.debug("[ContiNew Starter] - Auto Configuration 'Tenant' completed initialization.");
+    }
 }

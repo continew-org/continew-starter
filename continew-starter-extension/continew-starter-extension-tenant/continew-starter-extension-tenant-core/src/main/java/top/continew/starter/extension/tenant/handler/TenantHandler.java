@@ -17,15 +17,18 @@
 package top.continew.starter.extension.tenant.handler;
 
 /**
- * @description: 租户处理器
- * @author: 小熊
- * @create: 2024-12-18 19:37
+ * 租户处理器
+ *
+ * @author 小熊
+ * @since 2.8.0
  */
 public interface TenantHandler {
 
     /**
-     * 在指定租户中执行方法
+     * 在指定租户中执行
+     *
+     * @param tenantId 租户 ID
+     * @param runnable 方法
      */
-    void executeInTenant(Long tenantId, Runnable runnable);
-
+    void execute(Long tenantId, Runnable runnable);
 }

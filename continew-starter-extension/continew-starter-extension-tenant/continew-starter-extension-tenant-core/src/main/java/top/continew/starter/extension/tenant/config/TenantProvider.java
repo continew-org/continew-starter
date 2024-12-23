@@ -19,7 +19,7 @@ package top.continew.starter.extension.tenant.config;
 import top.continew.starter.extension.tenant.context.TenantContext;
 
 /**
- * 租户数据提供者
+ * 租户提供者
  *
  * @author Charles7c
  * @since 2.7.0
@@ -27,11 +27,11 @@ import top.continew.starter.extension.tenant.context.TenantContext;
 public interface TenantProvider {
 
     /**
-     * 根据租户ID获取租户数据
+     * 根据租户 ID 获取租户上下文
      *
      * @param tenantId 租户 ID
-     * @param verify   是否验证租户有效性
-     * @return 数据源配置
+     * @param isVerify 是否验证有效性
+     * @return 租户上下文
      */
-    TenantContext getByTenantId(String tenantId, boolean verify);
+    TenantContext getByTenantId(String tenantId, boolean isVerify);
 }

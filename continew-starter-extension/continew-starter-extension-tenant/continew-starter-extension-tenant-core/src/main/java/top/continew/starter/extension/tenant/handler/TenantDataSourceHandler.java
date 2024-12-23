@@ -31,6 +31,7 @@ public interface TenantDataSourceHandler {
     /**
      * 切换数据源
      *
+     * @param tenantDataSource 数据源配置
      */
     void changeDataSource(TenantDataSource tenantDataSource);
 

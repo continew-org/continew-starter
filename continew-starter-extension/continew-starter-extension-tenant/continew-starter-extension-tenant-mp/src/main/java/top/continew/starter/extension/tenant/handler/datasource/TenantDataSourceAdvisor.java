@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.extension.tenant.handler;
+package top.continew.starter.extension.tenant.handler.datasource;
 
 import org.aopalliance.aop.Advice;
 import org.springframework.aop.Pointcut;

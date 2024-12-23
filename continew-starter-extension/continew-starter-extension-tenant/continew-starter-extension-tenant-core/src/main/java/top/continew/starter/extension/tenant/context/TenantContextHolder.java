@@ -16,7 +16,10 @@
 
 package top.continew.starter.extension.tenant.context;
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
+import top.continew.starter.extension.tenant.autoconfigure.TenantProperties;
+import top.continew.starter.extension.tenant.config.TenantDataSource;
 import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
 
 import java.util.Optional;
@@ -69,11 +72,22 @@ public class TenantContextHolder {
     }
 
     /**
-     * 获取隔离级别
+     * 获取租户隔离级别
+     *
+     * @return 租户隔离级别
      */
     public static TenantIsolationLevel getIsolationLevel() {
         return Optional.ofNullable(getContext())
             .map(TenantContext::getIsolationLevel)
-            .orElse(TenantIsolationLevel.LINE);
+            .orElse(SpringUtil.getBean(TenantProperties.class).getIsolationLevel());
+    }
+
+    /**
+     * 获取租户数据源
+     *
+     * @return 租户数据源
+     */
+    public static TenantDataSource getDataSource() {
+        return Optional.ofNullable(getContext()).map(TenantContext::getDataSource).orElse(null);
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.extension.tenant.handler;
+package top.continew.starter.extension.tenant.handler.datasource;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import com.baomidou.dynamic.datasource.DynamicRoutingDataSource;
@@ -24,6 +24,7 @@ import com.baomidou.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.extension.tenant.config.TenantDataSource;
+import top.continew.starter.extension.tenant.handler.TenantDataSourceHandler;
 
 import javax.sql.DataSource;
 
@@ -47,16 +48,17 @@ public class DefaultTenantDataSourceHandler implements TenantDataSourceHandler {
 
     @Override
     public void changeDataSource(TenantDataSource tenantDataSource) {
-        if (tenantDataSource != null) {
-            String dataSourceName = tenantDataSource.getPoolName();
-            if (!this.containsDataSource(dataSourceName)) {
-                DataSource datasource = this.createDataSource(tenantDataSource);
-                dynamicRoutingDataSource.addDataSource(dataSourceName, datasource);
-                log.info("Load data source: {}", dataSourceName);
-            }
-            DynamicDataSourceContextHolder.push(dataSourceName);
-            log.info("Change data source: {}", dataSourceName);
+        if (tenantDataSource == null) {
+            return;
         }
+        String dataSourceName = tenantDataSource.getPoolName();
+        if (!this.containsDataSource(dataSourceName)) {
+            DataSource datasource = this.createDataSource(tenantDataSource);
+            dynamicRoutingDataSource.addDataSource(dataSourceName, datasource);
+            log.info("Load data source: {}", dataSourceName);
+        }
+        DynamicDataSourceContextHolder.push(dataSourceName);
+        log.info("Change data source: {}", dataSourceName);
     }
 
     @Override

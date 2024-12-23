@@ -16,58 +16,62 @@
 
 package top.continew.starter.extension.tenant.handler;
 
-import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
+import top.continew.starter.extension.tenant.autoconfigure.TenantProperties;
 import top.continew.starter.extension.tenant.config.TenantProvider;
 import top.continew.starter.extension.tenant.context.TenantContext;
 import top.continew.starter.extension.tenant.context.TenantContextHolder;
 import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
 
 /**
- * @description: 租户处理器
- * @author: 小熊
- * @create: 2024-12-18 19:43
+ * 租户处理器
+ *
+ * @author 小熊
+ * @since 2.8.0
  */
 public class DefaultTenantHandler implements TenantHandler {
 
+    private final TenantProperties tenantProperties;
     private final TenantDataSourceHandler dataSourceHandler;
     private final TenantProvider tenantProvider;
 
-    public DefaultTenantHandler(TenantDataSourceHandler dataSourceHandler, TenantProvider tenantProvider) {
+    public DefaultTenantHandler(TenantProperties tenantProperties,
+                                TenantDataSourceHandler dataSourceHandler,
+                                TenantProvider tenantProvider) {
+        this.tenantProperties = tenantProperties;
         this.dataSourceHandler = dataSourceHandler;
         this.tenantProvider = tenantProvider;
     }
 
     @Override
-    public void executeInTenant(Long tenantId, Runnable runnable) {
-        boolean enabled = SpringUtil.getProperty("continew-starter.tenant.enabled", Boolean.class, false);
-        if (enabled) {
-            TenantContext tenantHandler = tenantProvider.getByTenantId(tenantId.toString(), false);
-            // 保存当前的租户上下文
-            TenantContext originalContext = TenantContextHolder.getContext();
+    public void execute(Long tenantId, Runnable runnable) {
+        if (!tenantProperties.isEnabled()) {
+            return;
+        }
+        TenantContext tenantHandler = tenantProvider.getByTenantId(tenantId.toString(), false);
+        // 保存当前的租户上下文
+        TenantContext originalContext = TenantContextHolder.getContext();
+        boolean isPush = false;
+        try {
+            // 设置新的租户上下文
+            TenantContextHolder.setContext(tenantHandler);
             // 切换数据源
-            boolean isPush = false;
-            try {
-                // 设置新的租户上下文
-                TenantContextHolder.setContext(tenantHandler);
-                if (TenantIsolationLevel.DATASOURCE.equals(tenantHandler.getIsolationLevel())) {
-                    //切换数据源
-                    dataSourceHandler.changeDataSource(tenantHandler.getDataSource());
-                    isPush = true;
-                }
-                runnable.run();
-            } finally {
-                // 恢复原始的租户上下文
-                if (originalContext != null) {
-                    TenantContextHolder.setContext(originalContext);
-                } else {
-                    TenantContextHolder.clearContext();
-                }
-                if (isPush) {
-                    DynamicDataSourceContextHolder.poll();
-                }
+            if (TenantIsolationLevel.DATASOURCE.equals(tenantHandler.getIsolationLevel())) {
+                dataSourceHandler.changeDataSource(tenantHandler.getDataSource());
+                isPush = true;
+            }
+            // 执行业务逻辑
+            runnable.run();
+        } finally {
+            // 恢复原始的租户上下文
+            if (originalContext != null) {
+                TenantContextHolder.setContext(originalContext);
+            } else {
+                TenantContextHolder.clearContext();
+            }
+            if (isPush) {
+                DynamicDataSourceContextHolder.poll();
             }
         }
     }
-
 }
