@@ -26,11 +26,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.continew.starter.log.annotation.ConditionalOnEnabledLog;
 import top.continew.starter.log.dao.LogDao;
 import top.continew.starter.log.dao.impl.DefaultLogDaoImpl;
-import top.continew.starter.log.annotation.ConditionalOnEnabledLog;
+import top.continew.starter.log.handler.InterceptorLogHandler;
 import top.continew.starter.log.handler.LogFilter;
-import top.continew.starter.log.handler.LogInterceptor;
+import top.continew.starter.log.handler.LogHandler;
+import top.continew.starter.log.interceptor.LogInterceptor;
 
 /**
  * 日志自动配置
@@ -53,7 +55,7 @@ public class LogAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LogInterceptor(logDao(), logProperties));
+        registry.addInterceptor(new LogInterceptor(logProperties, logHandler(), logDao()));
     }
 
     /**
@@ -63,6 +65,15 @@ public class LogAutoConfiguration implements WebMvcConfigurer {
     @ConditionalOnMissingBean
     public LogFilter logFilter() {
         return new LogFilter(logProperties);
+    }
+
+    /**
+     * 日志处理器
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public LogHandler logHandler() {
+        return new InterceptorLogHandler();
     }
 
     /**

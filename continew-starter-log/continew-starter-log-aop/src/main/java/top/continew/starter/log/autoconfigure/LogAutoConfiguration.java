@@ -29,6 +29,8 @@ import top.continew.starter.log.aspect.AccessLogAspect;
 import top.continew.starter.log.aspect.LogAspect;
 import top.continew.starter.log.dao.LogDao;
 import top.continew.starter.log.dao.impl.DefaultLogDaoImpl;
+import top.continew.starter.log.handler.AopLogHandler;
+import top.continew.starter.log.handler.LogHandler;
 
 /**
  * 日志自动配置
@@ -53,12 +55,14 @@ public class LogAutoConfiguration {
     /**
      * 日志切面
      *
+     * @param logHandler 日志处理器
+     * @param logDao     日志持久层接口
      * @return {@link LogAspect }
      */
     @Bean
     @ConditionalOnMissingBean
-    public LogAspect logAspect(LogDao logDao) {
-        return new LogAspect(logDao, logProperties);
+    public LogAspect logAspect(LogHandler logHandler, LogDao logDao) {
+        return new LogAspect(logProperties, logHandler, logDao);
     }
 
     /**
@@ -70,6 +74,15 @@ public class LogAutoConfiguration {
     @ConditionalOnMissingBean
     public AccessLogAspect accessLogAspect() {
         return new AccessLogAspect(logProperties);
+    }
+
+    /**
+     * 日志处理器
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public LogHandler logHandler() {
+        return new AopLogHandler();
     }
 
     /**

@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.handler;
+package top.continew.starter.log.interceptor;
 
-import cn.hutool.core.text.CharSequenceUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -28,18 +26,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import top.continew.starter.log.http.recordable.impl.RecordableServletHttpRequest;
-import top.continew.starter.log.http.recordable.impl.RecordableServletHttpResponse;
 import top.continew.starter.log.annotation.Log;
-import top.continew.starter.log.dao.LogDao;
-import top.continew.starter.log.enums.Include;
-import top.continew.starter.log.model.LogRecord;
 import top.continew.starter.log.autoconfigure.LogProperties;
+import top.continew.starter.log.dao.LogDao;
+import top.continew.starter.log.handler.LogHandler;
+import top.continew.starter.log.model.LogRecord;
 
+import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * 日志拦截器
@@ -50,14 +45,16 @@ import java.util.Set;
 public class LogInterceptor implements HandlerInterceptor {
 
     private static final Logger log = LoggerFactory.getLogger(LogInterceptor.class);
-    private final LogDao logDao;
     private final LogProperties logProperties;
+    private final LogHandler logHandler;
+    private final LogDao logDao;
     private final TransmittableThreadLocal<Instant> timeTtl = new TransmittableThreadLocal<>();
     private final TransmittableThreadLocal<LogRecord.Started> logTtl = new TransmittableThreadLocal<>();
 
-    public LogInterceptor(LogDao logDao, LogProperties logProperties) {
-        this.logDao = logDao;
+    public LogInterceptor(LogProperties logProperties, LogHandler logHandler, LogDao logDao) {
         this.logProperties = logProperties;
+        this.logHandler = logHandler;
+        this.logDao = logDao;
     }
 
     @Override
@@ -69,8 +66,9 @@ public class LogInterceptor implements HandlerInterceptor {
             log.info("[{}] {}", request.getMethod(), request.getRequestURI());
             timeTtl.set(startTime);
         }
+        // 开始日志记录
         if (this.isRequestRecord(handler, request)) {
-            LogRecord.Started startedLogRecord = LogRecord.start(startTime, new RecordableServletHttpRequest(request));
+            LogRecord.Started startedLogRecord = logHandler.start(startTime, request);
             logTtl.set(startedLogRecord);
         }
         return true;
@@ -92,108 +90,19 @@ public class LogInterceptor implements HandlerInterceptor {
             if (null == startedLogRecord) {
                 return;
             }
+            // 结束日志记录
             HandlerMethod handlerMethod = (HandlerMethod)handler;
-            Log methodLog = handlerMethod.getMethodAnnotation(Log.class);
-            Log classLog = handlerMethod.getBeanType().getDeclaredAnnotation(Log.class);
-            Set<Include> includeSet = this.getIncludes(methodLog, classLog);
-            LogRecord finishedLogRecord = startedLogRecord
-                .finish(endTime, new RecordableServletHttpResponse(response, response.getStatus()), includeSet);
-            // 记录日志描述
-            if (includeSet.contains(Include.DESCRIPTION)) {
-                this.logDescription(finishedLogRecord, methodLog, handlerMethod);
-            }
-            // 记录所属模块
-            if (includeSet.contains(Include.MODULE)) {
-                this.logModule(finishedLogRecord, methodLog, classLog, handlerMethod);
-            }
-            logDao.add(finishedLogRecord);
+            Method targetMethod = handlerMethod.getMethod();
+            Class<?> targetClass = handlerMethod.getBeanType();
+            LogRecord logRecord = logHandler.finish(startedLogRecord, endTime, response, logProperties
+                .getIncludes(), targetMethod, targetClass);
+            logDao.add(logRecord);
         } catch (Exception ex) {
             log.error("Logging http log occurred an error: {}.", ex.getMessage(), ex);
             throw ex;
         } finally {
             timeTtl.remove();
             logTtl.remove();
-        }
-    }
-
-    /**
-     * 获取日志包含信息
-     *
-     * @param methodLog 方法级 Log 注解
-     * @param classLog  类级 Log 注解
-     * @return 日志包含信息
-     */
-    private Set<Include> getIncludes(Log methodLog, Log classLog) {
-        Set<Include> includeSet = new HashSet<>(logProperties.getIncludes());
-        if (null != classLog) {
-            this.processInclude(includeSet, classLog);
-        }
-        if (null != methodLog) {
-            this.processInclude(includeSet, methodLog);
-        }
-        return includeSet;
-    }
-
-    /**
-     * 处理日志包含信息
-     *
-     * @param includes      日志包含信息
-     * @param logAnnotation Log 注解
-     */
-    private void processInclude(Set<Include> includes, Log logAnnotation) {
-        Include[] includeArr = logAnnotation.includes();
-        if (includeArr.length > 0) {
-            includes.addAll(Set.of(includeArr));
-        }
-        Include[] excludeArr = logAnnotation.excludes();
-        if (excludeArr.length > 0) {
-            includes.removeAll(Set.of(excludeArr));
-        }
-    }
-
-    /**
-     * 记录描述
-     *
-     * @param logRecord     日志信息
-     * @param methodLog     方法级 Log 注解
-     * @param handlerMethod 处理器方法
-     */
-    private void logDescription(LogRecord logRecord, Log methodLog, HandlerMethod handlerMethod) {
-        // 例如：@Log("新增部门") -> 新增部门
-        if (null != methodLog && CharSequenceUtil.isNotBlank(methodLog.value())) {
-            logRecord.setDescription(methodLog.value());
-            return;
-        }
-        // 例如：@Operation(summary="新增部门") -> 新增部门
-        Operation methodOperation = handlerMethod.getMethodAnnotation(Operation.class);
-        if (null != methodOperation) {
-            logRecord.setDescription(CharSequenceUtil.blankToDefault(methodOperation.summary(), "请在该接口方法上指定日志描述"));
-        }
-    }
-
-    /**
-     * 记录模块
-     *
-     * @param logRecord     日志信息
-     * @param methodLog     方法级 Log 注解
-     * @param classLog      类级 Log 注解
-     * @param handlerMethod 处理器方法
-     */
-    private void logModule(LogRecord logRecord, Log methodLog, Log classLog, HandlerMethod handlerMethod) {
-        // 例如：@Log(module = "部门管理") -> 部门管理
-        if (null != methodLog && CharSequenceUtil.isNotBlank(methodLog.module())) {
-            logRecord.setModule(methodLog.module());
-            return;
-        }
-        if (null != classLog && CharSequenceUtil.isNotBlank(classLog.module())) {
-            logRecord.setModule(classLog.module());
-            return;
-        }
-        // 例如：@Tag(name = "部门管理") -> 部门管理
-        Tag classTag = handlerMethod.getBeanType().getDeclaredAnnotation(Tag.class);
-        if (null != classTag) {
-            String name = classTag.name();
-            logRecord.setModule(CharSequenceUtil.blankToDefault(name, "请在该接口类上指定所属模块"));
         }
     }
 

@@ -19,7 +19,9 @@ package top.continew.starter.log.aspect;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -47,10 +49,45 @@ public class AccessLogAspect {
     }
 
     /**
-     * 切点 - 匹配所有控制器层的方法
+     * 切点 - 匹配所有控制器层的 GET 请求方法
      */
-    @Pointcut("execution(* *..controller.*.*(..)) || execution(* *..*Controller.*(..))")
+    @Pointcut("within(@org.springframework.web.bind.annotation.RequestMapping *)")
     public void pointcut() {
+    }
+
+    /**
+     * 切点 - 匹配所有控制器层的 GET 请求方法
+     */
+    @Pointcut("within(@org.springframework.web.bind.annotation.GetMapping *)")
+    public void pointcutGet() {
+    }
+
+    /**
+     * 切点 - 匹配所有控制器层的 POST 请求方法
+     */
+    @Pointcut("within(@org.springframework.web.bind.annotation.PostMapping *)")
+    public void pointcutPost() {
+    }
+
+    /**
+     * 切点 - 匹配所有控制器层的 PUT 请求方法
+     */
+    @Pointcut("within(@org.springframework.web.bind.annotation.PutMapping *)")
+    public void pointcutPut() {
+    }
+
+    /**
+     * 切点 - 匹配所有控制器层的 DELETE 请求方法
+     */
+    @Pointcut("within(@org.springframework.web.bind.annotation.DeleteMapping *)")
+    public void pointcutDelete() {
+    }
+
+    /**
+     * 切点 - 匹配所有控制器层的 PATCH 请求方法
+     */
+    @Pointcut("within(@org.springframework.web.bind.annotation.PatchMapping *)")
+    public void pointcutPatch() {
     }
 
     /**
@@ -60,7 +97,7 @@ public class AccessLogAspect {
      * @return 返回结果
      * @throws Throwable 异常
      */
-    @Around("pointcut()")
+    @Around("pointcut() || pointcutGet() || pointcutPost() || pointcutPut() || pointcutDelete() || pointcutPatch()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         Instant startTime = Instant.now();
         // 非 Web 环境不记录
