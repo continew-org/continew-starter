@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-dependencies</artifactId>
-        <version>3.2.10</version>
+        <version>3.2.12</version>
         <relativePath/>
     </parent>
 
@@ -44,32 +44,32 @@
     <properties>
         <!-- 项目版本号 -->
         <revision>2.7.5</revision>
-        <snail-job.version>1.1.2</snail-job.version>
+        <snail-job.version>1.2.0</snail-job.version>
         <sa-token.version>1.39.0</sa-token.version>
-        <just-auth.version>1.16.6</just-auth.version>
+        <just-auth.version>1.16.7</just-auth.version>
         <mybatis-plus.version>3.5.8</mybatis-plus.version>
-        <mybatis-flex.version>1.9.7</mybatis-flex.version>
+        <mybatis-flex.version>1.10.3</mybatis-flex.version>
         <dynamic-datasource.version>4.3.1</dynamic-datasource.version>
         <p6spy.version>3.9.1</p6spy.version>
-        <jetcache.version>2.7.6</jetcache.version>
-        <redisson.version>3.36.0</redisson.version>
-        <cosid.version>2.9.9</cosid.version>
+        <jetcache.version>2.7.7</jetcache.version>
+        <redisson.version>3.41.0</redisson.version>
+        <cosid.version>2.10.1</cosid.version>
         <sms4j.version>3.3.3</sms4j.version>
         <aj-captcha.version>1.3.0</aj-captcha.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
         <easy-excel.version>3.3.4</easy-excel.version>
-        <nashorn.version>15.4</nashorn.version>
+        <nashorn.version>15.5</nashorn.version>
         <x-file-storage.version>2.2.1</x-file-storage.version>
-        <aws-s3.version>1.12.771</aws-s3.version>
-        <graceful-response.version>5.0.0-boot3</graceful-response.version>
+        <aws-s3.version>1.12.780</aws-s3.version>
+        <graceful-response.version>5.0.4-boot3</graceful-response.version>
         <crane4j.version>2.9.0</crane4j.version>
         <knife4j.version>4.5.0</knife4j.version>
         <tlog.version>1.5.2</tlog.version>
         <snakeyaml.version>2.3</snakeyaml.version>
         <okhttp.version>4.12.0</okhttp.version>
         <ttl.version>2.14.5</ttl.version>
-        <ip2region.version>3.2.6</ip2region.version>
-        <hutool.version>5.8.32</hutool.version>
+        <ip2region.version>3.2.12</ip2region.version>
+        <hutool.version>5.8.34</hutool.version>
         <!-- Maven Plugin Versions -->
         <flatten.version>1.6.0</flatten.version>
         <spotless.version>2.43.0</spotless.version>
