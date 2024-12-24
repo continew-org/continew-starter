@@ -27,7 +27,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import top.continew.starter.log.annotation.Log;
-import top.continew.starter.log.autoconfigure.LogProperties;
+import top.continew.starter.log.model.LogProperties;
 import top.continew.starter.log.dao.LogDao;
 import top.continew.starter.log.handler.LogHandler;
 import top.continew.starter.log.model.LogRecord;

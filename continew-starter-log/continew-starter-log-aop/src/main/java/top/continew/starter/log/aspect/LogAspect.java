@@ -16,6 +16,7 @@
 
 package top.continew.starter.log.aspect;
 
+import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -30,10 +31,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.continew.starter.log.annotation.Log;
-import top.continew.starter.log.autoconfigure.LogProperties;
 import top.continew.starter.log.dao.LogDao;
 import top.continew.starter.log.handler.LogHandler;
+import top.continew.starter.log.model.LogProperties;
 import top.continew.starter.log.model.LogRecord;
+import top.continew.starter.web.util.SpringWebUtils;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
@@ -76,13 +78,13 @@ public class LogAspect {
     @Around("pointcut()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         Instant startTime = Instant.now();
-        // 非 Web 环境不记录
-        ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
-        if (attributes == null || attributes.getResponse() == null) {
+        // 指定规则不记录
+        HttpServletRequest request = SpringWebUtils.getRequest();
+        Method targetMethod = this.getMethod(joinPoint);
+        Class<?> targetClass = joinPoint.getTarget().getClass();
+        if (!isRequestRecord(targetMethod, targetClass)) {
             return joinPoint.proceed();
         }
-        HttpServletRequest request = attributes.getRequest();
-        HttpServletResponse response = attributes.getResponse();
         String errorMsg = null;
         // 开始记录
         LogRecord.Started startedLogRecord = logHandler.start(startTime, request);
@@ -95,8 +97,7 @@ public class LogAspect {
         } finally {
             try {
                 Instant endTime = Instant.now();
-                Method targetMethod = this.getMethod(joinPoint);
-                Class<?> targetClass = joinPoint.getTarget().getClass();
+                HttpServletResponse response = SpringWebUtils.getResponse();
                 LogRecord logRecord = logHandler.finish(startedLogRecord, endTime, response, logProperties
                     .getIncludes(), targetMethod, targetClass);
                 // 记录异常信息
@@ -109,6 +110,32 @@ public class LogAspect {
                 throw e;
             }
         }
+    }
+
+    /**
+     * 是否要记录日志
+     *
+     * @param targetMethod 目标方法
+     * @param targetClass  目标类
+     * @return true：需要记录；false：不需要记录
+     */
+    private boolean isRequestRecord(Method targetMethod, Class<?> targetClass) {
+        // 非 Web 环境不记录
+        ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+        if (attributes == null || attributes.getResponse() == null) {
+            return false;
+        }
+        // 如果接口匹配排除列表，不记录日志
+        if (logProperties.isMatch(attributes.getRequest().getRequestURI())) {
+            return false;
+        }
+        // 如果接口方法或类上有 @Log 注解，且要求忽略该接口，则不记录日志
+        Log methodLog = AnnotationUtil.getAnnotation(targetMethod, Log.class);
+        if (null != methodLog && methodLog.ignore()) {
+            return false;
+        }
+        Log classLog = AnnotationUtil.getAnnotation(targetClass, Log.class);
+        return null == classLog || !classLog.ignore();
     }
 
     /**

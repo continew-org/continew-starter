@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.autoconfigure;
+package top.continew.starter.log.model;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.log.enums.Include;
+import top.continew.starter.web.util.SpringWebUtils;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
  * 日志配置属性
  *
  * @author Charles7c
- * @author echo
  * @since 1.1.0
  */
 @ConfigurationProperties(PropertiesConstants.LOG)
@@ -50,6 +52,11 @@ public class LogProperties {
      */
     private Set<Include> includes = Include.defaultIncludes();
 
+    /**
+     * 放行路由
+     */
+    private List<String> excludePatterns = new ArrayList<>();
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -72,5 +79,23 @@ public class LogProperties {
 
     public void setIncludes(Set<Include> includes) {
         this.includes = includes;
+    }
+
+    public List<String> getExcludePatterns() {
+        return excludePatterns;
+    }
+
+    public void setExcludePatterns(List<String> excludePatterns) {
+        this.excludePatterns = excludePatterns;
+    }
+
+    /**
+     * 是否匹配放行路由
+     *
+     * @param uri 请求 URI
+     * @return 是否匹配
+     */
+    public boolean isMatch(String uri) {
+        return this.getExcludePatterns().stream().anyMatch(pattern -> SpringWebUtils.isMatch(uri, pattern));
     }
 }

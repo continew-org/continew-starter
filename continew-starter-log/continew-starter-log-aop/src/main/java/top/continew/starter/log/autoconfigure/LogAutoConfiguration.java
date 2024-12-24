@@ -30,7 +30,9 @@ import top.continew.starter.log.aspect.LogAspect;
 import top.continew.starter.log.dao.LogDao;
 import top.continew.starter.log.dao.impl.DefaultLogDaoImpl;
 import top.continew.starter.log.handler.AopLogHandler;
+import top.continew.starter.log.handler.LogFilter;
 import top.continew.starter.log.handler.LogHandler;
+import top.continew.starter.log.model.LogProperties;
 
 /**
  * 日志自动配置
@@ -50,6 +52,15 @@ public class LogAutoConfiguration {
 
     public LogAutoConfiguration(LogProperties logProperties) {
         this.logProperties = logProperties;
+    }
+
+    /**
+     * 日志过滤器
+     */
+    @Bean
+    @ConditionalOnMissingBean
+    public LogFilter logFilter() {
+        return new LogFilter(logProperties);
     }
 
     /**

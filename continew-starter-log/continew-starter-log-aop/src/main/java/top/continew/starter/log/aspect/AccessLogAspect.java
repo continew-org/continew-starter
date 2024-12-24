@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import top.continew.starter.log.autoconfigure.LogProperties;
+import top.continew.starter.log.model.LogProperties;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -51,42 +51,42 @@ public class AccessLogAspect {
     /**
      * 切点 - 匹配所有控制器层的 GET 请求方法
      */
-    @Pointcut("within(@org.springframework.web.bind.annotation.RequestMapping *)")
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping)")
     public void pointcut() {
     }
 
     /**
      * 切点 - 匹配所有控制器层的 GET 请求方法
      */
-    @Pointcut("within(@org.springframework.web.bind.annotation.GetMapping *)")
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.GetMapping)")
     public void pointcutGet() {
     }
 
     /**
      * 切点 - 匹配所有控制器层的 POST 请求方法
      */
-    @Pointcut("within(@org.springframework.web.bind.annotation.PostMapping *)")
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.PostMapping)")
     public void pointcutPost() {
     }
 
     /**
      * 切点 - 匹配所有控制器层的 PUT 请求方法
      */
-    @Pointcut("within(@org.springframework.web.bind.annotation.PutMapping *)")
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.PutMapping)")
     public void pointcutPut() {
     }
 
     /**
      * 切点 - 匹配所有控制器层的 DELETE 请求方法
      */
-    @Pointcut("within(@org.springframework.web.bind.annotation.DeleteMapping *)")
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.DeleteMapping)")
     public void pointcutDelete() {
     }
 
     /**
      * 切点 - 匹配所有控制器层的 PATCH 请求方法
      */
-    @Pointcut("within(@org.springframework.web.bind.annotation.PatchMapping *)")
+    @Pointcut("@annotation(org.springframework.web.bind.annotation.PatchMapping)")
     public void pointcutPatch() {
     }
 

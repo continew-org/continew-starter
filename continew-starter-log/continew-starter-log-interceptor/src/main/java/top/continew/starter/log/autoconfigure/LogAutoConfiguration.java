@@ -33,6 +33,7 @@ import top.continew.starter.log.handler.InterceptorLogHandler;
 import top.continew.starter.log.handler.LogFilter;
 import top.continew.starter.log.handler.LogHandler;
 import top.continew.starter.log.interceptor.LogInterceptor;
+import top.continew.starter.log.model.LogProperties;
 
 /**
  * 日志自动配置

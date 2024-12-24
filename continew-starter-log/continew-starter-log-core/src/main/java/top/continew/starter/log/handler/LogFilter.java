@@ -28,7 +28,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
-import top.continew.starter.log.autoconfigure.LogProperties;
+import top.continew.starter.log.model.LogProperties;
 
 import java.io.IOException;
 import java.net.URI;
