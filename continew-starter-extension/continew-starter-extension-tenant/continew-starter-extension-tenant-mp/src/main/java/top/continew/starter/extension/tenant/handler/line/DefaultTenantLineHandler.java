@@ -55,8 +55,10 @@ public class DefaultTenantLineHandler implements TenantLineHandler {
     @Override
     public boolean ignoreTable(String tableName) {
         Long tenantId = TenantContextHolder.getTenantId();
-        if ((null != tenantId && tenantId.equals(tenantProperties
-            .getSuperTenantId())) || TenantIsolationLevel.DATASOURCE.equals(TenantContextHolder.getIsolationLevel())) {
+        if (null != tenantId && tenantId.equals(tenantProperties.getSuperTenantId())) {
+            return true;
+        }
+        if (TenantIsolationLevel.DATASOURCE.equals(TenantContextHolder.getIsolationLevel())) {
             return true;
         }
         return CollUtil.contains(tenantProperties.getIgnoreTables(), tableName);

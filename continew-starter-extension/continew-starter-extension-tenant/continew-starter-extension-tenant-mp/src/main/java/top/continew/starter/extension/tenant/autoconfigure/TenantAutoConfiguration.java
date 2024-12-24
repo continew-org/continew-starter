@@ -54,7 +54,7 @@ public class TenantAutoConfiguration {
     private static final Logger log = LoggerFactory.getLogger(TenantAutoConfiguration.class);
     private final TenantProperties tenantProperties;
 
-    private TenantAutoConfiguration(TenantProperties tenantProperties) {
+    public TenantAutoConfiguration(TenantProperties tenantProperties) {
         this.tenantProperties = tenantProperties;
     }
 
