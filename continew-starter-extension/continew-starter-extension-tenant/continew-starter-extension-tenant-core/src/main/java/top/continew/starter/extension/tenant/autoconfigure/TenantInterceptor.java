@@ -19,7 +19,9 @@ package top.continew.starter.extension.tenant.autoconfigure;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.Ordered;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import top.continew.starter.extension.tenant.annotation.TenantIgnore;
 import top.continew.starter.extension.tenant.config.TenantProvider;
 import top.continew.starter.extension.tenant.context.TenantContextHolder;
 
@@ -41,6 +43,13 @@ public class TenantInterceptor implements HandlerInterceptor, Ordered {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        if (handler instanceof HandlerMethod) {
+            HandlerMethod handlerMethod = (HandlerMethod)handler;
+            TenantIgnore customAnnotation = handlerMethod.getMethodAnnotation(TenantIgnore.class);
+            if (customAnnotation != null) {
+                return true;
+            }
+        }
         String tenantId = request.getHeader(tenantProperties.getTenantIdHeader());
         TenantContextHolder.setContext(tenantProvider.getByTenantId(tenantId, true));
         return true;
