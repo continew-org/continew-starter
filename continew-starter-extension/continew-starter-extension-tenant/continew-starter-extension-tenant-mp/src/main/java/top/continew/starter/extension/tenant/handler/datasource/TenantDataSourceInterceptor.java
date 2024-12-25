@@ -21,7 +21,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import top.continew.starter.extension.tenant.context.TenantContextHolder;
 import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
-import top.continew.starter.extension.tenant.handler.TenantDataSourceHandler;
+import top.continew.starter.extension.tenant.TenantDataSourceHandler;
 
 /**
  * 租户数据源级隔离拦截器

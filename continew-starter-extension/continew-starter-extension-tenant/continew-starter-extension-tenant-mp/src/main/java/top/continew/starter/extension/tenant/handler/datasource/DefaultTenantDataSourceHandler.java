@@ -24,7 +24,7 @@ import com.baomidou.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.extension.tenant.config.TenantDataSource;
-import top.continew.starter.extension.tenant.handler.TenantDataSourceHandler;
+import top.continew.starter.extension.tenant.TenantDataSourceHandler;
 
 import javax.sql.DataSource;
 

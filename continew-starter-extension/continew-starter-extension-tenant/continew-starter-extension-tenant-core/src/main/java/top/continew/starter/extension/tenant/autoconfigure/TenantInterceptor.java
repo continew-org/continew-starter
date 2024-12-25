@@ -43,10 +43,9 @@ public class TenantInterceptor implements HandlerInterceptor, Ordered {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
-        if (handler instanceof HandlerMethod) {
-            HandlerMethod handlerMethod = (HandlerMethod)handler;
-            TenantIgnore customAnnotation = handlerMethod.getMethodAnnotation(TenantIgnore.class);
-            if (customAnnotation != null) {
+        if (handler instanceof HandlerMethod handlerMethod) {
+            TenantIgnore tenantIgnore = handlerMethod.getMethodAnnotation(TenantIgnore.class);
+            if (tenantIgnore != null) {
                 return true;
             }
         }

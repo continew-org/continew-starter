@@ -19,7 +19,7 @@ package top.continew.starter.extension.tenant.annotation;
 import java.lang.annotation.*;
 
 /**
- * 多租户数据源级隔离忽略注解
+ * 多租户忽略注解
  *
  * @author Charles7c
  * @since 2.7.0

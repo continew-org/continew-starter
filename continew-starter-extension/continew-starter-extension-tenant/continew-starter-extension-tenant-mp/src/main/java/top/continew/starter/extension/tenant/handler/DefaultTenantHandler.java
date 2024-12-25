@@ -17,6 +17,8 @@
 package top.continew.starter.extension.tenant.handler;
 
 import com.baomidou.dynamic.datasource.toolkit.DynamicDataSourceContextHolder;
+import top.continew.starter.extension.tenant.TenantDataSourceHandler;
+import top.continew.starter.extension.tenant.TenantHandler;
 import top.continew.starter.extension.tenant.autoconfigure.TenantProperties;
 import top.continew.starter.extension.tenant.config.TenantProvider;
 import top.continew.starter.extension.tenant.context.TenantContext;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.extension.tenant.handler;
+package top.continew.starter.extension.tenant;
 
 import top.continew.starter.extension.tenant.config.TenantDataSource;
 

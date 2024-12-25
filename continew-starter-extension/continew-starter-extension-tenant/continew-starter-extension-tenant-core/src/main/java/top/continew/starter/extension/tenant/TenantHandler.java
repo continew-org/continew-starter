@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.extension.tenant.handler;
+package top.continew.starter.extension.tenant;
 
 /**
  * 租户处理器
