@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.handler;
+package top.continew.starter.log;
 
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.servlet.FilterChain;

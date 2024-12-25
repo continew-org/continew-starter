@@ -29,7 +29,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.model.LogProperties;
 import top.continew.starter.log.dao.LogDao;
-import top.continew.starter.log.handler.LogHandler;
+import top.continew.starter.log.LogHandler;
 import top.continew.starter.log.model.LogRecord;
 
 import java.lang.reflect.Method;

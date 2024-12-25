@@ -30,8 +30,8 @@ import top.continew.starter.log.aspect.LogAspect;
 import top.continew.starter.log.dao.LogDao;
 import top.continew.starter.log.dao.impl.DefaultLogDaoImpl;
 import top.continew.starter.log.handler.AopLogHandler;
-import top.continew.starter.log.handler.LogFilter;
-import top.continew.starter.log.handler.LogHandler;
+import top.continew.starter.log.LogFilter;
+import top.continew.starter.log.LogHandler;
 import top.continew.starter.log.model.LogProperties;
 
 /**

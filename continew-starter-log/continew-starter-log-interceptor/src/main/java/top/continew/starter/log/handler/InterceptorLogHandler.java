@@ -20,6 +20,7 @@ import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import top.continew.starter.log.AbstractLogHandler;
 import top.continew.starter.log.model.LogRecord;
 
 import java.lang.reflect.Method;

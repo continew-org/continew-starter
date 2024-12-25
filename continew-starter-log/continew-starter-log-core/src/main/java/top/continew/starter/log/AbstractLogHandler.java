@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.handler;
+package top.continew.starter.log;
 
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.text.CharSequenceUtil;
@@ -22,8 +22,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.enums.Include;
-import top.continew.starter.log.http.recordable.impl.RecordableServletHttpRequest;
-import top.continew.starter.log.http.recordable.impl.RecordableServletHttpResponse;
+import top.continew.starter.log.http.servlet.RecordableServletHttpRequest;
+import top.continew.starter.log.http.servlet.RecordableServletHttpResponse;
 import top.continew.starter.log.model.LogRecord;
 
 import java.lang.reflect.Method;

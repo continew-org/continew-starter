@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.http.recordable.impl;
+package top.continew.starter.log.http.servlet;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.StrUtil;
@@ -22,7 +22,7 @@ import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 import org.springframework.web.util.WebUtils;
-import top.continew.starter.log.http.recordable.RecordableHttpResponse;
+import top.continew.starter.log.http.RecordableHttpResponse;
 import top.continew.starter.web.util.ServletUtils;
 
 import java.util.Map;

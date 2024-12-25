@@ -32,7 +32,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.dao.LogDao;
-import top.continew.starter.log.handler.LogHandler;
+import top.continew.starter.log.LogHandler;
 import top.continew.starter.log.model.LogProperties;
 import top.continew.starter.log.model.LogRecord;
 import top.continew.starter.web.util.SpringWebUtils;

@@ -17,6 +17,7 @@
 package top.continew.starter.log.handler;
 
 import cn.hutool.core.text.CharSequenceUtil;
+import top.continew.starter.log.AbstractLogHandler;
 import top.continew.starter.log.model.LogRecord;
 
 import java.lang.reflect.Method;

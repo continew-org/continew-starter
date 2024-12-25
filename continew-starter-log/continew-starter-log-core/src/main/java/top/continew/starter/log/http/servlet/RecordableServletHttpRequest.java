@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.http.recordable.impl;
+package top.continew.starter.log.http.servlet;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.StrUtil;
@@ -25,7 +25,7 @@ import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.log.http.recordable.RecordableHttpRequest;
+import top.continew.starter.log.http.RecordableHttpRequest;
 
 import java.net.URI;
 import java.net.URISyntaxException;

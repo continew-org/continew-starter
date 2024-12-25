@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log.handler;
+package top.continew.starter.log;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
