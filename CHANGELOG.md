@@ -1,3 +1,34 @@
+## [v2.8.0](https://github.com/continew-org/continew-starter/compare/v2.7.5...v2.8.0) (2024-12-25)
+
+### ✨ 新特性
+
+- 【log/aop】新增 log-aop 组件模块（基于 AOP 实现日志记录） (Gitee#36@dom-w) ([7c3f15a](https://github.com/continew-org/continew-starter/commit/7c3f15a6f647afabb061e560ad3335d47806d33f)) ([265c669](https://github.com/continew-org/continew-starter/commit/265c669eda7599172cc189c96428629423158e86))
+
+### 💎 功能优化
+
+- 【log】新增 LogHandler 提升日志模块的复用性 ([0d33452](https://github.com/continew-org/continew-starter/commit/0d334523e9d18b548740af6583521b47b8171446)) ([c5cb203](https://github.com/continew-org/continew-starter/commit/c5cb203532ea89b497121246f11ad858f1c3ac79)) ([7ff26c4](https://github.com/continew-org/continew-starter/commit/7ff26c45962e916370aeaeaa547974dbf727fdb4))
+- 【extension/tenant】多租户组件适配动态隔离级别 (GitHub#8@xtanyu) ([c089df6](https://github.com/continew-org/continew-starter/commit/c089df66cf226aa8062dc7ac2c82fb0111cfc5c0)) ([613599f](https://github.com/continew-org/continew-starter/commit/613599f92199e0cde11896d41c2d090bfdc46dd3)) ([88d1102](https://github.com/continew-org/continew-starter/commit/88d11027dd18eab5a0a71f85b135a1ddc0f3942f)) ([f7ed2bb](https://github.com/continew-org/continew-starter/commit/f7ed2bbfb017667253ec50341a753b89d65562bb)) ([25f499d](https://github.com/continew-org/continew-starter/commit/25f499de7eb59b53548d9d3f6826358b2fd0c40b))
+
+### 🐛 问题修复
+
+- 【extension/crud】修复 PageResp 手动分页计算错误 ([dc407a8](https://github.com/continew-org/continew-starter/commit/dc407a82cca016db6896104804eef9b660d9d5a1))
+
+### 📦 依赖升级
+
+- Spring Boot 3.2.7 => 3.2.10 ([5ff9391](https://github.com/continew-org/continew-starter/commit/5ff93914854098ac05bf24559336e2155b8f1503))
+- Spring Boot 3.2.10 => 3.2.12
+- SnailJob 1.1.2 => 1.2.0
+- JustAuth 1.16.6 => 1.16.7
+- MyBatis Flex 1.9.7 => 1.10.3
+- JetCache 2.7.6 => 2.7.7
+- Redisson 3.36.0 => 3.41.0
+- CosID 2.9.9 => 2.10.1
+- nashorn-core 15.4 => 15.5
+- aws-s3 1.12.771 => 1.12.780
+- graceful-response 5.0.0-boot3 => 5.0.4-boot3
+- ip2region 3.2.6 => 3.2.12
+- Hutool 5.8.32 => 5.8.34
+
 ## [v2.7.5](https://github.com/continew-org/continew-starter/compare/v2.7.4...v2.7.5) (2024-12-06)
 
 ### 💎 功能优化

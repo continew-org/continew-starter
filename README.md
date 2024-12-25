@@ -1,34 +1,38 @@
 # ContiNew Starter
 
-<a href="https://github.com/continew-org/continew-starter/blob/dev/LICENSE" target="_blank">
-<img src="https://img.shields.io/badge/License-LGPL--3.0-blue.svg" alt="License" />
-</a>
-<a href="https://central.sonatype.com/search?q=continew-starter" target="_blank">
+<a href="https://central.sonatype.com/search?q=continew-starter" title="Release" target="_blank">
 <img src="https://img.shields.io/maven-central/v/top.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
 </a>
-<a href="https://app.codacy.com/gh/continew-org/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" target="_blank">
-<img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy Badge" />
+<a href="https://spring.io/projects/spring-boot" title="Spring Boot" target="_blank">
+<img src="https://img.shields.io/badge/Spring Boot-3.2.12-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
 </a>
-<a href="https://sonarcloud.io/summary/new_code?id=Charles7c_continew-starter" target="_blank">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=Charles7c_continew-starter&metric=alert_status" alt="Sonar Status" />
-</a>
-<a href="https://spring.io/projects/spring-boot" target="_blank">
-<img src="https://img.shields.io/badge/Spring Boot-3.2.10-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
-</a>
-<a href="https://github.com/continew-org/continew-starter" target="_blank">
+<a href="https://github.com/continew-org/continew-starter" title="Open JDK" target="_blank">
 <img src="https://img.shields.io/badge/Open JDK-17-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
 </a>
-<a href="https://github.com/continew-org/continew-starter" target="_blank">
-<img src="https://img.shields.io/github/stars/continew-org/continew-starter?style=social" alt="GitHub stars" />
+<a href="https://app.codacy.com/gh/continew-org/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" title="Codacy" target="_blank">
+<img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy" />
 </a>
-<a href="https://github.com/continew-org/continew-starter" target="_blank">
-<img src="https://img.shields.io/github/forks/continew-org/continew-starter?style=social" alt="GitHub forks" />
+<a href="https://sonarcloud.io/summary/new_code?id=Charles7c_continew-starter" title="Sonar" target="_blank">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=Charles7c_continew-starter&metric=alert_status" alt="Sonar" />
 </a>
-<a href="https://gitee.com/continew/continew-starter" target="_blank">
-<img src="https://gitee.com/continew/continew-starter/badge/star.svg?theme=white" alt="Gitee stars" />
+<br />
+<a href="https://github.com/continew-org/continew-starter/blob/dev/LICENSE" title="License" target="_blank">
+<img src="https://img.shields.io/badge/License-LGPL--3.0-blue.svg" alt="License" />
 </a>
-<a href="https://gitee.com/continew/continew-starter" target="_blank">
-<img src="https://gitee.com/continew/continew-starter/badge/fork.svg?theme=white" alt="Gitee forks" />
+<a href="https://github.com/continew-org/continew-starter" title="GitHub Stars" target="_blank">
+<img src="https://img.shields.io/github/stars/continew-org/continew-starter?style=social" alt="GitHub Stars" />
+</a>
+<a href="https://github.com/continew-org/continew-starter" title="GitHub Forks" target="_blank">
+<img src="https://img.shields.io/github/forks/continew-org/continew-starter?style=social" alt="GitHub Forks" />
+</a>
+<a href="https://gitee.com/continew/continew-starter" title="Gitee Stars" target="_blank">
+<img src="https://gitee.com/continew/continew-starter/badge/star.svg?theme=white" alt="Gitee Stars" />
+</a>
+<a href="https://gitee.com/continew/continew-starter" title="Gitee Forks" target="_blank">
+<img src="https://gitee.com/continew/continew-starter/badge/fork.svg?theme=white" alt="Gitee Forks" />
+</a>
+<a href="https://gitcode.com/continew/continew-starter" title="GitCode Stars" target="_blank">
+<img src="https://gitcode.com/continew/continew-starter/star/badge.svg" alt="GitCode Stars" />
 </a>
 
 ## 简介
@@ -173,7 +177,8 @@ continew-starter
 │  └─ continew-starter-messaging-websocket（WebSocket）
 ├─ continew-starter-log（日志模块）
 │  ├─ continew-starter-log-core（通用模块）
-│  └─ continew-starter-log-interceptor（拦截器版（Spring Boot Actuator HttpTrace 增强版））
+│  ├─ continew-starter-log-aop（基于 AOP 实现）
+│  └─ continew-starter-log-interceptor（基于拦截器实现（Spring Boot Actuator HttpTrace 增强版））
 ├─ continew-starter-file（文件处理模块）
 │  └─ continew-starter-file-excel（Easy Excel）
 ├─ continew-starter-storage（存储模块）
