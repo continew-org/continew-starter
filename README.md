@@ -26,10 +26,10 @@
 <img src="https://img.shields.io/github/forks/continew-org/continew-starter?style=social" alt="GitHub Forks" />
 </a>
 <a href="https://gitee.com/continew/continew-starter" title="Gitee Stars" target="_blank">
-<img src="https://gitee.com/continew/continew-starter/badge/star.svg?theme=white" alt="Gitee Stars" />
+<img src="https://gitee.com/continew/continew-starter/badge/star.svg?theme=dark" alt="Gitee Stars" />
 </a>
 <a href="https://gitee.com/continew/continew-starter" title="Gitee Forks" target="_blank">
-<img src="https://gitee.com/continew/continew-starter/badge/fork.svg?theme=white" alt="Gitee Forks" />
+<img src="https://gitee.com/continew/continew-starter/badge/fork.svg?theme=dark" alt="Gitee Forks" />
 </a>
 <a href="https://gitcode.com/continew/continew-starter" title="GitCode Stars" target="_blank">
 <img src="https://gitcode.com/continew/continew-starter/star/badge.svg" alt="GitCode Stars" />
