@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>top.continew</groupId>
+        <artifactId>continew-starter-storage</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>continew-starter-storage-oss</artifactId>
+    <description>ContiNew Starter 存储模块 - 对象存储</description>
+
+    <dependencies>
+        <!--  S3 SDK for Java 2.x  -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <exclusions>
+                <!-- 基于 Netty 的 HTTP 客户端移除 -->
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>netty-nio-client</artifactId>
+                </exclusion>
+                <!-- 基于 CRT 的 HTTP 客户端移除 -->
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>aws-crt-client</artifactId>
+                </exclusion>
+                <!-- 基于 Apache 的 HTTP 客户端移除 -->
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>apache-client</artifactId>
+                </exclusion>
+                <!-- 配置基于 URL 连接的 HTTP 客户端移除 -->
+                <exclusion>
+                    <groupId>software.amazon.awssdk</groupId>
+                    <artifactId>url-connection-client</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!-- 使用AWS基于 CRT 的 S3 客户端 -->
+        <dependency>
+            <groupId>software.amazon.awssdk.crt</groupId>
+            <artifactId>aws-crt</artifactId>
+        </dependency>
+
+        <!-- 基于 AWS CRT 的 S3 客户端的性能增强的 S3 传输管理器 -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3-transfer-manager</artifactId>
+        </dependency>
+
+        <!--存储 - 核心模块-->
+        <dependency>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-storage-core</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

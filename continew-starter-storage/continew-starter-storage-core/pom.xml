@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>top.continew</groupId>
+        <artifactId>continew-starter-storage</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>continew-starter-storage-core</artifactId>
+    <description>ContiNew Starter 存储模块 - 核心模块</description>
+
+    <dependencies>
+
+        <!--redisson 缓存模块-->
+        <dependency>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-cache-redisson</artifactId>
+        </dependency>
+
+        <!--图片处理工具-主要用做图片缩略处理-->
+        <dependency>
+            <groupId>net.coobird</groupId>
+            <artifactId>thumbnailator</artifactId>
+        </dependency>
+    </dependencies>
+
+
+</project>
