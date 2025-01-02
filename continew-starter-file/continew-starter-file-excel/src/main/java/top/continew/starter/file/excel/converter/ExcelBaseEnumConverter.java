@@ -16,7 +16,6 @@
 
 package top.continew.starter.file.excel.converter;
 
-import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ClassUtil;
 import com.alibaba.excel.converters.Converter;
 import com.alibaba.excel.enums.CellDataTypeEnum;
@@ -34,7 +33,7 @@ import top.continew.starter.core.enums.BaseEnum;
  * @see BaseEnum
  * @since 1.2.0
  */
-public class ExcelBaseEnumConverter implements Converter<BaseEnum<Integer>> {
+public class ExcelBaseEnumConverter implements Converter<BaseEnum<?>> {
 
     @Override
     public Class<BaseEnum> supportJavaTypeKey() {
@@ -50,17 +49,17 @@ public class ExcelBaseEnumConverter implements Converter<BaseEnum<Integer>> {
      * 转换为 Java 数据（读取 Excel）
      */
     @Override
-    public BaseEnum convertToJavaData(ReadCellData<?> cellData,
-                                      ExcelContentProperty contentProperty,
-                                      GlobalConfiguration globalConfiguration) {
-        return this.getEnum(BaseEnum.class, Convert.toStr(cellData.getData()));
+    public BaseEnum<?> convertToJavaData(ReadCellData<?> cellData,
+                                         ExcelContentProperty contentProperty,
+                                         GlobalConfiguration globalConfiguration) {
+        return this.getEnum(contentProperty.getField().getType(), cellData.getStringValue());
     }
 
     /**
      * 转换为 Excel 数据（写入 Excel）
      */
     @Override
-    public WriteCellData<String> convertToExcelData(BaseEnum<Integer> value,
+    public WriteCellData<String> convertToExcelData(BaseEnum<?> value,
                                                     ExcelContentProperty contentProperty,
                                                     GlobalConfiguration globalConfiguration) {
         if (null == value) {
@@ -76,11 +75,11 @@ public class ExcelBaseEnumConverter implements Converter<BaseEnum<Integer>> {
      * @param description 描述
      * @return 对应枚举 ，获取不到时为 {@code null}
      */
-    private BaseEnum<Integer> getEnum(Class<?> enumType, String description) {
+    private BaseEnum<?> getEnum(Class<?> enumType, String description) {
         Object[] enumConstants = enumType.getEnumConstants();
         for (Object enumConstant : enumConstants) {
             if (ClassUtil.isAssignable(BaseEnum.class, enumType)) {
-                BaseEnum<Integer> baseEnum = (BaseEnum<Integer>)enumConstant;
+                BaseEnum<?> baseEnum = (BaseEnum<?>)enumConstant;
                 if (baseEnum.getDescription().equals(description)) {
                     return baseEnum;
                 }
