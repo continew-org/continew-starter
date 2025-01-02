@@ -18,8 +18,11 @@ package top.continew.starter.log;
 
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import top.continew.starter.core.validation.ValidationUtils;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.enums.Include;
 import top.continew.starter.log.http.servlet.RecordableServletHttpRequest;
@@ -85,6 +88,13 @@ public abstract class AbstractLogHandler implements LogHandler {
         if (null != methodLog && CharSequenceUtil.isNotBlank(methodLog.value())) {
             logRecord.setDescription(methodLog.value());
         }
+        // 例如：@Operation(summary="新增部门") -> 新增部门
+        Operation methodOperation = AnnotationUtil.getAnnotation(targetMethod, Operation.class);
+        if (null != methodOperation) {
+            logRecord.setDescription(CharSequenceUtil.blankToDefault(methodOperation
+                .summary(), "请在该接口方法的 @Operation 上添加 summary 来指定日志描述"));
+        }
+        ValidationUtils.throwIfBlank(logRecord.getDescription(), "请在该接口方法上添加 @Log 来指定日志描述");
     }
 
     /**
@@ -107,6 +117,13 @@ public abstract class AbstractLogHandler implements LogHandler {
         if (null != classLog && CharSequenceUtil.isNotBlank(classLog.module())) {
             logRecord.setModule(classLog.module());
         }
+        // 例如：@Tag(name = "部门管理") -> 部门管理
+        Tag classTag = AnnotationUtil.getAnnotation(targetClass, Tag.class);
+        if (null != classTag) {
+            String name = classTag.name();
+            logRecord.setModule(CharSequenceUtil.blankToDefault(name, "请在该接口类的 @Tag 上添加 name 来指定所属模块"));
+        }
+        ValidationUtils.throwIfBlank(logRecord.getModule(), "请在该接口方法或接口类上添加 @Log 来指定所属模块");
     }
 
     @Override

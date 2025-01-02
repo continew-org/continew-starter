@@ -16,11 +16,7 @@
 
 package top.continew.starter.log.handler;
 
-import cn.hutool.core.text.CharSequenceUtil;
 import top.continew.starter.log.AbstractLogHandler;
-import top.continew.starter.log.model.LogRecord;
-
-import java.lang.reflect.Method;
 
 /**
  * 日志处理器-AOP 版实现
@@ -29,20 +25,4 @@ import java.lang.reflect.Method;
  * @since 2.8.0
  */
 public class AopLogHandler extends AbstractLogHandler {
-
-    @Override
-    public void logDescription(LogRecord logRecord, Method targetMethod) {
-        super.logDescription(logRecord, targetMethod);
-        if (CharSequenceUtil.isBlank(logRecord.getDescription())) {
-            logRecord.setDescription("请在该接口方法上指定日志描述");
-        }
-    }
-
-    @Override
-    public void logModule(LogRecord logRecord, Method targetMethod, Class<?> targetClass) {
-        super.logModule(logRecord, targetMethod, targetClass);
-        if (CharSequenceUtil.isBlank(logRecord.getModule())) {
-            logRecord.setModule("请在该接口类上指定所属模块");
-        }
-    }
 }
