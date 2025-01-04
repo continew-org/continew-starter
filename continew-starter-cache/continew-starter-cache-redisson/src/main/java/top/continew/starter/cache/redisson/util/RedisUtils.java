@@ -19,6 +19,7 @@ package top.continew.starter.cache.redisson.util;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import org.redisson.api.*;
+import org.redisson.api.options.KeysScanOptions;
 import top.continew.starter.core.constant.StringConstants;
 
 import java.time.Duration;
@@ -191,7 +192,9 @@ public class RedisUtils {
      * @return 缓存列表
      */
     public static Collection<String> keys(String pattern) {
-        return CLIENT.getKeys().getKeysStreamByPattern(pattern).toList();
+        KeysScanOptions options = KeysScanOptions.defaults();
+        options.pattern(pattern);
+        return CLIENT.getKeys().getKeysStream(options).toList();
     }
 
     /**
@@ -365,8 +368,21 @@ public class RedisUtils {
      * @return true：成功；false：失败
      */
     public static boolean rateLimit(String key, RateType rateType, int rate, int rateInterval) {
+        return rateLimit(key, rateType, rate, Duration.ofSeconds(rateInterval));
+    }
+
+    /**
+     * 限流
+     *
+     * @param key          键
+     * @param rateType     限流类型（OVERALL：全局限流；PER_CLIENT：单机限流）
+     * @param rate         速率（指定时间间隔产生的令牌数）
+     * @param rateInterval 速率间隔（时间间隔）
+     * @return true：成功；false：失败
+     */
+    public static boolean rateLimit(String key, RateType rateType, int rate, Duration rateInterval) {
         RRateLimiter rateLimiter = CLIENT.getRateLimiter(key);
-        rateLimiter.trySetRate(rateType, rate, rateInterval, RateIntervalUnit.SECONDS);
+        rateLimiter.trySetRate(rateType, rate, rateInterval);
         return rateLimiter.tryAcquire(1);
     }
 

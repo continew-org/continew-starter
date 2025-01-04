@@ -37,9 +37,9 @@ public enum Algorithm {
     DES(DesEncryptor.class),
 
     /**
-     * PBEWithMD5AndDES
+     * PBE With MD5 And DES
      */
-    PBEWithMD5AndDES(PbeWithMd5AndDesEncryptor.class),
+    PBE_WITH_MD5_AND_DES(PbeWithMd5AndDesEncryptor.class),
 
     /**
      * RSA

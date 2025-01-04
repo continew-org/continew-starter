@@ -67,7 +67,6 @@ public class AsyncAutoConfiguration implements AsyncConfigurer {
     @Override
     public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
         return (throwable, method, objects) -> {
-            throwable.printStackTrace();
             StringBuilder sb = new StringBuilder();
             sb.append("Exception message: ")
                 .append(throwable.getMessage())

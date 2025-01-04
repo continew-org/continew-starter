@@ -39,6 +39,7 @@ import top.continew.starter.security.limiter.exception.RateLimiterException;
 import top.continew.starter.web.util.SpringWebUtils;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -129,12 +130,11 @@ public class RateLimiterAspect {
             // 限流器配置
             RateType rateType = rateLimiter.type() == LimitType.CLUSTER ? RateType.PER_CLIENT : RateType.OVERALL;
             int rate = rateLimiter.rate();
-            int rateInterval = rateLimiter.interval();
-            RateIntervalUnit rateIntervalUnit = rateLimiter.unit();
+            Duration rateInterval = Duration.ofMillis(rateLimiter.unit().toMillis(rateLimiter.interval()));
             // 判断是否需要更新限流器
-            if (this.isConfigurationUpdateNeeded(rRateLimiter, rateType, rate, rateInterval, rateIntervalUnit)) {
+            if (this.isConfigurationUpdateNeeded(rRateLimiter, rateType, rate, rateInterval)) {
                 // 更新限流器
-                rRateLimiter.setRate(rateType, rate, rateInterval, rateIntervalUnit);
+                rRateLimiter.setRate(rateType, rate, rateInterval);
             }
             // 尝试获取令牌
             return !rRateLimiter.tryAcquire();
@@ -181,20 +181,18 @@ public class RateLimiterAspect {
     /**
      * 判断是否需要更新限流器配置
      *
-     * @param rRateLimiter     限流器
-     * @param rateType         限流类型（OVERALL：全局限流；PER_CLIENT：单机限流）
-     * @param rate             速率（指定时间间隔产生的令牌数）
-     * @param rateInterval     速率间隔
-     * @param rateIntervalUnit 时间单位
+     * @param rRateLimiter 限流器
+     * @param rateType     限流类型（OVERALL：全局限流；PER_CLIENT：单机限流）
+     * @param rate         速率（指定时间间隔产生的令牌数）
+     * @param rateInterval 速率间隔
      * @return 是否需要更新配置
      */
     private boolean isConfigurationUpdateNeeded(RRateLimiter rRateLimiter,
                                                 RateType rateType,
                                                 long rate,
-                                                long rateInterval,
-                                                RateIntervalUnit rateIntervalUnit) {
+                                                Duration rateInterval) {
         RateLimiterConfig config = rRateLimiter.getConfig();
         return !Objects.equals(config.getRateType(), rateType) || !Objects.equals(config.getRate(), rate) || !Objects
-            .equals(config.getRateInterval(), rateIntervalUnit.toMillis(rateInterval));
+            .equals(config.getRateInterval(), rateInterval.toMillis());
     }
 }

@@ -34,7 +34,7 @@ public enum MaskType implements IMaskStrategy {
     CUSTOM {
         @Override
         public String mask(String str, char character, int left, int right) {
-            return CharSequenceUtil.replace(str, left, str.length() - right, character);
+            return CharSequenceUtil.replaceByCodePoint(str, left, str.length() - right, character);
         }
     },
 
@@ -45,7 +45,7 @@ public enum MaskType implements IMaskStrategy {
     MOBILE_PHONE {
         @Override
         public String mask(String str, char character, int left, int right) {
-            return CharSequenceUtil.replace(str, 3, str.length() - 4, character);
+            return CharSequenceUtil.replaceByCodePoint(str, 3, str.length() - 4, character);
         }
     },
 
@@ -58,7 +58,7 @@ public enum MaskType implements IMaskStrategy {
     FIXED_PHONE {
         @Override
         public String mask(String str, char character, int left, int right) {
-            return CharSequenceUtil.replace(str, 4, str.length() - 2, character);
+            return CharSequenceUtil.replaceByCodePoint(str, 4, str.length() - 2, character);
         }
     },
 
@@ -76,7 +76,7 @@ public enum MaskType implements IMaskStrategy {
             if (index <= 1) {
                 return str;
             }
-            return CharSequenceUtil.replace(str, 1, index, character);
+            return CharSequenceUtil.replaceByCodePoint(str, 1, index, character);
         }
     },
 
@@ -89,7 +89,7 @@ public enum MaskType implements IMaskStrategy {
     ID_CARD {
         @Override
         public String mask(String str, char character, int left, int right) {
-            return CharSequenceUtil.replace(str, 1, str.length() - 2, character);
+            return CharSequenceUtil.replaceByCodePoint(str, 1, str.length() - 2, character);
         }
     },
 
@@ -140,11 +140,11 @@ public enum MaskType implements IMaskStrategy {
             // 普通车牌
             int length = str.length();
             if (length == 7) {
-                return CharSequenceUtil.replace(str, 3, 6, character);
+                return CharSequenceUtil.replaceByCodePoint(str, 3, 6, character);
             }
             // 新能源车牌
             if (length == 8) {
-                return CharSequenceUtil.replace(str, 3, 7, character);
+                return CharSequenceUtil.replaceByCodePoint(str, 3, 7, character);
             }
             return str;
         }
@@ -159,7 +159,7 @@ public enum MaskType implements IMaskStrategy {
     CHINESE_NAME {
         @Override
         public String mask(String str, char character, int left, int right) {
-            return CharSequenceUtil.replace(str, 1, str.length(), character);
+            return CharSequenceUtil.replaceByCodePoint(str, 1, str.length(), character);
         }
     },
 
@@ -186,7 +186,7 @@ public enum MaskType implements IMaskStrategy {
         @Override
         public String mask(String str, char character, int left, int right) {
             int length = str.length();
-            return CharSequenceUtil.replace(str, length - 8, length, character);
+            return CharSequenceUtil.replaceByCodePoint(str, length - 8, length, character);
         }
     },
 
