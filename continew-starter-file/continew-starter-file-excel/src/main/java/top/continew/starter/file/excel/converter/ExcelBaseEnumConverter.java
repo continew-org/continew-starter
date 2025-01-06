@@ -16,7 +16,6 @@
 
 package top.continew.starter.file.excel.converter;
 
-import cn.hutool.core.util.ClassUtil;
 import com.alibaba.excel.converters.Converter;
 import com.alibaba.excel.enums.CellDataTypeEnum;
 import com.alibaba.excel.metadata.GlobalConfiguration;
@@ -52,7 +51,7 @@ public class ExcelBaseEnumConverter implements Converter<BaseEnum<?>> {
     public BaseEnum<?> convertToJavaData(ReadCellData<?> cellData,
                                          ExcelContentProperty contentProperty,
                                          GlobalConfiguration globalConfiguration) {
-        return this.getEnum(contentProperty.getField().getType(), cellData.getStringValue());
+        return BaseEnum.getByDescription(cellData.getStringValue(), contentProperty.getField().getType());
     }
 
     /**
@@ -66,25 +65,5 @@ public class ExcelBaseEnumConverter implements Converter<BaseEnum<?>> {
             return new WriteCellData<>(StringConstants.EMPTY);
         }
         return new WriteCellData<>(value.getDescription());
-    }
-
-    /**
-     * 通过 value 获取枚举对象，获取不到时为 {@code null}
-     *
-     * @param enumType    枚举类型
-     * @param description 描述
-     * @return 对应枚举 ，获取不到时为 {@code null}
-     */
-    private BaseEnum<?> getEnum(Class<?> enumType, String description) {
-        Object[] enumConstants = enumType.getEnumConstants();
-        for (Object enumConstant : enumConstants) {
-            if (ClassUtil.isAssignable(BaseEnum.class, enumType)) {
-                BaseEnum<?> baseEnum = (BaseEnum<?>)enumConstant;
-                if (baseEnum.getDescription().equals(description)) {
-                    return baseEnum;
-                }
-            }
-        }
-        return null;
     }
 }
