@@ -1,3 +1,19 @@
+## [v2.8.1](https://github.com/continew-org/continew-starter/compare/v2.8.0...v2.8.1) (2025-01-06)
+
+### ✨ 新特性
+
+- 【core】BaseEnum 新增 getByValue、getByDescription、isValidValue 方法 ([279d72b](https://github.com/continew-org/continew-starter/commit/279d72b7242bf996f9b88d38ed0ea7aa0a0d1c46))
+
+### 💎 功能优化
+
+- 【extension/crud】移除 BaseResp、BaseDetailResp（已移动到 Admin 项目内） ([eb2cac5](https://github.com/continew-org/continew-starter/commit/eb2cac54f75b2850f2957b32190d12e63377c185))
+- 【log】优化日志处理器解析 description、module 方法 ([a6c9d33](https://github.com/continew-org/continew-starter/commit/a6c9d33024ea70bb3dbe11981cbc9a3f9027bcd2))
+- 解决 Sonar 问题，替换部分过期 API ([80c0700](https://github.com/continew-org/continew-starter/commit/80c070093498abb8dff5529d177e1e2519577bf0))
+
+### 🐛 问题修复
+
+- 【file/excel】优化 BaseEnum 转换器 (GitHub#10@Solution-Lin) ([b9779e8](https://github.com/continew-org/continew-starter/commit/b9779e894464ec534bebdd230a7239b6d1964ddb))
+
 ## [v2.8.0](https://github.com/continew-org/continew-starter/compare/v2.7.5...v2.8.0) (2024-12-25)
 
 ### ✨ 新特性
