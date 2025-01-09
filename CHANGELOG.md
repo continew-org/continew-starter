@@ -1,3 +1,21 @@
+## [v2.8.2](https://github.com/continew-org/continew-starter/compare/v2.8.1...v2.8.2) (2025-01-09)
+
+### ✨ 新特性
+
+- 【core】SpringUtils 新增获取代理对象方法 ([5f68227](https://github.com/continew-org/continew-starter/commit/5f6822742fd0f032bcc351155f0b966d24b05346))
+
+### 💎 功能优化
+
+- 【extension/crud】移除 CommonUserService、ContainerPool（已移动到 Admin 项目内） ([0b342d5](https://github.com/continew-org/continew-starter/commit/0b342d5c73e95b809337b939b4e1e957374bad85))
+
+### 🐛 问题修复
+
+- 【log】修复日志记录时所属模块和描述取值优先级失效的问题 ([4fe067a](https://github.com/continew-org/continew-starter/commit/4fe067a889f00617f03caf7ae3598466560dce33))
+
+### 📦 依赖升级
+
+- graceful-response 5.0.4-boot3 => 5.0.5-boot3（修复父类参数校验异常） ([aa463df](https://github.com/continew-org/continew-starter/commit/aa463dff37b658d1cb2a69e68f54790e03c4103d))
+
 ## [v2.8.1](https://github.com/continew-org/continew-starter/compare/v2.8.0...v2.8.1) (2025-01-06)
 
 ### ✨ 新特性
