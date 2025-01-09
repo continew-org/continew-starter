@@ -87,6 +87,7 @@ public abstract class AbstractLogHandler implements LogHandler {
         // 例如：@Log("新增部门") -> 新增部门
         if (null != methodLog && CharSequenceUtil.isNotBlank(methodLog.value())) {
             logRecord.setDescription(methodLog.value());
+            return;
         }
         // 例如：@Operation(summary="新增部门") -> 新增部门
         Operation methodOperation = AnnotationUtil.getAnnotation(targetMethod, Operation.class);
@@ -116,6 +117,7 @@ public abstract class AbstractLogHandler implements LogHandler {
         Log classLog = AnnotationUtil.getAnnotation(targetClass, Log.class);
         if (null != classLog && CharSequenceUtil.isNotBlank(classLog.module())) {
             logRecord.setModule(classLog.module());
+            return;
         }
         // 例如：@Tag(name = "部门管理") -> 部门管理
         Tag classTag = AnnotationUtil.getAnnotation(targetClass, Tag.class);
