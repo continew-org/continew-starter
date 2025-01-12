@@ -30,7 +30,6 @@ import top.continew.starter.extension.crud.enums.Api;
 import top.continew.starter.extension.crud.handler.CrudApiHandler;
 import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
-import top.continew.starter.extension.crud.model.req.BaseReq;
 import top.continew.starter.extension.crud.model.resp.BaseIdResp;
 import top.continew.starter.extension.crud.model.resp.BasePageResp;
 import top.continew.starter.extension.crud.service.BaseService;
@@ -49,7 +48,7 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-public abstract class AbstractBaseController<S extends BaseService<L, D, Q, C>, L, D, Q, C extends BaseReq> implements CrudApiHandler {
+public abstract class AbstractBaseController<S extends BaseService<L, D, Q, C>, L, D, Q, C> implements CrudApiHandler {
 
     @Autowired
     protected S baseService;
