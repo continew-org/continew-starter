@@ -22,7 +22,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import top.continew.starter.core.validation.ValidationUtils;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.enums.Include;
 import top.continew.starter.log.http.servlet.RecordableServletHttpRequest;
@@ -83,6 +82,7 @@ public abstract class AbstractLogHandler implements LogHandler {
      */
     @Override
     public void logDescription(LogRecord logRecord, Method targetMethod) {
+        logRecord.setDescription("请在该接口方法上添加 @top.continew.starter.log.annotation.Log(value) 来指定日志描述");
         Log methodLog = AnnotationUtil.getAnnotation(targetMethod, Log.class);
         // 例如：@Log("新增部门") -> 新增部门
         if (null != methodLog && CharSequenceUtil.isNotBlank(methodLog.value())) {
@@ -91,11 +91,9 @@ public abstract class AbstractLogHandler implements LogHandler {
         }
         // 例如：@Operation(summary="新增部门") -> 新增部门
         Operation methodOperation = AnnotationUtil.getAnnotation(targetMethod, Operation.class);
-        if (null != methodOperation) {
-            logRecord.setDescription(CharSequenceUtil.blankToDefault(methodOperation
-                .summary(), "请在该接口方法的 @Operation 上添加 summary 来指定日志描述"));
+        if (null != methodOperation && CharSequenceUtil.isNotBlank(methodOperation.summary())) {
+            logRecord.setDescription(methodOperation.summary());
         }
-        ValidationUtils.throwIfBlank(logRecord.getDescription(), "请在该接口方法上添加 @Log 来指定日志描述");
     }
 
     /**
@@ -107,6 +105,7 @@ public abstract class AbstractLogHandler implements LogHandler {
      */
     @Override
     public void logModule(LogRecord logRecord, Method targetMethod, Class<?> targetClass) {
+        logRecord.setModule("请在该接口方法或类上添加 @top.continew.starter.log.annotation.Log(module) 来指定所属模块");
         Log methodLog = AnnotationUtil.getAnnotation(targetMethod, Log.class);
         // 例如：@Log(module = "部门管理") -> 部门管理
         // 方法级注解优先级高于类级注解
@@ -121,11 +120,9 @@ public abstract class AbstractLogHandler implements LogHandler {
         }
         // 例如：@Tag(name = "部门管理") -> 部门管理
         Tag classTag = AnnotationUtil.getAnnotation(targetClass, Tag.class);
-        if (null != classTag) {
-            String name = classTag.name();
-            logRecord.setModule(CharSequenceUtil.blankToDefault(name, "请在该接口类的 @Tag 上添加 name 来指定所属模块"));
+        if (null != classTag && CharSequenceUtil.isNotBlank(classTag.name())) {
+            logRecord.setModule(classTag.name());
         }
-        ValidationUtils.throwIfBlank(logRecord.getModule(), "请在该接口方法或接口类上添加 @Log 来指定所属模块");
     }
 
     @Override
