@@ -1,3 +1,14 @@
+## [v2.8.3](https://github.com/continew-org/continew-starter/compare/v2.8.2...v2.8.3) (2025-01-16)
+
+### 💎 功能优化
+
+- 【log】调整所属模块、日志描述默认提示，不再直接抛出异常 ([326dd76](https://github.com/continew-org/continew-starter/commit/326dd76c34476141c39add5348da052bdb8c27cd))
+- 【extension/crud】移除 BaseDO、BaseCreateDO、BaseUpdateDO 等（已移动到 Admin 项目内） ([6e621bc](https://github.com/continew-org/continew-starter/commit/6e621bc4597996c8f1f65c542f5faa922b95a900))
+
+### 🐛 问题修复
+
+- 【extension/crud】修复查询条件校验无效的问题 ([d771e12](https://github.com/continew-org/continew-starter/commit/d771e128399851fa78f1041fa4ffcd6af3332fcd))
+
 ## [v2.8.2](https://github.com/continew-org/continew-starter/compare/v2.8.1...v2.8.2) (2025-01-09)
 
 ### ✨ 新特性
