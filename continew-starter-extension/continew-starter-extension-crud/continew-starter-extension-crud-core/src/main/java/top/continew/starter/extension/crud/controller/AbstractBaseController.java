@@ -64,7 +64,7 @@ public abstract class AbstractBaseController<S extends BaseService<L, D, Q, C>, 
     @Operation(summary = "分页查询列表", description = "分页查询列表")
     @ResponseBody
     @GetMapping
-    public BasePageResp<L> page(Q query, @Validated PageQuery pageQuery) {
+    public BasePageResp<L> page(@Validated Q query, @Validated PageQuery pageQuery) {
         return baseService.page(query, pageQuery);
     }
 
@@ -79,7 +79,7 @@ public abstract class AbstractBaseController<S extends BaseService<L, D, Q, C>, 
     @Operation(summary = "查询列表", description = "查询列表")
     @ResponseBody
     @GetMapping("/list")
-    public List<L> list(Q query, SortQuery sortQuery) {
+    public List<L> list(@Validated Q query, @Validated SortQuery sortQuery) {
         return baseService.list(query, sortQuery);
     }
 
@@ -94,7 +94,7 @@ public abstract class AbstractBaseController<S extends BaseService<L, D, Q, C>, 
     @Operation(summary = "查询树列表", description = "查询树列表")
     @ResponseBody
     @GetMapping("/tree")
-    public List<Tree<Long>> tree(Q query, SortQuery sortQuery) {
+    public List<Tree<Long>> tree(@Validated Q query, @Validated SortQuery sortQuery) {
         return baseService.tree(query, sortQuery, false);
     }
 
@@ -167,7 +167,7 @@ public abstract class AbstractBaseController<S extends BaseService<L, D, Q, C>, 
     @ExcludeFromGracefulResponse
     @Operation(summary = "导出数据", description = "导出数据")
     @GetMapping("/export")
-    public void export(Q query, SortQuery sortQuery, HttpServletResponse response) {
+    public void export(@Validated Q query, @Validated SortQuery sortQuery, HttpServletResponse response) {
         baseService.export(query, sortQuery, response);
     }
 }
