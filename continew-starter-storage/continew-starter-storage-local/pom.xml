@@ -13,10 +13,10 @@
     <description>ContiNew Starter 存储模块 - 本地存储</description>
 
     <dependencies>
-        <!-- Spring Web MVC 模块 -->
+        <!--存储 - 核心模块-->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-webmvc</artifactId>
+            <groupId>top.continew</groupId>
+            <artifactId>continew-starter-storage-core</artifactId>
         </dependency>
     </dependencies>
 </project>

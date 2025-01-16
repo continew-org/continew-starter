@@ -14,7 +14,9 @@
     <description>ContiNew Starter 存储模块</description>
 
     <modules>
+        <module>continew-starter-storage-core</module>
         <module>continew-starter-storage-local</module>
+        <module>continew-starter-storage-oss</module>
     </modules>
 
     <dependencies>

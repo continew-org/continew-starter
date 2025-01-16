@@ -70,6 +70,11 @@
         <ttl.version>2.14.5</ttl.version>
         <ip2region.version>3.2.12</ip2region.version>
         <hutool.version>5.8.34</hutool.version>
+        <!--对象存储版本-->
+        <s3.version>2.29.23</s3.version>
+        <s3-crt.version>0.33.5</s3-crt.version>
+        <!--缩略图处理版本-->
+        <thumbnails.version>0.4.20</thumbnails.version>
         <!-- Maven Plugin Versions -->
         <flatten.version>1.6.0</flatten.version>
         <spotless.version>2.43.0</spotless.version>
@@ -253,18 +258,32 @@
                 <version>${easy-excel.version}</version>
             </dependency>
 
-            <!-- X File Storage（一行代码将文件存储到本地、FTP、SFTP、WebDAV、阿里云 OSS、华为云 OBS...等其它兼容 S3 协议的存储平台） -->
+            <!--  S3  for Java 2.x  -->
             <dependency>
-                <groupId>org.dromara.x-file-storage</groupId>
-                <artifactId>x-file-storage-spring</artifactId>
-                <version>${x-file-storage.version}</version>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3</artifactId>
+                <version>${s3.version}</version>
             </dependency>
 
-            <!-- Amazon S3（Amazon Simple Storage Service，亚马逊简单存储服务，通用存储协议 S3，兼容主流云厂商对象存储） -->
+            <!-- 使用AWS基于 CRT 的 S3 客户端 -->
             <dependency>
-                <groupId>com.amazonaws</groupId>
-                <artifactId>aws-java-sdk-s3</artifactId>
-                <version>${aws-s3.version}</version>
+                <groupId>software.amazon.awssdk.crt</groupId>
+                <artifactId>aws-crt</artifactId>
+                <version>${s3-crt.version}</version>
+            </dependency>
+
+            <!-- 基于 AWS CRT 的 S3 客户端的性能增强的 S3 传输管理器 -->
+            <dependency>
+                <groupId>software.amazon.awssdk</groupId>
+                <artifactId>s3-transfer-manager</artifactId>
+                <version>${s3.version}</version>
+            </dependency>
+
+            <!--图片处理工具-主要用做图片缩略处理-->
+            <dependency>
+                <groupId>net.coobird</groupId>
+                <artifactId>thumbnailator</artifactId>
+                <version>${thumbnails.version}</version>
             </dependency>
 
             <!-- Graceful Response（一个Spring Boot技术栈下的优雅响应处理组件，可以帮助开发者完成响应数据封装、异常处理、错误码填充等过程，提高开发效率，提高代码质量） -->
@@ -476,10 +495,24 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 存储模块 - 核心模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-storage-core</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 存储模块 - 本地存储 -->
             <dependency>
                 <groupId>top.continew</groupId>
                 <artifactId>continew-starter-storage-local</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 存储模块 - 对象存储 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-storage-oss</artifactId>
                 <version>${revision}</version>
             </dependency>
 
