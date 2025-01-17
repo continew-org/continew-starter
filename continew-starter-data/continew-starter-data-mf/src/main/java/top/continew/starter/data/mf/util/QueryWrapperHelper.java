@@ -183,12 +183,11 @@ public class QueryWrapperHelper {
      * @param queryType  查询类型
      * @param columnName 列名
      * @param fieldValue 字段值
-     * @param <R>        查询数据类型
      */
-    private static <R> void parse(QueryType queryType,
-                                  String columnName,
-                                  Object fieldValue,
-                                  List<Consumer<QueryWrapper>> consumers) {
+    private static void parse(QueryType queryType,
+                              String columnName,
+                              Object fieldValue,
+                              List<Consumer<QueryWrapper>> consumers) {
         switch (queryType) {
             case EQ -> consumers.add(q -> q.eq(columnName, fieldValue));
             case NE -> consumers.add(q -> q.ne(columnName, fieldValue));

@@ -16,10 +16,10 @@
 
 package top.continew.starter.security.limiter.annotation;
 
-import org.redisson.api.RateIntervalUnit;
 import top.continew.starter.security.limiter.enums.LimitType;
 
 import java.lang.annotation.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 限流注解
@@ -60,7 +60,7 @@ public @interface RateLimiter {
     /**
      * 速率间隔时间单位（默认：毫秒）
      */
-    RateIntervalUnit unit() default RateIntervalUnit.MILLISECONDS;
+    TimeUnit unit() default TimeUnit.MILLISECONDS;
 
     /**
      * 提示信息

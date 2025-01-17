@@ -16,7 +16,7 @@
 
 package top.continew.starter.web.autoconfigure.xss;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ArrayUtil;
@@ -110,7 +110,7 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
         // 转义
         if (XssMode.ESCAPE.equals(mode)) {
             List<String> reStr = ReUtil.findAllGroup0(HtmlUtil.RE_HTML_MARK, content);
-            if (CollectionUtil.isEmpty(reStr)) {
+            if (CollUtil.isEmpty(reStr)) {
                 return content;
             }
             for (String s : reStr) {

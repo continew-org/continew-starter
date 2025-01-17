@@ -18,6 +18,8 @@ package top.continew.starter.log;
 
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import top.continew.starter.log.annotation.Log;
@@ -80,10 +82,17 @@ public abstract class AbstractLogHandler implements LogHandler {
      */
     @Override
     public void logDescription(LogRecord logRecord, Method targetMethod) {
+        logRecord.setDescription("请在该接口方法上添加 @top.continew.starter.log.annotation.Log(value) 来指定日志描述");
         Log methodLog = AnnotationUtil.getAnnotation(targetMethod, Log.class);
         // 例如：@Log("新增部门") -> 新增部门
         if (null != methodLog && CharSequenceUtil.isNotBlank(methodLog.value())) {
             logRecord.setDescription(methodLog.value());
+            return;
+        }
+        // 例如：@Operation(summary="新增部门") -> 新增部门
+        Operation methodOperation = AnnotationUtil.getAnnotation(targetMethod, Operation.class);
+        if (null != methodOperation && CharSequenceUtil.isNotBlank(methodOperation.summary())) {
+            logRecord.setDescription(methodOperation.summary());
         }
     }
 
@@ -96,6 +105,7 @@ public abstract class AbstractLogHandler implements LogHandler {
      */
     @Override
     public void logModule(LogRecord logRecord, Method targetMethod, Class<?> targetClass) {
+        logRecord.setModule("请在该接口方法或类上添加 @top.continew.starter.log.annotation.Log(module) 来指定所属模块");
         Log methodLog = AnnotationUtil.getAnnotation(targetMethod, Log.class);
         // 例如：@Log(module = "部门管理") -> 部门管理
         // 方法级注解优先级高于类级注解
@@ -106,6 +116,12 @@ public abstract class AbstractLogHandler implements LogHandler {
         Log classLog = AnnotationUtil.getAnnotation(targetClass, Log.class);
         if (null != classLog && CharSequenceUtil.isNotBlank(classLog.module())) {
             logRecord.setModule(classLog.module());
+            return;
+        }
+        // 例如：@Tag(name = "部门管理") -> 部门管理
+        Tag classTag = AnnotationUtil.getAnnotation(targetClass, Tag.class);
+        if (null != classTag && CharSequenceUtil.isNotBlank(classTag.name())) {
+            logRecord.setModule(classTag.name());
         }
     }
 

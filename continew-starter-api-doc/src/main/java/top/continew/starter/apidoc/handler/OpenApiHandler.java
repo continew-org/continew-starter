@@ -36,7 +36,6 @@ import org.springdoc.core.service.SecurityService;
 import org.springdoc.core.utils.PropertyResolverUtils;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.AnnotatedElementUtils;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.method.HandlerMethod;
 
 import java.io.StringReader;
@@ -152,7 +151,7 @@ public class OpenApiHandler extends OpenAPIService {
             if (this.openAPI.getPaths() == null) {
                 this.openAPI.setPaths(new Paths());
             }
-            if (!CollectionUtils.isEmpty(this.openAPI.getServers())) {
+            if (CollUtil.isNotEmpty(this.openAPI.getServers())) {
                 this.isServersPresent = true;
             }
         }
@@ -176,7 +175,7 @@ public class OpenApiHandler extends OpenAPIService {
         buildTagsFromMethod(handlerMethod.getMethod(), tags, tagsStr, locale);
         buildTagsFromClass(handlerMethod.getBeanType(), tags, tagsStr, locale);
 
-        if (!CollectionUtils.isEmpty(tagsStr)) {
+        if (CollUtil.isNotEmpty(tagsStr)) {
             tagsStr = tagsStr.stream()
                 .map(str -> propertyResolverUtils.resolve(str, locale))
                 .collect(Collectors.toSet());
@@ -190,8 +189,8 @@ public class OpenApiHandler extends OpenAPIService {
             }
         }
 
-        if (!CollectionUtils.isEmpty(tagsStr)) {
-            if (CollectionUtils.isEmpty(operation.getTags())) {
+        if (CollUtil.isNotEmpty(tagsStr)) {
+            if (CollUtil.isEmpty(operation.getTags())) {
                 operation.setTags(new ArrayList<>(tagsStr));
             } else {
                 Set<String> operationTagsSet = new HashSet<>(operation.getTags());
@@ -225,10 +224,10 @@ public class OpenApiHandler extends OpenAPIService {
             }
         }
 
-        if (!CollectionUtils.isEmpty(tags)) {
+        if (CollUtil.isNotEmpty(tags)) {
             // Existing tags
             List<Tag> openApiTags = openAPI.getTags();
-            if (!CollectionUtils.isEmpty(openApiTags)) {
+            if (CollUtil.isNotEmpty(openApiTags)) {
                 tags.addAll(openApiTags);
             }
             openAPI.setTags(new ArrayList<>(tags));
@@ -256,7 +255,7 @@ public class OpenApiHandler extends OpenAPIService {
             .collect(Collectors.toSet());
         methodTags.addAll(AnnotatedElementUtils
             .findAllMergedAnnotations(method, io.swagger.v3.oas.annotations.tags.Tag.class));
-        if (!CollectionUtils.isEmpty(methodTags)) {
+        if (CollUtil.isNotEmpty(methodTags)) {
             tagsStr.addAll(toSet(methodTags, tag -> propertyResolverUtils.resolve(tag.name(), locale)));
             List<io.swagger.v3.oas.annotations.tags.Tag> allTags = new ArrayList<>(methodTags);
             addTags(allTags, tags, locale);

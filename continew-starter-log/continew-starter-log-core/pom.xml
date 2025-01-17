@@ -11,4 +11,12 @@
 
     <artifactId>continew-starter-log-core</artifactId>
     <description>ContiNew Starter 日志模块 - 核心模块</description>
+
+    <dependencies>
+        <!-- Swagger 注解 -->
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations-jakarta</artifactId>
+        </dependency>
+    </dependencies>
 </project>

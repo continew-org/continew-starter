@@ -1,3 +1,48 @@
+## [v2.8.3](https://github.com/continew-org/continew-starter/compare/v2.8.2...v2.8.3) (2025-01-16)
+
+### 💎 功能优化
+
+- 【log】调整所属模块、日志描述默认提示，不再直接抛出异常 ([326dd76](https://github.com/continew-org/continew-starter/commit/326dd76c34476141c39add5348da052bdb8c27cd))
+- 【extension/crud】移除 BaseDO、BaseCreateDO、BaseUpdateDO 等（已移动到 Admin 项目内） ([6e621bc](https://github.com/continew-org/continew-starter/commit/6e621bc4597996c8f1f65c542f5faa922b95a900))
+
+### 🐛 问题修复
+
+- 【extension/crud】修复查询条件校验无效的问题 ([d771e12](https://github.com/continew-org/continew-starter/commit/d771e128399851fa78f1041fa4ffcd6af3332fcd))
+
+## [v2.8.2](https://github.com/continew-org/continew-starter/compare/v2.8.1...v2.8.2) (2025-01-09)
+
+### ✨ 新特性
+
+- 【core】SpringUtils 新增获取代理对象方法 ([5f68227](https://github.com/continew-org/continew-starter/commit/5f6822742fd0f032bcc351155f0b966d24b05346))
+
+### 💎 功能优化
+
+- 【extension/crud】移除 CommonUserService、ContainerPool（已移动到 Admin 项目内） ([0b342d5](https://github.com/continew-org/continew-starter/commit/0b342d5c73e95b809337b939b4e1e957374bad85))
+
+### 🐛 问题修复
+
+- 【log】修复日志记录时所属模块和描述取值优先级失效的问题 ([4fe067a](https://github.com/continew-org/continew-starter/commit/4fe067a889f00617f03caf7ae3598466560dce33))
+
+### 📦 依赖升级
+
+- graceful-response 5.0.4-boot3 => 5.0.5-boot3（修复父类参数校验异常） ([aa463df](https://github.com/continew-org/continew-starter/commit/aa463dff37b658d1cb2a69e68f54790e03c4103d))
+
+## [v2.8.1](https://github.com/continew-org/continew-starter/compare/v2.8.0...v2.8.1) (2025-01-06)
+
+### ✨ 新特性
+
+- 【core】BaseEnum 新增 getByValue、getByDescription、isValidValue 方法 ([279d72b](https://github.com/continew-org/continew-starter/commit/279d72b7242bf996f9b88d38ed0ea7aa0a0d1c46))
+
+### 💎 功能优化
+
+- 【extension/crud】移除 BaseResp、BaseDetailResp（已移动到 Admin 项目内） ([eb2cac5](https://github.com/continew-org/continew-starter/commit/eb2cac54f75b2850f2957b32190d12e63377c185))
+- 【log】优化日志处理器解析 description、module 方法 ([a6c9d33](https://github.com/continew-org/continew-starter/commit/a6c9d33024ea70bb3dbe11981cbc9a3f9027bcd2))
+- 解决 Sonar 问题，替换部分过期 API ([80c0700](https://github.com/continew-org/continew-starter/commit/80c070093498abb8dff5529d177e1e2519577bf0))
+
+### 🐛 问题修复
+
+- 【file/excel】优化 BaseEnum 转换器 (GitHub#10@Solution-Lin) ([b9779e8](https://github.com/continew-org/continew-starter/commit/b9779e894464ec534bebdd230a7239b6d1964ddb))
+
 ## [v2.8.0](https://github.com/continew-org/continew-starter/compare/v2.7.5...v2.8.0) (2024-12-25)
 
 ### ✨ 新特性

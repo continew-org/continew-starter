@@ -14,21 +14,30 @@
  * limitations under the License.
  */
 
-package top.continew.starter.extension.crud.constant;
+package top.continew.starter.core.util;
+
+import cn.hutool.extra.spring.SpringUtil;
 
 /**
- * 数据源容器相关常量（Crane4j 数据填充组件使用）
+ * Spring 工具类
  *
  * @author Charles7c
- * @since 1.2.0
+ * @since 2.8.2
  */
-public class ContainerPool {
+public class SpringUtils {
+
+    private SpringUtils() {
+    }
 
     /**
-     * 用户昵称
+     * 获取代理对象
+     *
+     * @param target 目标对象
+     * @param <T>    目标对象类型
+     * @return 代理对象
+     * @since 2.8.2
      */
-    public static final String USER_NICKNAME = "UserNickname";
-
-    protected ContainerPool() {
+    public static <T> T getProxy(T target) {
+        return (T)SpringUtil.getBean(target.getClass());
     }
 }

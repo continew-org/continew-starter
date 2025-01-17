@@ -16,7 +16,7 @@
 
 package top.continew.starter.web.autoconfigure.xss;
 
-import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.collection.CollUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -55,14 +55,14 @@ public class XssFilter implements Filter {
         if (servletRequest instanceof HttpServletRequest request && xssProperties.isEnabled()) {
             // 放行路由：忽略 XSS 过滤
             List<String> excludePatterns = xssProperties.getExcludePatterns();
-            if (CollectionUtil.isNotEmpty(excludePatterns) && SpringWebUtils.isMatch(request
+            if (CollUtil.isNotEmpty(excludePatterns) && SpringWebUtils.isMatch(request
                 .getServletPath(), excludePatterns)) {
                 filterChain.doFilter(request, servletResponse);
                 return;
             }
             // 拦截路由：执行 XSS 过滤
             List<String> includePatterns = xssProperties.getIncludePatterns();
-            if (CollectionUtil.isNotEmpty(includePatterns)) {
+            if (CollUtil.isNotEmpty(includePatterns)) {
                 if (SpringWebUtils.isMatch(request.getServletPath(), includePatterns)) {
                     filterChain.doFilter(new XssServletRequestWrapper(request, xssProperties), servletResponse);
                 } else {
