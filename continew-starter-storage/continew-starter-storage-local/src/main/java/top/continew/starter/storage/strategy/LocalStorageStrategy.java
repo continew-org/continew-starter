@@ -125,7 +125,7 @@ public class LocalStorageStrategy implements StorageStrategy<LocalClient> {
             String formatFileName = StorageUtils.formatFileName(fileName);
             // 判断文件路径是否为空  为空给默认路径 格式 2024/12/30/
             if (StrUtil.isEmpty(path)) {
-                path = StorageUtils.defaultPath();
+                path = StorageUtils.localDefaultPath();
             }
             // 判断文件夹是否存在 不存在则创建
             Path folderPath = Paths.get(bucketName, path);

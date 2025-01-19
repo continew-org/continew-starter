@@ -71,14 +71,27 @@ public class StorageUtils {
     }
 
     /**
-     * 默认路径地址 格式 2024/03/10/
+     * 本地存储默认路径地址 格式
+     * <p>mac/linux ： 2024/03/10/</>
+     * <p>windows ： 2024\03\10\</>
      *
      * @return {@link String }
      */
-    public static String defaultPath() {
+    public static String localDefaultPath() {
         LocalDate today = LocalDate.now();
         return Paths.get(String.valueOf(today.getYear()), String.valueOf(today.getMonthValue()), String.valueOf(today
             .getDayOfMonth())) + StringConstants.SLASH;
+    }
+
+    /**
+     * 对象存储默认路径 格式 2024/03/10/
+     *
+     * @return {@link String }
+     */
+    public static String ossDefaultPath() {
+        LocalDate today = LocalDate.now();
+        return today.getYear() + StringConstants.SLASH + today.getMonthValue() + StringConstants.SLASH + today
+            .getDayOfMonth() + StringConstants.SLASH;
     }
 
     /**
