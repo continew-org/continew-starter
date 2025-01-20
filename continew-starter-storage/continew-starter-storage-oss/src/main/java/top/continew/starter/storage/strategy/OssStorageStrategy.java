@@ -54,7 +54,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Base64;
@@ -157,7 +156,7 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
             String formatFileName = StorageUtils.formatFileName(fileName);
             // 判断文件路径是否为空  为空给默认路径 格式 2024/12/30/
             if (StrUtil.isEmpty(path)) {
-                path = StorageUtils.defaultPath();
+                path = StorageUtils.ossDefaultPath();
             }
             ThumbnailResp thumbnailResp = null;
             //判断是否需要上传缩略图 前置条件 文件必须为图片
@@ -174,7 +173,7 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
             }
             String eTag = etag;
             // 构建 上传后的文件路径地址 格式 xxx/xxx/xxx.jpg
-            String filePath = Paths.get(path, formatFileName).toString();
+            String filePath = path + formatFileName;
             // 构建 文件上传记录 并返回
             return buildStorageRecord(bucketName, fileName, filePath, eTag, fileBytes.length, thumbnailResp);
         } catch (IOException e) {
@@ -185,7 +184,7 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
     @Override
     public void upload(String bucketName, String fileName, String path, InputStream inputStream, String fileType) {
         // 构建 S3 存储 文件路径
-        String filePath = Paths.get(path, fileName).toString();
+        String filePath = path + fileName;
         try {
             long available = inputStream.available();
             // 构建异步请求体，指定内容长度
@@ -203,7 +202,8 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
             // 写入输入流内容到请求体
             requestBody.writeInputStream(inputStream);
             CompletedUpload uploadResult = upload.completionFuture().join();
-            etag = uploadResult.response().eTag();
+
+            etag = uploadResult.response().eTag().replace("\"", "");
         } catch (IOException e) {
             throw new BusinessException("文件上传异常", e);
         }
@@ -225,7 +225,7 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
             inputStream = new ByteArrayInputStream(outputStream.toByteArray());
             // 上传文件
             this.upload(bucketName, thumbnailFileName, path, inputStream, fileType);
-            return new ThumbnailResp((long)outputStream.size(), Paths.get(path, thumbnailFileName).toString());
+            return new ThumbnailResp((long)outputStream.size(), path + thumbnailFileName);
         } catch (IOException e) {
             throw new BusinessException("缩略图处理异常", e);
         }
@@ -326,7 +326,7 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
         uploadResp.setThumbnailUrl(thumbnailUrl);
         uploadResp.setThumbnailSize(thumbnailSize);
         uploadResp.seteTag(eTag);
-        uploadResp.setPath(Paths.get(bucketName, filePath).toString());
+        uploadResp.setPath(bucketName + filePath);
         uploadResp.setBucketName(bucketName);
         uploadResp.setCreateTime(LocalDateTime.now());
         storageDao.add(uploadResp);
