@@ -17,10 +17,10 @@
 package top.continew.starter.storage.constant;
 
 /**
- * 存储 常量
+ * 存储常量
  *
  * @author echo
- * @date 2024/12/16 19:09
+ * @since 2.9.0
  */
 public class StorageConstant {
 

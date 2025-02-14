@@ -39,7 +39,7 @@ import java.time.Duration;
  * S3客户端
  *
  * @author echo
- * @date 2024/12/16
+ * @since 2.9.0
  */
 public class OssClient {
 

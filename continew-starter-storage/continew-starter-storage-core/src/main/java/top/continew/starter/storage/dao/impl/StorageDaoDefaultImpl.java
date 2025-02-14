@@ -20,14 +20,15 @@ import top.continew.starter.storage.dao.StorageDao;
 import top.continew.starter.storage.model.resp.UploadResp;
 
 /**
- * 默认记录实现,此类并不能真正保存记录，只是用来脱离数据库运行，保证文件上传功能可以正常使用
+ * 存储记录持久层接口默认实现
+ * <p>此类并不能真正保存记录，只是用来脱离数据库运行，保证文件上传功能可以正常使用</p>
  *
  * @author echo
- * @date 2024/12/18 08:48
- **/
+ * @since 2.9.0
+ */
 public class StorageDaoDefaultImpl implements StorageDao {
+
     @Override
     public void add(UploadResp uploadResp) {
-
     }
 }

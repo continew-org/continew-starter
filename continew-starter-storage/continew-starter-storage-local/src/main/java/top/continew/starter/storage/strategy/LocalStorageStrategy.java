@@ -28,7 +28,7 @@ import top.continew.starter.core.validation.ValidationUtils;
 import top.continew.starter.storage.client.LocalClient;
 import top.continew.starter.storage.constant.StorageConstant;
 import top.continew.starter.storage.dao.StorageDao;
-import top.continew.starter.storage.enums.FileTypeEnum;
+import top.continew.starter.storage.enums.FileType;
 import top.continew.starter.storage.model.req.StorageProperties;
 import top.continew.starter.storage.model.resp.ThumbnailResp;
 import top.continew.starter.storage.model.resp.UploadResp;
@@ -48,7 +48,7 @@ import java.util.Base64;
  * 本地存储策略
  *
  * @author echo
- * @date 2024/12/16 19:48
+ * @since 2.9.0
  */
 public class LocalStorageStrategy implements StorageStrategy<LocalClient> {
 
@@ -134,7 +134,7 @@ public class LocalStorageStrategy implements StorageStrategy<LocalClient> {
             }
             ThumbnailResp thumbnailResp = null;
             //判断是否需要上传缩略图 前置条件 文件必须为图片
-            boolean contains = FileTypeEnum.IMAGE.getExtensions().contains(fileExtension);
+            boolean contains = FileType.IMAGE.getExtensions().contains(fileExtension);
             if (contains && isThumbnail) {
                 try (InputStream thumbnailStream = new ByteArrayInputStream(originalBytes)) {
                     thumbnailResp = this.uploadThumbnail(bucketName, formatFileName, path, thumbnailStream, fileType);
@@ -225,7 +225,7 @@ public class LocalStorageStrategy implements StorageStrategy<LocalClient> {
                 return null;
             }
             String extName = FileUtil.extName(fileName);
-            CheckUtils.throwIf(!FileTypeEnum.IMAGE.getExtensions().contains(extName), "{} 不是图像格式", extName);
+            CheckUtils.throwIf(!FileType.IMAGE.getExtensions().contains(extName), "{} 不是图像格式", extName);
             return Base64.getEncoder().encodeToString(inputStream.readAllBytes());
         } catch (Exception e) {
             throw new BusinessException("无法查看图片", e);

@@ -23,10 +23,10 @@ import top.continew.starter.storage.strategy.StorageStrategy;
 import java.io.InputStream;
 
 /**
- * 装饰器基类 - 用于重写
+ * 装饰器基类
  *
  * @author echo
- * @date 2024/12/30 19:33
+ * @since 2.9.0
  */
 public abstract class AbstractStorageDecorator<C> implements StorageStrategy<C> {
 

@@ -26,7 +26,7 @@ import java.security.NoSuchAlgorithmException;
  * 本地存储工具
  *
  * @author echo
- * @date 2024/12/27 11:58
+ * @since 2.9.0
  */
 public class LocalUtils {
     public LocalUtils() {

@@ -23,14 +23,17 @@ import top.continew.starter.storage.dao.StorageDao;
 import top.continew.starter.storage.dao.impl.StorageDaoDefaultImpl;
 
 /**
- * 本地存储 - 存储自动配置
+ * 对象存储自动配置
  *
  * @author echo
- * @date 2024/12/17 20:23
+ * @since 2.9.0
  */
 @AutoConfiguration
-public class LocalStorageAutoconfigure {
+public class OssStorageAutoConfiguration {
 
+    /**
+     * 存储记录持久层默认实现
+     */
     @Bean
     @ConditionalOnMissingBean
     public StorageDao storageDao() {

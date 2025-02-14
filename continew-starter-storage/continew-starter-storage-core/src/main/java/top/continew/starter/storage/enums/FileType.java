@@ -27,9 +27,9 @@ import java.util.List;
  * 文件类型枚举
  *
  * @author Charles7c
- * @since 2023/12/23 13:38
+ * @since 2.9.0
  */
-public enum FileTypeEnum implements BaseEnum<Integer> {
+public enum FileType implements BaseEnum<Integer> {
 
     /**
      * 其他
@@ -67,14 +67,14 @@ public enum FileTypeEnum implements BaseEnum<Integer> {
      * @param extension 扩展名
      * @return 文件类型
      */
-    public static FileTypeEnum getByExtension(String extension) {
-        return Arrays.stream(FileTypeEnum.values())
+    public static FileType getByExtension(String extension) {
+        return Arrays.stream(FileType.values())
             .filter(t -> t.getExtensions().contains(StrUtil.emptyIfNull(extension).toLowerCase()))
             .findFirst()
-            .orElse(FileTypeEnum.UNKNOWN);
+            .orElse(FileType.UNKNOWN);
     }
 
-    FileTypeEnum(Integer value, String description, List<String> extensions) {
+    FileType(Integer value, String description, List<String> extensions) {
         this.value = value;
         this.description = description;
         this.extensions = extensions;
@@ -98,5 +98,4 @@ public enum FileTypeEnum implements BaseEnum<Integer> {
     public String getColor() {
         return BaseEnum.super.getColor();
     }
-
 }

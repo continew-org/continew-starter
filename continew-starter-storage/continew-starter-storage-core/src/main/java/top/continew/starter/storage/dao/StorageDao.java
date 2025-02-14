@@ -22,7 +22,7 @@ import top.continew.starter.storage.model.resp.UploadResp;
  * 存储记录持久层接口
  *
  * @author echo
- * @date 2024/12/17 16:49
+ * @since 2.9.0
  */
 public interface StorageDao {
 

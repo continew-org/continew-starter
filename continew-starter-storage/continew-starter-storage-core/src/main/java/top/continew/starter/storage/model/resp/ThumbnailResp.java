@@ -20,7 +20,7 @@ package top.continew.starter.storage.model.resp;
  * 缩略图
  *
  * @author echo
- * @date 2024/12/20 17:00
+ * @since 2.9.0
  */
 public class ThumbnailResp {
 

@@ -27,7 +27,7 @@ import java.io.OutputStream;
  * 图像缩略图工具
  *
  * @author echo
- * @date 2024/12/20 16:49
+ * @since 2.9.0
  */
 public class ImageThumbnailUtils {
 

@@ -28,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 存储策略管理器
  *
  * @author echo
- * @date 2024/12/16
+ * @since 2.9.0
  */
 public class StorageManager {
 
@@ -64,7 +64,7 @@ public class StorageManager {
      */
     public static StorageStrategy<?> instance(String code) {
         StorageStrategy<?> strategy = STORAGE_STRATEGY.get(code);
-        ValidationUtils.throwIfEmpty(strategy, "未找到存储配置:" + code);
+        ValidationUtils.throwIfEmpty(strategy, "未找到存储配置: {}", code);
         return strategy;
     }
 

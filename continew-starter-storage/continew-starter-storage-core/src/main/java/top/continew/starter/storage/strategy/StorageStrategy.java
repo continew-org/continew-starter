@@ -25,7 +25,7 @@ import java.io.InputStream;
  * 存储策略接口
  *
  * @author echo
- * @date 2024/12/16 11:19
+ * @since 2.9.0
  */
 public interface StorageStrategy<C> {
 
@@ -49,7 +49,7 @@ public interface StorageStrategy<C> {
     /**
      * 创建桶
      * <p> S3: 创建桶 </p>
-     * <p> local: 创建 默认路径下 指定文件夹 </p>
+     * <p> local: 在默认路径下创建指定文件夹 </p>
      *
      * @param bucketName 桶名称
      */

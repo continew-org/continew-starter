@@ -41,7 +41,7 @@ import top.continew.starter.core.validation.ValidationUtils;
 import top.continew.starter.storage.client.OssClient;
 import top.continew.starter.storage.constant.StorageConstant;
 import top.continew.starter.storage.dao.StorageDao;
-import top.continew.starter.storage.enums.FileTypeEnum;
+import top.continew.starter.storage.enums.FileType;
 import top.continew.starter.storage.model.req.StorageProperties;
 import top.continew.starter.storage.model.resp.ThumbnailResp;
 import top.continew.starter.storage.model.resp.UploadResp;
@@ -65,10 +65,11 @@ import java.util.concurrent.CompletionException;
  * <p><a href="https://docs.aws.amazon.com/zh_cn/sdk-for-java/latest/developer-guide/home.html">...</a></p>
  *
  * @author echo
- * @date 2024/12/16 20:29
+ * @since 2.9.0
  */
 public class OssStorageStrategy implements StorageStrategy<OssClient> {
-    private final static Logger log = LoggerFactory.getLogger(OssStorageStrategy.class);
+
+    private static final Logger log = LoggerFactory.getLogger(OssStorageStrategy.class);
 
     private final OssClient client;
     private final StorageDao storageDao;
@@ -93,7 +94,7 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
         try {
             // 调用 headBucket 请求，检查桶是否存在
             client.getClient().headBucket(HeadBucketRequest.builder().bucket(bucketName).build()).join();
-            return true;  // 桶存在
+            return true;
         } catch (Exception e) {
             // 捕获异常，详细判断具体原因
             if (e.getCause() instanceof NoSuchBucketException) {
@@ -160,7 +161,7 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
             }
             ThumbnailResp thumbnailResp = null;
             //判断是否需要上传缩略图 前置条件 文件必须为图片
-            boolean contains = FileTypeEnum.IMAGE.getExtensions().contains(fileExtension);
+            boolean contains = FileType.IMAGE.getExtensions().contains(fileExtension);
             if (contains && isThumbnail) {
                 try (InputStream thumbnailStream = new ByteArrayInputStream(fileBytes)) {
                     thumbnailResp = this.uploadThumbnail(bucketName, formatFileName, path, thumbnailStream, fileType);
@@ -236,9 +237,9 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
         try {
             // 构建下载请求
             DownloadRequest<ResponseInputStream<GetObjectResponse>> downloadRequest = DownloadRequest.builder()
-                .getObjectRequest(req -> req.bucket(bucketName).key(fileName).build()) // 设置桶名和对象名
-                .addTransferListener(LoggingTransferListener.create()) // 添加传输监听器
-                .responseTransformer(AsyncResponseTransformer.toBlockingInputStream()) // 转换为阻塞输入流
+                .getObjectRequest(req -> req.bucket(bucketName).key(fileName).build())
+                .addTransferListener(LoggingTransferListener.create())
+                .responseTransformer(AsyncResponseTransformer.toBlockingInputStream())
                 .build();
             // 执行下载操作
             Download<ResponseInputStream<GetObjectResponse>> download = client.getTransferManager()
@@ -271,7 +272,7 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
                 return null;
             }
             String extName = FileUtil.extName(fileName);
-            boolean contains = FileTypeEnum.IMAGE.getExtensions().contains(extName);
+            boolean contains = FileType.IMAGE.getExtensions().contains(extName);
             CheckUtils.throwIf(!contains, "{}非图片格式，无法获取", extName);
             return Base64.getEncoder().encodeToString(inputStream.readAllBytes());
         } catch (Exception e) {

@@ -25,7 +25,7 @@ import top.continew.starter.storage.constant.StorageConstant;
  * OSS 工具
  *
  * @author echo
- * @date 2024/12/17 13:48
+ * @since 2.9.0
  */
 public class OssUtils {
     public OssUtils() {
