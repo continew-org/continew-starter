@@ -572,6 +572,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 安全模块 - 敏感词 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-security-sensitivewords</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- API 文档模块 -->
             <dependency>
                 <groupId>top.continew</groupId>
@@ -592,14 +599,6 @@
                 <artifactId>continew-starter-core</artifactId>
                 <version>${revision}</version>
             </dependency>
-
-            <!-- 敏感词模块 -->
-            <dependency>
-                <groupId>top.continew</groupId>
-                <artifactId>continew-starter-sensitive-words</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
         </dependencies>
     </dependencyManagement>
 

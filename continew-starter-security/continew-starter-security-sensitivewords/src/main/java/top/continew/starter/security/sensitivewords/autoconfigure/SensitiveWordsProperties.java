@@ -14,15 +14,33 @@
  * limitations under the License.
  */
 
-package top.continew.starter.sensitive.words.service;
+package top.continew.starter.security.sensitivewords.autoconfigure;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.continew.starter.core.constant.PropertiesConstants;
 
 import java.util.List;
 
 /**
- * 敏感词配置
+ * 敏感词配置属性
+ *
+ * @author luoqiz
+ * @author Charles7c
+ * @since 2.9.0
  */
-public interface SensitiveWordsConfig {
+@ConfigurationProperties(PropertiesConstants.SECURITY_SENSITIVE_WORDS)
+public class SensitiveWordsProperties {
 
-    List<String> getWords();
+    /**
+     * 敏感词列表
+     */
+    private List<String> values;
 
+    public List<String> getValues() {
+        return values;
+    }
+
+    public void setValues(List<String> values) {
+        this.values = values;
+    }
 }

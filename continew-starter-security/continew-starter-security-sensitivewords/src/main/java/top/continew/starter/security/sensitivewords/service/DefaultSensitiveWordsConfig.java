@@ -14,26 +14,32 @@
  * limitations under the License.
  */
 
-package top.continew.starter.sensitive.words.autoconfigure;
+package top.continew.starter.security.sensitivewords.service;
 
-import jakarta.annotation.PostConstruct;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.AutoConfiguration;
+import top.continew.starter.security.sensitivewords.autoconfigure.SensitiveWordsProperties;
+
+import java.util.List;
 
 /**
- * JSR 303 校验器自动配置
+ * 默认敏感词配置
  *
+ * @author luoqiz
  * @author Charles7c
- * @since 2.3.0
+ * @since 2.9.0
  */
-@AutoConfiguration
-public class SensitiveWordsAutoConfiguration {
+public class DefaultSensitiveWordsConfig implements SensitiveWordsConfig {
 
-    private static final Logger log = LoggerFactory.getLogger(SensitiveWordsAutoConfiguration.class);
+    private final SensitiveWordsProperties properties;
 
-    @PostConstruct
-    public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'sensitive words service' completed initialization.");
+    public DefaultSensitiveWordsConfig(SensitiveWordsProperties properties) {
+        this.properties = properties;
+    }
+
+    @Override
+    public List<String> getWords() {
+        if (properties.getValues() != null) {
+            return properties.getValues();
+        }
+        return List.of();
     }
 }

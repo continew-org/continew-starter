@@ -14,19 +14,24 @@
  * limitations under the License.
  */
 
-package top.continew.starter.sensitive.words.autoconfigure;
-
-import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
+package top.continew.starter.security.sensitivewords.service;
 
 import java.util.List;
 
-@Data
-@Component
-@ConfigurationProperties(prefix = "continew.sensitive-words")
-public class SensitiveWordsProperties {
-    // 敏感词注入类型
-    private String type;
-    private List<String> values;
+/**
+ * 敏感词服务接口
+ *
+ * @author luoqiz
+ * @author Charles7c
+ * @since 2.9.0
+ */
+public interface SensitiveWordsService {
+
+    /**
+     * 检查敏感词
+     *
+     * @param content 待检测字符串
+     * @return 敏感词列表
+     */
+    List<String> check(String content);
 }

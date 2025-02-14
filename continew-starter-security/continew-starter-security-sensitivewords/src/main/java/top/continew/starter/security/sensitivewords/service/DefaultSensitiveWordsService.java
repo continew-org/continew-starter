@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-package top.continew.starter.sensitive.words.service;
+package top.continew.starter.security.sensitivewords.service;
 
 import cn.hutool.dfa.WordTree;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 /**
  * 默认敏感词服务
+ *
+ * @author luoqiz
+ * @author Charles7c
+ * @since 2.9.0
  */
-@Component
 @ConditionalOnBean(SensitiveWordsConfig.class)
 @ConditionalOnMissingBean(SensitiveWordsService.class)
 public class DefaultSensitiveWordsService implements SensitiveWordsService {
 
     private final SensitiveWordsConfig sensitiveWordsConfig;
-
-    private WordTree tree = new WordTree();
+    private final WordTree tree = new WordTree();
 
     public DefaultSensitiveWordsService(SensitiveWordsConfig sensitiveWordsConfig) {
         this.sensitiveWordsConfig = sensitiveWordsConfig;

@@ -14,16 +14,23 @@
  * limitations under the License.
  */
 
-package top.continew.starter.sensitive.words.service;
+package top.continew.starter.security.sensitivewords.service;
 
 import java.util.List;
 
-public interface SensitiveWordsService {
+/**
+ * 敏感词配置接口
+ *
+ * @author luoqiz
+ * @author Charles7c
+ * @since 2.9.0
+ */
+public interface SensitiveWordsConfig {
+
     /**
-     * 检查敏感词
+     * 获取敏感词列表
      *
-     * @param content 待检测字符串
      * @return 敏感词列表
      */
-    List<String> check(String content);
+    List<String> getWords();
 }

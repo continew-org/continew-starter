@@ -5,25 +5,15 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>top.continew</groupId>
-        <artifactId>continew-starter</artifactId>
+        <artifactId>continew-starter-security</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-sensitive-words</artifactId>
-    <description>Continew starter sensitive words 模块</description>
+    <artifactId>continew-starter-security-sensitivewords</artifactId>
+    <description>ContiNew Starter 安全模块 - 敏感词模块</description>
 
     <dependencies>
-        <!-- Spring Boot Starter（自动配置相关依赖） -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-configuration-processor</artifactId>
-        </dependency>
-
-        <!-- Hutool（工具类库） -->
+        <!-- Hutool DFA 模块（基于 DFA 的关键词查找） -->
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-dfa</artifactId>
@@ -32,11 +22,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
         </dependency>
     </dependencies>
 </project>

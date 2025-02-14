@@ -14,45 +14,35 @@
  * limitations under the License.
  */
 
-package top.continew.starter.sensitive.words.validate;
+package top.continew.starter.security.sensitivewords.validation;
 
 import jakarta.annotation.Resource;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import top.continew.starter.sensitive.words.service.SensitiveWordsService;
+import top.continew.starter.security.sensitivewords.service.SensitiveWordsService;
 
 import java.util.List;
 
-public class SensitiveWordValidator implements ConstraintValidator<SensitiveWord, String> {
+/**
+ * 敏感词校验器
+ *
+ * @author luoqiz
+ * @author Charles7c
+ * @since 2.9.0
+ */
+public class SensitiveWordsValidator implements ConstraintValidator<SensitiveWords, String> {
 
     @Resource
     private SensitiveWordsService sensitiveWordsService;
 
-    /**
-     * 初始化方法，可以用自定义注解中获取值进行初始化
-     *
-     * @param {@link SensitiveWord } constraintAnnotation 注解值内容
-     */
-    @Override
-    public void initialize(SensitiveWord constraintAnnotation) {
-
-    }
-
-    /**
-     * 实际校验自定义注解 value 值
-     *
-     * @param {@link String} value 待检测字符串
-     * @param {@link ConstraintValidatorContext } constraintValidatorContext 检测的上下文
-     * @return boolean 是否通过检测
-     */
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         List<String> res = sensitiveWordsService.check(value);
         if (!res.isEmpty()) {
+            // 禁用默认消息
+            context.disableDefaultConstraintViolation();
             // 动态设置错误消息
-            context.disableDefaultConstraintViolation(); // 禁用默认消息
-            context.buildConstraintViolationWithTemplate("包含敏感词: " + String.join(",", res))
-                    .addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("内容包含敏感词汇: " + String.join(",", res)).addConstraintViolation();
             return false;
         }
         return true;

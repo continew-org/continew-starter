@@ -55,6 +55,11 @@ public class PropertiesConstants {
     public static final String SECURITY_LIMITER = SECURITY + StringConstants.DOT + "limiter";
 
     /**
+     * 敏感词配置
+     */
+    public static final String SECURITY_SENSITIVE_WORDS = SECURITY + StringConstants.DOT + "sensitive-words";
+
+    /**
      * Web 配置
      */
     public static final String WEB = CONTINEW_STARTER + StringConstants.DOT + "web";

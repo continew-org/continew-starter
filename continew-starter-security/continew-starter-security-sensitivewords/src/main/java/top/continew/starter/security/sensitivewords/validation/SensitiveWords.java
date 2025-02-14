@@ -14,22 +14,44 @@
  * limitations under the License.
  */
 
-package top.continew.starter.sensitive.words.validate;
+package top.continew.starter.security.sensitivewords.validation;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
 import java.lang.annotation.*;
 
+/**
+ * 敏感词注解
+ *
+ * @author luoqiz
+ * @author Charles7c
+ * @since 2.9.0
+ */
 @Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-@Constraint(validatedBy = {SensitiveWordValidator.class})
-public @interface SensitiveWord {
+@Constraint(validatedBy = {SensitiveWordsValidator.class})
+public @interface SensitiveWords {
 
-    String message() default "有敏感词，请检测！";
+    /**
+     * 提示消息
+     *
+     * @return 提示消息
+     */
+    String message() default "内容包含敏感词汇";
 
+    /**
+     * 分组
+     *
+     * @return 分组
+     */
     Class<?>[] groups() default {};
 
+    /**
+     * 负载
+     *
+     * @return 负载
+     */
     Class<? extends Payload>[] payload() default {};
 }
