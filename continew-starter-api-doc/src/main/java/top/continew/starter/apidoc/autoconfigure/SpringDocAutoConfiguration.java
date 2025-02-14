@@ -115,6 +115,7 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
      * 全局自定义配置（全局添加鉴权参数）
      */
     @Bean
+    @ConditionalOnMissingBean
     public GlobalOpenApiCustomizer globalOpenApiCustomizer(SpringDocExtensionProperties properties) {
         return openApi -> {
             if (null != openApi.getPaths()) {
