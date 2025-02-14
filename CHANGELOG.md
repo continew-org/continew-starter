@@ -1,3 +1,15 @@
+## [v2.9.0](https://github.com/continew-org/continew-starter/compare/v2.8.3...v2.9.0) (2025-02-14)
+
+### ✨ 新特性
+
+- 【storage】新增 S3 存储模块，重构本地存储 (Gitee#37@dom-w) ([e11c7a0](https://github.com/continew-org/continew-starter/commit/e11c7a0d8c2bfb3d6532312eec6a10a098bb3f4c)) ([a040473](https://github.com/continew-org/continew-starter/commit/a040473746932e9003868a23b44083b5385180ee))
+- 【security/sensitivewords】添加敏感词模块 (GitHub#11@luoqiz) ([82f1835](https://github.com/continew-org/continew-starter/commit/82f18356df9ef170d65801f8f3e5bac25508caa6)) ([bd8b189](https://github.com/continew-org/continew-starter/commit/bd8b1899c7f18dcdcfca18ed07d36ad6afe1eb55))
+- 【data/mp】QueryWrapperHelper 新增 sort 方法 ([8cab7d1](https://github.com/continew-org/continew-starter/commit/8cab7d1e2b441c321f28d4cbc26ccd27b29887b3))
+
+### 🐛 问题修复
+
+- 【api-doc】修复全局自定义配置无法被覆盖的问题 ([f386fd7](https://github.com/continew-org/continew-starter/commit/f386fd7d95347246f5282e2c59e63d8b91c70ddd))
+
 ## [v2.8.3](https://github.com/continew-org/continew-starter/compare/v2.8.2...v2.8.3) (2025-01-16)
 
 ### 💎 功能优化
