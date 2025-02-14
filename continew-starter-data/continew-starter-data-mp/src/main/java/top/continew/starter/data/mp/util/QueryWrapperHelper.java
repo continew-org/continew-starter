@@ -56,6 +56,23 @@ public class QueryWrapperHelper {
     }
 
     /**
+     * 设置排序
+     *
+     * @param queryWrapper 查询条件封装对象
+     * @param sort    排序条件
+     * @since 2.9.0
+     */
+    public static <T> void sort(QueryWrapper<T> queryWrapper, Sort sort) {
+        if (sort == null || sort.isUnsorted()) {
+            return;
+        }
+        for (Sort.Order order : sort) {
+            String property = order.getProperty();
+            queryWrapper.orderBy(true, order.isAscending(), CharSequenceUtil.toUnderlineCase(property));
+        }
+    }
+
+    /**
      * 构建 QueryWrapper
      *
      * @param query 查询条件
