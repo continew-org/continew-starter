@@ -593,6 +593,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 敏感词模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-sensitive-words</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
