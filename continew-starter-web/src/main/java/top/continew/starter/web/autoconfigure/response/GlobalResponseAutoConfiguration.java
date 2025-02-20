@@ -183,7 +183,7 @@ public class GlobalResponseAutoConfiguration {
     @ConditionalOnProperty(prefix = PropertiesConstants.WEB_RESPONSE, name = "i18n", havingValue = "true")
     public MessageSource messageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasenames("i18n", "i18n/empty-messages");
+        messageSource.setBasenames("i18n", "i18n/messages");
         messageSource.setDefaultEncoding("UTF-8");
         messageSource.setDefaultLocale(Locale.CHINA);
         return messageSource;

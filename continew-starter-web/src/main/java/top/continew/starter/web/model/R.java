@@ -18,10 +18,12 @@ package top.continew.starter.web.model;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.feiniaojin.gracefulresponse.api.ResponseStatusFactory;
 import com.feiniaojin.gracefulresponse.data.Response;
 import com.feiniaojin.gracefulresponse.data.ResponseStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import top.continew.starter.web.autoconfigure.response.GlobalResponseProperties;
+
+import java.util.Objects;
 
 /**
  * 响应信息
@@ -32,16 +34,15 @@ import top.continew.starter.web.autoconfigure.response.GlobalResponseProperties;
 @Schema(description = "响应信息")
 public class R<T> implements Response {
 
-    private static final GlobalResponseProperties PROPERTIES = SpringUtil.getBean(GlobalResponseProperties.class);
-    private static final String DEFAULT_SUCCESS_CODE = PROPERTIES.getDefaultSuccessCode();
-    private static final String DEFAULT_SUCCESS_MSG = PROPERTIES.getDefaultSuccessMsg();
-    private static final String DEFAULT_ERROR_CODE = PROPERTIES.getDefaultErrorCode();
-    private static final String DEFAULT_ERROR_MSG = PROPERTIES.getDefaultErrorMsg();
+    private static final ResponseStatusFactory RESPONSE_STATUS_FACTORY = SpringUtil
+        .getBean(ResponseStatusFactory.class);
+    private static final ResponseStatus DEFAULT_STATUS_SUCCESS = RESPONSE_STATUS_FACTORY.defaultSuccess();
+    private static final ResponseStatus DEFAULT_STATUS_ERROR = RESPONSE_STATUS_FACTORY.defaultError();
 
     /**
      * 状态码
      */
-    @Schema(description = "状态码", example = "1")
+    @Schema(description = "状态码", example = "0")
     private String code;
 
     /**
@@ -60,7 +61,7 @@ public class R<T> implements Response {
      * 时间戳
      */
     @Schema(description = "时间戳", example = "1691453288000")
-    private final Long timestamp = System.currentTimeMillis();
+    private Long timestamp;
 
     /**
      * 响应数据
@@ -68,7 +69,16 @@ public class R<T> implements Response {
     @Schema(description = "响应数据")
     private T data;
 
+    /**
+     * 状态信息
+     */
+    private ResponseStatus status;
+
     public R() {
+    }
+
+    public R(ResponseStatus status) {
+        this.status = status;
     }
 
     public R(String code, String msg) {
@@ -76,21 +86,25 @@ public class R<T> implements Response {
         this.setMsg(msg);
     }
 
+    public R(ResponseStatus status, T data) {
+        this(status);
+        this.setData(data);
+    }
+
     public R(String code, String msg, T data) {
         this(code, msg);
-        this.data = data;
+        this.setData(data);
     }
 
     @Override
     public void setStatus(ResponseStatus status) {
-        this.setCode(status.getCode());
-        this.setMsg(status.getMsg());
+        this.status = status;
     }
 
     @Override
     @JsonIgnore
     public ResponseStatus getStatus() {
-        return null;
+        return status;
     }
 
     @Override
@@ -101,24 +115,23 @@ public class R<T> implements Response {
     @Override
     @JsonIgnore
     public Object getPayload() {
-        return null;
+        return data;
     }
 
     public String getCode() {
-        return code;
+        return status.getCode();
     }
 
     public void setCode(String code) {
-        this.code = code;
-        this.success = DEFAULT_SUCCESS_CODE.equals(code);
+        status.setCode(code);
     }
 
     public String getMsg() {
-        return msg;
+        return status.getMsg();
     }
 
     public void setMsg(String msg) {
-        this.msg = msg;
+        status.setMsg(msg);
     }
 
     public T getData() {
@@ -130,15 +143,11 @@ public class R<T> implements Response {
     }
 
     public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
+        return Objects.equals(DEFAULT_STATUS_SUCCESS.getCode(), status.getCode());
     }
 
     public Long getTimestamp() {
-        return timestamp;
+        return System.currentTimeMillis();
     }
 
     /**
@@ -147,7 +156,7 @@ public class R<T> implements Response {
      * @return R /
      */
     public static R ok() {
-        return new R(DEFAULT_SUCCESS_CODE, DEFAULT_SUCCESS_MSG);
+        return new R(DEFAULT_STATUS_SUCCESS);
     }
 
     /**
@@ -157,7 +166,7 @@ public class R<T> implements Response {
      * @return R /
      */
     public static R ok(Object data) {
-        return new R(DEFAULT_SUCCESS_CODE, DEFAULT_SUCCESS_MSG, data);
+        return new R(DEFAULT_STATUS_SUCCESS, data);
     }
 
     /**
@@ -168,7 +177,9 @@ public class R<T> implements Response {
      * @return R /
      */
     public static R ok(String msg, Object data) {
-        return new R(DEFAULT_SUCCESS_CODE, msg, data);
+        R r = ok(data);
+        r.setMsg(msg);
+        return r;
     }
 
     /**
@@ -177,7 +188,7 @@ public class R<T> implements Response {
      * @return R /
      */
     public static R fail() {
-        return new R(DEFAULT_ERROR_CODE, DEFAULT_ERROR_MSG);
+        return new R(DEFAULT_STATUS_ERROR);
     }
 
     /**

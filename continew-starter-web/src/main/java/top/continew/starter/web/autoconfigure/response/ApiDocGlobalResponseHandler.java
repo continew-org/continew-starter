@@ -21,14 +21,13 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 import org.springdoc.core.parsers.ReturnTypeParser;
 import org.springframework.core.MethodParameter;
 import top.continew.starter.apidoc.util.DocUtils;
-import top.continew.starter.web.model.R;
 
 import java.lang.reflect.Type;
 
 /**
  * SpringDoc 全局响应处理器
  * <p>
- * 接口文档全局添加响应格式 {@link R}
+ * 接口文档全局添加响应格式 {@link com.feiniaojin.gracefulresponse.data.Response}
  * </p>
  *
  * @author echo
