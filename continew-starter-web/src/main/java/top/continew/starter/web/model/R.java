@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.feiniaojin.gracefulresponse.api.ResponseStatusFactory;
 import com.feiniaojin.gracefulresponse.data.Response;
 import com.feiniaojin.gracefulresponse.data.ResponseStatus;
+import com.feiniaojin.gracefulresponse.defaults.DefaultResponseStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Objects;
@@ -72,7 +73,7 @@ public class R<T> implements Response {
     /**
      * 状态信息
      */
-    private ResponseStatus status;
+    private ResponseStatus status = new DefaultResponseStatus();
 
     public R() {
     }
@@ -109,7 +110,7 @@ public class R<T> implements Response {
 
     @Override
     public void setPayload(Object payload) {
-        this.data = (T)payload;
+        this.data = (T) payload;
     }
 
     @Override
