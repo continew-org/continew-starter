@@ -104,12 +104,12 @@ public abstract class AbstractBaseController<S extends BaseService<L, D, Q, C>, 
      * @param id ID
      * @return 详情信息
      */
-    @CrudApi(Api.DETAIL)
+    @CrudApi(Api.GET)
     @Operation(summary = "查询详情", description = "查询详情")
     @Parameter(name = "id", description = "ID", example = "1", in = ParameterIn.PATH)
     @ResponseBody
     @GetMapping("/{id}")
-    public D detail(@PathVariable("id") Long id) {
+    public D get(@PathVariable("id") Long id) {
         return baseService.get(id);
     }
 

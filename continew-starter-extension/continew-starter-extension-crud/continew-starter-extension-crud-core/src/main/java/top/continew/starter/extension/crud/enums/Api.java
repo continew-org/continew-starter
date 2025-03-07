@@ -42,7 +42,7 @@ public enum Api {
     /**
      * 详情
      */
-    DETAIL,
+    GET,
 
     /**
      * 新增
