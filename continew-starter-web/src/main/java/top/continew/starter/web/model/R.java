@@ -110,7 +110,7 @@ public class R<T> implements Response {
 
     @Override
     public void setPayload(Object payload) {
-        this.data = (T) payload;
+        this.data = (T)payload;
     }
 
     @Override
