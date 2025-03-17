@@ -63,6 +63,62 @@ public class RedisUtils {
     }
 
     /**
+     * 设置缓存
+     *
+     * <p>如果键已存在，则不设置</p>
+     *
+     * @param key   键
+     * @param value 值
+     * @return true：设置成功；false：设置失败
+     * @since 2.10.0
+     */
+    public static <T> boolean setIfAbsent(String key, T value) {
+        return CLIENT.getBucket(key).setIfAbsent(value);
+    }
+
+    /**
+     * 设置缓存
+     *
+     * <p>如果键已存在，则不设置</p>
+     *
+     * @param key      键
+     * @param value    值
+     * @param duration 过期时间
+     * @return true：设置成功；false：设置失败
+     * @since 2.10.0
+     */
+    public static <T> boolean setIfAbsent(String key, T value, Duration duration) {
+        return CLIENT.getBucket(key).setIfAbsent(value, duration);
+    }
+
+    /**
+     * 设置缓存
+     * <p>如果键不存在，则不设置</p>
+     * 
+     * @param key   键
+     * @param value 值
+     * @return true：设置成功；false：设置失败
+     * @since 2.10.0
+     */
+    public static <T> boolean setIfExists(String key, T value) {
+        return CLIENT.getBucket(key).setIfExists(value);
+    }
+
+    /**
+     * 设置缓存
+     * <p>如果键不存在，则不设置</p>
+     * 
+     * @param key      键
+     * @param value    值
+     * @param duration 过期时间
+     * @return true：设置成功；false：设置失败
+     * @since 2.10.0
+     */
+    public static <T> boolean setIfExists(String key, T value, Duration duration) {
+        return CLIENT.getBucket(key).setIfExists(value, duration);
+    }
+
+    /**
      * 查询指定缓存
      *
      * @param key 键
