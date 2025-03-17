@@ -4,7 +4,7 @@
 <img src="https://img.shields.io/maven-central/v/top.continew/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
 </a>
 <a href="https://spring.io/projects/spring-boot" title="Spring Boot" target="_blank">
-<img src="https://img.shields.io/badge/Spring Boot-3.2.12-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
+<img src="https://img.shields.io/badge/Spring Boot-3.3.9-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
 </a>
 <a href="https://github.com/continew-org/continew-starter" title="Open JDK" target="_blank">
 <img src="https://img.shields.io/badge/Open JDK-17-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
@@ -167,8 +167,9 @@ continew-starter
 ├─ continew-starter-security（安全模块）
 │  ├─ continew-starter-security-crypto（加密：字段加解密）
 │  ├─ continew-starter-security-mask（脱敏：JSON 数据脱敏）
-│  ├─ continew-starter-security-limiter（限流）
 │  └─ continew-starter-security-password（密码编码器）
+├─ continew-starter-ratelimiter（限流模块）
+├─ continew-starter-idempotent（幂等模块）
 ├─ continew-starter-captcha（验证码模块）
 │  ├─ continew-starter-captcha-graphic（静态验证码）
 │  └─ continew-starter-captcha-behavior（动态验证码）
