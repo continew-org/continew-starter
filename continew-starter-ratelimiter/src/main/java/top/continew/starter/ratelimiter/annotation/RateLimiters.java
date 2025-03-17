@@ -14,28 +14,23 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.limiter.enums;
+package top.continew.starter.ratelimiter.annotation;
+
+import java.lang.annotation.*;
 
 /**
- * 限流类型
+ * 限流组注解
  *
  * @author KAI
  * @since 2.2.0
  */
-public enum LimitType {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface RateLimiters {
 
     /**
-     * 全局限流
+     * 限流组
      */
-    DEFAULT,
-
-    /**
-     * 根据 IP 限流
-     */
-    IP,
-
-    /**
-     * 根据实例限流（支持集群多实例）
-     */
-    CLUSTER
+    RateLimiter[] value();
 }

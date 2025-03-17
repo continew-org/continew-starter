@@ -26,6 +26,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ResolvableType;
+import top.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.idempotent.aop.IdempotentAspect;
 import top.continew.starter.idempotent.generator.IdempotentNameGenerator;
@@ -37,7 +38,7 @@ import top.continew.starter.idempotent.generator.IdempotentNameGenerator;
  * @author Charles7c
  * @since 2.10.0
  */
-@AutoConfiguration
+@AutoConfiguration(after = RedissonAutoConfiguration.class)
 @EnableConfigurationProperties(IdempotentProperties.class)
 @ConditionalOnProperty(prefix = PropertiesConstants.IDEMPOTENT, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class IdempotentAutoConfiguration {

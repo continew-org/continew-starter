@@ -14,23 +14,28 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.limiter.exception;
-
-import top.continew.starter.core.exception.BaseException;
+package top.continew.starter.ratelimiter.enums;
 
 /**
- * 限流异常
+ * 限流类型
  *
  * @author KAI
  * @since 2.2.0
  */
-public class RateLimiterException extends BaseException {
+public enum LimitType {
 
-    public RateLimiterException(String message) {
-        super(message);
-    }
+    /**
+     * 全局限流
+     */
+    DEFAULT,
 
-    public RateLimiterException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    /**
+     * 根据 IP 限流
+     */
+    IP,
+
+    /**
+     * 根据实例限流（支持集群多实例）
+     */
+    CLUSTER
 }

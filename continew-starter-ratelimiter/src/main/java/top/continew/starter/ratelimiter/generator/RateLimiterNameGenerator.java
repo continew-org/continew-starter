@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.limiter.core;
+package top.continew.starter.ratelimiter.generator;
 
 import java.lang.reflect.Method;
 

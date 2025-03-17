@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.limiter.autoconfigure;
+package top.continew.starter.ratelimiter.autoconfigure;
 
 import jakarta.annotation.PostConstruct;
+import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -24,10 +25,11 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
+import top.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 import top.continew.starter.core.constant.PropertiesConstants;
-import top.continew.starter.security.limiter.core.DefaultRateLimiterNameGenerator;
-import top.continew.starter.security.limiter.core.RateLimiterNameGenerator;
+import top.continew.starter.ratelimiter.aop.RateLimiterAspect;
+import top.continew.starter.ratelimiter.generator.DefaultRateLimiterNameGenerator;
+import top.continew.starter.ratelimiter.generator.RateLimiterNameGenerator;
 
 /**
  * 限流器自动配置
@@ -36,13 +38,22 @@ import top.continew.starter.security.limiter.core.RateLimiterNameGenerator;
  * @author Charles7c
  * @since 2.2.0
  */
-@AutoConfiguration
+@AutoConfiguration(after = RedissonAutoConfiguration.class)
 @EnableConfigurationProperties(RateLimiterProperties.class)
-@ComponentScan({"top.continew.starter.security.limiter.core"})
-@ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_LIMITER, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.RATE_LIMITER, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class RateLimiterAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimiterAutoConfiguration.class);
+
+    /**
+     * 限流器切面
+     */
+    @Bean
+    public RateLimiterAspect rateLimiterAspect(RateLimiterProperties properties,
+                                               RateLimiterNameGenerator rateLimiterNameGenerator,
+                                               RedissonClient redissonClient) {
+        return new RateLimiterAspect(properties, rateLimiterNameGenerator, redissonClient);
+    }
 
     /**
      * 限流器名称生成器
@@ -55,6 +66,6 @@ public class RateLimiterAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Security-RateLimiter' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'RateLimiter' completed initialization.");
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.limiter.autoconfigure;
+package top.continew.starter.ratelimiter.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;
@@ -25,7 +25,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @author KAI
  * @since 2.2.0
  */
-@ConfigurationProperties(PropertiesConstants.SECURITY_LIMITER)
+@ConfigurationProperties(PropertiesConstants.RATE_LIMITER)
 public class RateLimiterProperties {
 
     /**

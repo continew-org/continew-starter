@@ -538,6 +538,20 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 幂等模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-idempotent</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 限流模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-ratelimiter</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 日志模块 - 基于拦截器实现（Spring Boot Actuator HttpTrace 增强版） -->
             <dependency>
                 <groupId>top.continew</groupId>
@@ -566,6 +580,13 @@
                 <version>${revision}</version>
             </dependency>
 
+            <!-- 安全模块 - 敏感词 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-security-sensitivewords</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
             <!-- 安全模块 - 加密 -->
             <dependency>
                 <groupId>top.continew</groupId>
@@ -584,20 +605,6 @@
             <dependency>
                 <groupId>top.continew</groupId>
                 <artifactId>continew-starter-security-password</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 安全模块 - 限流 -->
-            <dependency>
-                <groupId>top.continew</groupId>
-                <artifactId>continew-starter-security-limiter</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 安全模块 - 敏感词 -->
-            <dependency>
-                <groupId>top.continew</groupId>
-                <artifactId>continew-starter-security-sensitivewords</artifactId>
                 <version>${revision}</version>
             </dependency>
 

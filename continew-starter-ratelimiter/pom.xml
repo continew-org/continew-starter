@@ -3,19 +3,14 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>top.continew</groupId>
-        <artifactId>continew-starter-security</artifactId>
+        <artifactId>continew-starter</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>continew-starter-security-limiter</artifactId>
-    <description>ContiNew Starter 安全模块 - 限流</description>
+    <artifactId>continew-starter-ratelimiter</artifactId>
+    <description>ContiNew Starter 限流模块</description>
 
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
-        </dependency>
-
         <!-- Web 模块 -->
         <dependency>
             <groupId>top.continew</groupId>

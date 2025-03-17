@@ -71,8 +71,9 @@
         <module>continew-starter-data</module>
         <module>continew-starter-auth</module>
         <module>continew-starter-messaging</module>
-        <module>continew-starter-extension</module>
+        <module>continew-starter-ratelimiter</module>
         <module>continew-starter-idempotent</module>
+        <module>continew-starter-extension</module>
     </modules>
 
     <build>

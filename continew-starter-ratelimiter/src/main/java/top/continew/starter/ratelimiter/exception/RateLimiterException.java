@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.limiter.annotation;
+package top.continew.starter.ratelimiter.exception;
 
-import java.lang.annotation.*;
+import top.continew.starter.core.exception.BaseException;
 
 /**
- * 限流组注解
+ * 限流异常
  *
  * @author KAI
  * @since 2.2.0
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface RateLimiters {
+public class RateLimiterException extends BaseException {
 
-    /**
-     * 限流组
-     */
-    RateLimiter[] value();
+    public RateLimiterException(String message) {
+        super(message);
+    }
+
+    public RateLimiterException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

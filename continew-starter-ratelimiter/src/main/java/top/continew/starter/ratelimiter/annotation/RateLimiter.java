@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.limiter.annotation;
+package top.continew.starter.ratelimiter.annotation;
 
-import top.continew.starter.security.limiter.enums.LimitType;
+import top.continew.starter.ratelimiter.enums.LimitType;
 
 import java.lang.annotation.*;
 import java.util.concurrent.TimeUnit;

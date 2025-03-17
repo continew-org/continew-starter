@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.limiter.core;
+package top.continew.starter.ratelimiter.aop;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.text.CharSequenceUtil;
@@ -27,15 +27,15 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.redisson.api.*;
-import org.springframework.stereotype.Component;
 import top.continew.starter.cache.redisson.util.RedisUtils;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.util.expression.ExpressionUtils;
-import top.continew.starter.security.limiter.annotation.RateLimiter;
-import top.continew.starter.security.limiter.annotation.RateLimiters;
-import top.continew.starter.security.limiter.autoconfigure.RateLimiterProperties;
-import top.continew.starter.security.limiter.enums.LimitType;
-import top.continew.starter.security.limiter.exception.RateLimiterException;
+import top.continew.starter.ratelimiter.annotation.RateLimiter;
+import top.continew.starter.ratelimiter.annotation.RateLimiters;
+import top.continew.starter.ratelimiter.autoconfigure.RateLimiterProperties;
+import top.continew.starter.ratelimiter.generator.RateLimiterNameGenerator;
+import top.continew.starter.ratelimiter.enums.LimitType;
+import top.continew.starter.ratelimiter.exception.RateLimiterException;
 import top.continew.starter.web.util.SpringWebUtils;
 
 import java.lang.reflect.Method;
@@ -51,7 +51,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2.2.0
  */
 @Aspect
-@Component
 public class RateLimiterAspect {
 
     private static final ConcurrentHashMap<String, RRateLimiter> RATE_LIMITER_CACHE = new ConcurrentHashMap<>();
@@ -70,14 +69,14 @@ public class RateLimiterAspect {
     /**
      * 单个限流注解切点
      */
-    @Pointcut("@annotation(top.continew.starter.security.limiter.annotation.RateLimiter)")
+    @Pointcut("@annotation(top.continew.starter.ratelimiter.annotation.RateLimiter)")
     public void rateLimiterPointCut() {
     }
 
     /**
      * 多个限流注解切点
      */
-    @Pointcut("@annotation(top.continew.starter.security.limiter.annotation.RateLimiters)")
+    @Pointcut("@annotation(top.continew.starter.ratelimiter.annotation.RateLimiters)")
     public void rateLimitersPointCut() {
     }
 
@@ -144,23 +143,23 @@ public class RateLimiterAspect {
     }
 
     /**
-     * 获取限流缓存 Key
+     * 获取缓存 Key
      *
      * @param joinPoint   切点
      * @param rateLimiter 限流注解
-     * @return 限流缓存 Key
+     * @return 缓存 Key
      */
     private String getCacheKey(JoinPoint joinPoint, RateLimiter rateLimiter) {
         Object target = joinPoint.getTarget();
         MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
         Method method = methodSignature.getMethod();
         Object[] args = joinPoint.getArgs();
-        // 获取限流名称
+        // 获取名称
         String name = rateLimiter.name();
         if (CharSequenceUtil.isBlank(name)) {
             name = nameGenerator.generate(target, method, args);
         }
-        // 解析限流 Key
+        // 解析 Key
         String key = rateLimiter.key();
         if (CharSequenceUtil.isNotBlank(key)) {
             Object eval = ExpressionUtils.eval(key, target, method, args);

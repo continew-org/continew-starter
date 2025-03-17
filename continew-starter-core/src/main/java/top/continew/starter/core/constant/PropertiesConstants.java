@@ -50,11 +50,6 @@ public class PropertiesConstants {
     public static final String SECURITY_CRYPTO = SECURITY + StringConstants.DOT + "crypto";
 
     /**
-     * 限流器配置
-     */
-    public static final String SECURITY_LIMITER = SECURITY + StringConstants.DOT + "limiter";
-
-    /**
      * 敏感词配置
      */
     public static final String SECURITY_SENSITIVE_WORDS = SECURITY + StringConstants.DOT + "sensitive-words";
@@ -140,9 +135,14 @@ public class PropertiesConstants {
     public static final String TENANT = CONTINEW_STARTER + StringConstants.DOT + "tenant";
 
     /**
+     * 限流配置
+     */
+    public static final String RATE_LIMITER = CONTINEW_STARTER + StringConstants.DOT + "rate-limiter";
+
+    /**
      * 幂等配置
      */
-    public static final String IDEMPOTENT = "idempotent";
+    public static final String IDEMPOTENT = CONTINEW_STARTER + StringConstants.DOT + "idempotent";
 
     private PropertiesConstants() {
     }

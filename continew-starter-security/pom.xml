@@ -17,7 +17,6 @@
         <module>continew-starter-security-password</module>
         <module>continew-starter-security-mask</module>
         <module>continew-starter-security-crypto</module>
-        <module>continew-starter-security-limiter</module>
         <module>continew-starter-security-sensitivewords</module>
     </modules>
 
