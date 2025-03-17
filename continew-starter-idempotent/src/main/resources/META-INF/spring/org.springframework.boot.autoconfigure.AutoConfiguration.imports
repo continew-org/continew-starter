@@ -1,2 +1,1 @@
-top.continew.starter.idempotent.config.IdempotentAutoConfiguration
-top.continew.starter.idempotent.config.MemoryIdempotentSchedulingConfig
+top.continew.starter.idempotent.autoconfigure.IdempotentAutoConfiguration

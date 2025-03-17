@@ -14,45 +14,31 @@
  * limitations under the License.
  */
 
-package top.continew.starter.idempotent.annotation;
+package top.continew.starter.idempotent.autoconfigure;
 
-import java.lang.annotation.*;
-import java.util.concurrent.TimeUnit;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * 幂等注解
+ * 幂等配置属性
  *
  * @author loach
  * @author Charles7c
  * @since 2.10.0
  */
-@Documented
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Idempotent {
+@ConfigurationProperties(PropertiesConstants.IDEMPOTENT)
+public class IdempotentProperties {
 
     /**
-     * 名称
+     * Key 前缀
      */
-    String name() default "";
+    private String keyPrefix = "Idempotent";
 
-    /**
-     * 键（支持 Spring EL 表达式）
-     */
-    String key() default "";
+    public String getKeyPrefix() {
+        return keyPrefix;
+    }
 
-    /**
-     * 超时时间
-     */
-    int timeout() default 1;
-
-    /**
-     * 时间单位（默认：毫秒）
-     */
-    TimeUnit unit() default TimeUnit.MILLISECONDS;
-
-    /**
-     * 提示信息
-     */
-    String message() default "请勿重复操作";
+    public void setKeyPrefix(String keyPrefix) {
+        this.keyPrefix = keyPrefix;
+    }
 }

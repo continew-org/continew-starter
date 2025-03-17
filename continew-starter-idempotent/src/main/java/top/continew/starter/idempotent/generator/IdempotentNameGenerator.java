@@ -14,45 +14,26 @@
  * limitations under the License.
  */
 
-package top.continew.starter.idempotent.annotation;
+package top.continew.starter.idempotent.generator;
 
-import java.lang.annotation.*;
-import java.util.concurrent.TimeUnit;
+import java.lang.reflect.Method;
 
 /**
- * 幂等注解
+ * 幂等名称生成器
  *
  * @author loach
  * @author Charles7c
  * @since 2.10.0
  */
-@Documented
-@Target({ElementType.METHOD})
-@Retention(RetentionPolicy.RUNTIME)
-public @interface Idempotent {
+public interface IdempotentNameGenerator {
 
     /**
-     * 名称
+     * 生成幂等名称
+     *
+     * @param target 目标实例
+     * @param method 目标方法
+     * @param args   方法参数
+     * @return 幂等名称
      */
-    String name() default "";
-
-    /**
-     * 键（支持 Spring EL 表达式）
-     */
-    String key() default "";
-
-    /**
-     * 超时时间
-     */
-    int timeout() default 1;
-
-    /**
-     * 时间单位（默认：毫秒）
-     */
-    TimeUnit unit() default TimeUnit.MILLISECONDS;
-
-    /**
-     * 提示信息
-     */
-    String message() default "请勿重复操作";
+    String generate(Object target, Method method, Object... args);
 }

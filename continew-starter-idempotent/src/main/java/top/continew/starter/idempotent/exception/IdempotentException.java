@@ -14,31 +14,23 @@
  * limitations under the License.
  */
 
-package top.continew.starter.idempotent.service;
+package top.continew.starter.idempotent.exception;
+
+import top.continew.starter.core.exception.BaseException;
 
 /**
- * 服务接口
+ * 幂等异常
  *
- * @version 1.0
- * @Author loach
- * @Date 2025-03-07 19:48
- * @Package top.continew.starter.idempotent.service.IdempotentService
+ * @author Charles7c
+ * @since 2.10.0
  */
-public interface IdempotentService {
+public class IdempotentException extends BaseException {
 
-    /**
-     * 检验是否存在
-     *
-     * @param key     幂等key
-     * @param timeout 超时时间
-     * @return
-     */
-    boolean checkAndLock(String key, long timeout);
+    public IdempotentException(String message) {
+        super(message);
+    }
 
-    /**
-     * 释放对应key
-     *
-     * @param key 幂等key
-     */
-    void unlock(String key);
+    public IdempotentException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

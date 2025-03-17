@@ -139,6 +139,11 @@ public class PropertiesConstants {
      */
     public static final String TENANT = CONTINEW_STARTER + StringConstants.DOT + "tenant";
 
+    /**
+     * 幂等配置
+     */
+    public static final String IDEMPOTENT = "idempotent";
+
     private PropertiesConstants() {
     }
 }
