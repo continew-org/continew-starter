@@ -44,7 +44,7 @@ public @interface Idempotent {
     /**
      * 超时时间
      */
-    int timeout() default 1;
+    int timeout() default 1000;
 
     /**
      * 时间单位（默认：毫秒）
