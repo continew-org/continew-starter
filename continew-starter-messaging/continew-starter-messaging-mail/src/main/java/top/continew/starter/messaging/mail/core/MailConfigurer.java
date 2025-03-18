@@ -42,20 +42,20 @@ public interface MailConfigurer {
      */
     default void apply(MailConfig mailConfig, JavaMailSenderImpl sender) {
         String protocolLowerCase = mailConfig.getProtocol().toLowerCase();
-        ValidationUtils.throwIfNotEqual(MailConfig.DEFAULT_PROTOCOL, protocolLowerCase, "邮件配置错误：不支持的邮件发送协议: %s"
+        ValidationUtils.throwIfNotEqual(MailConfig.DEFAULT_PROTOCOL, protocolLowerCase, "邮件配置不正确：不支持的邮件发送协议: %s"
             .formatted(mailConfig.getProtocol()));
         sender.setProtocol(mailConfig.getProtocol());
 
-        ValidationUtils.throwIfBlank(mailConfig.getHost(), "邮件配置错误：服务器地址不能为空");
+        ValidationUtils.throwIfBlank(mailConfig.getHost(), "邮件配置不正确：服务器地址不能为空");
         sender.setHost(mailConfig.getHost());
 
-        ValidationUtils.throwIfNull(mailConfig.getPort(), "邮件配置错误：服务器端口不能为空");
+        ValidationUtils.throwIfNull(mailConfig.getPort(), "邮件配置不正确：服务器端口不能为空");
         sender.setPort(mailConfig.getPort());
 
-        ValidationUtils.throwIfBlank(mailConfig.getUsername(), "邮件配置错误：用户名不能为空");
+        ValidationUtils.throwIfBlank(mailConfig.getUsername(), "邮件配置不正确：用户名不能为空");
         sender.setUsername(mailConfig.getUsername());
 
-        ValidationUtils.throwIfBlank(mailConfig.getPassword(), "邮件配置错误：密码不能为空");
+        ValidationUtils.throwIfBlank(mailConfig.getPassword(), "邮件配置不正确：密码不能为空");
         sender.setPassword(mailConfig.getPassword());
 
         if (mailConfig.getDefaultEncoding() != null) {

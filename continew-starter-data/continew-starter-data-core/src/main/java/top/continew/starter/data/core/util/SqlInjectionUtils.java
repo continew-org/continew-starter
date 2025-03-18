@@ -67,7 +67,7 @@ public class SqlInjectionUtils {
      * 检查参数是否存在 SQL 注入
      *
      * @param value 检查参数
-     * @return true：非法；false：合法
+     * @return true：存在；false：不存在
      */
     public static boolean check(String value) {
         return check(value, null);
@@ -78,7 +78,7 @@ public class SqlInjectionUtils {
      *
      * @param value         检查参数
      * @param customKeyword 自定义关键字
-     * @return true：非法；false：合法
+     * @return true：存在；false：不存在
      */
     public static boolean check(String value, String customKeyword) {
         if (CharSequenceUtil.isBlank(value)) {
@@ -114,7 +114,7 @@ public class SqlInjectionUtils {
      *
      * @param value    检查参数
      * @param keywords 关键字列表
-     * @return true：非法；false：合法
+     * @return true：存在；false：不存在
      */
     private static boolean checkKeyword(String value, String[] keywords) {
         for (String keyword : keywords) {

@@ -44,7 +44,7 @@ public class Validator {
      * 如果为空，抛出异常
      *
      * @param obj           被检测的对象
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfNull(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
@@ -55,7 +55,7 @@ public class Validator {
      * 如果不为空，抛出异常
      *
      * @param obj           被检测的对象
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfNotNull(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
@@ -66,7 +66,7 @@ public class Validator {
      * 如果为空，抛出异常
      *
      * @param obj           被检测的对象
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfEmpty(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
@@ -77,7 +77,7 @@ public class Validator {
      * 如果不为空，抛出异常
      *
      * @param obj           被检测的对象
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfNotEmpty(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
@@ -88,7 +88,7 @@ public class Validator {
      * 如果为空，抛出异常
      *
      * @param str           被检测的字符串
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfBlank(CharSequence str,
@@ -101,7 +101,7 @@ public class Validator {
      * 如果不为空，抛出异常
      *
      * @param str           被检测的字符串
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfNotBlank(CharSequence str,
@@ -115,7 +115,7 @@ public class Validator {
      *
      * @param obj1          要比较的对象1
      * @param obj2          要比较的对象2
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfEqual(Object obj1,
@@ -130,7 +130,7 @@ public class Validator {
      *
      * @param obj1          要比较的对象1
      * @param obj2          要比较的对象2
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfNotEqual(Object obj1,
@@ -145,7 +145,7 @@ public class Validator {
      *
      * @param str1          要比较的字符串1
      * @param str2          要比较的字符串2
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfEqualIgnoreCase(CharSequence str1,
@@ -160,7 +160,7 @@ public class Validator {
      *
      * @param str1          要比较的字符串1
      * @param str2          要比较的字符串2
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIfNotEqualIgnoreCase(CharSequence str1,
@@ -174,7 +174,7 @@ public class Validator {
      * 如果条件成立，抛出异常
      *
      * @param condition     条件
-     * @param message       错误信息
+     * @param message       提示信息
      * @param exceptionType 异常类型
      */
     protected static void throwIf(boolean condition, String message, Class<? extends RuntimeException> exceptionType) {

@@ -56,7 +56,7 @@ public class SortQuery implements Serializable {
         if (ArrayUtil.isEmpty(sort)) {
             return Sort.unsorted();
         }
-        ValidationUtils.throwIf(sort.length < 2, "排序条件非法");
+        ValidationUtils.throwIf(sort.length < 2, "排序条件无效");
         List<Sort.Order> orders = new ArrayList<>(sort.length);
         if (CharSequenceUtil.contains(sort[0], StringConstants.COMMA)) {
             // e.g "sort=createTime,desc&sort=name,asc"
@@ -83,7 +83,7 @@ public class SortQuery implements Serializable {
      * @return 排序条件
      */
     private Sort.Order getOrder(String field, String direction) {
-        ValidationUtils.throwIf(SqlInjectionUtils.check(field), "排序字段包含非法字符");
+        ValidationUtils.throwIf(SqlInjectionUtils.check(field), "排序字段包含无效字符");
         return new Sort.Order(Sort.Direction.valueOf(direction.toUpperCase()), field);
     }
 }

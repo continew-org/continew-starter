@@ -92,7 +92,7 @@ public class QueryWrapperHelper {
         if (sort != null && sort.isSorted()) {
             for (Sort.Order order : sort) {
                 String field = CharSequenceUtil.toUnderlineCase(order.getProperty());
-                ValidationUtils.throwIf(SqlInjectionUtils.check(field), "排序字段包含非法字符");
+                ValidationUtils.throwIf(SqlInjectionUtils.check(field), "排序字段包含无效字符");
                 queryWrapper.orderBy(field, order.isAscending());
             }
         }

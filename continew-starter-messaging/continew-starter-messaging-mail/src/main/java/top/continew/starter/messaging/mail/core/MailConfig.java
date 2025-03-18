@@ -174,7 +174,7 @@ public class MailConfig {
         javaMailProperties.put("mail.smtp.auth", true);
         javaMailProperties.put("mail.smtp.ssl.enable", this.isSslEnabled());
         if (this.isSslEnabled()) {
-            ValidationUtils.throwIfNull(this.getSslPort(), "邮件配置错误：SSL端口不能为空");
+            ValidationUtils.throwIfNull(this.getSslPort(), "邮件配置不正确：SSL端口不能为空");
             javaMailProperties.put("mail.smtp.socketFactory.port", this.sslPort);
             javaMailProperties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         }

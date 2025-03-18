@@ -374,7 +374,8 @@ public class OssStorageStrategy implements StorageStrategy<OssClient> {
         } catch (Exception e) {
             // 如果 getBucketAcl 失败，可能是权限或连接问题
             log.error("获取桶 ACL 失败: {}", e.getMessage());
-            return true; // 出现错误时，默认认为桶是私有的
+            // 出现错误时，默认认为桶是私有的
+            return true;
         }
     }
 
