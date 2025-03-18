@@ -27,50 +27,28 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 
 /**
- * 枚举校验注解
+ * 手机号校验注解
  *
  * <p>
- * {@code @EnumValue(value = XxxEnum.class, message = "参数值无效")} <br />
- * {@code @EnumValue(enumValues = {"F", "M"} ,message = "性别只允许为F或M")}
+ * 校验中国大陆手机号码
+ * {@code @Mobile(message = "手机号格式不正确")} <br />
  * </p>
  *
- * @author Jasmine
  * @author Charles7c
- * @since 2.7.3
+ * @since 2.10.0
  */
 @Documented
 @Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = EnumValueValidator.class)
-public @interface EnumValue {
-
-    /**
-     * 枚举类
-     *
-     * @return 枚举类
-     */
-    Class<? extends Enum> value() default Enum.class;
-
-    /**
-     * 枚举值
-     *
-     * @return 枚举值
-     */
-    String[] enumValues() default {};
-
-    /**
-     * 获取枚举值的方法名
-     *
-     * @return 获取枚举值的方法名
-     */
-    String method() default "";
+@Constraint(validatedBy = MobileValidator.class)
+public @interface Mobile {
 
     /**
      * 提示消息
      *
      * @return 提示消息
      */
-    String message() default "参数值无效";
+    String message() default "手机号格式不正确";
 
     /**
      * 分组
