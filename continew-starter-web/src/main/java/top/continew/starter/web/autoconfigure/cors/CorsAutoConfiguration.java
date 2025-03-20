@@ -43,6 +43,7 @@ import top.continew.starter.core.constant.StringConstants;
 @ConditionalOnProperty(prefix = PropertiesConstants.WEB_CORS, name = PropertiesConstants.ENABLED, havingValue = "true")
 @EnableConfigurationProperties(CorsProperties.class)
 public class CorsAutoConfiguration {
+
     private static final Logger log = LoggerFactory.getLogger(CorsAutoConfiguration.class);
 
     /**

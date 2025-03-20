@@ -14,33 +14,23 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.mvc;
+package top.continew.starter.web.autoconfigure.mvc.converter.time;
 
+import cn.hutool.core.date.DateUtil;
 import org.springframework.core.convert.converter.Converter;
-import top.continew.starter.core.enums.BaseEnum;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
 
 /**
- * BaseEnum 参数转换器
+ * LocalDateTime 参数转换器
  *
  * @author Charles7c
- * @since 2.4.0
+ * @since 2.10.0
  */
-public class BaseEnumConverter<T extends BaseEnum> implements Converter<String, T> {
-
-    private final Map<String, T> enumMap = new HashMap<>();
-
-    public BaseEnumConverter(Class<T> enumType) {
-        T[] enums = enumType.getEnumConstants();
-        for (T e : enums) {
-            enumMap.put(String.valueOf(e.getValue()), e);
-        }
-    }
+public class LocalDateTimeConverter implements Converter<String, LocalDateTime> {
 
     @Override
-    public T convert(String source) {
-        return enumMap.get(source);
+    public LocalDateTime convert(String source) {
+        return DateUtil.parse(source).toLocalDateTime();
     }
 }

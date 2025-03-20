@@ -26,6 +26,11 @@ import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.continew.starter.web.autoconfigure.mvc.converter.BaseEnumConverterFactory;
+import top.continew.starter.web.autoconfigure.mvc.converter.time.DateConverter;
+import top.continew.starter.web.autoconfigure.mvc.converter.time.LocalDateConverter;
+import top.continew.starter.web.autoconfigure.mvc.converter.time.LocalDateTimeConverter;
+import top.continew.starter.web.autoconfigure.mvc.converter.time.LocalTimeConverter;
 
 import java.util.List;
 import java.util.Objects;
@@ -70,6 +75,10 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverterFactory(new BaseEnumConverterFactory());
+        registry.addConverter(new DateConverter());
+        registry.addConverter(new LocalDateTimeConverter());
+        registry.addConverter(new LocalDateConverter());
+        registry.addConverter(new LocalTimeConverter());
     }
 
     @PostConstruct
