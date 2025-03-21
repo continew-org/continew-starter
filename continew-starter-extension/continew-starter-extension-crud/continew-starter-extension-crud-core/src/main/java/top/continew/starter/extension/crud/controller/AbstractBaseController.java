@@ -114,17 +114,17 @@ public abstract class AbstractBaseController<S extends BaseService<L, D, Q, C>, 
     }
 
     /**
-     * 新增
+     * 创建
      *
      * @param req 创建参数
      * @return ID
      */
-    @CrudApi(Api.ADD)
-    @Operation(summary = "新增数据", description = "新增数据")
+    @CrudApi(Api.CREATE)
+    @Operation(summary = "创建数据", description = "创建数据")
     @ResponseBody
     @PostMapping
-    public BaseIdResp<Long> add(@Validated(CrudValidationGroup.Add.class) @RequestBody C req) {
-        return new BaseIdResp<>(baseService.add(req));
+    public BaseIdResp<Long> create(@Validated(CrudValidationGroup.Create.class) @RequestBody C req) {
+        return new BaseIdResp<>(baseService.create(req));
     }
 
     /**

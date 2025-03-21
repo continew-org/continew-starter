@@ -88,12 +88,12 @@ public interface BaseService<L, D, Q, C> {
     List<LabelValueResp> listDict(Q query, SortQuery sortQuery);
 
     /**
-     * 新增
+     * 创建
      *
      * @param req 创建参数
      * @return 自增 ID
      */
-    Long add(C req);
+    Long create(C req);
 
     /**
      * 修改

@@ -176,11 +176,11 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Long add(C req) {
-        this.beforeAdd(req);
+    public Long create(C req) {
+        this.beforeCreate(req);
         T entity = BeanUtil.copyProperties(req, super.getEntityClass());
         baseMapper.insert(entity);
-        this.afterAdd(req, entity);
+        this.afterCreate(req, entity);
         return entity.getId();
     }
 
@@ -334,7 +334,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
      *
      * @param req 创建信息
      */
-    protected void beforeAdd(C req) {
+    protected void beforeCreate(C req) {
         /* 新增前置处理 */
     }
 
@@ -363,7 +363,7 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseIdD
      * @param req    创建信息
      * @param entity 实体信息
      */
-    protected void afterAdd(C req, T entity) {
+    protected void afterCreate(C req, T entity) {
         /* 新增后置处理 */
     }
 

@@ -27,9 +27,9 @@ import jakarta.validation.groups.Default;
 public interface CrudValidationGroup extends Default {
 
     /**
-     * CRUD 分组校验-新增
+     * CRUD 分组校验-创建
      */
-    interface Add extends CrudValidationGroup {}
+    interface Create extends CrudValidationGroup {}
 
     /**
      * CRUD 分组校验-修改

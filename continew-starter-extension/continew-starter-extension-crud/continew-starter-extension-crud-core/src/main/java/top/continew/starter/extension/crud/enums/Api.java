@@ -45,9 +45,9 @@ public enum Api {
     GET,
 
     /**
-     * 新增
+     * 创建
      */
-    ADD,
+    CREATE,
 
     /**
      * 修改
