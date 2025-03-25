@@ -29,9 +29,9 @@ import top.continew.starter.log.aspect.AccessLogAspect;
 import top.continew.starter.log.aspect.LogAspect;
 import top.continew.starter.log.dao.LogDao;
 import top.continew.starter.log.dao.impl.DefaultLogDaoImpl;
+import top.continew.starter.log.filter.LogFilter;
 import top.continew.starter.log.handler.AopLogHandler;
-import top.continew.starter.log.LogFilter;
-import top.continew.starter.log.LogHandler;
+import top.continew.starter.log.handler.LogHandler;
 import top.continew.starter.log.model.LogProperties;
 
 /**
@@ -49,9 +49,11 @@ public class LogAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(LogAutoConfiguration.class);
     private final LogProperties logProperties;
+    private final LogHandler logHandler;
 
-    public LogAutoConfiguration(LogProperties logProperties) {
+    public LogAutoConfiguration(LogProperties logProperties, LogHandler logHandler) {
         this.logProperties = logProperties;
+        this.logHandler = logHandler;
     }
 
     /**
@@ -66,13 +68,12 @@ public class LogAutoConfiguration {
     /**
      * 日志切面
      *
-     * @param logHandler 日志处理器
-     * @param logDao     日志持久层接口
+     * @param logDao 日志持久层接口
      * @return {@link LogAspect }
      */
     @Bean
     @ConditionalOnMissingBean
-    public LogAspect logAspect(LogHandler logHandler, LogDao logDao) {
+    public LogAspect logAspect(LogDao logDao) {
         return new LogAspect(logProperties, logHandler, logDao);
     }
 
@@ -84,7 +85,7 @@ public class LogAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public AccessLogAspect accessLogAspect() {
-        return new AccessLogAspect(logProperties);
+        return new AccessLogAspect(logProperties, logHandler);
     }
 
     /**

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log;
+package top.continew.starter.log.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import top.continew.starter.log.enums.Include;
+import top.continew.starter.log.model.AccessLogContext;
 import top.continew.starter.log.model.LogRecord;
 
 import java.lang.reflect.Method;
@@ -97,4 +98,18 @@ public interface LogHandler {
      * @return 日志包含信息
      */
     Set<Include> getIncludes(Set<Include> includes, Method targetMethod, Class<?> targetClass);
+
+    /**
+     * 处理访问日志开始请求
+     *
+     * @param accessLogContext 访问日志上下文
+     */
+    void processAccessLogStartReq(AccessLogContext accessLogContext);
+
+    /**
+     * 处理访问日志 结束请求
+     *
+     * @param accessLogContext 访问日志上下文
+     */
+    void processAccessLogEndReq(AccessLogContext accessLogContext);
 }

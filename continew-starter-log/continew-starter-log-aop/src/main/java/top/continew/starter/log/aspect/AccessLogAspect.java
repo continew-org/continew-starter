@@ -26,9 +26,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import top.continew.starter.log.handler.LogHandler;
+import top.continew.starter.log.http.servlet.RecordableServletHttpRequest;
+import top.continew.starter.log.http.servlet.RecordableServletHttpResponse;
+import top.continew.starter.log.model.AccessLogContext;
 import top.continew.starter.log.model.LogProperties;
 
-import java.time.Duration;
 import java.time.Instant;
 
 /**
@@ -43,9 +46,11 @@ public class AccessLogAspect {
 
     private static final Logger log = LoggerFactory.getLogger(AccessLogAspect.class);
     private final LogProperties logProperties;
+    private final LogHandler logHandler;
 
-    public AccessLogAspect(LogProperties logProperties) {
+    public AccessLogAspect(LogProperties logProperties, LogHandler logHandler) {
         this.logProperties = logProperties;
+        this.logHandler = logHandler;
     }
 
     /**
@@ -108,19 +113,18 @@ public class AccessLogAspect {
         HttpServletRequest request = attributes.getRequest();
         HttpServletResponse response = attributes.getResponse();
         try {
-            // 打印请求日志
-            if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
-                log.info("[{}] {}", request.getMethod(), request.getRequestURI());
-            }
+            logHandler.processAccessLogStartReq(AccessLogContext.builder()
+                .startTime(startTime)
+                .request(new RecordableServletHttpRequest(request))
+                .properties(logProperties)
+                .build());
             return joinPoint.proceed();
         } finally {
             Instant endTime = Instant.now();
-            if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
-                Duration timeTaken = Duration.between(startTime, endTime);
-                log.info("[{}] {} {} {}ms", request.getMethod(), request.getRequestURI(), response != null
-                    ? response.getStatus()
-                    : "N/A", timeTaken.toMillis());
-            }
+            logHandler.processAccessLogEndReq(AccessLogContext.builder()
+                .endTime(endTime)
+                .response(new RecordableServletHttpResponse(response, response.getStatus()))
+                .build());
         }
     }
 }

@@ -16,8 +16,6 @@
 
 package top.continew.starter.log.handler;
 
-import top.continew.starter.log.AbstractLogHandler;
-
 /**
  * 日志处理器-AOP 版实现
  *

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log;
+package top.continew.starter.log.filter;
 
 import cn.hutool.extra.spring.SpringUtil;
 import jakarta.servlet.FilterChain;
@@ -25,15 +25,13 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.core.Ordered;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.ContentCachingRequestWrapper;
-import org.springframework.web.util.ContentCachingResponseWrapper;
-import org.springframework.web.util.WebUtils;
+import top.continew.starter.core.wrapper.RepeatReadRequestWrapper;
+import top.continew.starter.core.wrapper.RepeatReadResponseWrapper;
 import top.continew.starter.log.model.LogProperties;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Objects;
 
 /**
  * 日志过滤器
@@ -67,20 +65,24 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
             filterChain.doFilter(request, response);
             return;
         }
+
         boolean isMatch = logProperties.isMatch(request.getRequestURI());
-        // 包装输入流，可重复读取
-        if (!isMatch && this.isRequestWrapper(request)) {
-            request = new ContentCachingRequestWrapper(request);
-        }
-        // 包装输出流，可重复读取
-        boolean isResponseWrapper = !isMatch && this.isResponseWrapper(response);
-        if (isResponseWrapper) {
-            response = new ContentCachingResponseWrapper(response);
-        }
-        filterChain.doFilter(request, response);
-        // 更新响应（不操作这一步，会导致接口响应空白）
-        if (isResponseWrapper) {
-            this.updateResponse(response);
+
+        // 处理可重复读取的请求
+        HttpServletRequest requestWrapper = (isMatch || !this.isRequestWrapper(request))
+            ? request
+            : new RepeatReadRequestWrapper(request);
+
+        // 处理可重复读取的响应
+        HttpServletResponse responseWrapper = (isMatch || !this.isResponseWrapper(response))
+            ? response
+            : new RepeatReadResponseWrapper(response);
+
+        filterChain.doFilter(requestWrapper, responseWrapper);
+
+        // 如果响应被包装了，复制缓存数据到原始响应
+        if (responseWrapper instanceof RepeatReadResponseWrapper wrappedResponse) {
+            wrappedResponse.copyBodyToResponse();
         }
     }
 
@@ -121,7 +123,7 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
      * @return true：是；false：否
      */
     private boolean isRequestWrapper(HttpServletRequest request) {
-        return !(request instanceof ContentCachingRequestWrapper);
+        return !(request instanceof RepeatReadRequestWrapper);
     }
 
     /**
@@ -131,18 +133,6 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
      * @return true：是；false：否
      */
     private boolean isResponseWrapper(HttpServletResponse response) {
-        return !(response instanceof ContentCachingResponseWrapper);
-    }
-
-    /**
-     * 更新响应
-     *
-     * @param response 响应对象
-     * @throws IOException /
-     */
-    private void updateResponse(HttpServletResponse response) throws IOException {
-        ContentCachingResponseWrapper responseWrapper = WebUtils
-            .getNativeResponse(response, ContentCachingResponseWrapper.class);
-        Objects.requireNonNull(responseWrapper).copyBodyToResponse();
+        return !(response instanceof RepeatReadResponseWrapper);
     }
 }

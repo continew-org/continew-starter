@@ -71,4 +71,11 @@ public interface RecordableHttpRequest {
      * @return 请求参数
      */
     Map<String, Object> getParam();
+
+    /**
+     * 获取路径 - 格式 /system/dept
+     *
+     * @return {@link String }
+     */
+    String getPath();
 }

@@ -27,13 +27,15 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import top.continew.starter.log.annotation.Log;
+import top.continew.starter.log.http.servlet.RecordableServletHttpRequest;
+import top.continew.starter.log.http.servlet.RecordableServletHttpResponse;
+import top.continew.starter.log.model.AccessLogContext;
 import top.continew.starter.log.model.LogProperties;
 import top.continew.starter.log.dao.LogDao;
-import top.continew.starter.log.LogHandler;
+import top.continew.starter.log.handler.LogHandler;
 import top.continew.starter.log.model.LogRecord;
 
 import java.lang.reflect.Method;
-import java.time.Duration;
 import java.time.Instant;
 
 /**
@@ -62,10 +64,11 @@ public class LogInterceptor implements HandlerInterceptor {
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
         Instant startTime = Instant.now();
-        if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
-            log.info("[{}] {}", request.getMethod(), request.getRequestURI());
-            timeTtl.set(startTime);
-        }
+        logHandler.processAccessLogStartReq(AccessLogContext.builder()
+            .startTime(startTime)
+            .request(new RecordableServletHttpRequest(request))
+            .properties(logProperties)
+            .build());
         // 开始日志记录
         if (this.isRequestRecord(handler, request)) {
             LogRecord.Started startedLogRecord = logHandler.start(startTime, request);
@@ -81,11 +84,10 @@ public class LogInterceptor implements HandlerInterceptor {
                                 Exception e) {
         try {
             Instant endTime = Instant.now();
-            if (Boolean.TRUE.equals(logProperties.getIsPrint())) {
-                Duration timeTaken = Duration.between(timeTtl.get(), endTime);
-                log.info("[{}] {} {} {}ms", request.getMethod(), request.getRequestURI(), response
-                    .getStatus(), timeTaken.toMillis());
-            }
+            logHandler.processAccessLogEndReq(AccessLogContext.builder()
+                .endTime(endTime)
+                .response(new RecordableServletHttpResponse(response, response.getStatus()))
+                .build());
             LogRecord.Started startedLogRecord = logTtl.get();
             if (null == startedLogRecord) {
                 return;

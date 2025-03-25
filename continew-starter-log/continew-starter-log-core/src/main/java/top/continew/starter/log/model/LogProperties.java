@@ -17,6 +17,7 @@
 package top.continew.starter.log.model;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.log.enums.Include;
 import top.continew.starter.web.util.SpringWebUtils;
@@ -40,12 +41,10 @@ public class LogProperties {
     private boolean enabled = true;
 
     /**
-     * 是否打印日志，开启后可打印访问日志（类似于 Nginx access log）
-     * <p>
-     * 不记录日志也支持开启打印访问日志
-     * </p>
+     * 访问日志配置
      */
-    private Boolean isPrint = false;
+    @NestedConfigurationProperty
+    private AccessLogProperties accessLog = new AccessLogProperties();
 
     /**
      * 包含信息
@@ -65,14 +64,6 @@ public class LogProperties {
         this.enabled = enabled;
     }
 
-    public Boolean getIsPrint() {
-        return isPrint;
-    }
-
-    public void setIsPrint(Boolean print) {
-        isPrint = print;
-    }
-
     public Set<Include> getIncludes() {
         return includes;
     }
@@ -87,6 +78,14 @@ public class LogProperties {
 
     public void setExcludePatterns(List<String> excludePatterns) {
         this.excludePatterns = excludePatterns;
+    }
+
+    public AccessLogProperties getAccessLog() {
+        return accessLog;
+    }
+
+    public void setAccessLog(AccessLogProperties accessLog) {
+        this.accessLog = accessLog;
     }
 
     /**

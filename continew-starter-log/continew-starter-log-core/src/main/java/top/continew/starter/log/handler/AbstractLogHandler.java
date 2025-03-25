@@ -14,21 +14,31 @@
  * limitations under the License.
  */
 
-package top.continew.starter.log;
+package top.continew.starter.log.handler;
 
 import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.ttl.TransmittableThreadLocal;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.enums.Include;
+import top.continew.starter.log.http.RecordableHttpRequest;
+import top.continew.starter.log.http.RecordableHttpResponse;
 import top.continew.starter.log.http.servlet.RecordableServletHttpRequest;
 import top.continew.starter.log.http.servlet.RecordableServletHttpResponse;
+import top.continew.starter.log.model.AccessLogContext;
+import top.continew.starter.log.model.AccessLogProperties;
 import top.continew.starter.log.model.LogRecord;
+import top.continew.starter.log.util.AccessLogUtils;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +50,9 @@ import java.util.Set;
  * @since 2.8.0
  */
 public abstract class AbstractLogHandler implements LogHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractLogHandler.class);
+    private final TransmittableThreadLocal<AccessLogContext> logContextThread = new TransmittableThreadLocal<>();
 
     @Override
     public LogRecord.Started start(Instant startTime, HttpServletRequest request) {
@@ -154,6 +167,39 @@ public abstract class AbstractLogHandler implements LogHandler {
         Include[] excludeArr = logAnnotation.excludes();
         if (excludeArr.length > 0) {
             includes.removeAll(Set.of(excludeArr));
+        }
+    }
+
+    @Override
+    public void processAccessLogStartReq(AccessLogContext accessLogContext) {
+        AccessLogProperties properties = accessLogContext.getProperties().getAccessLog();
+        // 是否需要打印 规则: 是否打印开关 或 放行路径
+        if (!properties.isPrint() || accessLogContext.getProperties()
+            .getAccessLog()
+            .isMatch(accessLogContext.getRequest().getPath())) {
+            return;
+        }
+        // 构建上下文
+        logContextThread.set(accessLogContext);
+        RecordableHttpRequest request = accessLogContext.getRequest();
+        String path = request.getPath();
+        String param = AccessLogUtils.getParam(request, properties);
+        log.info(param != null ? "[Start] [{}] {} {}" : "[Start] [{}] {}", request.getMethod(), path, param);
+    }
+
+    @Override
+    public void processAccessLogEndReq(AccessLogContext accessLogContext) {
+        AccessLogContext logContext = logContextThread.get();
+        if (ObjectUtil.isNotEmpty(logContext)) {
+            try {
+                RecordableHttpRequest request = logContext.getRequest();
+                RecordableHttpResponse response = accessLogContext.getResponse();
+                Duration timeTaken = Duration.between(logContext.getStartTime(), accessLogContext.getEndTime());
+                log.info("[End] [{}] {} {} {}ms", request.getMethod(), request.getPath(), response
+                    .getStatus(), timeTaken.toMillis());
+            } finally {
+                logContextThread.remove();
+            }
         }
     }
 }

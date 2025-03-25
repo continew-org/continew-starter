@@ -17,13 +17,10 @@
 package top.continew.starter.log.http.servlet;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.servlet.JakartaServletUtil;
 import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.UriUtils;
-import org.springframework.web.util.WebUtils;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.log.http.RecordableHttpRequest;
 
@@ -80,12 +77,8 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
 
     @Override
     public String getBody() {
-        ContentCachingRequestWrapper wrapper = WebUtils.getNativeRequest(request, ContentCachingRequestWrapper.class);
-        if (null != wrapper) {
-            String body = StrUtil.utf8Str(wrapper.getContentAsByteArray());
-            return JSONUtil.isTypeJSON(body) ? body : null;
-        }
-        return null;
+        String body = JakartaServletUtil.getBody(request);
+        return JSONUtil.isTypeJSON(body) ? body : null;
     }
 
     @Override
@@ -93,7 +86,12 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
         String body = this.getBody();
         return CharSequenceUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body)
             ? JSONUtil.toBean(body, Map.class)
-            : Collections.unmodifiableMap(request.getParameterMap());
+            : Collections.unmodifiableMap(JakartaServletUtil.getParamMap(request));
+    }
+
+    @Override
+    public String getPath() {
+        return request.getRequestURI();
     }
 
     private StringBuilder appendQueryString(String queryString) {
