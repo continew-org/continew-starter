@@ -64,7 +64,7 @@ public class LogInterceptor implements HandlerInterceptor {
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
         Instant startTime = Instant.now();
-        logHandler.processAccessLogStartReq(AccessLogContext.builder()
+        logHandler.accessLogStart(AccessLogContext.builder()
             .startTime(startTime)
             .request(new RecordableServletHttpRequest(request))
             .properties(logProperties)
@@ -84,7 +84,7 @@ public class LogInterceptor implements HandlerInterceptor {
                                 Exception e) {
         try {
             Instant endTime = Instant.now();
-            logHandler.processAccessLogEndReq(AccessLogContext.builder()
+            logHandler.accessLogFinish(AccessLogContext.builder()
                 .endTime(endTime)
                 .response(new RecordableServletHttpResponse(response, response.getStatus()))
                 .build());

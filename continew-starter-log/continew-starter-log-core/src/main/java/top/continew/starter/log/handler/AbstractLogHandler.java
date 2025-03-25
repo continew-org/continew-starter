@@ -171,11 +171,10 @@ public abstract class AbstractLogHandler implements LogHandler {
     }
 
     @Override
-    public void processAccessLogStartReq(AccessLogContext accessLogContext) {
+    public void accessLogStart(AccessLogContext accessLogContext) {
         AccessLogProperties properties = accessLogContext.getProperties().getAccessLog();
         // 是否需要打印 规则: 是否打印开关 或 放行路径
         if (!properties.isPrint() || accessLogContext.getProperties()
-            .getAccessLog()
             .isMatch(accessLogContext.getRequest().getPath())) {
             return;
         }
@@ -184,22 +183,23 @@ public abstract class AbstractLogHandler implements LogHandler {
         RecordableHttpRequest request = accessLogContext.getRequest();
         String path = request.getPath();
         String param = AccessLogUtils.getParam(request, properties);
-        log.info(param != null ? "[Start] [{}] {} {}" : "[Start] [{}] {}", request.getMethod(), path, param);
+        log.info(param != null ? "[Start] [{}] {} param: {}" : "[Start] [{}] {}", request.getMethod(), path, param);
     }
 
     @Override
-    public void processAccessLogEndReq(AccessLogContext accessLogContext) {
+    public void accessLogFinish(AccessLogContext accessLogContext) {
         AccessLogContext logContext = logContextThread.get();
-        if (ObjectUtil.isNotEmpty(logContext)) {
-            try {
-                RecordableHttpRequest request = logContext.getRequest();
-                RecordableHttpResponse response = accessLogContext.getResponse();
-                Duration timeTaken = Duration.between(logContext.getStartTime(), accessLogContext.getEndTime());
-                log.info("[End] [{}] {} {} {}ms", request.getMethod(), request.getPath(), response
-                    .getStatus(), timeTaken.toMillis());
-            } finally {
-                logContextThread.remove();
-            }
+        if (ObjectUtil.isEmpty(logContext)) {
+            return;
+        }
+        try {
+            RecordableHttpRequest request = logContext.getRequest();
+            RecordableHttpResponse response = accessLogContext.getResponse();
+            Duration timeTaken = Duration.between(logContext.getStartTime(), accessLogContext.getEndTime());
+            log.info("[End] [{}] {} {} {}ms", request.getMethod(), request.getPath(), response.getStatus(), timeTaken
+                .toMillis());
+        } finally {
+            logContextThread.remove();
         }
     }
 }

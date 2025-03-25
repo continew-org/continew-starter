@@ -16,76 +16,71 @@
 
 package top.continew.starter.log.model;
 
-import top.continew.starter.web.util.SpringWebUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 访问日志输出配置
+ * 访问日志配置属性
  *
  * @author echo
- * @since 2.8.3
+ * @author Charles7c
+ * @since 2.10.0
  */
 public class AccessLogProperties {
 
     /**
-     * 是否打印日志，开启后可打印访问日志（类似于 Nginx access log）
+     * 是否打印访问日志（类似于 Nginx access log）
      * <p>
-     * 不记录日志也支持开启打印访问日志
+     * 不记录请求日志也支持开启打印访问日志
      * </p>
      */
     private boolean isPrint = false;
 
     /**
-     * 放行路由
+     * 是否打印请求参数（body/query/form）
+     * <p>开启后，访问日志会打印请求参数</p>
      */
-    private List<String> excludePatterns = new ArrayList<>();
-
-    /**
-     * 是否记录请求参数（body/query/form）
-     * <p>开启后会在日志中输出请求参数</p>
-     */
-    private boolean isReqParams = false;
+    private boolean isPrintRequestParam = false;
 
     /**
      * 是否自动截断超长参数值（如 base64、大文本）
-     * <p>开启后会对超过指定长度的参数值进行截断处理</p>
+     * <p>开启后，超过指定长度的参数值将会自动截断处理</p>
      */
-    private boolean truncateLongParams = false;
+    private boolean longParamTruncate = false;
 
     /**
      * 超长参数检测阈值（单位：字符）
      * <p>当参数值长度超过此值时，触发截断规则</p>
-     * <p>默认：2000</p>
+     * <p>默认：2000，仅在 {@link #longParamTruncate} 启用时生效</p>
      */
-    private int ultraLongParamThreshold = 2000;
+    private int longParamThreshold = 2000;
 
     /**
-     * 超长参数最大展示长度（单位：字符）
-     * <p>当参数超过ultraLongParamThreshold时，强制截断到此长度</p>
-     * <p>默认：50</p>
+     * 超长参数最大保留长度（单位：字符）
+     * <p>当参数超过 {@link #longParamThreshold} 时，强制截断到此长度</p>
+     * <p>默认：50，仅在 {@link #longParamTruncate} 启用时生效</p>
      */
-    private int ultraLongParamMaxLength = 50;
+    private int longParamMaxLength = 50;
 
     /**
      * 截断后追加的后缀符号（如配置 "..." 会让截断内容更直观）
-     * <p>建议配置 3-5 个非占宽字符，默认为空不追加</p>
+     * <p>建议配置 3-5 个非占宽字符，默认为 ...</p>
+     * <p>仅在 {@link #longParamTruncate} 启用时生效</p>
      */
-    private String truncateSuffix = "...";
+    private String longParamSuffix = "...";
 
     /**
      * 是否过滤敏感参数
      * <p>开启后会对敏感参数进行过滤，默认不过滤</p>
      */
-    private boolean isSensitiveParams = false;
+    private boolean isParamSensitive = false;
 
     /**
      * 敏感参数字段列表（如：password,token,idCard）
      * <p>支持精确匹配（区分大小写）</p>
      * <p>示例值：password,oldPassword</p>
      */
-    private List<String> sensitiveParamList = new ArrayList<>();
+    private List<String> sensitiveParams = new ArrayList<>();
 
     public boolean isPrint() {
         return isPrint;
@@ -95,77 +90,59 @@ public class AccessLogProperties {
         isPrint = print;
     }
 
-    public List<String> getExcludePatterns() {
-        return excludePatterns;
+    public boolean isPrintRequestParam() {
+        return isPrintRequestParam;
     }
 
-    public void setExcludePatterns(List<String> excludePatterns) {
-        this.excludePatterns = excludePatterns;
+    public void setPrintRequestParam(boolean printRequestParam) {
+        isPrintRequestParam = printRequestParam;
     }
 
-    public boolean isReqParams() {
-        return isReqParams;
+    public boolean isLongParamTruncate() {
+        return longParamTruncate;
     }
 
-    public void setReqParams(boolean reqParams) {
-        isReqParams = reqParams;
+    public void setLongParamTruncate(boolean longParamTruncate) {
+        this.longParamTruncate = longParamTruncate;
     }
 
-    public boolean isTruncateLongParams() {
-        return truncateLongParams;
+    public int getLongParamThreshold() {
+        return longParamThreshold;
     }
 
-    public void setTruncateLongParams(boolean truncateLongParams) {
-        this.truncateLongParams = truncateLongParams;
+    public void setLongParamThreshold(int longParamThreshold) {
+        this.longParamThreshold = longParamThreshold;
     }
 
-    public int getUltraLongParamThreshold() {
-        return ultraLongParamThreshold;
+    public int getLongParamMaxLength() {
+        return longParamMaxLength;
     }
 
-    public void setUltraLongParamThreshold(int ultraLongParamThreshold) {
-        this.ultraLongParamThreshold = ultraLongParamThreshold;
+    public void setLongParamMaxLength(int longParamMaxLength) {
+        this.longParamMaxLength = longParamMaxLength;
     }
 
-    public int getUltraLongParamMaxLength() {
-        return ultraLongParamMaxLength;
+    public String getLongParamSuffix() {
+        return longParamSuffix;
     }
 
-    public void setUltraLongParamMaxLength(int ultraLongParamMaxLength) {
-        this.ultraLongParamMaxLength = ultraLongParamMaxLength;
+    public void setLongParamSuffix(String longParamSuffix) {
+        this.longParamSuffix = longParamSuffix;
     }
 
-    public String getTruncateSuffix() {
-        return truncateSuffix;
+    public boolean isParamSensitive() {
+        return isParamSensitive;
     }
 
-    public void setTruncateSuffix(String truncateSuffix) {
-        this.truncateSuffix = truncateSuffix;
+    public void setParamSensitive(boolean paramSensitive) {
+        isParamSensitive = paramSensitive;
     }
 
-    public boolean isSensitiveParams() {
-        return isSensitiveParams;
+    public List<String> getSensitiveParams() {
+        return sensitiveParams;
     }
 
-    public void setSensitiveParams(boolean sensitiveParams) {
-        isSensitiveParams = sensitiveParams;
-    }
-
-    public List<String> getSensitiveParamList() {
-        return sensitiveParamList;
-    }
-
-    public void setSensitiveParamList(List<String> sensitiveParamList) {
-        this.sensitiveParamList = sensitiveParamList;
-    }
-
-    /**
-     * 是否匹配放行路由
-     *
-     * @param uri 请求 URI
-     * @return 是否匹配
-     */
-    public boolean isMatch(String uri) {
-        return this.getExcludePatterns().stream().anyMatch(pattern -> SpringWebUtils.isMatch(uri, pattern));
+    public void setSensitiveParams(List<String> sensitiveParams) {
+        this.sensitiveParams = sensitiveParams;
     }
 }

@@ -25,7 +25,7 @@ import java.time.Instant;
  * 访问日志上下文
  *
  * @author echo
- * @since 2.8.3
+ * @since 2.10.0
  */
 public class AccessLogContext {
 
@@ -90,7 +90,11 @@ public class AccessLogContext {
         return new Builder();
     }
 
+    /**
+     * 访问日志上下文构建者
+     */
     public static class Builder {
+
         private Instant startTime;
         private Instant endTime;
         private RecordableHttpRequest request;

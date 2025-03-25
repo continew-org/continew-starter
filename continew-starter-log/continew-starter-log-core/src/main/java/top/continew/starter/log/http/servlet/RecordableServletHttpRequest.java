@@ -35,6 +35,8 @@ import java.util.Map;
  *
  * @author Andy Wilkinson（Spring Boot Actuator）
  * @author Charles7c
+ * @author echo
+ * @since 1.1.0
  */
 public final class RecordableServletHttpRequest implements RecordableHttpRequest {
 
@@ -66,8 +68,8 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     }
 
     @Override
-    public String getIp() {
-        return JakartaServletUtil.getClientIP(request);
+    public String getPath() {
+        return request.getRequestURI();
     }
 
     @Override
@@ -90,8 +92,8 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     }
 
     @Override
-    public String getPath() {
-        return request.getRequestURI();
+    public String getIp() {
+        return JakartaServletUtil.getClientIP(request);
     }
 
     private StringBuilder appendQueryString(String queryString) {

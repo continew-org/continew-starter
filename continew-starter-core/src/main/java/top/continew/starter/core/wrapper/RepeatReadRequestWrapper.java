@@ -33,8 +33,8 @@ import java.nio.charset.StandardCharsets;
  * 支持文件流直接透传，非文件流可重复读取
  *
  * @author echo
- * @since 2025/03/25 11:11
- **/
+ * @since 2.10.0
+ */
 public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
 
     private byte[] cachedBody;
@@ -48,13 +48,6 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
         if (!isMultipartContent(request)) {
             this.cachedBody = IoUtil.readBytes(request.getInputStream(), false);
         }
-    }
-
-    /**
-     * 检查是否为文件上传请求
-     */
-    private boolean isMultipartContent(HttpServletRequest request) {
-        return request.getContentType() != null && request.getContentType().toLowerCase().startsWith("multipart/");
     }
 
     @Override
@@ -97,5 +90,15 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
             return originalRequest.getReader();
         }
         return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(cachedBody), StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 检查是否为文件上传请求
+     * 
+     * @param request 请求对象
+     * @return 是否为文件上传请求
+     */
+    private boolean isMultipartContent(HttpServletRequest request) {
+        return request.getContentType() != null && request.getContentType().toLowerCase().startsWith("multipart/");
     }
 }

@@ -30,6 +30,8 @@ import java.util.Map;
  *
  * @author Andy Wilkinson（Spring Boot Actuator）
  * @author Charles7c
+ * @author echo
+ * @since 1.1.0
  */
 public final class RecordableServletHttpResponse implements RecordableHttpResponse {
 

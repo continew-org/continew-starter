@@ -31,14 +31,16 @@ import java.nio.charset.StandardCharsets;
  * 支持缓存响应内容，便于日志记录和后续处理 (不缓存SSE)
  *
  * @author echo
- * @since 2025/03/25 11:11
- **/
+ * @author Charles7c
+ * @since 2.10.0
+ */
 public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
 
     private final ByteArrayOutputStream cachedOutputStream = new ByteArrayOutputStream();
     private final PrintWriter writer = new PrintWriter(cachedOutputStream, true);
-
-    // 是否为流式响应
+    /**
+     * 是否为流式响应
+     */
     private boolean isStreamingResponse = false;
 
     public RepeatReadResponseWrapper(HttpServletResponse response) {
@@ -67,8 +69,8 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
         checkStreamingResponse();
+        // 对于 SSE 流式响应，直接返回原始响应流，不做额外处理
         if (isStreamingResponse) {
-            // 对于 SSE 流式响应，直接返回原始响应流，不做额外处理
             return super.getOutputStream();
         }
         return new ServletOutputStream() {
@@ -108,6 +110,11 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
         return writer;
     }
 
+    /**
+     * 获取缓存的响应内容
+     *
+     * @return 缓存的响应内容
+     */
     public String getResponseContent() {
         if (!isStreamingResponse) {
             writer.flush();
@@ -116,12 +123,22 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
         return null;
     }
 
+    /**
+     * 将缓存的响应内容复制到原始响应中
+     *
+     * @throws IOException IO 异常
+     */
     public void copyBodyToResponse() throws IOException {
         if (!isStreamingResponse && cachedOutputStream.size() > 0) {
             getResponse().getOutputStream().write(cachedOutputStream.toByteArray());
         }
     }
 
+    /**
+     * 是否为流式响应
+     *
+     * @return 是否为流式响应
+     */
     public boolean isStreamingResponse() {
         return isStreamingResponse;
     }

@@ -30,6 +30,7 @@ import java.util.Set;
  * 日志处理器
  *
  * @author Charles7c
+ * @author echo
  * @since 2.8.0
  */
 public interface LogHandler {
@@ -100,16 +101,18 @@ public interface LogHandler {
     Set<Include> getIncludes(Set<Include> includes, Method targetMethod, Class<?> targetClass);
 
     /**
-     * 处理访问日志开始请求
+     * 开始访问日志记录
      *
      * @param accessLogContext 访问日志上下文
+     * @since 2.10.0
      */
-    void processAccessLogStartReq(AccessLogContext accessLogContext);
+    void accessLogStart(AccessLogContext accessLogContext);
 
     /**
-     * 处理访问日志 结束请求
+     * 结束访问日志记录
      *
      * @param accessLogContext 访问日志上下文
+     * @since 2.10.0
      */
-    void processAccessLogEndReq(AccessLogContext accessLogContext);
+    void accessLogFinish(AccessLogContext accessLogContext);
 }

@@ -26,13 +26,13 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 访问日志工具类
+ *
  * @author echo
- * @since 2025/03/25 19:16
- **/
+ * @author Charles7c
+ * @since 2.10.0
+ */
 public class AccessLogUtils {
-
-    public AccessLogUtils() {
-    }
 
     /**
      * 获取参数信息
@@ -42,8 +42,8 @@ public class AccessLogUtils {
      * @return {@link String }
      */
     public static String getParam(RecordableHttpRequest request, AccessLogProperties properties) {
-        // 是否需要输出参数
-        if (!properties.isReqParams()) {
+        // 是否需要打印请求参数
+        if (!properties.isPrintRequestParam()) {
             return null;
         }
 
@@ -54,16 +54,16 @@ public class AccessLogUtils {
         }
 
         // 是否需要对特定入参脱敏
-        if (properties.isSensitiveParams()) {
-            params = filterSensitiveParams(params, properties.getSensitiveParamList());
+        if (properties.isParamSensitive()) {
+            params = filterSensitiveParams(params, properties.getSensitiveParams());
         }
 
         // 是否自动截断超长参数值
-        if (properties.isTruncateLongParams()) {
-            params = truncateLongParams(params, properties.getUltraLongParamThreshold(), properties
-                .getUltraLongParamMaxLength(), properties.getTruncateSuffix());
+        if (properties.isLongParamTruncate()) {
+            params = truncateLongParams(params, properties.getLongParamThreshold(), properties
+                .getLongParamMaxLength(), properties.getLongParamSuffix());
         }
-        return "param:" + JSONUtil.toJsonStr(params);
+        return JSONUtil.toJsonStr(params);
     }
 
     /**
@@ -80,9 +80,7 @@ public class AccessLogUtils {
 
         Map<String, Object> filteredParams = new HashMap<>(params);
         for (String sensitiveKey : sensitiveParams) {
-            if (filteredParams.containsKey(sensitiveKey)) {
-                filteredParams.put(sensitiveKey, "***");
-            }
+            filteredParams.computeIfPresent(sensitiveKey, (key, value) -> "***");
         }
         return filteredParams;
     }
@@ -114,5 +112,8 @@ public class AccessLogUtils {
             }
         }
         return truncatedParams;
+    }
+
+    private AccessLogUtils() {
     }
 }

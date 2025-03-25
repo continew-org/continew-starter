@@ -25,6 +25,7 @@ import java.util.Map;
  * @author Andy Wilkinson（Spring Boot Actuator）
  * @author Phillip Webb（Spring Boot Actuator）
  * @author Charles7c
+ * @author echo
  * @see RecordableHttpResponse
  * @since 1.1.0
  */
@@ -45,11 +46,13 @@ public interface RecordableHttpRequest {
     URI getUrl();
 
     /**
-     * 获取 IP
+     * 获取路径
+     * <p>/foo/bar</p>
      *
-     * @return IP
+     * @return 路径
+     * @since 2.10.0
      */
-    String getIp();
+    String getPath();
 
     /**
      * 获取请求头
@@ -73,9 +76,9 @@ public interface RecordableHttpRequest {
     Map<String, Object> getParam();
 
     /**
-     * 获取路径 - 格式 /system/dept
+     * 获取 IP
      *
-     * @return {@link String }
+     * @return IP
      */
-    String getPath();
+    String getIp();
 }

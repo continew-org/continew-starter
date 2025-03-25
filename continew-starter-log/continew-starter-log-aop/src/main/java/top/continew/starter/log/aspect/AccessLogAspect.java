@@ -22,8 +22,6 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import top.continew.starter.log.handler.LogHandler;
@@ -44,7 +42,6 @@ import java.time.Instant;
 @Aspect
 public class AccessLogAspect {
 
-    private static final Logger log = LoggerFactory.getLogger(AccessLogAspect.class);
     private final LogProperties logProperties;
     private final LogHandler logHandler;
 
@@ -113,7 +110,8 @@ public class AccessLogAspect {
         HttpServletRequest request = attributes.getRequest();
         HttpServletResponse response = attributes.getResponse();
         try {
-            logHandler.processAccessLogStartReq(AccessLogContext.builder()
+            // 开始访问日志记录
+            logHandler.accessLogStart(AccessLogContext.builder()
                 .startTime(startTime)
                 .request(new RecordableServletHttpRequest(request))
                 .properties(logProperties)
@@ -121,7 +119,7 @@ public class AccessLogAspect {
             return joinPoint.proceed();
         } finally {
             Instant endTime = Instant.now();
-            logHandler.processAccessLogEndReq(AccessLogContext.builder()
+            logHandler.accessLogFinish(AccessLogContext.builder()
                 .endTime(endTime)
                 .response(new RecordableServletHttpResponse(response, response.getStatus()))
                 .build());

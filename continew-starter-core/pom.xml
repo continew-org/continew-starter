@@ -23,12 +23,6 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
 
-        <!-- servlet包 -->
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-        </dependency>
-
         <!-- Hibernate Validator -->
         <dependency>
             <groupId>org.hibernate.validator</groupId>
@@ -64,6 +58,13 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-http</artifactId>
+        </dependency>
+
+        <!-- Jakarta（原 Javax Servlet） -->
+        <dependency>
+            <groupId>jakarta.servlet</groupId>
+            <artifactId>jakarta.servlet-api</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

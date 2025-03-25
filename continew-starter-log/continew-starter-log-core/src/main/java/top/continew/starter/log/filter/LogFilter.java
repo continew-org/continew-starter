@@ -42,6 +42,7 @@ import java.net.URISyntaxException;
  * @author Venil Noronha（Spring Boot Actuator）
  * @author Madhura Bhave（Spring Boot Actuator）
  * @author Charles7c
+ * @author echo
  * @since 1.1.0
  */
 public class LogFilter extends OncePerRequestFilter implements Ordered {
@@ -66,15 +67,15 @@ public class LogFilter extends OncePerRequestFilter implements Ordered {
             return;
         }
 
-        boolean isMatch = logProperties.isMatch(request.getRequestURI());
+        boolean isExcludeUri = logProperties.isMatch(request.getRequestURI());
 
         // 处理可重复读取的请求
-        HttpServletRequest requestWrapper = (isMatch || !this.isRequestWrapper(request))
+        HttpServletRequest requestWrapper = (isExcludeUri || !this.isRequestWrapper(request))
             ? request
             : new RepeatReadRequestWrapper(request);
 
         // 处理可重复读取的响应
-        HttpServletResponse responseWrapper = (isMatch || !this.isResponseWrapper(response))
+        HttpServletResponse responseWrapper = (isExcludeUri || !this.isResponseWrapper(response))
             ? response
             : new RepeatReadResponseWrapper(response);
 
