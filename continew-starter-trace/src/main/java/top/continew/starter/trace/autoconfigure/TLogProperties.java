@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.trace;
+package top.continew.starter.trace.autoconfigure;
 
 /**
  * TLog 配置属性

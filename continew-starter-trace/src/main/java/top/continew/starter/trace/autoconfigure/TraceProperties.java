@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.trace;
+package top.continew.starter.trace.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import top.continew.starter.core.constant.PropertiesConstants;
 
 /**
- * 链路跟踪配置属性
+ * 链路追踪配置属性
  *
  * @author Charles7c
  * @since 1.3.0
  */
-@ConfigurationProperties(PropertiesConstants.WEB_TRACE)
+@ConfigurationProperties(PropertiesConstants.TRACE)
 public class TraceProperties {
 
     /**
-     * 是否启用链路跟踪配置
+     * 是否启用链路追踪配置
      */
     private boolean enabled = false;
 

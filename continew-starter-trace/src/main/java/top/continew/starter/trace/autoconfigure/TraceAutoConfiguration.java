@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.trace;
+package top.continew.starter.trace.autoconfigure;
 
 import com.yomahub.tlog.id.TLogIdGenerator;
 import com.yomahub.tlog.id.TLogIdGeneratorLoader;
@@ -32,9 +32,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import top.continew.starter.core.constant.PropertiesConstants;
+import top.continew.starter.trace.filter.TLogServletFilter;
+import top.continew.starter.trace.handler.TraceIdGenerator;
 
 /**
- * 链路跟踪自动配置
+ * 链路追踪自动配置
  *
  * @author Jasmine
  * @author Charles7c
@@ -43,7 +45,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
 @AutoConfiguration
 @ConditionalOnWebApplication
 @EnableConfigurationProperties(TraceProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.WEB_TRACE, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.TRACE, name = PropertiesConstants.ENABLED, havingValue = "true")
 public class TraceAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(TraceAutoConfiguration.class);
@@ -89,6 +91,6 @@ public class TraceAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Web-Trace' completed initialization.");
+        log.debug("[ContiNew Starter] - Auto Configuration 'Trace' completed initialization.");
     }
 }

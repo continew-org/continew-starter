@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.trace;
+package top.continew.starter.trace.handler;
 
 import com.yomahub.tlog.constant.TLogConstants;
 import com.yomahub.tlog.core.rpc.TLogLabelBean;

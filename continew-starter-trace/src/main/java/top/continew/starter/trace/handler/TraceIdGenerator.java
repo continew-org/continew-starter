@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.trace;
+package top.continew.starter.trace.handler;
 
 import com.yomahub.tlog.id.TLogIdGenerator;
 import com.yomahub.tlog.id.snowflake.UniqueIdGenerator;
