@@ -1,3 +1,47 @@
+## [v2.10.0](https://github.com/continew-org/continew-starter/compare/v2.9.0...v2.10.0) (2025-03-26)
+
+### ✨ 新特性
+
+- 【idempotent】新增幂等模块 (Gitee#41@aiming317) ([199df87](https://github.com/continew-org/continew-starter/commit/199df874e54207d9b05230dcd2ec83be0e6d3f06)) ([27a71cf](https://github.com/continew-org/continew-starter/commit/27a71cf07675315405908a5befd25ad6e5c7471c)) ([f50b511](https://github.com/continew-org/continew-starter/commit/f50b51151391e36e49f31a0e553d8c86f1827821))
+- 【cache/redisson】添加条件性缓存设置方法 setIfAbsent、setIfExists ([b199b65](https://github.com/continew-org/continew-starter/commit/b199b651ecf8a2de6cccafa4efc98c7d65446ebd))
+- 【core】添加手机号校验注解并优化枚举校验提示信息 ([a6fb65f](https://github.com/continew-org/continew-starter/commit/a6fb65f97e22ea0e7eec7d9c523e3c550b1d73d0))
+- 【web】新增日期类型转换器 ([d9ac276](https://github.com/continew-org/continew-starter/commit/d9ac2764aa78e83a11ee5440155a8cd7bf1cb8c8))
+- 【security/xss】新增 XSS 过滤模块（原 web 模块内组件） ([b5bfe5c](https://github.com/continew-org/continew-starter/commit/b5bfe5c6813323d45cd5879a2e0f9bbd88d657e0))
+- 【trace】新增链路追踪模块（原 web 模块内组件） ([85285e5](https://github.com/continew-org/continew-starter/commit/85285e56a83324d9a6542531dbdf3e82f8af0301))
+
+### 💎 功能优化
+
+- 【extension/crud】将详情方法命名还原为 get ([591a44d](https://github.com/continew-org/continew-starter/commit/591a44d861151b89f1f748d18092b546bb0935e0))
+- 【extension/crud】将新增操作由 ADD 改为创建操作 CREATE ([1903520](https://github.com/continew-org/continew-starter/commit/19035204336f0c9d462e75e89561514aa1414f27))
+- 【ratelimiter】将限流相关代码从 security 模块中分离，创建独立的 ratelimiter 模块 ([2b3de0c](https://github.com/continew-org/continew-starter/commit/2b3de0c67e1e6f4b29fed4a732a48e5512dad4ac))
+- 优化部分错误提示信息和代码注释 ([c9c7c34](https://github.com/continew-org/continew-starter/commit/c9c7c345062a126e802f5d92d06710f503e8f733))
+- 【log】重构访问日志 (Gitee#42@dom-w) ([da5e162](https://github.com/continew-org/continew-starter/commit/da5e162a2ab5c4a428bcdda4c8ea94d52722b7ad)) ([4c38592](https://github.com/continew-org/continew-starter/commit/4c385927b4e57402dc06e7713388984ead1186b3)) ([4c38592](https://github.com/continew-org/continew-starter/commit/4c385927b4e57402dc06e7713388984ead1186b3)) ([1613374](https://github.com/continew-org/continew-starter/commit/1613374fcca67381e9fcf6b3677527d66f6ea3db))
+
+### 🐛 问题修复
+
+- 【web】修复开启 i18n 后访问接口报错的问题 ([0d7f777](https://github.com/continew-org/continew-starter/commit/0d7f777fd56e08ef3842521285bb8c379e408874))
+- 【web】优化默认全局响应实体 R ，为 status 字段添加默认值 DefaultResponseStatus (Gitee#39@zs3zs) ([e7d99e6](https://github.com/continew-org/continew-starter/commit/e7d99e65aa2a22154a81ba087dbc11a6aee9598f))
+- 【cache/redisson】修复嵌套属性未添加注解导致无法注入的问题 ([92f5ea7](https://github.com/continew-org/continew-starter/commit/92f5ea799e9059f8c2e5bef37f0beb4074b894db))
+
+### 📦 依赖升级
+
+- Spring Boot 3.2.12 => 3.3.9 ([974efa3](https://github.com/continew-org/continew-starter/commit/974efa368a983548ac87f0fa4ee4e181a6383668))
+- 新增 Spring Cloud 2023.0.5
+- Redisson 3.41.0 => 3.45.0
+- CosId 2.10.1 => 2.11.0
+- sa-token 1.39.0 => 1.40.0
+- snail-job 1.2.0 => 1.4.0
+- sms4j 3.3.3 => 3.3.4
+- nashorn 15.5 => 15.6
+- s3 2.29.23 => 2.30.35
+- s3-crt 0.33.5 => 0.36.1
+- ip2region 3.2.12 => 3.3.6
+- hutool 5.8.34 => 5.8.36
+- mybatis-flex 1.10.3 => 1.10.8
+- snakeyaml 2.3 => 2.4
+- flatten 1.6.0 => 1.7.0
+- spotless 2.43.0 => 2.44.3
+
 ## [v2.9.0](https://github.com/continew-org/continew-starter/compare/v2.8.3...v2.9.0) (2025-02-14)
 
 ### ✨ 新特性

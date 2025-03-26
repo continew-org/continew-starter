@@ -43,7 +43,7 @@
 
     <properties>
         <!-- 项目版本号 -->
-        <revision>2.10.0-SNAPSHOT</revision>
+        <revision>2.10.0</revision>
         <spring-cloud.version>2023.0.5</spring-cloud.version>
         <redisson.version>3.45.0</redisson.version>
         <jetcache.version>2.7.7</jetcache.version>

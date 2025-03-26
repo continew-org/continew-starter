@@ -166,10 +166,12 @@ continew-starter
 │  └─ continew-starter-cache-springcache（Spring 缓存）
 ├─ continew-starter-security（安全模块）
 │  ├─ continew-starter-security-crypto（加密：字段加解密）
+│  ├─ continew-starter-security-xss（XSS 过滤）
 │  ├─ continew-starter-security-mask（脱敏：JSON 数据脱敏）
 │  └─ continew-starter-security-password（密码编码器）
 ├─ continew-starter-ratelimiter（限流模块）
 ├─ continew-starter-idempotent（幂等模块）
+├─ continew-starter-trace（链路追踪模块）
 ├─ continew-starter-captcha（验证码模块）
 │  ├─ continew-starter-captcha-graphic（静态验证码）
 │  └─ continew-starter-captcha-behavior（动态验证码）
