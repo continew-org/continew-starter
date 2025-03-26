@@ -34,7 +34,7 @@ public class AccessLogProperties {
      * 不记录请求日志也支持开启打印访问日志
      * </p>
      */
-    private boolean isPrint = false;
+    private boolean enabled = false;
 
     /**
      * 是否打印请求参数（body/query/form）
@@ -82,12 +82,12 @@ public class AccessLogProperties {
      */
     private List<String> sensitiveParams = new ArrayList<>();
 
-    public boolean isPrint() {
-        return isPrint;
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void setPrint(boolean print) {
-        isPrint = print;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public boolean isPrintRequestParam() {
