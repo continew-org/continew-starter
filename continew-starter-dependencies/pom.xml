@@ -538,20 +538,6 @@
                 <version>${revision}</version>
             </dependency>
 
-            <!-- 幂等模块 -->
-            <dependency>
-                <groupId>top.continew</groupId>
-                <artifactId>continew-starter-idempotent</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
-            <!-- 限流模块 -->
-            <dependency>
-                <groupId>top.continew</groupId>
-                <artifactId>continew-starter-ratelimiter</artifactId>
-                <version>${revision}</version>
-            </dependency>
-
             <!-- 日志模块 - 基于拦截器实现（Spring Boot Actuator HttpTrace 增强版） -->
             <dependency>
                 <groupId>top.continew</groupId>
@@ -573,11 +559,31 @@
                 <version>${revision}</version>
             </dependency>
 
-            <!-- Web 模块 -->
+            <!-- 链路追踪模块 -->
             <dependency>
                 <groupId>top.continew</groupId>
-                <artifactId>continew-starter-web</artifactId>
+                <artifactId>continew-starter-trace</artifactId>
                 <version>${revision}</version>
+            </dependency>
+
+            <!-- 幂等模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-idempotent</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 限流模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-ratelimiter</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- 安全模块 - XSS 过滤 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-security-xss</artifactId>
             </dependency>
 
             <!-- 安全模块 - 敏感词 -->
@@ -605,6 +611,13 @@
             <dependency>
                 <groupId>top.continew</groupId>
                 <artifactId>continew-starter-security-password</artifactId>
+                <version>${revision}</version>
+            </dependency>
+
+            <!-- Web 模块 -->
+            <dependency>
+                <groupId>top.continew</groupId>
+                <artifactId>continew-starter-web</artifactId>
                 <version>${revision}</version>
             </dependency>
 

@@ -25,8 +25,8 @@ import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.core.Ordered;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
-import top.continew.starter.core.wrapper.RepeatReadRequestWrapper;
-import top.continew.starter.core.wrapper.RepeatReadResponseWrapper;
+import top.continew.starter.web.util.RepeatReadRequestWrapper;
+import top.continew.starter.web.util.RepeatReadResponseWrapper;
 import top.continew.starter.log.model.LogProperties;
 
 import java.io.IOException;

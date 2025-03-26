@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.core.wrapper;
+package top.continew.starter.web.util;
 
 import cn.hutool.core.io.IoUtil;
 import jakarta.servlet.ReadListener;

@@ -40,19 +40,24 @@ public class PropertiesConstants {
     public static final String SECURITY = CONTINEW_STARTER + StringConstants.DOT + "security";
 
     /**
-     * 密码编解码配置
+     * 安全-密码编解码配置
      */
     public static final String SECURITY_PASSWORD = SECURITY + StringConstants.DOT + "password";
 
     /**
-     * 加/解密配置
+     * 安全-加/解密配置
      */
     public static final String SECURITY_CRYPTO = SECURITY + StringConstants.DOT + "crypto";
 
     /**
-     * 敏感词配置
+     * 安全-敏感词配置
      */
     public static final String SECURITY_SENSITIVE_WORDS = SECURITY + StringConstants.DOT + "sensitive-words";
+
+    /**
+     * 安全-XSS 配置
+     */
+    public static final String SECURITY_XSS = SECURITY + StringConstants.DOT + "xss";
 
     /**
      * Web 配置
@@ -60,24 +65,14 @@ public class PropertiesConstants {
     public static final String WEB = CONTINEW_STARTER + StringConstants.DOT + "web";
 
     /**
-     * 跨域配置
+     * Web-跨域配置
      */
     public static final String WEB_CORS = WEB + StringConstants.DOT + "cors";
 
     /**
-     * 响应配置
+     * Web-响应配置
      */
     public static final String WEB_RESPONSE = WEB + StringConstants.DOT + "response";
-
-    /**
-     * 链路配置
-     */
-    public static final String WEB_TRACE = WEB + StringConstants.DOT + "trace";
-
-    /**
-     * XSS 配置
-     */
-    public static final String WEB_XSS = WEB + StringConstants.DOT + "xss";
 
     /**
      * 日志配置
@@ -88,11 +83,6 @@ public class PropertiesConstants {
      * 存储配置
      */
     public static final String STORAGE = CONTINEW_STARTER + StringConstants.DOT + "storage";
-
-    /**
-     * 本地存储配置
-     */
-    public static final String STORAGE_LOCAL = STORAGE + StringConstants.DOT + "local";
 
     /**
      * 验证码配置
@@ -143,6 +133,11 @@ public class PropertiesConstants {
      * 幂等配置
      */
     public static final String IDEMPOTENT = CONTINEW_STARTER + StringConstants.DOT + "idempotent";
+
+    /**
+     * 链路追踪配置
+     */
+    public static final String TRACE = CONTINEW_STARTER + StringConstants.DOT + "trace";
 
     private PropertiesConstants() {
     }

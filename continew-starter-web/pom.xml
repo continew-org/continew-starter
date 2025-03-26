@@ -38,12 +38,6 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- TLog（轻量级的分布式日志标记追踪神器） -->
-        <dependency>
-            <groupId>com.yomahub</groupId>
-            <artifactId>tlog-web-spring-boot-starter</artifactId>
-        </dependency>
-
         <!-- Graceful Response（一个Spring Boot技术栈下的优雅响应处理组件，可以帮助开发者完成响应数据封装、异常处理、错误码填充等过程，提高开发效率，提高代码质量） -->
         <dependency>
             <groupId>com.feiniaojin</groupId>

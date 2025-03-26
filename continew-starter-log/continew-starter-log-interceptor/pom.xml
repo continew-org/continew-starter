@@ -13,12 +13,6 @@
     <description>ContiNew Starter 日志模块 - 基于拦截器实现（Spring Boot Actuator HttpTrace 增强版）</description>
 
     <dependencies>
-        <!-- TTL（线程间传递 ThreadLocal，异步执行时上下文传递的解决方案） -->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>transmittable-thread-local</artifactId>
-        </dependency>
-
         <!-- 日志模块 - 核心模块 -->
         <dependency>
             <groupId>top.continew</groupId>

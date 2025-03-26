@@ -20,10 +20,10 @@
     </modules>
 
     <dependencies>
-        <!-- 核心模块 -->
+        <!-- Web 模块 -->
         <dependency>
             <groupId>top.continew</groupId>
-            <artifactId>continew-starter-core</artifactId>
+            <artifactId>continew-starter-web</artifactId>
         </dependency>
     </dependencies>
 </project>
