@@ -20,6 +20,7 @@ import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.SentinelServersConfig;
 import org.redisson.config.SingleServerConfig;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 /**
  * Redisson 配置属性
@@ -44,16 +45,19 @@ public class RedissonProperties {
     /**
      * 单机服务配置
      */
+    @NestedConfigurationProperty
     private SingleServerConfig singleServerConfig;
 
     /**
      * 集群服务配置
      */
+    @NestedConfigurationProperty
     private ClusterServersConfig clusterServersConfig;
 
     /**
      * 哨兵服务配置
      */
+    @NestedConfigurationProperty
     private SentinelServersConfig sentinelServersConfig;
 
     /**
