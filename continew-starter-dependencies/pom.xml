@@ -54,7 +54,7 @@
         <mybatis-flex.version>1.10.8</mybatis-flex.version>
         <dynamic-datasource.version>4.3.1</dynamic-datasource.version>
         <p6spy.version>3.9.1</p6spy.version>
-        <snail-job.version>1.3.0</snail-job.version>
+        <snail-job.version>1.4.0</snail-job.version>
         <sms4j.version>3.3.4</sms4j.version>
         <aj-captcha.version>1.4.0</aj-captcha.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
