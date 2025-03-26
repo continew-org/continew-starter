@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.xss;
+package top.continew.starter.security.xss.filter;
 
 import cn.hutool.core.collection.CollUtil;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.continew.starter.security.xss.autoconfigure.XssProperties;
 import top.continew.starter.web.util.SpringWebUtils;
 
 import java.io.IOException;

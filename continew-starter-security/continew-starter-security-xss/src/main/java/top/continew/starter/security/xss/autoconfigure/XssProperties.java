@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.xss;
+package top.continew.starter.security.xss.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;
-import top.continew.starter.web.enums.XssMode;
+import top.continew.starter.security.xss.enums.XssMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.List;
  * @author whhya
  * @since 2.0.0
  */
-@ConfigurationProperties(PropertiesConstants.WEB_XSS)
+@ConfigurationProperties(PropertiesConstants.SECURITY_XSS)
 public class XssProperties {
 
     /**

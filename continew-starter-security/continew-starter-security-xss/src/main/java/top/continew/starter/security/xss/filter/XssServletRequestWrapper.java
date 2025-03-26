@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.autoconfigure.xss;
+package top.continew.starter.security.xss.filter;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
@@ -29,7 +29,8 @@ import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
 import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.web.enums.XssMode;
+import top.continew.starter.security.xss.autoconfigure.XssProperties;
+import top.continew.starter.security.xss.enums.XssMode;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;

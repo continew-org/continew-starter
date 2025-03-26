@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package top.continew.starter.web.enums;
+package top.continew.starter.security.xss.enums;
 
 /**
  * XSS 模式枚举

@@ -18,6 +18,7 @@
         <module>continew-starter-security-mask</module>
         <module>continew-starter-security-crypto</module>
         <module>continew-starter-security-sensitivewords</module>
+        <module>continew-starter-security-xss</module>
     </modules>
 
     <dependencies>
