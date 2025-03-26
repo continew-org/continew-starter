@@ -48,7 +48,13 @@ public class AccessLogUtils {
         }
 
         // 参数为空返回空
-        Map<String, Object> params = request.getParam();
+        Map<String, Object> params;
+        try {
+            params = request.getParam();
+        } catch (Exception e) {
+            return null;
+        }
+
         if (ObjectUtil.isEmpty(params) || params.isEmpty()) {
             return null;
         }

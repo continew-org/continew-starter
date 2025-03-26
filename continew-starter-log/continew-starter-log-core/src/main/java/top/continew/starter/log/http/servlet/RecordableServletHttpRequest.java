@@ -23,6 +23,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.util.UriUtils;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.log.http.RecordableHttpRequest;
+import top.continew.starter.web.util.RepeatReadRequestWrapper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -79,8 +80,11 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
 
     @Override
     public String getBody() {
-        String body = JakartaServletUtil.getBody(request);
-        return JSONUtil.isTypeJSON(body) ? body : null;
+        if (request instanceof RepeatReadRequestWrapper wrapper && !wrapper.isMultipartContent(request)) {
+            String body = JakartaServletUtil.getBody(request);
+            return JSONUtil.isTypeJSON(body) ? body : null;
+        }
+        return null;
     }
 
     @Override

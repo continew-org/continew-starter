@@ -20,6 +20,7 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
+import org.springframework.http.MediaType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
         // 根据 Content-Type 判断是否为流式响应
         if (type != null) {
             String lowerType = type.toLowerCase();
-            isStreamingResponse = lowerType.contains("text/event-stream");
+            isStreamingResponse = lowerType.contains(MediaType.TEXT_EVENT_STREAM_VALUE);
         }
     }
 
@@ -62,7 +63,7 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
         String contentType = getContentType();
         if (contentType != null) {
             String lowerType = contentType.toLowerCase();
-            isStreamingResponse = lowerType.contains("text/event-stream");
+            isStreamingResponse = lowerType.contains(MediaType.TEXT_EVENT_STREAM_VALUE);
         }
     }
 

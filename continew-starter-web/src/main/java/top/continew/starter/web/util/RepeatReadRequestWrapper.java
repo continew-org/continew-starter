@@ -87,18 +87,18 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
     public BufferedReader getReader() throws IOException {
         // 如果是文件上传，直接返回原始Reader
         if (isMultipartContent(originalRequest)) {
-            return originalRequest.getReader();
+            new BufferedReader(new InputStreamReader(originalRequest.getInputStream(), StandardCharsets.UTF_8));
         }
-        return new BufferedReader(new InputStreamReader(new ByteArrayInputStream(cachedBody), StandardCharsets.UTF_8));
+        return new BufferedReader(new InputStreamReader(getInputStream()));
     }
 
     /**
      * 检查是否为文件上传请求
-     * 
+     *
      * @param request 请求对象
      * @return 是否为文件上传请求
      */
-    private boolean isMultipartContent(HttpServletRequest request) {
+    public boolean isMultipartContent(HttpServletRequest request) {
         return request.getContentType() != null && request.getContentType().toLowerCase().startsWith("multipart/");
     }
 }
