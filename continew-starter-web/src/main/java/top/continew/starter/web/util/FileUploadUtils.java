@@ -18,7 +18,6 @@ package top.continew.starter.web.util;
 
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.io.file.FileNameUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.URLUtil;
@@ -104,11 +103,11 @@ public class FileUploadUtils {
     public static void download(HttpServletResponse response,
                                 InputStream inputStream,
                                 String fileName) throws IOException {
-        byte[] bytes = IoUtil.readBytes(inputStream);
         response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        response.setContentLength(bytes.length);
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + URLUtil.encode(fileName));
-        IoUtil.write(response.getOutputStream(), true, bytes);
+        try (inputStream; var outputStream = response.getOutputStream()) {
+            response.setContentLengthLong(inputStream.transferTo(outputStream));
+        }
     }
 }
