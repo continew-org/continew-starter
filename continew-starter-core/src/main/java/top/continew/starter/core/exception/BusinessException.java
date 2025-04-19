@@ -16,6 +16,9 @@
 
 package top.continew.starter.core.exception;
 
+import top.continew.starter.core.response.CommonResCode;
+import top.continew.starter.core.response.ResponseCode;
+
 import java.io.Serial;
 
 /**
@@ -26,14 +29,19 @@ import java.io.Serial;
  */
 public class BusinessException extends BaseException {
 
+    private Long code;
+
     @Serial
     private static final long serialVersionUID = 1L;
 
     public BusinessException() {
+        super(CommonResCode.FAIL.getDescription());
+        this.code = CommonResCode.FAIL.getCode();
     }
 
-    public BusinessException(String message) {
-        super(message);
+    public BusinessException(String msg) {
+        super(msg);
+        this.code = CommonResCode.FAIL.getCode();
     }
 
     public BusinessException(Throwable cause) {
@@ -42,5 +50,28 @@ public class BusinessException extends BaseException {
 
     public BusinessException(String message, Throwable cause) {
         super(message, cause);
+    }
+
+    public BusinessException(ResponseCode responseCode) {
+        super(responseCode.getDescription());
+        this.code = responseCode.getCode();
+    }
+
+    public BusinessException(ResponseCode responseCode, Throwable throwable) {
+        super(responseCode.getDescription(), throwable);
+        this.code = responseCode.getCode();
+    }
+
+    public BusinessException(Long code, String msg) {
+        super(msg);
+        this.code = code;
+    }
+
+    public Long getCode() {
+        return code;
+    }
+
+    public void setCode(Long code) {
+        this.code = code;
     }
 }
