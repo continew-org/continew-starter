@@ -185,8 +185,8 @@ public abstract class AbstractCrudController<S extends CrudService<L, D, Q, C>, 
     @ExcludeFromGracefulResponse
     @Operation(summary = "导出数据", description = "导出数据")
     @GetMapping("/export")
-    public void export(@Valid Q query, @Valid SortQuery sortQuery, HttpServletResponse response) {
-        baseService.export(query, sortQuery, response);
+    public void export(@Valid Q query, @Valid SortQuery sortQuery, String fileName, HttpServletResponse response) {
+        baseService.export(query, sortQuery, fileName, response);
     }
 
     /**

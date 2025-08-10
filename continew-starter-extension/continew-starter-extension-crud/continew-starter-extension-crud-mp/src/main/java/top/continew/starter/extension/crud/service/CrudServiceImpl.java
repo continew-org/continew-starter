@@ -169,10 +169,16 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
     }
 
     @Override
-    public void export(Q query, SortQuery sortQuery, HttpServletResponse response) {
+    public void export(Q query, SortQuery sortQuery, String fileName, HttpServletResponse response) {
         List<D> list = this.list(query, sortQuery, this.getDetailClass());
         list.forEach(this::fill);
-        ExcelUtils.export(list, "导出数据", this.getDetailClass(), response);
+        if (fileName == null) {
+            fileName = "导出数据";
+        }
+        if (fileName.endsWith(".xlsx")) {
+            fileName = fileName.substring(0, fileName.length() - 5);
+        }
+        ExcelUtils.export(list, fileName, this.getDetailClass(), response);
     }
 
     @Override

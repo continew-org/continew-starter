@@ -126,9 +126,10 @@ public interface CrudService<L, D, Q, C> {
      *
      * @param query     查询条件
      * @param sortQuery 排序查询条件
+     * @param fileName  导出的文件名称
      * @param response  响应对象
      */
-    void export(@Valid Q query, @Valid SortQuery sortQuery, HttpServletResponse response);
+    void export(@Valid Q query, @Valid SortQuery sortQuery, String fileName, HttpServletResponse response);
 
     /**
      * 查询字典列表
