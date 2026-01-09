@@ -13,7 +13,7 @@
     <description>ContiNew Starter BOM</description>
 
     <properties>
-        <revision>2.15.0-SNAPSHOT</revision>
+        <revision>2.15.0</revision>
     </properties>
 
     <dependencyManagement>

@@ -72,6 +72,7 @@ public interface MailConfigurer {
         javaMailProperties.put("mail.smtp.auth", true);
         if (mailConfig.isSslEnabled()) {
             ValidationUtils.throwIfNull(mailConfig.getSslPort(), "邮件配置不正确：SSL端口不能为空");
+            javaMailProperties.put("mail.smtp.ssl.trust", "*");
             javaMailProperties.put("mail.smtp.socketFactory.port", mailConfig.getSslPort());
             javaMailProperties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
         }

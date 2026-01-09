@@ -48,10 +48,10 @@ import java.util.Map;
  */
 public class SpringWebUtils {
 
+    private static final AntPathMatcher MATCHER = new AntPathMatcher();
+
     private SpringWebUtils() {
     }
-
-    private static final AntPathMatcher MATCHER = new AntPathMatcher();
 
     /**
      * 路径是否匹配
@@ -97,7 +97,8 @@ public class SpringWebUtils {
      * @param path    路径
      * @param pattern 匹配模式
      * @return 是否匹配
-     * @since 2.4.0
+     * @author echo
+     * @since 2.15.0
      */
     public static boolean isMatchAnt(String path, String pattern) {
         return MATCHER.match(pattern, path);
@@ -109,7 +110,8 @@ public class SpringWebUtils {
      * @param path     路径
      * @param patterns 匹配模式列表
      * @return 是否匹配
-     * @since 2.6.0
+     * @author echo
+     * @since 2.15.0
      */
     public static boolean isMatchAnt(String path, List<String> patterns) {
         return patterns.stream().anyMatch(pattern -> isMatchAnt(path, pattern));

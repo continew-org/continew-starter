@@ -36,14 +36,14 @@ import java.util.stream.Collectors;
  */
 public class AccessLogUtils {
 
-    private AccessLogUtils() {
-    }
-
     /**
      * 静态资源路径模式
      */
     private static final List<String> RESOURCE_PATH = List
         .of("/**/doc/**", "/**/doc.html", "/**/nextdoc/**", "/**/v*/api-docs/**", "/**/api-docs/**", "/**/swagger-ui/**", "/**/swagger-ui.html", "/**/swagger-resources/**", "/**/webjars/**", "/**/favicon.ico", "/**/static/**", "/**/assets/**", "/**/actuator/**", "/error", "/health");
+
+    private AccessLogUtils() {
+    }
 
     /**
      * 获取参数信息

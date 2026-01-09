@@ -14,7 +14,7 @@
 
     <properties>
         <!-- Project Version -->
-        <revision>2.15.0-SNAPSHOT</revision>
+        <revision>2.15.0</revision>
 
         <!-- Core Framework Versions -->
         <spring-boot.version>3.4.10</spring-boot.version>
@@ -62,8 +62,8 @@
         <crane4j.version>2.9.0</crane4j.version>
 
         <!-- API Documentation Versions -->
-        <nextdoc4j.version>1.1.0</nextdoc4j.version>
-        <swagger-annotations.version>2.2.36</swagger-annotations.version>
+        <nextdoc4j.version>1.1.5</nextdoc4j.version>
+        <swagger.version>2.2.38</swagger.version>
 
         <!-- Tracing and Logging Versions -->
         <tlog.version>1.5.2</tlog.version>
@@ -317,13 +317,19 @@
                 <version>${crane4j.version}</version>
             </dependency>
 
-            <!--NextDoc4j (现代化 API 文档 UI 工具 全面替代 Swagger UI) -->
+            <!-- NextDoc4j (现代化 API 文档 UI 工具，全面替代 Swagger UI) -->
             <dependency>
                 <groupId>top.nextdoc4j</groupId>
                 <artifactId>nextdoc4j-bom</artifactId>
                 <version>${nextdoc4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- Swagger 注解 -->
+            <dependency>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-annotations-jakarta</artifactId>
+                <version>${swagger.version}</version>
             </dependency>
 
             <!-- TLog（轻量级的分布式日志标记追踪神器） -->
@@ -419,13 +425,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
-            </dependency>
-
-            <!-- Swagger 注解 -->
-            <dependency>
-                <groupId>io.swagger.core.v3</groupId>
-                <artifactId>swagger-annotations-jakarta</artifactId>
-                <version>${swagger-annotations.version}</version>
             </dependency>
 
             <!-- ContiNew Starter 依赖 -->

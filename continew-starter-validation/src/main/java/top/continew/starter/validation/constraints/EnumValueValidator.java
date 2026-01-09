@@ -127,7 +127,7 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
                 if (baseEnum.getValue().toString().equals(value)) {
                     return true;
                 }
-            } else if (enumConstant.toString().equals(value)) {
+            } else if (enumConstant.toString().equalsIgnoreCase(Convert.toStr(value))) {
                 return true;
             }
         }

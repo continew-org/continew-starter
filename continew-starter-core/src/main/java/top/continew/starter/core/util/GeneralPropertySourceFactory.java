@@ -29,8 +29,9 @@ import java.io.IOException;
 /**
  * 通用配置文件读取工厂
  * <p>
- * DefaultPropertySourceFactory 仅支持 properties
- * 配置文件读取，详见：<a href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-yaml-shortcomings">YAMLShortcomings</a>
+ * DefaultPropertySourceFactory 仅支持 properties 配置文件读取 <br>
+ * 详见：<a
+ * href="https://docs.spring.io/spring-boot/docs/2.0.6.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-yaml-shortcomings">YAMLShortcomings</a>
  * </p>
  *
  * @author Charles7c

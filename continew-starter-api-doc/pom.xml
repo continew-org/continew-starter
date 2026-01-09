@@ -22,11 +22,15 @@
             <artifactId>continew-starter-core</artifactId>
         </dependency>
 
-        <!--NextDoc4j (现代化 API 文档 UI 工具 全面替代 Swagger UI) -->
+        <!-- NextDoc4j (现代化 API 文档 UI 工具，全面替代 Swagger UI) -->
         <dependency>
             <groupId>top.nextdoc4j</groupId>
             <artifactId>nextdoc4j-springboot3-starter</artifactId>
         </dependency>
-
+        <!-- NextDoc4j - 枚举插件 -->
+        <dependency>
+            <groupId>top.nextdoc4j</groupId>
+            <artifactId>nextdoc4j-plugin-enums</artifactId>
+        </dependency>
     </dependencies>
 </project>

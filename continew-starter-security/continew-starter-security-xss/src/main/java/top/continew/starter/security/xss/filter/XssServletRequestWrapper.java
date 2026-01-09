@@ -19,9 +19,7 @@ package top.continew.starter.security.xss.filter;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.ArrayUtil;
-import cn.hutool.core.util.EscapeUtil;
-import cn.hutool.core.util.ReUtil;
+import cn.hutool.core.util.*;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.http.Method;
 import jakarta.servlet.ReadListener;
@@ -55,7 +53,8 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
         this.xssProperties = xssProperties;
         if (CharSequenceUtil.equalsAnyIgnoreCase(request.getMethod().toUpperCase(), Method.POST.name(), Method.PATCH
             .name(), Method.PUT.name())) {
-            body = IoUtil.getReader(request.getReader()).readLine();
+            String charset = StrUtil.blankToDefault(request.getCharacterEncoding(), CharsetUtil.UTF_8);
+            body = IoUtil.read(request.getInputStream(), CharsetUtil.charset(charset));
             if (CharSequenceUtil.isBlank(body)) {
                 return;
             }
