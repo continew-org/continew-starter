@@ -38,7 +38,7 @@ import java.nio.charset.StandardCharsets;
 public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
 
     private final ByteArrayOutputStream cachedOutputStream = new ByteArrayOutputStream();
-    private final PrintWriter writer = new PrintWriter(cachedOutputStream, true);
+    private PrintWriter cachedWriter;
     /**
      * 是否为流式响应
      */
@@ -74,29 +74,34 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
         if (isStreamingResponse) {
             return super.getOutputStream();
         }
+        ServletOutputStream originalOutputStream = super.getOutputStream();
         return new ServletOutputStream() {
             @Override
             public boolean isReady() {
-                return true;
+                return originalOutputStream.isReady();
             }
 
             @Override
             public void setWriteListener(WriteListener writeListener) {
+                originalOutputStream.setWriteListener(writeListener);
             }
 
             @Override
             public void write(int b) throws IOException {
                 cachedOutputStream.write(b);
+                originalOutputStream.write(b);
             }
 
             @Override
             public void write(byte[] b) throws IOException {
                 cachedOutputStream.write(b);
+                originalOutputStream.write(b);
             }
 
             @Override
             public void write(byte[] b, int off, int len) throws IOException {
                 cachedOutputStream.write(b, off, len);
+                originalOutputStream.write(b, off, len);
             }
         };
     }
@@ -108,7 +113,28 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
             // 对于 SSE 流式响应，直接返回原始响应写入器，不做额外处理
             return super.getWriter();
         }
-        return writer;
+        if (cachedWriter == null) {
+            PrintWriter originalWriter = super.getWriter();
+            cachedWriter = new PrintWriter(new java.io.OutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    cachedOutputStream.write(b);
+                    originalWriter.write(b);
+                }
+
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    cachedOutputStream.write(b, off, len);
+                    originalWriter.write(new String(b, off, len, StandardCharsets.UTF_8));
+                }
+
+                @Override
+                public void flush() throws IOException {
+                    originalWriter.flush();
+                }
+            }, true);
+        }
+        return cachedWriter;
     }
 
     /**
@@ -118,7 +144,9 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
      */
     public String getResponseContent() {
         if (!isStreamingResponse) {
-            writer.flush();
+            if (cachedWriter != null) {
+                cachedWriter.flush();
+            }
             return cachedOutputStream.toString(StandardCharsets.UTF_8);
         }
         return null;
@@ -126,13 +154,12 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
 
     /**
      * 将缓存的响应内容复制到原始响应中
+     * 注意：由于已经在写入时同步到原始响应流，此方法不再需要执行任何操作
      *
      * @throws IOException IO 异常
      */
     public void copyBodyToResponse() throws IOException {
-        if (!isStreamingResponse && cachedOutputStream.size() > 0) {
-            getResponse().getOutputStream().write(cachedOutputStream.toByteArray());
-        }
+        // 不再需要复制，因为数据已经在写入时同步到原始响应流
     }
 
     /**
