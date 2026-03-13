@@ -18,10 +18,10 @@ package top.continew.starter.core.util;
 
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.servlet.JakartaServletUtil;
 import cn.hutool.http.useragent.UserAgent;
 import cn.hutool.http.useragent.UserAgentUtil;
-import cn.hutool.json.JSONUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -29,24 +29,15 @@ import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import org.springframework.web.util.UriUtils;
 import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.core.wrapper.RepeatReadRequestWrapper;
-import top.continew.starter.core.wrapper.RepeatReadResponseWrapper;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * Servlet 工具类
  *
  * @author Charles7c
- * @author echo
  * @since 1.0.0
  */
 public class ServletUtils extends JakartaServletUtil {
@@ -119,169 +110,18 @@ public class ServletUtils extends JakartaServletUtil {
     }
 
     /**
-     * 获取请求方法
-     *
-     * @return {@link String }
-     * @since 2.11.0
-     */
-    public static String getRequestMethod() {
-        HttpServletRequest request = getRequest();
-        return request != null ? request.getMethod() : null;
-    }
-
-    /**
-     * 获取请求参数
-     *
-     * @param name 参数名
-     * @return {@link String }
-     * @since 2.11.0
-     */
-    public static String getRequestParameter(String name) {
-        HttpServletRequest request = getRequest();
-        return request != null ? request.getParameter(name) : null;
-    }
-
-    /**
-     * 获取请求 Ip
-     *
-     * @return {@link String }
-     * @since 2.11.0
-     */
-    public static String getRequestIp() {
-        HttpServletRequest request = getRequest();
-        return request != null ? getClientIP(request) : null;
-    }
-
-    /**
-     * 获取请求头信息
-     *
-     * @return {@link Map }<{@link String }, {@link String }>
-     * @since 2.11.0
-     */
-    public static Map<String, String> getRequestHeaders() {
-        HttpServletRequest request = getRequest();
-        return request != null ? getHeaderMap(request) : Collections.emptyMap();
-    }
-
-    /**
-     * 获取请求 URL（包含 query 参数）
-     * <p>{@code http://localhost:8000/system/user?page=1&size=10}</p>
-     *
-     * @return {@link URI }
-     * @since 2.11.0
-     */
-    public static URI getRequestUrl() {
-        HttpServletRequest request = getRequest();
-        if (request == null) {
-            return null;
-        }
-        String queryString = request.getQueryString();
-        if (CharSequenceUtil.isBlank(queryString)) {
-            return URI.create(request.getRequestURL().toString());
-        }
-        try {
-            StringBuilder urlBuilder = appendQueryString(queryString);
-            return new URI(urlBuilder.toString());
-        } catch (URISyntaxException e) {
-            String encoded = UriUtils.encodeQuery(queryString, StandardCharsets.UTF_8);
-            StringBuilder urlBuilder = appendQueryString(encoded);
-            return URI.create(urlBuilder.toString());
-        }
-    }
-
-    /**
-     * 获取请求路径
-     *
-     * @return {@link URI }
-     * @since 2.11.0
-     */
-    public static String getRequestPath() {
-        HttpServletRequest request = getRequest();
-        return request != null ? request.getRequestURI() : null;
-    }
-
-    /**
-     * 获取请求 body 参数
-     *
-     * @return {@link String }
-     * @since 2.11.0
-     */
-    public static String getRequestBody() {
-        HttpServletRequest request = getRequest();
-        if (request instanceof RepeatReadRequestWrapper wrapper && !wrapper.isMultipartContent(request)) {
-            String body = JakartaServletUtil.getBody(request);
-            return JSONUtil.isTypeJSON(body) ? body : null;
-        }
-        return null;
-    }
-
-    /**
-     * 获取请求参数
-     *
-     * @return {@link Map }<{@link String }, {@link Object }>
-     * @since 2.11.0
-     */
-    public static Map<String, Object> getRequestParams() {
-        String body = getRequestBody();
-        return CharSequenceUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body)
-            ? JSONUtil.toBean(body, Map.class)
-            : Collections.unmodifiableMap(JakartaServletUtil.getParamMap(Objects.requireNonNull(getRequest())));
-    }
-
-    /**
-     * 获取响应状态
-     *
-     * @return int
-     * @since 2.11.0
-     */
-    public static int getResponseStatus() {
-        HttpServletResponse response = getResponse();
-        return response != null ? response.getStatus() : -1;
-    }
-
-    /**
      * 获取响应所有的头（header）信息
      *
+     * @param response 响应对象{@link HttpServletResponse}
      * @return header值
-     * @since 2.11.0
      */
-    public static Map<String, String> getResponseHeaders() {
-        HttpServletResponse response = getResponse();
-        if (response == null) {
-            return Collections.emptyMap();
-        }
+    public static Map<String, String> getHeaderMap(HttpServletResponse response) {
         final Collection<String> headerNames = response.getHeaderNames();
         final Map<String, String> headerMap = MapUtil.newHashMap(headerNames.size(), true);
         for (String name : headerNames) {
             headerMap.put(name, response.getHeader(name));
         }
         return headerMap;
-    }
-
-    /**
-     * 获取响应 body 参数
-     *
-     * @return {@link String }
-     * @since 2.11.0
-     */
-    public static String getResponseBody() {
-        HttpServletResponse response = getResponse();
-        if (response instanceof RepeatReadResponseWrapper wrapper && !wrapper.isStreamingResponse()) {
-            String body = wrapper.getResponseContent();
-            return JSONUtil.isTypeJSON(body) ? body : null;
-        }
-        return null;
-    }
-
-    /**
-     * 获取响应参数
-     *
-     * @return {@link Map }<{@link String }, {@link Object }>
-     * @since 2.11.0
-     */
-    public static Map<String, Object> getResponseParams() {
-        String body = getResponseBody();
-        return CharSequenceUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body) ? JSONUtil.toBean(body, Map.class) : null;
     }
 
     /**
@@ -351,18 +191,37 @@ public class ServletUtils extends JakartaServletUtil {
     }
 
     /**
-     * 追加查询字符串
+     * 检查请求是否为 {@code multipart/form-data} 格式（常用于文件上传）
      *
-     * @param queryString 查询字符串
-     * @return {@link StringBuilder }
+     * @param request 请求对象
+     * @return true: 是; false: 否
+     * @since 2.15.1
      */
-    private static StringBuilder appendQueryString(String queryString) {
-        HttpServletRequest request = getRequest();
-        if (request == null) {
-            return new StringBuilder();
-        }
-        return new StringBuilder().append(request.getRequestURL())
-            .append(StringConstants.QUESTION_MARK)
-            .append(queryString);
+    public static boolean isMultipart(HttpServletRequest request) {
+        return StrUtil.startWithIgnoreCase(request.getContentType(), "multipart/");
+    }
+
+    /**
+     * 检查 HTTP 请求是否为 {@code application/x-www-form-urlencoded} 格式（标准表单提交）
+     *
+     * @param request 请求对象
+     * @return true: 是; false: 否
+     * @see MediaType#APPLICATION_FORM_URLENCODED_VALUE
+     * @since 2.15.1
+     */
+    public static boolean isForm(HttpServletRequest request) {
+        return StrUtil.contains(request.getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+    }
+
+    /**
+     * 检查 HTTP 响应是否为 {@code Server-Sent Events (SSE)} 流格式
+     *
+     * @param response 响应对象
+     * @return true: 是; false: 否
+     * @see MediaType#TEXT_EVENT_STREAM_VALUE
+     * @since 2.15.1
+     */
+    public static boolean isStream(HttpServletResponse response) {
+        return StrUtil.contains(response.getContentType(), MediaType.TEXT_EVENT_STREAM_VALUE);
     }
 }

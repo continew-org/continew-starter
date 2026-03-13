@@ -44,6 +44,21 @@ public class StorageProperties {
     private DefaultStorageSource defaultStorageSource = DefaultStorageSource.DYNAMIC;
 
     /**
+     * 全局分片阈值（字节）
+     */
+    private long multipartUploadThreshold = StorageConstant.DEFAULT_MULTIPART_UPLOAD_THRESHOLD;
+
+    /**
+     * 全局分片大小（字节）
+     */
+    private long multipartUploadPartSize = StorageConstant.DEFAULT_MULTIPART_UPLOAD_PART_SIZE;
+
+    /**
+     * 全局本地分片临时目录
+     */
+    private String localMultipartTempDir = StorageConstant.DEFAULT_LOCAL_MULTIPART_TEMP_DIR;
+
+    /**
      * 本地存储配置列表
      */
     private List<LocalStorageConfig> local = new ArrayList<>();
@@ -83,5 +98,29 @@ public class StorageProperties {
 
     public void setOss(List<OssStorageConfig> oss) {
         this.oss = oss;
+    }
+
+    public long getMultipartUploadThreshold() {
+        return multipartUploadThreshold;
+    }
+
+    public void setMultipartUploadThreshold(long multipartUploadThreshold) {
+        this.multipartUploadThreshold = multipartUploadThreshold;
+    }
+
+    public long getMultipartUploadPartSize() {
+        return multipartUploadPartSize;
+    }
+
+    public void setMultipartUploadPartSize(long multipartUploadPartSize) {
+        this.multipartUploadPartSize = multipartUploadPartSize;
+    }
+
+    public String getLocalMultipartTempDir() {
+        return localMultipartTempDir;
+    }
+
+    public void setLocalMultipartTempDir(String localMultipartTempDir) {
+        this.localMultipartTempDir = localMultipartTempDir;
     }
 }

@@ -1,3 +1,19 @@
+## [v2.15.1](https://github.com/continew-org/continew-starter/compare/v2.15.0...v2.15.1) (2026-02-24)
+
+### ✨ 新特性
+
+- 【core】ServletUtils 新增 isMultipart、isForm、isStream 方法 ([580aa00](https://github.com/continew-org/continew-starter/commit/580aa00af920acb3f66fbd835378a802741d18d6))
+
+### 💎 功能优化
+
+- 【log】还原 RecordableHttpRequest、RecordableHttpResponse ([4f8d772](https://github.com/continew-org/continew-starter/commit/4f8d7725e68479f7b2685f421f8eafb3257f17e9))
+- 【core】合并 SpringWebUtils 到 SpringUtils ([25fb9e0](https://github.com/continew-org/continew-starter/commit/25fb9e0a27a32e568cda14d12e9362ed95fc1c7e))
+- 【core】MapUtils#mergeMap 调整为使用for-each循环语法，自动处理迭代器的创建和遍历过程，提升安全性 ([ef6cf3a](https://github.com/continew-org/continew-starter/commit/ef6cf3ad62e8208d7c88c451d684c2c1f4b9ce6b)) (Gitee#88@jiang4yu)
+
+### 🐛 问题修复
+
+- 【log】修复 LogFilter 无效及无法获取请求、响应体参数的问题 ([8ce00d8](https://github.com/continew-org/continew-starter/commit/8ce00d8892bce47688ed0a23938cfe15caf944af))
+
 ## [v2.15.0](https://github.com/continew-org/continew-starter/compare/v2.14.0...v2.15.0) (2025-12-28)
 
 ### ✨ 新特性

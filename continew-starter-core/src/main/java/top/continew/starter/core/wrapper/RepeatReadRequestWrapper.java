@@ -18,13 +18,12 @@ package top.continew.starter.core.wrapper;
 
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.ServletRequest;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
-import org.springframework.http.MediaType;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.util.StreamUtils;
 import top.continew.starter.core.constant.StringConstants;
+import top.continew.starter.core.util.ServletUtils;
 
 import java.io.*;
 import java.net.URLEncoder;
@@ -77,8 +76,8 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
             ? new FastByteArrayOutputStream(contentLength)
             : new FastByteArrayOutputStream();
         // 判断是否为文件上传请求
-        if (!isMultipartContent(request)) {
-            if (isFormRequest()) {
+        if (!ServletUtils.isMultipart(request)) {
+            if (ServletUtils.isForm(request)) {
                 writeRequestParametersToCachedContent();
             } else {
                 StreamUtils.copy(request.getInputStream(), cachedContent);
@@ -90,7 +89,7 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public ServletInputStream getInputStream() throws IOException {
         // 如果是文件上传，直接返回原始输入流
-        if (isMultipartContent(super.getRequest())) {
+        if (ServletUtils.isMultipart((HttpServletRequest)super.getRequest())) {
             return super.getRequest().getInputStream();
         }
         synchronized (this) {
@@ -102,7 +101,7 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public BufferedReader getReader() throws IOException {
         // 如果是文件上传，直接返回原始Reader
-        if (isMultipartContent(super.getRequest())) {
+        if (ServletUtils.isMultipart((HttpServletRequest)super.getRequest())) {
             return super.getRequest().getReader();
         }
 
@@ -151,22 +150,6 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
 
     public FastByteArrayOutputStream getCachedContent() {
         return cachedContent;
-    }
-
-    /**
-     * 判断当前请求是否为 multipart/form-data 类型的文件上传请求。 该类型一般用于表单上传文件的场景，例如 enctype="multipart/form-data"。
-     *
-     * @param request 当前 HTTP 请求对象
-     * @return true 表示为 multipart 文件上传请求；否则为 false
-     */
-    public boolean isMultipartContent(ServletRequest request) {
-        String contentType = request.getContentType();
-        return contentType != null && contentType.toLowerCase().startsWith("multipart/");
-    }
-
-    private boolean isFormRequest() {
-        String contentType = getContentType();
-        return (contentType != null && contentType.contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE));
     }
 
     /**

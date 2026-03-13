@@ -28,6 +28,7 @@ import top.continew.starter.storage.domain.file.EnhancedMultipartFile;
 import top.continew.starter.storage.domain.file.FileWrapper;
 import top.continew.starter.storage.domain.file.ProgressAwareMultipartFile;
 import top.continew.starter.storage.domain.model.context.UploadContext;
+import top.continew.starter.storage.domain.model.req.MultipartUploadInitReq;
 import top.continew.starter.storage.domain.model.req.ThumbnailInfo;
 import top.continew.starter.storage.domain.model.resp.*;
 import top.continew.starter.storage.processor.preprocess.*;
@@ -482,6 +483,49 @@ public class FileStorageService {
     }
 
     /**
+     * 初始化分片上传（包含断点续传会话恢复）
+     */
+    public MultipartInitResp initMultipartUpload(MultipartUploadInitReq req) {
+        String platform = StrUtil.blankToDefault(req.getPlatform(), getDefaultPlatform());
+        String bucket = StrUtil.blankToDefault(req.getBucket(), getDefaultBucket(platform));
+        String parentPath = normalizeParentPath(req.getParentPath());
+        String path = buildMultipartPath(parentPath, req.getFileName());
+
+        // 基于文件 MD5 复用已有上传会话
+        if (fileRecorder != null && StrUtil.isNotBlank(req.getFileMd5())) {
+            String cachedUploadId = fileRecorder.getUploadIdByMd5(req.getFileMd5());
+            if (StrUtil.isNotBlank(cachedUploadId)) {
+                MultipartInitResp cachedSession = fileRecorder.getMultipartSession(cachedUploadId);
+                if (cachedSession != null && StrUtil.equals(platform, cachedSession.getPlatform()) && StrUtil
+                    .equals(bucket, cachedSession.getBucket())) {
+                    List<FilePartInfo> fileParts = fileRecorder.getFileParts(cachedUploadId);
+                    cachedSession.setUploadedPartNumbers(fileParts.stream()
+                        .map(FilePartInfo::getPartNumber)
+                        .collect(Collectors.toSet()));
+                    return cachedSession;
+                }
+            }
+        }
+
+        MultipartInitResp result = initMultipartUpload(bucket, platform, path, req.getContentType(), req.getMetadata());
+        result.setFileName(req.getFileName());
+        result.setFileMd5(req.getFileMd5());
+        result.setFileSize(req.getFileSize());
+        result.setContentType(req.getContentType());
+        result.setParentPath(parentPath);
+        result.setExtension(StrUtil.subAfter(req.getFileName(), StringConstants.DOT, true));
+        result.setUploadedPartNumbers(new HashSet<>());
+
+        if (fileRecorder != null) {
+            fileRecorder.saveMultipartSession(result.getUploadId(), result, req.getMetadata());
+            if (StrUtil.isNotBlank(req.getFileMd5())) {
+                fileRecorder.setMd5Mapping(req.getFileMd5(), result.getUploadId());
+            }
+        }
+        return result;
+    }
+
+    /**
      * 上传分片
      */
     public MultipartUploadResp uploadPart(String platform,
@@ -547,15 +591,38 @@ public class FileStorageService {
 
         // 更新文件记录
         if (fileRecorder != null) {
+            if (fileInfo.getMetadata() == null) {
+                fileInfo.setMetadata(new HashMap<>());
+            }
+            MultipartInitResp session = fileRecorder.getMultipartSession(uploadId);
+            if (session != null) {
+                fileInfo.setOriginalFileName(StrUtil.blankToDefault(session.getFileName(), fileInfo
+                    .getOriginalFileName()));
+                fileInfo.getMetadata()
+                    .put("fileMd5", StrUtil.blankToDefault(session.getFileMd5(), StringConstants.EMPTY));
+                fileInfo.getMetadata()
+                    .put("sha256", StrUtil.blankToDefault(session.getFileMd5(), StringConstants.EMPTY));
+            }
             fileInfo.getMetadata().put("uploadId", uploadId);
             fileInfo.getMetadata().put("status", "COMPLETED");
             fileRecorder.update(fileInfo);
 
-            // 删除分片记录
-            fileRecorder.deleteFileParts(uploadId);
+            cleanupMultipartSession(uploadId, session);
         }
 
         return fileInfo;
+    }
+
+    /**
+     * 根据 uploadId 完成分片上传
+     */
+    public FileInfo completeMultipartUpload(String uploadId, List<MultipartUploadResp> clientParts) {
+        MultipartInitResp session = getMultipartSession(uploadId);
+        if (session == null) {
+            throw new StorageException("无效的 uploadId: " + uploadId);
+        }
+        return completeMultipartUpload(session.getPlatform(), session.getBucket(), session
+            .getPath(), uploadId, clientParts);
     }
 
     /**
@@ -566,8 +633,22 @@ public class FileStorageService {
 
         // 删除相关记录
         if (fileRecorder != null) {
-            fileRecorder.deleteFileParts(uploadId);
+            cleanupMultipartSession(uploadId, fileRecorder.getMultipartSession(uploadId));
         }
+    }
+
+    /**
+     * 根据 uploadId 取消分片上传
+     */
+    public void abortMultipartUpload(String uploadId) {
+        MultipartInitResp session = getMultipartSession(uploadId);
+        if (session == null) {
+            if (fileRecorder != null) {
+                cleanupMultipartSession(uploadId, null);
+            }
+            return;
+        }
+        abortMultipartUpload(session.getPlatform(), session.getBucket(), session.getPath(), uploadId);
     }
 
     /**
@@ -603,6 +684,13 @@ public class FileStorageService {
      */
     public List<MultipartUploadResp> listParts(String platform, String bucket, String path, String uploadId) {
         return router.route(platform).listParts(bucket, path, uploadId);
+    }
+
+    /**
+     * 获取分片会话
+     */
+    public MultipartInitResp getMultipartSession(String uploadId) {
+        return fileRecorder == null ? null : fileRecorder.getMultipartSession(uploadId);
     }
 
     /**
@@ -653,6 +741,9 @@ public class FileStorageService {
      */
     public void delete(String platform, String bucket, String path) {
         router.route(platform).delete(bucket, path);
+        if (fileRecorder != null) {
+            fileRecorder.delete(platform, path);
+        }
     }
 
     /**
@@ -662,6 +753,23 @@ public class FileStorageService {
      */
     public void delete(FileInfo info) {
         router.route(info.getPlatform()).delete(info.getBucket(), info.getFullPath());
+        if (fileRecorder != null) {
+            fileRecorder.delete(info.getPlatform(), StrUtil.blankToDefault(info.getPath(), info.getFullPath()));
+        }
+    }
+
+    /**
+     * 根据 URL 删除文件（依赖 FileRecorder 实现 URL 映射）
+     */
+    public void delete(String url) {
+        if (fileRecorder == null) {
+            throw new StorageException("未配置 FileRecorder，无法根据 URL 删除文件");
+        }
+        FileInfo info = fileRecorder.getByUrl(url);
+        if (info == null) {
+            return;
+        }
+        delete(info);
     }
 
     /**
@@ -779,5 +887,30 @@ public class FileStorageService {
      */
     public Map<String, String> getActiveStrategyInfo() {
         return router.getActiveStrategyInfo();
+    }
+
+    private void cleanupMultipartSession(String uploadId, MultipartInitResp session) {
+        fileRecorder.deleteFileParts(uploadId);
+        fileRecorder.deleteMultipartSession(uploadId);
+        if (session != null && StrUtil.isNotBlank(session.getFileMd5())) {
+            fileRecorder.deleteMd5Mapping(session.getFileMd5());
+        }
+    }
+
+    private String normalizeParentPath(String parentPath) {
+        if (StrUtil.isBlank(parentPath) || StringConstants.SLASH.equals(parentPath)) {
+            return StringConstants.SLASH;
+        }
+        String normalized = parentPath.replace("\\", StringConstants.SLASH).replaceAll("/+", StringConstants.SLASH);
+        return StringConstants.SLASH + StrUtil.removeSuffix(StrUtil
+            .removePrefix(normalized, StringConstants.SLASH), StringConstants.SLASH);
+    }
+
+    private String buildMultipartPath(String parentPath, String fileName) {
+        String normalizedName = StrUtil.removePrefix(fileName, StringConstants.SLASH);
+        if (StringConstants.SLASH.equals(parentPath)) {
+            return normalizedName;
+        }
+        return StrUtil.removePrefix(parentPath + StringConstants.SLASH + normalizedName, StringConstants.SLASH);
     }
 }

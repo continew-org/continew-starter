@@ -21,8 +21,8 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import top.continew.starter.core.util.SpringUtils;
 import top.continew.starter.security.xss.autoconfigure.XssProperties;
-import top.continew.starter.core.util.SpringWebUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -56,7 +56,7 @@ public class XssFilter implements Filter {
         if (servletRequest instanceof HttpServletRequest request && xssProperties.isEnabled()) {
             // 放行路由：忽略 XSS 过滤
             List<String> excludePatterns = xssProperties.getExcludePatterns();
-            if (CollUtil.isNotEmpty(excludePatterns) && SpringWebUtils.isMatch(request
+            if (CollUtil.isNotEmpty(excludePatterns) && SpringUtils.isMatch(request
                 .getServletPath(), excludePatterns)) {
                 filterChain.doFilter(request, servletResponse);
                 return;
@@ -64,7 +64,7 @@ public class XssFilter implements Filter {
             // 拦截路由：执行 XSS 过滤
             List<String> includePatterns = xssProperties.getIncludePatterns();
             if (CollUtil.isNotEmpty(includePatterns)) {
-                if (SpringWebUtils.isMatch(request.getServletPath(), includePatterns)) {
+                if (SpringUtils.isMatch(request.getServletPath(), includePatterns)) {
                     filterChain.doFilter(new XssServletRequestWrapper(request, xssProperties), servletResponse);
                 } else {
                     filterChain.doFilter(request, servletResponse);

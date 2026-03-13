@@ -47,6 +47,21 @@ public class StorageConstant {
     public static final Long DEFAULT_FILE_SIZE = 1024 * 1024 * 10L;
 
     /**
+     * 默认分片阈值（字节）
+     */
+    public static final Long DEFAULT_MULTIPART_UPLOAD_THRESHOLD = DEFAULT_FILE_SIZE;
+
+    /**
+     * 默认分片大小（字节）
+     */
+    public static final Long DEFAULT_MULTIPART_UPLOAD_PART_SIZE = 5 * 1024 * 1024L;
+
+    /**
+     * 本地分片上传临时目录
+     */
+    public static final String DEFAULT_LOCAL_MULTIPART_TEMP_DIR = "/tmp";
+
+    /**
      * 默认的对象ACL
      */
     public static final String DEFAULT_ACL = "private";

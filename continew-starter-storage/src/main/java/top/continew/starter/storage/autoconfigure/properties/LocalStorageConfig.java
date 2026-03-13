@@ -16,6 +16,8 @@
 
 package top.continew.starter.storage.autoconfigure.properties;
 
+import top.continew.starter.storage.common.constant.StorageConstant;
+
 /**
  * 本地存储配置
  *
@@ -43,6 +45,21 @@ public class LocalStorageConfig {
      * 访问路径
      */
     private String endpoint;
+
+    /**
+     * 多部分上传阈值（字节）
+     */
+    private Long multipartUploadThreshold;
+
+    /**
+     * 多部分上传的部分大小（字节）
+     */
+    private Long multipartUploadPartSize;
+
+    /**
+     * 分片上传临时目录
+     */
+    private String multipartTempDir = StorageConstant.DEFAULT_LOCAL_MULTIPART_TEMP_DIR;
 
     public boolean isEnabled() {
         return enabled;
@@ -74,5 +91,29 @@ public class LocalStorageConfig {
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
+    }
+
+    public Long getMultipartUploadThreshold() {
+        return multipartUploadThreshold;
+    }
+
+    public void setMultipartUploadThreshold(Long multipartUploadThreshold) {
+        this.multipartUploadThreshold = multipartUploadThreshold;
+    }
+
+    public Long getMultipartUploadPartSize() {
+        return multipartUploadPartSize;
+    }
+
+    public void setMultipartUploadPartSize(Long multipartUploadPartSize) {
+        this.multipartUploadPartSize = multipartUploadPartSize;
+    }
+
+    public String getMultipartTempDir() {
+        return multipartTempDir;
+    }
+
+    public void setMultipartTempDir(String multipartTempDir) {
+        this.multipartTempDir = multipartTempDir;
     }
 }

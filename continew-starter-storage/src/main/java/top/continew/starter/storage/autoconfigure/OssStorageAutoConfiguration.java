@@ -52,6 +52,12 @@ public class OssStorageAutoConfiguration implements StorageStrategyRegistrar {
     public void register(List<StorageStrategy> strategies) {
         for (OssStorageConfig config : properties.getOss()) {
             if (config.isEnabled()) {
+                if (config.getMultipartUploadThreshold() == null || config.getMultipartUploadThreshold() <= 0) {
+                    config.setMultipartUploadThreshold(properties.getMultipartUploadThreshold());
+                }
+                if (config.getMultipartUploadPartSize() == null || config.getMultipartUploadPartSize() <= 0) {
+                    config.setMultipartUploadPartSize(properties.getMultipartUploadPartSize());
+                }
                 strategies.add(new OssStorageStrategy(config));
             }
         }

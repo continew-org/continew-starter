@@ -22,6 +22,7 @@ import top.continew.starter.core.util.ExceptionUtils;
 import top.continew.starter.core.util.IpUtils;
 import top.continew.starter.core.util.ServletUtils;
 import top.continew.starter.log.enums.Include;
+import top.continew.starter.log.http.RecordableHttpRequest;
 
 import java.net.URI;
 import java.util.Map;
@@ -63,7 +64,7 @@ public class LogRequest {
     /**
      * 请求参数
      */
-    private Map<String, Object> param;
+    private String params;
 
     /**
      * IP 归属地
@@ -80,15 +81,15 @@ public class LogRequest {
      */
     private String os;
 
-    public LogRequest(Set<Include> includes) {
-        this.method = ServletUtils.getRequestMethod();
-        this.url = ServletUtils.getRequestUrl();
-        this.ip = ServletUtils.getRequestIp();
-        this.headers = (includes.contains(Include.REQUEST_HEADERS)) ? ServletUtils.getRequestHeaders() : null;
+    public LogRequest(RecordableHttpRequest request, Set<Include> includes) {
+        this.method = request.getMethod();
+        this.url = request.getUrl();
+        this.ip = request.getIp();
+        this.headers = (includes.contains(Include.REQUEST_HEADERS)) ? request.getHeaders() : null;
         if (includes.contains(Include.REQUEST_BODY)) {
-            this.body = ServletUtils.getRequestBody();
+            this.body = request.getBody();
         } else if (includes.contains(Include.REQUEST_PARAM)) {
-            this.param = ServletUtils.getRequestParams();
+            this.params = request.getParams();
         }
         this.address = (includes.contains(Include.IP_ADDRESS))
             ? ExceptionUtils.exToNull(() -> IpUtils.getIpv4Address(this.ip))
@@ -148,12 +149,12 @@ public class LogRequest {
         this.body = body;
     }
 
-    public Map<String, Object> getParam() {
-        return param;
+    public String getParams() {
+        return params;
     }
 
-    public void setParam(Map<String, Object> param) {
-        this.param = param;
+    public void setParams(String params) {
+        this.params = params;
     }
 
     public String getAddress() {

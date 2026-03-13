@@ -23,15 +23,20 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.enums.Include;
+import top.continew.starter.log.http.RecordableHttpRequest;
+import top.continew.starter.log.http.RecordableHttpResponse;
+import top.continew.starter.log.http.servlet.RecordableServletHttpRequest;
+import top.continew.starter.log.http.servlet.RecordableServletHttpResponse;
 import top.continew.starter.log.model.AccessLogContext;
 import top.continew.starter.log.model.AccessLogProperties;
 import top.continew.starter.log.model.LogRecord;
 import top.continew.starter.log.util.AccessLogUtils;
-import top.continew.starter.core.util.ServletUtils;
 
 import java.lang.reflect.Method;
 import java.time.Duration;
@@ -74,18 +79,19 @@ public abstract class AbstractLogHandler implements LogHandler {
     }
 
     @Override
-    public LogRecord.Started start(Instant startTime) {
-        return LogRecord.start(startTime);
+    public LogRecord.Started start(Instant startTime, HttpServletRequest request) {
+        return LogRecord.start(startTime, new RecordableServletHttpRequest(request));
     }
 
     @Override
     public LogRecord finish(LogRecord.Started started,
                             Instant endTime,
+                            HttpServletResponse response,
                             Set<Include> includes,
                             Method targetMethod,
                             Class<?> targetClass) {
         Set<Include> includeSet = this.getIncludes(includes, targetMethod, targetClass);
-        LogRecord logRecord = this.finish(started, endTime, includeSet);
+        LogRecord logRecord = this.finish(started, endTime, response, includeSet);
         // 记录日志描述
         if (includeSet.contains(Include.DESCRIPTION)) {
             this.logDescription(logRecord, targetMethod);
@@ -98,8 +104,11 @@ public abstract class AbstractLogHandler implements LogHandler {
     }
 
     @Override
-    public LogRecord finish(LogRecord.Started started, Instant endTime, Set<Include> includes) {
-        return started.finish(endTime, includes);
+    public LogRecord finish(LogRecord.Started started,
+                            Instant endTime,
+                            HttpServletResponse response,
+                            Set<Include> includes) {
+        return started.finish(endTime, new RecordableServletHttpResponse(response), includes);
     }
 
     /**
@@ -186,30 +195,33 @@ public abstract class AbstractLogHandler implements LogHandler {
     }
 
     @Override
-    public void accessLogStart(AccessLogContext accessLogContext) {
-        AccessLogProperties properties = accessLogContext.getProperties().getAccessLog();
-        // 是否需要打印 规则: 是否打印开关 或 放行路径
-        if (!properties.isEnabled() || AccessLogUtils.exclusionPath(accessLogContext.getProperties(), ServletUtils
-            .getRequestPath())) {
+    public void accessLogStart(AccessLogContext context) {
+        AccessLogProperties properties = context.getProperties().getAccessLog();
+        // 是否需要打印
+        if (!properties.isEnabled() || AccessLogUtils.exclusionPath(context.getProperties(), context.getRequest()
+            .getPath())) {
             return;
         }
         // 构建上下文
-        logContextThread.set(accessLogContext);
-        String param = AccessLogUtils.getParam(properties);
-        log.info(param != null ? "[Start] [{}] {} param: {}" : "[Start] [{}] {}", ServletUtils
-            .getRequestMethod(), ServletUtils.getRequestPath(), param);
+        logContextThread.set(context);
+        RecordableHttpRequest request = context.getRequest();
+        String param = AccessLogUtils.getParam(request, properties);
+        log.info(param != null ? "[Start] [{}] {} param: {}" : "[Start] [{}] {}", request.getMethod(), request
+            .getPath(), param);
     }
 
     @Override
-    public void accessLogFinish(AccessLogContext accessLogContext) {
+    public void accessLogFinish(AccessLogContext context) {
         AccessLogContext logContext = logContextThread.get();
         if (ObjectUtil.isEmpty(logContext)) {
             return;
         }
         try {
-            Duration timeTaken = Duration.between(logContext.getStartTime(), accessLogContext.getEndTime());
-            log.info("[End] [{}] {} {} {}ms", ServletUtils.getRequestMethod(), ServletUtils
-                .getRequestPath(), ServletUtils.getResponseStatus(), timeTaken.toMillis());
+            RecordableHttpRequest request = logContext.getRequest();
+            RecordableHttpResponse response = context.getResponse();
+            Duration timeTaken = Duration.between(logContext.getStartTime(), context.getEndTime());
+            log.info("[End] [{}] {} {} {}ms", request.getMethod(), request.getPath(), response.getStatus(), timeTaken
+                .toMillis());
         } finally {
             logContextThread.remove();
         }

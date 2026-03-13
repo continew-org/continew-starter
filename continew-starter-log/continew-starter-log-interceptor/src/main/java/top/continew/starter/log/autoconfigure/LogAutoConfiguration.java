@@ -70,7 +70,6 @@ public class LogAutoConfiguration implements WebMvcConfigurer {
      * 日志过滤器
      */
     @Bean
-    @ConditionalOnMissingBean
     public FilterRegistrationBean<LogFilter> logFilter() {
         FilterRegistrationBean<LogFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new LogFilter(logProperties));

@@ -22,7 +22,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
-import top.continew.starter.core.util.SpringWebUtils;
+import top.continew.starter.core.util.SpringUtils;
 import top.continew.starter.encrypt.api.annotation.ApiEncrypt;
 import top.continew.starter.encrypt.api.autoconfigure.ApiEncryptProperties;
 
@@ -93,7 +93,7 @@ public class ApiEncryptFilter implements Filter {
      */
     private boolean isResponseEncrypt(HttpServletRequest request) {
         // 获取 API 加密注解
-        ApiEncrypt apiEncrypt = Optional.ofNullable(SpringWebUtils.getHandlerMethod(request))
+        ApiEncrypt apiEncrypt = Optional.ofNullable(SpringUtils.getHandlerMethod(request))
             .map(h -> h.getMethodAnnotation(ApiEncrypt.class))
             .orElse(null);
         return apiEncrypt != null && apiEncrypt.response();

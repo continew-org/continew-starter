@@ -63,10 +63,8 @@ public class MapUtils {
         if (MapUtil.isEmpty(to) && MapUtil.isEmpty(from)) {
             return new HashMap<>();
         }
-        Set<Map.Entry<String, Object>> entries = to.entrySet();
-        Iterator<Map.Entry<String, Object>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, Object> kv = iterator.next();
+
+        for (Map.Entry<String, Object> kv : to.entrySet()) {
             String toKey = kv.getKey();
             Object toValue = kv.getValue();
             Object fromValue = from.get(toKey);

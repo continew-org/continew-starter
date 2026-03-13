@@ -168,7 +168,7 @@ public class RateLimiterAspect {
         }
         // 获取后缀
         String suffix = switch (rateLimiter.type()) {
-            case IP -> ServletUtils.getRequestIp();
+            case IP -> ServletUtils.getClientIP(ServletUtils.getRequest());
             case CLUSTER -> redissonClient.getId();
             default -> StringConstants.EMPTY;
         };

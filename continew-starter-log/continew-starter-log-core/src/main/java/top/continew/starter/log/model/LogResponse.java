@@ -17,7 +17,7 @@
 package top.continew.starter.log.model;
 
 import top.continew.starter.log.enums.Include;
-import top.continew.starter.core.util.ServletUtils;
+import top.continew.starter.log.http.RecordableHttpResponse;
 
 import java.util.Map;
 import java.util.Set;
@@ -48,15 +48,15 @@ public class LogResponse {
     /**
      * 响应参数
      */
-    private Map<String, Object> param;
+    private String params;
 
-    public LogResponse(Set<Include> includes) {
-        this.status = ServletUtils.getResponseStatus();
-        this.headers = (includes.contains(Include.RESPONSE_HEADERS)) ? ServletUtils.getResponseHeaders() : null;
+    public LogResponse(RecordableHttpResponse response, Set<Include> includes) {
+        this.status = response.getStatus();
+        this.headers = (includes.contains(Include.RESPONSE_HEADERS)) ? response.getHeaders() : null;
         if (includes.contains(Include.RESPONSE_BODY)) {
-            this.body = ServletUtils.getResponseBody();
+            this.body = response.getBody();
         } else if (includes.contains(Include.RESPONSE_PARAM)) {
-            this.param = ServletUtils.getResponseParams();
+            this.params = response.getParams();
         }
     }
 
@@ -84,11 +84,11 @@ public class LogResponse {
         this.body = body;
     }
 
-    public Map<String, Object> getParam() {
-        return param;
+    public String getParams() {
+        return params;
     }
 
-    public void setParam(Map<String, Object> param) {
-        this.param = param;
+    public void setParams(String params) {
+        this.params = params;
     }
 }

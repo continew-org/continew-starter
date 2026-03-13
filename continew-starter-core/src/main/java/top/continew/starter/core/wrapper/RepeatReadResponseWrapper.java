@@ -20,7 +20,7 @@ import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
-import org.springframework.http.MediaType;
+import top.continew.starter.core.util.ServletUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,30 +46,11 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
 
     public RepeatReadResponseWrapper(HttpServletResponse response) {
         super(response);
-        checkStreamingResponse();
-    }
-
-    @Override
-    public void setContentType(String type) {
-        super.setContentType(type);
-        // 根据 Content-Type 判断是否为流式响应
-        if (type != null) {
-            String lowerType = type.toLowerCase();
-            isStreamingResponse = lowerType.contains(MediaType.TEXT_EVENT_STREAM_VALUE);
-        }
-    }
-
-    private void checkStreamingResponse() {
-        String contentType = getContentType();
-        if (contentType != null) {
-            String lowerType = contentType.toLowerCase();
-            isStreamingResponse = lowerType.contains(MediaType.TEXT_EVENT_STREAM_VALUE);
-        }
+        isStreamingResponse = ServletUtils.isStream(response);
     }
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        checkStreamingResponse();
         // 对于 SSE 流式响应，直接返回原始响应流，不做额外处理
         if (isStreamingResponse) {
             return super.getOutputStream();
@@ -108,7 +89,6 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        checkStreamingResponse();
         if (isStreamingResponse) {
             // 对于 SSE 流式响应，直接返回原始响应写入器，不做额外处理
             return super.getWriter();

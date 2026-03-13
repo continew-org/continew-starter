@@ -64,7 +64,6 @@ public class LogAutoConfiguration {
      * 日志过滤器
      */
     @Bean
-    @ConditionalOnMissingBean
     public FilterRegistrationBean<LogFilter> logFilter() {
         FilterRegistrationBean<LogFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new LogFilter(logProperties));

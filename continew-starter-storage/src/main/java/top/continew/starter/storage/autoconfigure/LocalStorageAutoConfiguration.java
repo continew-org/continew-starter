@@ -16,6 +16,7 @@
 
 package top.continew.starter.storage.autoconfigure;
 
+import cn.hutool.core.util.StrUtil;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import top.continew.starter.core.constant.PropertiesConstants;
@@ -52,6 +53,15 @@ public class LocalStorageAutoConfiguration implements StorageStrategyRegistrar {
     public void register(List<StorageStrategy> strategies) {
         for (LocalStorageConfig config : storageProperties.getLocal()) {
             if (config.isEnabled()) {
+                if (config.getMultipartUploadThreshold() == null || config.getMultipartUploadThreshold() <= 0) {
+                    config.setMultipartUploadThreshold(storageProperties.getMultipartUploadThreshold());
+                }
+                if (config.getMultipartUploadPartSize() == null || config.getMultipartUploadPartSize() <= 0) {
+                    config.setMultipartUploadPartSize(storageProperties.getMultipartUploadPartSize());
+                }
+                if (StrUtil.isBlank(config.getMultipartTempDir())) {
+                    config.setMultipartTempDir(storageProperties.getLocalMultipartTempDir());
+                }
                 strategies.add(new LocalStorageStrategy(config));
             }
         }

@@ -14,7 +14,7 @@
 
     <properties>
         <!-- Project Version -->
-        <revision>2.15.0</revision>
+        <revision>2.16.0-SNAPSHOT</revision>
 
         <!-- Core Framework Versions -->
         <spring-boot.version>3.4.10</spring-boot.version>

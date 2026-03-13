@@ -74,12 +74,12 @@ public class OssStorageConfig {
     /**
      * 多部分上传阈值（字节）
      */
-    private long multipartUploadThreshold = StorageConstant.DEFAULT_FILE_SIZE;
+    private Long multipartUploadThreshold;
 
     /**
      * 多部分上传的部分大小（字节）
      */
-    private long multipartUploadPartSize = StorageConstant.DEFAULT_FILE_SIZE;
+    private Long multipartUploadPartSize;
 
     /**
      * 请求超时时间（秒）
@@ -168,19 +168,19 @@ public class OssStorageConfig {
         this.transferAccelerationEnabled = transferAccelerationEnabled;
     }
 
-    public long getMultipartUploadThreshold() {
+    public Long getMultipartUploadThreshold() {
         return multipartUploadThreshold;
     }
 
-    public void setMultipartUploadThreshold(long multipartUploadThreshold) {
+    public void setMultipartUploadThreshold(Long multipartUploadThreshold) {
         this.multipartUploadThreshold = multipartUploadThreshold;
     }
 
-    public long getMultipartUploadPartSize() {
+    public Long getMultipartUploadPartSize() {
         return multipartUploadPartSize;
     }
 
-    public void setMultipartUploadPartSize(long multipartUploadPartSize) {
+    public void setMultipartUploadPartSize(Long multipartUploadPartSize) {
         this.multipartUploadPartSize = multipartUploadPartSize;
     }
 

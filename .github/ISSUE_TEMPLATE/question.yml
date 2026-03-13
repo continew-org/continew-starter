@@ -1,0 +1,52 @@
+name: "🙋 咨询问题/Ask Question"
+description: 咨询关于 ContiNew Starter 的问题，包括但不限于使用问题、设计规范等。/Ask a question about ContiNew Starter.
+labels:
+  - question
+body:
+  - type: checkboxes
+    id: checkboxes
+    attributes:
+      label: 请您确认
+      description: 在提交问题之前，请先确认 :)
+      options:
+        - label: 我确认是咨询问题而不是报告 Bug（如果是报告 Bug，请选择 Bug 模板）
+          required: true
+        - label: 我确认搜索了 [Issue 广场](https://continew.top/docs/starter/issue-hub.html)，没有其他人提交过类似的问题
+          required: true
+        - label: 我确认查阅过 [使用指南](https://continew.top/docs/starter/guide/introduction.html) 和 [常见问题](https://continew.top/docs/starter/faq.html)
+          required: true
+        - label: 我确认问过 [DeepWiki](https://deepwiki.com/continew-org/continew-starter) 及知名 AI 大模型
+          required: true
+        - label: 我确认不是依赖组件相关的问题（例如：sa-token、mybatis-plus、snail-job、cosid等，依赖组件相关的问题，请提交至对应组件仓库）
+          required: true
+        - label: 请不要修改此模板 :) 并填写所有必填字段
+          required: true
+
+  - type: dropdown
+    attributes:
+      label: ContiNew Starter 版本
+      description: 您使用的 ContiNew Starter 版本，如没有支持的版本选项，请查阅 [更新日志](https://continew.top/docs/starter/changelog/) 并升级至最新稳定版本。
+      multiple: false
+      options:
+        - 2.16.0-SNAPSHOT (开发版本-dev 分支)
+        - 2.15.1
+        - 2.15.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: 问题描述
+      description: 详细描述您的问题。
+      placeholder: 您想了解关于 ContiNew Starter 的哪些内容？请提供尽可能多的上下文信息。
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: 您已尝试的方法
+      description: 描述您已尝试的方法，包括但不限于尝试解决方案等。
+      placeholder: 您是否已尝试过任何解决方案？
+    validations:
+      required: false

@@ -18,8 +18,10 @@ package top.continew.starter.storage.service;
 
 import top.continew.starter.storage.domain.model.resp.FileInfo;
 import top.continew.starter.storage.domain.model.resp.FilePartInfo;
+import top.continew.starter.storage.domain.model.resp.MultipartInitResp;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 文件记录器接口，用于保存文件上传记录
@@ -55,6 +57,16 @@ public interface FileRecorder {
     boolean delete(String platform, String path);
 
     /**
+     * 按 URL 获取文件信息（可选实现）
+     *
+     * @param url 文件 URL
+     * @return 文件信息
+     */
+    default FileInfo getByUrl(String url) {
+        return null;
+    }
+
+    /**
      * 保存文件分片信息
      * 
      * @param filePartInfo 文件分片信息
@@ -75,4 +87,42 @@ public interface FileRecorder {
      * @param fileId 文件ID
      */
     void deleteFileParts(String fileId);
+
+    /**
+     * 根据文件 MD5 获取 uploadId（可选实现）
+     */
+    default String getUploadIdByMd5(String md5) {
+        return null;
+    }
+
+    /**
+     * 缓存 MD5 到 uploadId 映射（可选实现）
+     */
+    default void setMd5Mapping(String md5, String uploadId) {
+    }
+
+    /**
+     * 删除 MD5 映射（可选实现）
+     */
+    default void deleteMd5Mapping(String md5) {
+    }
+
+    /**
+     * 保存分片上传会话（可选实现）
+     */
+    default void saveMultipartSession(String uploadId, MultipartInitResp initResp, Map<String, String> metadata) {
+    }
+
+    /**
+     * 获取分片上传会话（可选实现）
+     */
+    default MultipartInitResp getMultipartSession(String uploadId) {
+        return null;
+    }
+
+    /**
+     * 删除分片上传会话（可选实现）
+     */
+    default void deleteMultipartSession(String uploadId) {
+    }
 }

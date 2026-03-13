@@ -17,6 +17,8 @@
 package top.continew.starter.log.aspect;
 
 import cn.hutool.core.text.CharSequenceUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -27,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
+import top.continew.starter.core.util.ServletUtils;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.dao.LogDao;
 import top.continew.starter.log.handler.LogHandler;
@@ -75,6 +78,7 @@ public class LogAspect {
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         Instant startTime = Instant.now();
         // 指定规则不记录
+        HttpServletRequest request = ServletUtils.getRequest();
         Method targetMethod = this.getMethod(joinPoint);
         Class<?> targetClass = joinPoint.getTarget().getClass();
         if (!isRecord(targetMethod, targetClass)) {
@@ -82,7 +86,7 @@ public class LogAspect {
         }
         String errorMsg = null;
         // 开始记录
-        LogRecord.Started startedLogRecord = logHandler.start(startTime);
+        LogRecord.Started startedLogRecord = logHandler.start(startTime, request);
         try {
             // 执行目标方法
             return joinPoint.proceed();
@@ -92,7 +96,8 @@ public class LogAspect {
         } finally {
             try {
                 Instant endTime = Instant.now();
-                LogRecord logRecord = logHandler.finish(startedLogRecord, endTime, logProperties
+                HttpServletResponse response = ServletUtils.getResponse();
+                LogRecord logRecord = logHandler.finish(startedLogRecord, endTime, response, logProperties
                     .getIncludes(), targetMethod, targetClass);
                 // 记录异常信息
                 if (errorMsg != null) {
@@ -120,7 +125,7 @@ public class LogAspect {
             return false;
         }
         // 如果接口匹配排除列表，不记录日志
-        if (logProperties.isMatch(attributes.getRequest().getRequestURI())) {
+        if (logProperties.isMatchExcludeUri(attributes.getRequest().getRequestURI())) {
             return false;
         }
         return logHandler.isRecord(targetMethod, targetClass);

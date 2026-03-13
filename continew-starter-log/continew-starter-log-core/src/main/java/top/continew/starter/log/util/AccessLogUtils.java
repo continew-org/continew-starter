@@ -17,14 +17,15 @@
 package top.continew.starter.log.util;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
+import top.continew.starter.core.util.SpringUtils;
+import top.continew.starter.log.http.RecordableHttpRequest;
 import top.continew.starter.log.model.AccessLogProperties;
 import top.continew.starter.log.model.LogProperties;
-import top.continew.starter.core.util.ServletUtils;
-import top.continew.starter.core.util.SpringWebUtils;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -48,37 +49,42 @@ public class AccessLogUtils {
     /**
      * 获取参数信息
      *
+     * @param request    请求对象
      * @param properties 属性
      * @return {@link String }
      */
-    public static String getParam(AccessLogProperties properties) {
+    public static String getParam(RecordableHttpRequest request, AccessLogProperties properties) {
         // 是否需要打印请求参数
         if (!properties.isPrintRequestParam()) {
             return null;
         }
 
         // 参数为空返回空
-        Object params;
-        try {
-            params = getAccessLogReqParam();
-        } catch (Exception e) {
+        String params = request.getParams();
+        if (CharSequenceUtil.isBlank(params)) {
             return null;
         }
-        if (ObjectUtil.isEmpty(params)) {
-            return null;
+
+        Object paramObj;
+        if (JSONUtil.isTypeJSONArray(params)) {
+            paramObj = JSONUtil.toBean(params, List.class);
+        } else if (JSONUtil.isTypeJSONObject(params)) {
+            paramObj = JSONUtil.toBean(params, Map.class);
+        } else {
+            paramObj = params;
         }
 
         // 是否需要对特定入参脱敏
         if (properties.isParamSensitive()) {
-            params = processSensitiveParams(params, properties.getSensitiveParams());
+            paramObj = processSensitiveParams(paramObj, properties.getSensitiveParams());
         }
 
         // 是否自动截断超长参数值
         if (properties.isLongParamTruncate()) {
-            params = processTruncateLongParams(params, properties.getLongParamThreshold(), properties
+            paramObj = processTruncateLongParams(paramObj, properties.getLongParamThreshold(), properties
                 .getLongParamMaxLength(), properties.getLongParamSuffix());
         }
-        return JSONUtil.toJsonStr(params);
+        return JSONUtil.toJsonStr(paramObj);
     }
 
     /**
@@ -90,8 +96,8 @@ public class AccessLogUtils {
      */
     public static boolean exclusionPath(LogProperties properties, String path) {
         // 放行路由配置的排除检查
-        return properties.isMatch(path) || RESOURCE_PATH.stream()
-            .anyMatch(resourcePath -> SpringWebUtils.isMatchAnt(path, resourcePath));
+        return properties.isMatchExcludeUri(path) || RESOURCE_PATH.stream()
+            .anyMatch(resourcePath -> SpringUtils.isMatchAnt(path, resourcePath));
     }
 
     /**
@@ -106,7 +112,7 @@ public class AccessLogUtils {
             return filterSensitiveParams((Map<String, Object>)params, sensitiveParams);
         } else if (params instanceof List) {
             return ((List<?>)params).stream()
-                .filter(item -> item instanceof Map)
+                .filter(Map.class::isInstance)
                 .map(item -> filterSensitiveParams((Map<String, Object>)item, sensitiveParams))
                 .collect(Collectors.toList());
         }
@@ -182,26 +188,5 @@ public class AccessLogUtils {
             }
         }
         return truncatedParams;
-    }
-
-    /**
-     * 获取访问日志请求参数
-     *
-     * @return {@link Object }
-     */
-    private static Object getAccessLogReqParam() {
-        String body = ServletUtils.getRequestBody();
-        if (CharSequenceUtil.isNotBlank(body) && JSONUtil.isTypeJSON(body)) {
-            try {
-                if (JSONUtil.isTypeJSONArray(body)) {
-                    return JSONUtil.toBean(body, List.class);
-                } else {
-                    return JSONUtil.toBean(body, Map.class);
-                }
-            } catch (Exception e) {
-                return null;
-            }
-        }
-        return Collections.unmodifiableMap(ServletUtils.getRequestParams());
     }
 }

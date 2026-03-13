@@ -17,20 +17,21 @@
 package top.continew.starter.storage.strategy.impl;
 
 import cn.hutool.core.map.MapUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.core.util.SpringWebUtils;
+import top.continew.starter.core.util.SpringUtils;
 import top.continew.starter.storage.autoconfigure.properties.LocalStorageConfig;
+import top.continew.starter.storage.common.constant.StorageConstant;
 import top.continew.starter.storage.common.exception.StorageException;
 import top.continew.starter.storage.domain.model.resp.FileInfo;
 import top.continew.starter.storage.domain.model.resp.MultipartInitResp;
 import top.continew.starter.storage.domain.model.resp.MultipartUploadResp;
 import top.continew.starter.storage.strategy.StorageStrategy;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -54,11 +55,20 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     private final LocalStorageConfig config;
 
-    // 分片上传临时目录
-    private final String TEMP_DIR = ".multipart";
+    /**
+     * 分片上传分片大小
+     */
+    private final long multipartUploadPartSize;
+
+    /**
+     * 分片上传临时根目录
+     */
+    private final String multipartTempDir;
 
     public LocalStorageStrategy(LocalStorageConfig config) {
         this.config = config;
+        this.multipartUploadPartSize = resolveMultipartUploadPartSize(config);
+        this.multipartTempDir = resolveMultipartTempDir(config);
         initTempDir(config.getBucketName());
         registerResources(config);
     }
@@ -70,7 +80,7 @@ public class LocalStorageStrategy implements StorageStrategy {
      */
     public void registerResources(LocalStorageConfig config) {
         // 注册资源映射
-        SpringWebUtils.registerResourceHandler(MapUtil.of(URLUtil.url(config.getEndpoint()).getPath(), config
+        SpringUtils.registerResourceHandler(MapUtil.of(URLUtil.url(config.getEndpoint()).getPath(), config
             .getBucketName()));
     }
 
@@ -78,7 +88,7 @@ public class LocalStorageStrategy implements StorageStrategy {
      * 初始化临时目录
      */
     private void initTempDir(String bucket) {
-        Path tempPath = Paths.get(bucket, TEMP_DIR);
+        Path tempPath = resolveMultipartTempPath(bucket, null);
         try {
             Files.createDirectories(tempPath);
         } catch (IOException e) {
@@ -88,7 +98,8 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     @Override
     public void upload(String bucket, String path, MultipartFile file) {
-        Path filePath = Paths.get(bucket, path);
+        String normalizedPath = normalizePath(path);
+        Path filePath = Paths.get(bucket, normalizedPath);
         try {
             // 创建目录
             Files.createDirectories(filePath.getParent());
@@ -105,7 +116,7 @@ public class LocalStorageStrategy implements StorageStrategy {
      */
     @Override
     public InputStream download(String bucket, String path) {
-        Path filePath = Paths.get(bucket, path);
+        Path filePath = Paths.get(bucket, normalizePath(path));
         try {
             return Files.newInputStream(filePath);
         } catch (IOException e) {
@@ -123,7 +134,7 @@ public class LocalStorageStrategy implements StorageStrategy {
      */
     @Override
     public void delete(String bucket, String path) {
-        Path filePath = Paths.get(bucket, path);
+        Path filePath = Paths.get(bucket, normalizePath(path));
         try {
             Files.deleteIfExists(filePath);
             // 尝试删除空目录
@@ -136,7 +147,28 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     @Override
     public void batchDelete(String bucket, List<String> paths) {
-
+        if (paths == null || paths.isEmpty()) {
+            return;
+        }
+        List<String> failedPaths = new ArrayList<>();
+        Set<Path> parentDirs = new HashSet<>();
+        for (String path : paths) {
+            try {
+                Path filePath = Paths.get(bucket, normalizePath(path));
+                Files.deleteIfExists(filePath);
+                parentDirs.add(filePath.getParent());
+            } catch (IOException e) {
+                failedPaths.add(path);
+                log.warn("批量删除本地文件失败: path={}", path, e);
+            }
+        }
+        // 文件删除后统一尝试清理空目录，避免批量删除过程中的重复递归扫描
+        for (Path parentDir : parentDirs) {
+            deleteEmptyParentDirectories(parentDir);
+        }
+        if (!failedPaths.isEmpty()) {
+            throw new StorageException("批量删除失败，部分文件删除异常: " + failedPaths);
+        }
     }
 
     /**
@@ -144,7 +176,7 @@ public class LocalStorageStrategy implements StorageStrategy {
      */
     @Override
     public boolean exists(String bucket, String path) {
-        Path filePath = Paths.get(bucket, path);
+        Path filePath = Paths.get(bucket, normalizePath(path));
         return Files.exists(filePath);
     }
 
@@ -153,7 +185,8 @@ public class LocalStorageStrategy implements StorageStrategy {
      */
     @Override
     public FileInfo getFileInfo(String bucket, String path) {
-        Path filePath = Paths.get(bucket, path);
+        String normalizedPath = normalizePath(path);
+        Path filePath = Paths.get(bucket, normalizedPath);
 
         if (!Files.exists(filePath)) {
             return null;
@@ -165,11 +198,11 @@ public class LocalStorageStrategy implements StorageStrategy {
             FileInfo fileInfo = new FileInfo();
             fileInfo.setBucket(bucket);
             fileInfo.setPlatform(config.getPlatform());
-            fileInfo.setPath(path);
-            fileInfo.setFullPath(filePath.toString());
+            fileInfo.setPath(normalizedPath);
+            fileInfo.setFullPath(normalizedPath);
             fileInfo.setName(filePath.getFileName().toString());
             fileInfo.setSize(attrs.size());
-            fileInfo.setUrl(config.getEndpoint() + StringConstants.SLASH + path);
+            fileInfo.setUrl(config.getEndpoint() + StringConstants.SLASH + normalizedPath);
             fileInfo.setUploadTime(LocalDateTime.ofInstant(attrs.creationTime().toInstant(), java.time.ZoneId
                 .systemDefault()));
 
@@ -191,7 +224,8 @@ public class LocalStorageStrategy implements StorageStrategy {
     @Override
     public List<FileInfo> list(String bucket, String prefix, int maxKeys) {
         Path basePath = Paths.get(bucket);
-        Path searchPath = prefix != null ? basePath.resolve(prefix) : basePath;
+        String normalizedPrefix = prefix == null ? null : normalizePath(prefix);
+        Path searchPath = normalizedPrefix != null ? basePath.resolve(normalizedPrefix) : basePath;
 
         try (Stream<Path> stream = Files.walk(searchPath)) {
             return stream.filter(Files::isRegularFile).limit(maxKeys).map(path -> {
@@ -209,8 +243,8 @@ public class LocalStorageStrategy implements StorageStrategy {
      */
     @Override
     public void copy(String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
-        Path source = Paths.get(sourceBucket, sourcePath);
-        Path target = Paths.get(targetBucket, targetPath);
+        Path source = Paths.get(sourceBucket, normalizePath(sourcePath));
+        Path target = Paths.get(targetBucket, normalizePath(targetPath));
 
         try {
             Files.createDirectories(target.getParent());
@@ -222,7 +256,8 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     @Override
     public void move(String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
-
+        copy(sourceBucket, targetBucket, sourcePath, targetPath);
+        delete(sourceBucket, sourcePath);
     }
 
     @Override
@@ -241,7 +276,7 @@ public class LocalStorageStrategy implements StorageStrategy {
     @Override
     public String generatePresignedUrl(String bucket, String path, long expireSeconds) {
         // 本地存储不支持预签名URL，返回普通URL
-        return config.getEndpoint() + StringConstants.SLASH + path;
+        return config.getEndpoint() + StringConstants.SLASH + normalizePath(path);
     }
 
     /**
@@ -278,9 +313,10 @@ public class LocalStorageStrategy implements StorageStrategy {
                                                  Map<String, String> metadata) {
         try {
             String uploadId = UUID.randomUUID().toString();
+            String normalizedPath = normalizePath(path);
 
             // 创建临时目录
-            Path tempUploadPath = Paths.get(bucket, TEMP_DIR, uploadId);
+            Path tempUploadPath = resolveMultipartTempPath(bucket, uploadId);
             Files.createDirectories(tempUploadPath);
 
             // 构建结果
@@ -289,8 +325,8 @@ public class LocalStorageStrategy implements StorageStrategy {
             result.setFileId(UUID.randomUUID().toString());
             result.setUploadId(uploadId);
             result.setPlatform(config.getPlatform());
-            result.setPath(path);
-            result.setPartSize(5 * 1024 * 1024L);
+            result.setPath(normalizedPath);
+            result.setPartSize(multipartUploadPartSize);
             return result;
         } catch (Exception e) {
             throw new StorageException("初始化分片上传失败: " + e.getMessage(), e);
@@ -308,7 +344,8 @@ public class LocalStorageStrategy implements StorageStrategy {
 
         try {
             // 分片文件路径
-            Path partPath = Paths.get(bucket, TEMP_DIR, uploadId, String.format("part_%05d", partNumber));
+            Path partPath = resolveMultipartTempPath(bucket, uploadId).resolve(buildPartFileName(partNumber));
+            Files.createDirectories(partPath.getParent());
 
             // 保存分片
             long size = Files.copy(data, partPath, StandardCopyOption.REPLACE_EXISTING);
@@ -335,7 +372,8 @@ public class LocalStorageStrategy implements StorageStrategy {
                                             boolean verifyParts) {
         try {
             // 本地存储不需要验证，直接使用传入的分片信息
-            Path targetPath = Paths.get(bucket, path);
+            String normalizedPath = normalizePath(path);
+            Path targetPath = Paths.get(bucket, normalizedPath);
             Files.createDirectories(targetPath.getParent());
 
             // 合并分片
@@ -350,7 +388,7 @@ public class LocalStorageStrategy implements StorageStrategy {
 
                 // 逐个读取并写入
                 for (MultipartUploadResp part : sortedParts) {
-                    Path partPath = Paths.get(bucket, TEMP_DIR, uploadId, String.format("part_%05d", part
+                    Path partPath = resolveMultipartTempPath(bucket, uploadId).resolve(buildPartFileName(part
                         .getPartNumber()));
 
                     if (!Files.exists(partPath)) {
@@ -365,7 +403,7 @@ public class LocalStorageStrategy implements StorageStrategy {
             cleanupTempFiles(bucket, uploadId);
 
             // 获取文件信息
-            return getFileInfo(bucket, path);
+            return getFileInfo(bucket, normalizedPath);
 
         } catch (Exception e) {
             throw new StorageException("完成分片上传失败: " + e.getMessage(), e);
@@ -396,10 +434,16 @@ public class LocalStorageStrategy implements StorageStrategy {
      * 清理临时文件
      */
     private void cleanupTempFiles(String bucket, String uploadId) {
-        Path tempUploadPath = Paths.get(bucket, TEMP_DIR, uploadId);
+        Path tempUploadPath = resolveMultipartTempPath(bucket, uploadId);
         if (Files.exists(tempUploadPath)) {
             try (Stream<Path> paths = Files.walk(tempUploadPath)) {
-                paths.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
+                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
+                    try {
+                        Files.deleteIfExists(path);
+                    } catch (IOException e) {
+                        log.error("删除分片临时文件失败: path={}", path, e);
+                    }
+                }
             } catch (IOException e) {
                 log.error("清理临时文件失败: uploadId={}", uploadId, e);
             }
@@ -422,11 +466,54 @@ public class LocalStorageStrategy implements StorageStrategy {
         return HexFormat.of().formatHex(digest).toLowerCase();
     }
 
+    private String normalizePath(String rawPath) {
+        String normalized = rawPath == null ? StringConstants.EMPTY : rawPath.trim();
+        normalized = normalized.replace("\\", StringConstants.SLASH).replaceAll("/+", StringConstants.SLASH);
+        while (normalized.startsWith(StringConstants.SLASH)) {
+            normalized = normalized.substring(1);
+        }
+        return normalized;
+    }
+
+    private long resolveMultipartUploadPartSize(LocalStorageConfig localStorageConfig) {
+        Long partSize = localStorageConfig.getMultipartUploadPartSize();
+        if (partSize == null || partSize <= 0) {
+            return StorageConstant.DEFAULT_MULTIPART_UPLOAD_PART_SIZE;
+        }
+        return partSize;
+    }
+
+    private String resolveMultipartTempDir(LocalStorageConfig localStorageConfig) {
+        if (StrUtil.isBlank(localStorageConfig.getMultipartTempDir())) {
+            return StorageConstant.DEFAULT_LOCAL_MULTIPART_TEMP_DIR;
+        }
+        return localStorageConfig.getMultipartTempDir().trim();
+    }
+
+    private Path resolveMultipartTempPath(String bucket, String uploadId) {
+        Path path = Paths.get(multipartTempDir).resolve(toBucketSegment(bucket));
+        if (StrUtil.isNotBlank(uploadId)) {
+            path = path.resolve(uploadId);
+        }
+        return path;
+    }
+
+    private String toBucketSegment(String bucket) {
+        if (StrUtil.isBlank(bucket)) {
+            return "default";
+        }
+        return bucket.trim().replace("\\", "_").replace("/", "_").replace(":", "_");
+    }
+
+    private String buildPartFileName(int partNumber) {
+        return "part_" + partNumber;
+    }
+
     @Override
     public void cleanup() {
         // 清理静态资源映射
         if (config != null) {
-            SpringWebUtils.deRegisterResourceHandler(MapUtil.of(URLUtil.url(config.getEndpoint()).getPath(), config
+            SpringUtils.deRegisterResourceHandler(MapUtil.of(URLUtil.url(config.getEndpoint()).getPath(), config
                 .getBucketName()));
         }
     }

@@ -16,6 +16,8 @@
 
 package top.continew.starter.storage.domain.model.resp;
 
+import java.util.Set;
+
 /**
  * 分片上传初始化结果
  *
@@ -57,6 +59,41 @@ public class MultipartInitResp {
      * 总分片数
      */
     private Integer totalParts;
+
+    /**
+     * 原始文件名
+     */
+    private String fileName;
+
+    /**
+     * 文件 MD5
+     */
+    private String fileMd5;
+
+    /**
+     * 文件大小
+     */
+    private Long fileSize;
+
+    /**
+     * 扩展名
+     */
+    private String extension;
+
+    /**
+     * 内容类型
+     */
+    private String contentType;
+
+    /**
+     * 文件父路径
+     */
+    private String parentPath;
+
+    /**
+     * 已上传分片编号集合
+     */
+    private Set<Integer> uploadedPartNumbers;
 
     public String getFileId() {
         return fileId;
@@ -112,5 +149,61 @@ public class MultipartInitResp {
 
     public void setTotalParts(Integer totalParts) {
         this.totalParts = totalParts;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getFileMd5() {
+        return fileMd5;
+    }
+
+    public void setFileMd5(String fileMd5) {
+        this.fileMd5 = fileMd5;
+    }
+
+    public Long getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(Long fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public String getExtension() {
+        return extension;
+    }
+
+    public void setExtension(String extension) {
+        this.extension = extension;
+    }
+
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
+
+    public String getParentPath() {
+        return parentPath;
+    }
+
+    public void setParentPath(String parentPath) {
+        this.parentPath = parentPath;
+    }
+
+    public Set<Integer> getUploadedPartNumbers() {
+        return uploadedPartNumbers;
+    }
+
+    public void setUploadedPartNumbers(Set<Integer> uploadedPartNumbers) {
+        this.uploadedPartNumbers = uploadedPartNumbers;
     }
 }

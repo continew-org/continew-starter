@@ -16,6 +16,9 @@
 
 package top.continew.starter.log.model;
 
+import top.continew.starter.log.http.RecordableHttpRequest;
+import top.continew.starter.log.http.RecordableHttpResponse;
+
 import java.time.Instant;
 
 /**
@@ -37,6 +40,16 @@ public class AccessLogContext {
     private Instant endTime;
 
     /**
+     * 请求信息
+     */
+    private final RecordableHttpRequest request;
+
+    /**
+     * 响应信息
+     */
+    private final RecordableHttpResponse response;
+
+    /**
      * 配置信息
      */
     private final LogProperties properties;
@@ -44,6 +57,8 @@ public class AccessLogContext {
     private AccessLogContext(Builder builder) {
         this.startTime = builder.startTime;
         this.endTime = builder.endTime;
+        this.request = builder.request;
+        this.response = builder.response;
         this.properties = builder.properties;
     }
 
@@ -53,6 +68,14 @@ public class AccessLogContext {
 
     public Instant getEndTime() {
         return endTime;
+    }
+
+    public RecordableHttpRequest getRequest() {
+        return request;
+    }
+
+    public RecordableHttpResponse getResponse() {
+        return response;
     }
 
     public LogProperties getProperties() {
@@ -74,6 +97,8 @@ public class AccessLogContext {
 
         private Instant startTime;
         private Instant endTime;
+        private RecordableHttpRequest request;
+        private RecordableHttpResponse response;
         private LogProperties properties;
 
         private Builder() {
@@ -86,6 +111,16 @@ public class AccessLogContext {
 
         public Builder endTime(Instant endTime) {
             this.endTime = endTime;
+            return this;
+        }
+
+        public Builder request(RecordableHttpRequest request) {
+            this.request = request;
+            return this;
+        }
+
+        public Builder response(RecordableHttpResponse response) {
+            this.response = response;
             return this;
         }
 

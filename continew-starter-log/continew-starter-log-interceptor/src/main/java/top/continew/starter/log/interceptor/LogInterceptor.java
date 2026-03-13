@@ -24,10 +24,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.lang.NonNull;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
-import top.continew.starter.log.dao.LogDao;
-import top.continew.starter.log.handler.LogHandler;
+import top.continew.starter.log.http.servlet.RecordableServletHttpRequest;
+import top.continew.starter.log.http.servlet.RecordableServletHttpResponse;
 import top.continew.starter.log.model.AccessLogContext;
 import top.continew.starter.log.model.LogProperties;
+import top.continew.starter.log.dao.LogDao;
+import top.continew.starter.log.handler.LogHandler;
 import top.continew.starter.log.model.LogRecord;
 
 import java.lang.reflect.Method;
@@ -58,10 +60,15 @@ public class LogInterceptor implements HandlerInterceptor {
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
         Instant startTime = Instant.now();
-        logHandler.accessLogStart(AccessLogContext.builder().startTime(startTime).properties(logProperties).build());
+        // 访问日志
+        logHandler.accessLogStart(AccessLogContext.builder()
+            .startTime(startTime)
+            .request(new RecordableServletHttpRequest(request))
+            .properties(logProperties)
+            .build());
         // 开始日志记录
         if (this.isRecord(handler)) {
-            LogRecord.Started startedLogRecord = logHandler.start(startTime);
+            LogRecord.Started startedLogRecord = logHandler.start(startTime, request);
             logTtl.set(startedLogRecord);
         }
         return true;
@@ -74,7 +81,11 @@ public class LogInterceptor implements HandlerInterceptor {
                                 Exception e) {
         try {
             Instant endTime = Instant.now();
-            logHandler.accessLogFinish(AccessLogContext.builder().endTime(endTime).build());
+            // 访问日志
+            logHandler.accessLogFinish(AccessLogContext.builder()
+                .endTime(endTime)
+                .response(new RecordableServletHttpResponse(response))
+                .build());
             LogRecord.Started startedLogRecord = logTtl.get();
             if (startedLogRecord == null) {
                 return;
@@ -83,7 +94,7 @@ public class LogInterceptor implements HandlerInterceptor {
             HandlerMethod handlerMethod = (HandlerMethod)handler;
             Method targetMethod = handlerMethod.getMethod();
             Class<?> targetClass = handlerMethod.getBeanType();
-            LogRecord logRecord = logHandler.finish(startedLogRecord, endTime, logProperties
+            LogRecord logRecord = logHandler.finish(startedLogRecord, endTime, response, logProperties
                 .getIncludes(), targetMethod, targetClass);
             logDao.add(logRecord);
         } catch (Exception ex) {
