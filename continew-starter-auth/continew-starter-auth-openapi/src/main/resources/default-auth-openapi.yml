@@ -1,0 +1,16 @@
+--- ### 开放 API 配置
+openapi:
+  # 应用 ID 参数名
+  app-id-param-name: appId
+  # 签名参数名
+  sign-param-name: sign
+  # 时间戳参数名
+  timestamp-param-name: timestamp
+  # 随机字符串参数名
+  nonce-param-name: nonce
+  # 默认签名算法
+  default-algorithm: MD5
+  # 时间戳过期时间（毫秒）
+  timestamp-expire: 300000
+  # 是否启用 nonce 防重放
+  nonce-enabled: true

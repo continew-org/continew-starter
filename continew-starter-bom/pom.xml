@@ -84,6 +84,12 @@
                 <artifactId>continew-starter-auth-justauth</artifactId>
                 <version>${revision}</version>
             </dependency>
+            <!-- 认证模块 - 开放 API 签名认证 -->
+            <dependency>
+                <groupId>top.continew.starter</groupId>
+                <artifactId>continew-starter-auth-openapi</artifactId>
+                <version>${revision}</version>
+            </dependency>
 
             <!-- 数据访问模块 - MyBatis Plus -->
             <dependency>

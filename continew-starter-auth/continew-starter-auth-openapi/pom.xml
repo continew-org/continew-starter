@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>top.continew.starter</groupId>
+        <artifactId>continew-starter-auth</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>continew-starter-auth-openapi</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>ContiNew Starter 认证模块 - 开放 API 签名认证</description>
+
+    <dependencies>
+        <!-- 缓存模块 - Redisson -->
+        <dependency>
+            <groupId>top.continew.starter</groupId>
+            <artifactId>continew-starter-cache-redisson</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Hutool 加密模块（提供对称加密、非对称加密、摘要算法、签名算法等） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-crypto</artifactId>
+        </dependency>
+    </dependencies>
+</project>
