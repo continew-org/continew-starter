@@ -55,6 +55,11 @@ public class PropertiesConstants {
     public static final String AUTH_JUSTAUTH = CONTINEW_STARTER + StringConstants.DOT + "justauth";
 
     /**
+     * 认证-OpenAPI 配置
+     */
+    public static final String AUTH_OPENAPI = CONTINEW_STARTER + StringConstants.DOT + "openapi";
+
+    /**
      * 加密配置
      */
     public static final String ENCRYPT = CONTINEW_STARTER + StringConstants.DOT + "encrypt";

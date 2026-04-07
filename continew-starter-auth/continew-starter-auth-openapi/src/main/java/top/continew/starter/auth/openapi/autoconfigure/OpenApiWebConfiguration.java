@@ -56,6 +56,6 @@ public class OpenApiWebConfiguration implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(this.openApiInterceptor)
             .addPathPatterns(StringConstants.PATH_PATTERN)
-            .order(OrderedConstants.Interceptor.AUTH_INTERCEPTOR);
+            .order(OrderedConstants.Interceptor.AUTH_OPENAPI_INTERCEPTOR);
     }
 }

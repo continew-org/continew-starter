@@ -24,6 +24,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.util.WebUtils;
 import top.continew.starter.core.wrapper.RepeatReadRequestWrapper;
 import top.continew.starter.core.wrapper.RepeatReadResponseWrapper;
 import top.continew.starter.log.model.LogProperties;

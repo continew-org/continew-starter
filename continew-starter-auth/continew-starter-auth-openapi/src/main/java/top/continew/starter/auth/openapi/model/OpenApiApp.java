@@ -46,11 +46,6 @@ public class OpenApiApp implements Serializable {
     private String appName;
 
     /**
-     * 应用状态（0-禁用 1-启用）
-     */
-    private Integer status;
-
-    /**
      * 签名算法
      */
     private String signAlgorithm;
@@ -85,14 +80,6 @@ public class OpenApiApp implements Serializable {
 
     public void setAppName(String appName) {
         this.appName = appName;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public String getSignAlgorithm() {

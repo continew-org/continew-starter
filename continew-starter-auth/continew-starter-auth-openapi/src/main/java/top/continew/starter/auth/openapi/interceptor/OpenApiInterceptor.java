@@ -24,7 +24,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import top.continew.starter.auth.openapi.annotation.OpenApi;
 import top.continew.starter.auth.openapi.autoconfigure.OpenApiProperties;
 import top.continew.starter.auth.openapi.enums.SignAlgorithm;
-import top.continew.starter.auth.openapi.exception.OpenApiSignException;
+import top.continew.starter.auth.openapi.exception.OpenApiException;
 import top.continew.starter.auth.openapi.model.OpenApiApp;
 import top.continew.starter.auth.openapi.dao.OpenApiAppDao;
 import top.continew.starter.auth.openapi.verifier.SignVerifier;
@@ -68,29 +68,29 @@ public class OpenApiInterceptor implements HandlerInterceptor {
         String timestampStr = request.getParameter(properties.getTimestampParamName());
         String nonce = request.getParameter(properties.getNonceParamName());
         if (appId == null || appId.isEmpty()) {
-            throw new OpenApiSignException("缺少 appId 参数");
+            throw new OpenApiException("缺少 appId 参数");
         }
         if (sign == null || sign.isEmpty()) {
-            throw new OpenApiSignException("缺少 sign 参数");
+            throw new OpenApiException("缺少 sign 参数");
         }
         OpenApiApp app = appDao.getByAppId(appId);
         if (app == null) {
-            throw new OpenApiSignException("应用不存在");
+            throw new OpenApiException("应用不存在");
         }
         if (app.getStatus() == null || app.getStatus() != 1) {
-            throw new OpenApiSignException("应用已禁用");
+            throw new OpenApiException("应用已禁用");
         }
         Long timestamp = null;
         if (timestampStr != null && !timestampStr.isEmpty()) {
             try {
                 timestamp = Long.parseLong(timestampStr);
             } catch (NumberFormatException e) {
-                throw new OpenApiSignException("时间戳格式错误");
+                throw new OpenApiException("时间戳格式错误");
             }
         }
         if (properties.isNonceEnabled() && nonce != null && !nonce.isEmpty()) {
             if (appDao.isNonceUsed(nonce, appId, properties.getTimestampExpire())) {
-                throw new OpenApiSignException("请求已被使用，请勿重复提交");
+                throw new OpenApiException("请求已被使用，请勿重复提交");
             }
         }
         Map<String, String> params = extractParams(request);
@@ -98,7 +98,7 @@ public class OpenApiInterceptor implements HandlerInterceptor {
         boolean verified = SignVerifier.verify(params, sign, app, algorithm, timestamp, nonce, properties
             .getTimestampExpire());
         if (!verified) {
-            throw new OpenApiSignException("签名验证失败");
+            throw new OpenApiException("签名验证失败");
         }
         if (properties.isNonceEnabled() && nonce != null && !nonce.isEmpty()) {
             appDao.recordNonce(nonce, appId, properties.getTimestampExpire());

@@ -66,9 +66,14 @@ public class OrderedConstants {
         public static final int TENANT_INTERCEPTOR = Ordered.HIGHEST_PRECEDENCE + 100;
 
         /**
+         * 开放 API 签名拦截器顺序
+         */
+        public static final int AUTH_OPENAPI_INTERCEPTOR = Ordered.HIGHEST_PRECEDENCE + 200;
+
+        /**
          * 认证拦截器顺序
          */
-        public static final int AUTH_INTERCEPTOR = Ordered.HIGHEST_PRECEDENCE + 200;
+        public static final int AUTH_INTERCEPTOR = Ordered.HIGHEST_PRECEDENCE + 300;
 
         /**
          * 日志拦截器顺序

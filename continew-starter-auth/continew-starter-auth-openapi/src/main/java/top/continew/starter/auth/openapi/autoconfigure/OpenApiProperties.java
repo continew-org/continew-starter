@@ -47,19 +47,14 @@ public class OpenApiProperties {
     private String signParamName = "sign";
 
     /**
-     * 时间戳参数名
-     */
-    private String timestampParamName = "timestamp";
-
-    /**
      * 随机字符串参数名
      */
     private String nonceParamName = "nonce";
 
     /**
-     * 时间戳过期时间（毫秒）
+     * 时间戳参数名
      */
-    private Long timestampExpireInMillis = 5 * 60 * 1000L;
+    private String timestampParamName = "timestamp";
 
     /**
      * 是否启用 nonce 防重放
@@ -67,9 +62,17 @@ public class OpenApiProperties {
     private boolean nonceEnabled = true;
 
     /**
-     * 签名算法
+     * 时间戳允许差距时间（毫秒）
+     * <p>
+     *     -1 代表不校验差距，默认15分钟
+     * </p>
      */
-    private SignAlgorithm signAlgorithm = SignAlgorithm.MD5;
+    private Long timestampDisparityInMillis = 15 * 60 * 1000L;
+
+    /**
+     * 默认签名算法
+     */
+    private SignAlgorithm defaultAlgorithm = SignAlgorithm.MD5;
 
     /**
      * 应用 DAO 配置
@@ -101,14 +104,6 @@ public class OpenApiProperties {
         this.signParamName = signParamName;
     }
 
-    public String getTimestampParamName() {
-        return timestampParamName;
-    }
-
-    public void setTimestampParamName(String timestampParamName) {
-        this.timestampParamName = timestampParamName;
-    }
-
     public String getNonceParamName() {
         return nonceParamName;
     }
@@ -117,12 +112,12 @@ public class OpenApiProperties {
         this.nonceParamName = nonceParamName;
     }
 
-    public Long getTimestampExpireInMillis() {
-        return timestampExpireInMillis;
+    public String getTimestampParamName() {
+        return timestampParamName;
     }
 
-    public void setTimestampExpireInMillis(Long timestampExpireInMillis) {
-        this.timestampExpireInMillis = timestampExpireInMillis;
+    public void setTimestampParamName(String timestampParamName) {
+        this.timestampParamName = timestampParamName;
     }
 
     public boolean isNonceEnabled() {
@@ -133,12 +128,20 @@ public class OpenApiProperties {
         this.nonceEnabled = nonceEnabled;
     }
 
-    public SignAlgorithm getSignAlgorithm() {
-        return signAlgorithm;
+    public Long getTimestampDisparityInMillis() {
+        return timestampDisparityInMillis;
     }
 
-    public void setSignAlgorithm(SignAlgorithm signAlgorithm) {
-        this.signAlgorithm = signAlgorithm;
+    public void setTimestampDisparityInMillis(Long timestampDisparityInMillis) {
+        this.timestampDisparityInMillis = timestampDisparityInMillis;
+    }
+
+    public SignAlgorithm getDefaultAlgorithm() {
+        return defaultAlgorithm;
+    }
+
+    public void setDefaultAlgorithm(SignAlgorithm defaultAlgorithm) {
+        this.defaultAlgorithm = defaultAlgorithm;
     }
 
     public OpenApiAppDaoProperties getAppDao() {
