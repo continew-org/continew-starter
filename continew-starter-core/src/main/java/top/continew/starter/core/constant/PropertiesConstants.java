@@ -50,6 +50,11 @@ public class PropertiesConstants {
     public static final String WEB_RESPONSE = WEB + StringConstants.DOT + "response";
 
     /**
+     * Web-内容缓存配置
+     */
+    public static final String WEB_CONTENT_CACHE = WEB + StringConstants.DOT + "content-cache";
+
+    /**
      * 认证-JustAuth 配置
      */
     public static final String AUTH_JUSTAUTH = CONTINEW_STARTER + StringConstants.DOT + "justauth";

@@ -32,19 +32,24 @@ public class OrderedConstants {
     public static final class Filter {
 
         /**
+         * 内容缓存过滤器顺序
+         */
+        public static final int CONTENT_CACHING_FILTER = Ordered.HIGHEST_PRECEDENCE + 5;
+
+        /**
          * API 加密过滤器顺序
          */
-        public static final int API_ENCRYPT_FILTER = Ordered.HIGHEST_PRECEDENCE;
+        public static final int API_ENCRYPT_FILTER = Ordered.HIGHEST_PRECEDENCE + 10;
 
         /**
          * 链路追踪过滤器顺序
          */
-        public static final int TRACE_FILTER = Ordered.HIGHEST_PRECEDENCE + 100;
+        public static final int TRACE_FILTER = Ordered.HIGHEST_PRECEDENCE + 200;
 
         /**
          * XSS 过滤器顺序
          */
-        public static final int XSS_FILTER = Ordered.HIGHEST_PRECEDENCE + 200;
+        public static final int XSS_FILTER = Ordered.HIGHEST_PRECEDENCE + 300;
 
         /**
          * 日志过滤器顺序

@@ -25,6 +25,7 @@ import cn.hutool.http.useragent.UserAgentUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -202,15 +203,17 @@ public class ServletUtils extends JakartaServletUtil {
     }
 
     /**
-     * 检查 HTTP 请求是否为 {@code application/x-www-form-urlencoded} 格式（标准表单提交）
+     * 检查 HTTP 请求是否为 {@code application/x-www-form-urlencoded} 格式 POST 请求（标准表单提交）
      *
      * @param request 请求对象
      * @return true: 是; false: 否
      * @see MediaType#APPLICATION_FORM_URLENCODED_VALUE
      * @since 2.15.1
      */
-    public static boolean isForm(HttpServletRequest request) {
-        return StrUtil.contains(request.getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+    public static boolean isFormPost(HttpServletRequest request) {
+        String contentType = request.getContentType();
+        return (contentType != null && contentType
+            .contains(MediaType.APPLICATION_FORM_URLENCODED_VALUE) && HttpMethod.POST.matches(request.getMethod()));
     }
 
     /**

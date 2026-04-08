@@ -77,7 +77,7 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
             : new FastByteArrayOutputStream();
         // 判断是否为文件上传请求
         if (!ServletUtils.isMultipart(request)) {
-            if (ServletUtils.isForm(request)) {
+            if (ServletUtils.isFormPost(request)) {
                 writeRequestParametersToCachedContent();
             } else {
                 StreamUtils.copy(request.getInputStream(), cachedContent);
