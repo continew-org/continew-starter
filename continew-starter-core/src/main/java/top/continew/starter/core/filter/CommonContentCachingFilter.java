@@ -21,11 +21,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.web.util.ContentCachingRequestWrapper;
-import org.springframework.web.util.ContentCachingResponseWrapper;
 import top.continew.starter.core.autoconfigure.contentcache.ContentCachingProperties;
 import top.continew.starter.core.util.RepeatableContentCachingRequestWrapper;
-import top.continew.starter.core.util.ServletUtils;
+import top.continew.starter.core.util.RepeatableContentCachingResponseWrapper;
 
 import java.io.IOException;
 
@@ -45,19 +43,19 @@ public class CommonContentCachingFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
-        return properties.isMatchExcludeUri(request.getRequestURI()) || ServletUtils.isMultipart(request);
+        return properties.isMatchExcludeUri(request.getRequestURI());
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        ContentCachingRequestWrapper requestWrapper = request instanceof RepeatableContentCachingRequestWrapper wrapped
+        RepeatableContentCachingRequestWrapper requestWrapper = request instanceof RepeatableContentCachingRequestWrapper wrapped
             ? wrapped
-            : new RepeatableContentCachingRequestWrapper(request);
-        ContentCachingResponseWrapper responseWrapper = response instanceof ContentCachingResponseWrapper wrapped
+            : new RepeatableContentCachingRequestWrapper(request, properties.getCacheLimit());
+        RepeatableContentCachingResponseWrapper responseWrapper = response instanceof RepeatableContentCachingResponseWrapper wrapped
             ? wrapped
-            : new ContentCachingResponseWrapper(response);
+            : new RepeatableContentCachingResponseWrapper(response);
         try {
             filterChain.doFilter(requestWrapper, responseWrapper);
         } finally {
