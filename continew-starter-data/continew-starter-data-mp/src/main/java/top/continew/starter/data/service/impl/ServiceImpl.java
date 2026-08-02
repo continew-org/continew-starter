@@ -26,7 +26,6 @@ import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import com.baomidou.mybatisplus.core.toolkit.*;
 import com.baomidou.mybatisplus.core.toolkit.reflect.GenericTypeUtils;
 import com.baomidou.mybatisplus.extension.repository.AbstractRepository;
-import com.baomidou.mybatisplus.extension.repository.CrudRepository;
 import com.baomidou.mybatisplus.extension.repository.IRepository;
 import com.baomidou.mybatisplus.extension.toolkit.SqlHelper;
 import org.apache.ibatis.binding.MapperMethod;
@@ -46,15 +45,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 /**
  * 通用业务实现类
  *
- * <p>将 MP 的 {@link CrudRepository} 迁移至本类中，减少两层继承，解决层级过多出现 Sonar 警告的问题</p>
+ * <p>将 MP 的 {@link IRepository} 迁移至本类中，减少两层继承，解决层级过多出现 Sonar 警告的问题</p>
  *
- * @see CrudRepository
+ * @see IRepository
  *
  * @param <M> Mapper 接口
  * @param <T> 实体类型
@@ -143,9 +142,8 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      * @param consumer  执行方法
      * @param <E>       泛型
      * @return 操作结果
-     * @see AbstractRepository#executeBatch(Collection, int, BiConsumer)
      */
-    protected <E> boolean executeBatch(Collection<E> list, int batchSize, BiConsumer<SqlSession, E> consumer) {
+    protected <E> boolean executeBatch(Collection<E> list, int batchSize, BiFunction<SqlSession, E, Integer> consumer) {
         return SqlHelper.executeBatch(getSqlSessionFactory(), this.innerLog, list, batchSize, consumer);
     }
 
@@ -156,9 +154,8 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      * @param consumer 执行方法
      * @param <E>      泛型
      * @return 操作结果
-     * @see AbstractRepository#executeBatch(Collection, BiConsumer)
      */
-    protected <E> boolean executeBatch(Collection<E> list, BiConsumer<SqlSession, E> consumer) {
+    protected <E> boolean executeBatch(Collection<E> list, BiFunction<SqlSession, E, Integer> consumer) {
         return executeBatch(list, DEFAULT_BATCH_SIZE, consumer);
     }
 
@@ -181,7 +178,7 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      * @param entityList 数据集合
      * @param batchSize  批量大小
      * @return boolean
-     * @see CrudRepository#saveBatch(Collection, int)
+     * @see IRepository#saveBatch(Collection, int)
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -196,7 +193,7 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      * @param entityList 数据集合
      * @param batchSize  批量大小
      * @return boolean
-     * @see CrudRepository#saveOrUpdateBatch(Collection, int)
+     * @see IRepository#saveOrUpdateBatch(Collection, int)
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -213,7 +210,7 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
             }, (sqlSession, entity) -> {
                 MapperMethod.ParamMap<T> param = new MapperMethod.ParamMap<>();
                 param.put(Constants.ENTITY, entity);
-                sqlSession.update(getSqlStatement(SqlMethod.UPDATE_BY_ID), param);
+                return sqlSession.update(getSqlStatement(SqlMethod.UPDATE_BY_ID), param);
             });
     }
 
@@ -223,7 +220,7 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      * @param entityList 数据集合
      * @param batchSize  批量大小
      * @return boolean
-     * @see CrudRepository#updateBatchById(Collection, int)
+     * @see IRepository#updateBatchById(Collection, int)
      */
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -232,7 +229,7 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
         return executeBatch(entityList, batchSize, (sqlSession, entity) -> {
             MapperMethod.ParamMap<T> param = new MapperMethod.ParamMap<>();
             param.put(Constants.ENTITY, entity);
-            sqlSession.update(sqlStatement, param);
+            return sqlSession.update(sqlStatement, param);
         });
     }
 
@@ -260,7 +257,6 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      * 获取当前 Mapper 类型
      *
      * @return 当前 Mapper 类型
-     * @see CrudRepository#getMapperClass()
      */
     public Class<M> getMapperClass() {
         if (this.mapperClass == null) {
@@ -286,7 +282,6 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      * 获取 SqlSessionFactory
      *
      * @return SqlSessionFactory
-     * @see AbstractRepository#getSqlSessionFactory()
      */
     protected SqlSessionFactory getSqlSessionFactory() {
         if (this.sqlSessionFactory == null) {
@@ -301,7 +296,6 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      *
      * @param sqlMethod 方法名
      * @return 命名id
-     * @see CrudRepository#getSqlStatement(SqlMethod)
      */
     protected String getSqlStatement(SqlMethod sqlMethod) {
         return SqlHelper.getSqlStatement(this.getMapperClass(), sqlMethod);

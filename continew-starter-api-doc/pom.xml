@@ -25,19 +25,25 @@
         <!-- NextDoc4j (现代化 API 文档 UI 工具，全面替代 Swagger UI) -->
         <dependency>
             <groupId>top.nextdoc4j</groupId>
-            <artifactId>nextdoc4j-springboot3-starter</artifactId>
+            <artifactId>nextdoc4j-spring-boot-starter</artifactId>
         </dependency>
 
         <!-- NextDoc4j - 枚举插件 -->
         <dependency>
             <groupId>top.nextdoc4j</groupId>
-            <artifactId>nextdoc4j-plugin-enum-springboot3</artifactId>
+            <artifactId>nextdoc4j-plugin-enum</artifactId>
         </dependency>
 
         <!-- NextDoc4j - 安全插件 -->
         <dependency>
             <groupId>top.nextdoc4j</groupId>
-            <artifactId>nextdoc4j-plugin-security-schemes-springboot3</artifactId>
+            <artifactId>nextdoc4j-plugin-security-schemes</artifactId>
+        </dependency>
+
+        <!-- SpringDoc（OpenAPI 3 集成框架） -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
     </dependencies>
 </project>

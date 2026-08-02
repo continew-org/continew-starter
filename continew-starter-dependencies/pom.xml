@@ -17,26 +17,26 @@
         <revision>2.16.0-SNAPSHOT</revision>
 
         <!-- Core Framework Versions -->
-        <spring-boot.version>3.5.13</spring-boot.version>
-        <spring-cloud.version>2025.0.1</spring-cloud.version>
+        <spring-boot.version>3.5.16</spring-boot.version>
+        <spring-cloud.version>2025.0.3</spring-cloud.version>
 
         <!-- Cache and Storage Versions -->
         <redisson.version>3.52.0</redisson.version>
-        <jetcache.version>2.7.8</jetcache.version>
+        <jetcache.version>2.7.9</jetcache.version>
 
         <!-- Security and Authentication Versions -->
         <sa-token.version>1.45.0</sa-token.version>
         <justauth.version>1.16.7</justauth.version>
 
         <!-- Database and ORM Versions -->
-        <mybatis-plus.version>3.5.16</mybatis-plus.version>
-        <mybatis-flex.version>1.11.6</mybatis-flex.version>
+        <mybatis-plus.version>3.5.17</mybatis-plus.version>
+        <mybatis-flex.version>1.11.8</mybatis-flex.version>
         <dynamic-datasource.version>4.5.0</dynamic-datasource.version>
         <p6spy.version>3.9.1</p6spy.version>
 
         <!-- ID Generator and Job Scheduler Versions -->
-        <cosid.version>2.13.3</cosid.version>
-        <snail-job.version>1.9.0</snail-job.version>
+        <cosid.version>2.15.2</cosid.version>
+        <snail-job.version>1.10.0</snail-job.version>
 
         <!-- Messaging and Notification Versions -->
         <sms4j.version>3.3.5</sms4j.version>
@@ -53,17 +53,18 @@
         <!-- File Storage Versions -->
         <x-file-storage.version>2.3.0</x-file-storage.version>
         <aws-sdk-v1.version>1.12.797</aws-sdk-v1.version>
-        <aws-sdk.version>2.42.24</aws-sdk.version>
-        <aws-crt.version>0.44.0</aws-crt.version>
+        <aws-sdk.version>2.42.41</aws-sdk.version>
+        <aws-crt.version>0.48.3</aws-crt.version>
         <thumbnails.version>0.4.21</thumbnails.version>
 
         <!-- Validation and Response Processing Versions -->
         <graceful-response.version>5.0.5-boot3</graceful-response.version>
         <spel-validator.version>0.7.0</spel-validator.version>
-        <crane4j.version>2.9.0</crane4j.version>
+        <crane4j.version>2.10.0</crane4j.version>
 
         <!-- API Documentation Versions -->
-        <nextdoc4j.version>1.2.0</nextdoc4j.version>
+        <nextdoc4j.version>1.4.1</nextdoc4j.version>
+        <springdoc.version>2.9.0</springdoc.version>
         <swagger.version>2.2.45</swagger.version>
 
         <!-- Tracing and Logging Versions -->
@@ -76,7 +77,7 @@
         <!-- HTTP Client and Utilities Versions -->
         <ttl.version>2.14.5</ttl.version>
         <ip2region.version>3.5.7</ip2region.version>
-        <hutool.version>5.8.44</hutool.version>
+        <hutool.version>5.8.47</hutool.version>
         <snakeyaml.version>2.6</snakeyaml.version>
         <nashorn.version>15.7</nashorn.version>
 
@@ -84,13 +85,13 @@
 
         <!-- Security Vulnerability Fix Versions -->
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
-        <commons-io.version>2.21.0</commons-io.version>
+        <commons-io.version>2.22.0</commons-io.version>
         <commons-compress.version>1.28.0</commons-compress.version>
 
         <!-- Maven Plugin Versions -->
-        <flatten.version>1.7.3</flatten.version>
-        <spotless.version>3.0.0</spotless.version>
-        <sonar.version>5.2.0.4988</sonar.version>
+        <flatten.version>1.8.0</flatten.version>
+        <spotless.version>3.9.0</spotless.version>
+        <sonar.version>5.7.0.6970</sonar.version>
     </properties>
 
     <dependencyManagement>
@@ -327,10 +328,16 @@
             <!-- NextDoc4j (现代化 API 文档 UI 工具，全面替代 Swagger UI) -->
             <dependency>
                 <groupId>top.nextdoc4j</groupId>
-                <artifactId>nextdoc4j-bom-springboot3</artifactId>
+                <artifactId>nextdoc4j-bom</artifactId>
                 <version>${nextdoc4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!-- SpringDoc（OpenAPI 3 集成框架） -->
+            <dependency>
+                <groupId>org.springdoc</groupId>
+                <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+                <version>${springdoc.version}</version>
             </dependency>
             <!-- Swagger 注解 -->
             <dependency>
