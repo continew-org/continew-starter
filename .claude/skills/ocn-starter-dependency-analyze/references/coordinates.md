@@ -97,9 +97,15 @@
 - **约束**：`excel-poi` 互斥实现。POI 大版本（5→6）会动 OOXML schema 生成代码。
 
 ### nextdoc4j
-- property: `nextdoc4j.version` · 坐标: `top.nextdoc4j:nextdoc4j-bom-springboot3`（BOM）
-- metadata: `top/nextdoc4j/nextdoc4j-bom-springboot3/maven-metadata.xml`
-- **约束**：注意 `springboot3` 后缀。
+- property: `nextdoc4j.version` · 坐标（BOM）: `top.nextdoc4j:nextdoc4j-bom`
+- 运行时 starter: `top.nextdoc4j:nextdoc4j-spring-boot-starter`
+- metadata（BOM）: `top/nextdoc4j/nextdoc4j-bom/maven-metadata.xml`
+- **约束**：1.4.x 起坐标改名——`nextdoc4j-bom-springboot3` → `nextdoc4j-bom`，
+  `nextdoc4j-springboot3-starter` → `nextdoc4j-spring-boot-starter`；旧 `springboot3`
+  后缀坐标已废弃。升级时务必同步改 dependencies POM 与各 starter 的 `<dependency>`，
+  并核对新版本是否把 springdoc-openapi 拆为新增传递依赖（本仓库 api-doc 模块已显式补该依赖）。
+- **破坏性 minor 核验清单**：对照 `changelog_fetch.py --group top.nextdoc4j --artifact nextdoc4j-spring-boot-starter`
+  的 compare API removed/renamed 文件列表，确认本仓库 import 的 nextdoc4j 类无缺失。
 
 ---
 

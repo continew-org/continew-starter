@@ -56,6 +56,41 @@ merge 坐标目录的升级要点 → 输出 JSON（schema 见脚本顶部注释
 > `build_report.py` 会读不了（虽然它们已兼容 UTF-8/UTF-16，仍建议用 `-o` 一步到位，避免产生两个同名文件）。
 > 同理，调试时避免用 `python -c "多行 JSON 处理"`，PowerShell 对内嵌引号转义易出错。
 
+### Step 1.5 官方工具链交叉验证（可选但推荐）
+
+`scan.py` 只靠 maven-metadata 比版本，存在盲区：插件版本完全没审计、个别坐标 metadata 抓取失败会漏报、
+且无法发现「已声明未使用 / 未声明已使用」依赖与依赖冲突。用标准 Maven 插件做交叉验证，结果并入 Step 2 分析与报告：
+
+```bash
+# 1) 官方过时依赖 + 插件审计（覆盖 scan.py 的插件盲区）
+mvn -B -q versions:display-dependency-updates versions:display-plugin-updates 2>&1 | Out-File -Encoding utf8 .tmp_versions.txt
+
+# 2) 依赖分析：找「已声明未使用 / 未声明已使用」依赖（升级后 spotless 漂移、缺传递依赖的先兆）
+mvn -B -q dependency:analyze 2>&1 | Out-File -Encoding utf8 .tmp_depanalyze.txt
+
+# 3) 依赖树冲突快照（供升级技能 Step 1.5 比对升级前后差异）
+mvn -B -q dependency:tree 2>&1 | Out-File -Encoding utf8 .tmp_deptree.txt
+```
+
+- 读 `.tmp_versions.txt`：与 `dep_scan.json` 的目标版本**交叉核对**——官方报有更新但 scan 没列的，补进报告；
+  插件更新单独成节（scan.py 不覆盖插件）。
+- 读 `.tmp_depanalyze.txt`：列出 `Used undeclared dependencies`（运行时隐患）与 `Unused declared dependencies`
+  （可清理、升级后易产生未用 import 漂移）。升级前清理 unused 能减少 spotless 噪音。
+- `.tmp_deptree.txt` 留作基线，交给 upgrade 技能对比升级后是否引入冲突 / 多版本共存。
+
+### Step 1.6 安全维度（CVE）标注
+
+`scan.py` 不含安全信息。对下列库，在报告里**显式标注安全维度**并给可选验证命令：
+- 跨 major（🔴）或已知历史 CVE 的库（如 Log4j、commons-text、SnakeYAML、Spring 系列），注明
+  「升级到目标版本可修复已知 CVE，建议优先」。
+- 需要精确 CVE 列表时，可选跑 OWASP Dependency-Check（本仓库无 test，属重操作，默认不跑，仅给出命令）：
+
+```bash
+mvn -B org.owasp:dependency-check-maven:check -DfailOnError=false 2>&1 | Out-File -Encoding utf8 .tmp_depcheck.txt
+```
+
+报告「安全建议」栏放置上述结论；CVE 详情以 `dependency-check` 输出为准，不臆测。
+
 ### Step 2 分析与分级
 
 读 [references/tiers.md](references/tiers.md) 确认分级判定，读 [references/coordinates.md](references/coordinates.md)
@@ -66,6 +101,11 @@ merge 坐标目录的升级要点 → 输出 JSON（schema 见脚本顶部注释
    Cloud 版本（规则见 [references/special-cases.md](references/special-cases.md)）。
 3. **三级分类**：🟢 同 major.minor 安全给按钮；🟡 同 major 跨 minor 展开升级要点后给按钮；🔴 跨 major 给迁移
    要点、**不给按钮**。注意 🔴 项整项判红，但它的 patch 档仍给按钮——风险与目标是分开的。
+4. **并入官方交叉验证（Step 1.5）**：凡 `versions:display-dependency-updates` 报有更新但 scan 未列的，补进对应档；
+   插件更新单列「插件审计」小节。`.tmp_depanalyze.txt` 里的 `Unused declared dependencies` 在报告里标「升级前建议清理」，
+   `Used undeclared dependencies` 标「运行期隐患」。
+5. **并入安全维度（Step 1.6）**：跨 major / 已知 CVE 历史库在卡片加「🔒 升级可修复已知漏洞，建议优先」标记；
+   精确 CVE 需 `dependency-check` 输出，不臆测。
 
 ### Step 3 生成交互报告
 
@@ -99,7 +139,8 @@ python .claude/skills/ocn-starter-dependency-analyze/scripts/build_report.py dep
 ### Step 4 对话里给摘要
 
 报告生成后，在对话里用一段结论先行的摘要：可安全升级的项数、最该先升的 2-3 项、风险最高的一项（如
-Spring Boot 跨大版本）。细节让用户看网页。
+Spring Boot 跨大版本）。若跑了 Step 1.5/1.6，额外点出：①官方 `versions` 插件审计出的**插件更新**与 scan 漏报项；
+②`dependency:analyze` 的 unused/undeclared 依赖；③**安全维度**（哪些 🔴 库升级可修复已知 CVE，建议优先）。细节让用户看网页。
 
 ### Step 5 后续真实升级闭环（移交 upgrade 技能）
 
