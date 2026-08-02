@@ -114,3 +114,15 @@ The five canonical triage roles map to label strings of the same name. See `docs
 ### Domain docs
 
 Single-context — one `CONTEXT.md` at the repo root plus `docs/adr/`. See `docs/agents/domain.md`.
+
+### Skill mirroring
+
+Skills are mirrored across `.claude/skills/`, `.agents/skills/`, `.codebuddy/skills/`. `.claude/skills/` is the only source you edit; the other two are byte-for-byte mirrors of it.
+
+Rules (each has caused real breakage):
+
+- Edit only under `.claude/skills/`; copy the changed file, plus any new/deleted file or directory, to `.agents/skills/` and `.codebuddy/skills/`. Mirror the structure too — no extra top-level files, no file missing from one directory.
+- SKILL.md paths always use the `.claude/skills/<skill>/...` prefix in all three copies; never rewrite the prefix per directory.
+- Frontmatter `name:` must equal the skill's own directory name (e.g. `ocn-starter-dependency-analyze`, not `ocn-starter-dependency-upgrade`).
+- Don't commit or mirror `__pycache__/` / `*.pyc`; delete them from all three if present.
+- After copying, confirm the mirrors match (e.g. `diff -r` or `Get-FileHash` per file).

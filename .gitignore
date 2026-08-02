@@ -36,6 +36,10 @@ build/
 # Maven ignore
 .flattened-pom.xml
 
+### Python ###
+__pycache__/
+*.py[cod]
+
 ### Temp ###
 *.log
 *.logs
@@ -43,3 +47,7 @@ build/
 *.diff
 *.patch
 *.tmp
+*.out
+*.err
+server_err.txt
+server_out.txt
