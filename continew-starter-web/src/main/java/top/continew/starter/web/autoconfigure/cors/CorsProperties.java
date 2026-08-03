@@ -41,6 +41,11 @@ public class CorsProperties {
     private boolean enabled = false;
 
     /**
+     * 允许跨域的域名（Ant 风格通配符模式）
+     */
+    private List<String> allowedOriginPatterns = new ArrayList<>();
+
+    /**
      * 允许跨域的域名
      */
     private List<String> allowedOrigins = new ArrayList<>(ALL);
@@ -66,6 +71,14 @@ public class CorsProperties {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public List<String> getAllowedOriginPatterns() {
+        return allowedOriginPatterns;
+    }
+
+    public void setAllowedOriginPatterns(List<String> allowedOriginPatterns) {
+        this.allowedOriginPatterns = allowedOriginPatterns;
     }
 
     public List<String> getAllowedOrigins() {
