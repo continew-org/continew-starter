@@ -41,7 +41,7 @@ public class CorsProperties {
     private boolean enabled = false;
 
     /**
-     * 允许跨域的域名(正则匹配模式)
+     * 允许跨域的域名（Ant 风格通配符模式)
      */
     private List<String> allowedOriginPatterns = new ArrayList<>();
 
