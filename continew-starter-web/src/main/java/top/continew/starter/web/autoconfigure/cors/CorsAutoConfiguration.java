@@ -56,12 +56,19 @@ public class CorsAutoConfiguration {
         // 设置跨域允许时间
         config.setMaxAge(1800L);
         // 配置允许跨域的域名
-        if (properties.getAllowedOrigins().contains(StringConstants.ASTERISK)) {
-            config.addAllowedOriginPattern(StringConstants.ASTERISK);
-        } else {
-            // 配置为 true 后则必须配置允许跨域的域名，且不允许配置为 *
-            config.setAllowCredentials(true);
-            properties.getAllowedOrigins().forEach(config::addAllowedOrigin);
+        if (properties.getAllowedOriginPatterns() != null && !properties.getAllowedOriginPatterns().isEmpty()) {
+            if (!properties.getAllowedOriginPatterns().contains(StringConstants.ASTERISK)) {
+                config.setAllowCredentials(true);
+            }
+            config.setAllowedOriginPatterns(properties.getAllowedOriginPatterns());
+        } else if (properties.getAllowedOrigins() != null && !properties.getAllowedOrigins().isEmpty()) {
+            if (properties.getAllowedOrigins().contains(StringConstants.ASTERISK)) {
+                config.addAllowedOriginPattern(StringConstants.ASTERISK);
+            } else {
+                // 配置为 true 后则必须配置允许跨域的域名，且不允许配置为 *
+                config.setAllowCredentials(true);
+                properties.getAllowedOrigins().forEach(config::addAllowedOrigin);
+            }
         }
         // 配置允许跨域的请求方式
         properties.getAllowedMethods().forEach(config::addAllowedMethod);
