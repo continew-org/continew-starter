@@ -4,125 +4,161 @@ This file provides guidance to AI agents when working with code in this reposito
 
 `CLAUDE.md` and `AGENTS.md` are mirror files. Whenever either file changes, apply the identical change to the other file and verify that their contents remain byte-for-byte identical（标题文件名除外）.
 
-## Project Overview
+## 项目概述
 
-ContiNew Starter is a Java 17, Spring Boot 3.5 multi-module Maven library. It publishes reusable starters and dependency-management POMs for Spring Boot web applications; it is not itself a runnable application.
+ContiNew Starter（Continue New Starter）是一个基于 Spring Boot 3.x 的企业级 Starter 库项目（Java 17，LGPL-3.0），封装了 MyBatis-Plus、Sa-Token、Redisson、JetCache 等经过企业实践验证的第三方库，遵循"约定优于配置"理念，为 Spring Boot Web 应用提供完整的自动配置解决方案。
 
-There is no Maven wrapper, so commands below require `mvn` and must be run from the repository root.
+这不是一个应用项目，而是一个发布到 Maven Central 的多模块 Starter 库。groupId 为 `top.continew.starter`，版本通过 `${revision}` 统一管理（当前 `2.16.0-SNAPSHOT`）。
 
-## Build and Verification
+## 构建与开发命令
+
+### 编译与格式化（最重要）
 
 ```bash
-# Compile the complete reactor (the same lifecycle used by build CI)
+# 编译整个项目（编译时自动执行 Spotless 代码格式化）
 mvn compile
 
-# Run the full verification lifecycle; tests run here if present
-mvn verify
+# 编译单个模块（含依赖模块）
+mvn -pl :continew-starter-web -am compile
 
-# Build one module and its reactor dependencies
-mvn -pl :continew-starter-core -am compile
-
-# Check formatting without changing files
-mvn spotless:check
-
-# Apply formatting and the project license header
-mvn spotless:apply
+# 跳过 Spotless 格式化（仅在需要快速验证时使用）
+mvn compile -Dspotless.apply.skip=true
 ```
 
-`spotless:apply` is bound to Maven's `compile` phase. Therefore `compile`, `test`, and `verify` may rewrite Java files by removing unused imports, applying the Eclipse P3C formatter, and inserting `.style/license-header`. Inspect the working tree after running Maven.
+**关键约定**：提交代码前必须执行 `mvn compile`，编译会自动触发 Spotless 插件按照 `.style/p3c-codestyle.xml`（阿里 P3C 黄山版规范）格式化代码并添加 License Header。编译通过后不要再次在 IDE 中打开代码文件，避免不同 IDE 配置导致格式差异。
 
-The repository currently has no `src/test` tree or test dependencies. If tests are introduced using standard Maven conventions, run a class or method in its owning module with:
+### 安装到本地仓库
 
 ```bash
-mvn -pl :<artifact-id> -Dtest=ClassName test
-mvn -pl :<artifact-id> -Dtest=ClassName#methodName test
+# 安装全部模块到本地 Maven 仓库
+mvn install -DskipTests
+
+# 安装单个模块（含依赖模块）
+mvn -pl :continew-starter-web -am install -DskipTests
 ```
 
-If the test needs uninstalled reactor dependencies, add `-am`; in that case `-Dsurefire.failIfNoSpecifiedTests=false` prevents upstream modules with no matching test from failing the build.
+### 清理
 
-CI uses JDK 17. Pull requests to `dev` run `mvn -B compile`; Sonar CI runs `mvn -B verify -Psonar`. The `release` profile adds source/Javadoc artifacts, GPG signing, and Sonatype Central publishing, but the repository does not document an authoritative release command or credential setup.
+```bash
+# 清理所有 target 目录及 flatten 生成文件
+mvn clean
+```
+
+### 发布（仅维护者）
+
+```bash
+# 发布到 Maven Central（需要 GPG 签名和 Central 账号配置）
+mvn deploy -Prelease
+```
+
+### 代码质量分析
+
+```bash
+# SonarCloud 分析
+mvn verify -Psonar
+```
+
+### 测试
+
+本项目目前不包含单元测试模块。验证改动正确性的方式是执行 `mvn compile` 确保编译通过。
 
 ## Architecture
 
-### Maven and module layers
+### 三层 POM 版本管理体系
 
-The effective dependency direction is:
+项目采用 `flatten-maven-plugin` + `${revision}` 的统一版本管理模式，这是理解整个项目的关键：
 
-```text
-continew-starter-dependencies / continew-starter-bom
-    -> continew-starter-core
-    -> foundational feature starters
-    -> vendor/framework implementation variants
-    -> continew-starter-extension modules
-```
+1. **`continew-starter-dependencies`**（根父 POM）：管理所有第三方依赖版本（Spring Boot、MyBatis-Plus、Sa-Token 等 ~40 个坐标）。它通过 `dependencyManagement` 导入各组件 BOM，并声明版本属性。它是版本锁定的唯一数据源。
+2. **`continew-starter-bom`**：管理项目内部各模块的版本，列出所有 `continew-starter-*` 模块的坐标与 `${revision}`。应用方导入此 BOM 即可使用本项目模块。
+3. **`continew-starter`**（聚合 POM）：聚合所有业务模块的构建，自身不含业务代码，继承自 `continew-starter-dependencies`。
 
-- The root `pom.xml` is the reactor aggregator and parent for feature-family POMs. Most family directories contain a packaging-only `pom` whose dependencies are inherited by publishable child JARs.
-- `continew-starter-dependencies` is the full platform parent/BOM: it pins Spring Boot, Spring Cloud, third-party libraries, Maven plugins, and imports the internal BOM.
-- `continew-starter-bom` manages only artifacts under `top.continew.starter`. It is intended for consumers that already manage external dependency versions.
-- All modules share `${revision}`. The Flatten Maven plugin rewrites publication POMs during `process-resources`; generated flattened POMs are removed by `clean`.
-- `continew-starter-core` is shared infrastructure rather than a dependency-light domain module. It already brings in Spring Boot, AOP, Spring Web/MVC, Servlet APIs, and Hutool.
-- `continew-starter-extension` is a higher-level layer over core/web/data/API-doc/Excel capabilities, not another foundational starter family.
+所有模块版本统一使用 `${revision}` 属性（定义在 `continew-starter-dependencies` 和 `continew-starter-bom` 的 `<properties>` 中），修改版本只需改一处。`flatten-maven-plugin` 在 `process-resources` 阶段将 `${revision}` 解析为实际版本并生成简化的 `.flattened-pom.xml` 用于发布。
 
-### Starter activation pattern
+### 模块组织模式
 
-Implementation JARs register Spring Boot 3 auto-configuration in:
+约 20 个顶层模块，遵循两种组织模式：
 
-```text
-src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
-```
+**平铺模块**（如 `continew-starter-core`、`continew-starter-web`、`continew-starter-ratelimiter`）：单一模块直接提供一种能力。
 
-A typical starter combines `@AutoConfiguration`, typed configuration properties, class/property/bean conditions, and optional `default-*.yml` resources loaded through core's `GeneralPropertySourceFactory`. Default handlers and strategies normally use `@ConditionalOnMissingBean` so applications can replace them.
+**父子聚合模块**（大多数）：按"核心 + 实现变体"组织。例如：
+- `continew-starter-cache/` → `cache-redisson`、`cache-jetcache`、`cache-springcache`
+- `continew-starter-data/` → `data-core`、`data-mp`（MyBatis Plus）、`data-mf`（MyBatis Flex）
+- `continew-starter-extension/` → `extension-crud`、`extension-datapermission`、`extension-tenant`，每个再分 `-core` 和 `-mp`/`-mf`
 
-When adding a starter, place shared contracts in a core/shared module and vendor-specific integration in a leaf JAR. Register only the leaf auto-configuration and gate it with appropriate conditions. Some `custom` configuration modes deliberately create a failing fallback when the required consumer SPI bean is absent; treat these as explicit implementation contracts, not as a way to disable defaults.
+`-core` 子模块定义接口、模型、通用逻辑；`-mp`/`-mf` 子模块提供特定 ORM 的实现。这种设计允许使用方按需选择 ORM。
 
-Legacy `META-INF/spring.factories` is used in core only for the startup version-log `ApplicationListener`, not for normal auto-configuration discovery.
+### 自动配置机制
 
-### Mutually exclusive variants
+每个 Starter 模块通过 Spring Boot 3 的 `AutoConfiguration.imports` 机制注册自动配置类（**不是**旧版 `spring.factories`）：
 
-Several variants intentionally expose identical fully qualified class names and must not be placed on the same consumer classpath:
+- 文件路径：`src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports`
+- 每行一个全限定类名，使用 `@AutoConfiguration` 注解标注
+- 配置类通常带 `@Lazy`、`@ConditionalOnProperty`（按 `enabled` 属性控制开关）、`@ConditionalOnWebApplication` 等条件注解
+- 使用 `@EnableConfigurationProperties` 绑定配置属性
 
-- `continew-starter-data-mp` and `continew-starter-data-mf` are alternative ORM implementations over `data-core`; their matching CRUD variants are also alternatives.
-- `continew-starter-excel-fastexcel` and `continew-starter-excel-poi` both publish `top.continew.starter.excel.util.ExcelUtils`. CRUD core explicitly depends on FastExcel.
-- `continew-starter-log-aop` and `continew-starter-log-interceptor` share auto-configuration/bean roles and are alternative logging implementations.
+### 配置属性前缀约定
 
-Cache modules are layered differently: Redisson is the foundation, while Spring Cache and JetCache build on the Redisson starter. Sa-Token (application authentication/authorization) and JustAuth (third-party OAuth login) are complementary rather than alternatives.
+所有配置属性统一使用 `continew-starter` 前缀，前缀常量集中在 `continew-starter-core` 的 `PropertiesConstants` 类中（如 `WEB_CORS = "continew-starter.web.cors"`）。新增模块的配置前缀必须在此类中定义，并在 `@ConfigurationProperties` 和 `@ConditionalOnProperty` 中引用，保持一致性。配置前缀格式为 `continew-starter.<module>[.<sub-feature>]`。
 
-### Extension integration
+### 代码包结构约定
 
-- CRUD core is intentionally opt-in through `@EnableCrudApi`; it does not register itself through Boot auto-configuration imports. It defines controller/service contracts, while MP and MF leaves provide persistence implementations and lifecycle hooks.
-- MyBatis-Plus auto-configuration collects all `InnerInterceptor` beans. Tenant and data-permission extensions integrate through this seam without introducing reverse dependencies into `data-mp`.
-- The MP data-permission extension requires a consumer-provided `DataPermissionUserDataProvider`; tenant support similarly requires a `TenantProvider`. Missing required providers intentionally fail startup.
-- MyBatis-Flex has a separate data-permission mechanism inside `data-mf`; do not confuse it with the MP-only extension module.
+每个模块的 Java 包基础路径为 `top.continew.starter.<module>`，内部按职责分包：
+- `autoconfigure/` — 自动配置类
+- `autoconfigure/<feature>/` — 特定功能的配置类与 Properties
+- `constant/`、`enums/`、`exception/` — 常量、枚举、异常
+- `util/` — 工具类
+- `annotation/` — 自定义注解
+- `aop/` — 切面实现
+- `model/` — 数据模型（DTO、VO、实体等）
 
-## Source Conventions
+### License Header 强制要求
 
-- Package root is `top.continew.starter`; follow the neighboring module's package structure and naming.
-- Java formatting is defined by `.style/p3c-codestyle.xml` and follows the Alibaba Java Development Manual. Spotless also removes unused imports and applies the LGPL header.
-- Use the established Angular/Conventional Commit style, typically `type(scope): description`, when asked to create commits.
-- Feature work and optimizations target `dev`; maintenance branches named `x.x.x` accept fixes only.
+所有 Java 文件必须包含 LGPL-3.0 License Header（定义在 `.style/license-header`）。Spotless 插件在编译时会自动检查并补全。新建 Java 文件时请从现有文件复制 header，或直接执行 `mvn compile` 让插件自动添加。
+
+### 代码风格规范
+
+- 遵循阿里《Java开发手册(黄山版)》（`.style/Java开发手册(黄山版).pdf`）
+- 代码格式由 `.style/p3c-codestyle.xml`（Eclipse formatter 格式）定义
+- 类注释需包含 `@author` 和 `@since` 标签
+- 提交信息遵循 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular)
+
+### 分支策略
+
+- `dev`：开发分支，接受新功能或优化 PR，对应 SNAPSHOT 版本
+- `x.x.x`：维护分支，仅接受 bug 修复，不接受新功能
+- 提交 PR 前需基于正确分支创建特性分支（如 `feat/newFeature`），不直接修改源分支
+
+## Key Files Reference
+
+| 文件/目录 | 用途 |
+|:--|:--|
+| `continew-starter-dependencies/pom.xml` | 第三方依赖版本管理（修改依赖版本的唯一入口） |
+| `continew-starter-bom/pom.xml` | 项目内部模块版本管理 |
+| `continew-starter-core/.../PropertiesConstants.java` | 所有配置属性前缀常量 |
+| `.style/p3c-codestyle.xml` | 代码格式化规则（Spotless 使用） |
+| `.style/license-header` | License Header 模板 |
+| `docs/adr/` | 架构决策记录 |
+| `docs/agents/` | Agent 相关的领域文档与 issue tracker 约定 |
+
+## Important Notes for Agents
+
+1. **修改依赖版本**：只在 `continew-starter-dependencies/pom.xml` 的 `<properties>` 中修改，不要在各模块的 pom.xml 中硬编码版本号。
+2. **新增模块**：需要在 `continew-starter-bom/pom.xml` 注册版本、在 `continew-starter/pom.xml` 的 `<modules>` 中添加聚合、在 `PropertiesConstants` 中定义配置前缀。
+3. **新增自动配置类**：必须注册到对应模块的 `AutoConfiguration.imports` 文件中，否则不会被加载。
+4. **代码格式化**：不要手动调整代码格式，交给 `mvn compile` 的 Spotless 插件处理。IDE 的格式化设置可能与项目规范冲突。
+5. **编译验证**：任何代码改动后，执行 `mvn compile` 或 `mvn -pl :<module> -am compile` 验证编译通过。
+6. **`target/` 目录**：构建产物目录，不应提交到 Git，修改源码时忽略其中的 `.class` 文件。
 
 ## Agent skills
 
 ### Issue tracker
 
-Issues for this repo live as GitHub issues, managed via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+Issues live as GitHub issues in `continew-org/continew-starter`; use the `gh` CLI for all operations. See `docs/agents/issue-tracker.md`.
 
 ### Triage labels
 
-The five canonical triage roles map to label strings of the same name. See `docs/agents/triage-labels.md`.
+Five canonical labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
 
 ### Domain docs
 
-Single-context — one `CONTEXT.md` at the repo root plus `docs/adr/`. See `docs/agents/domain.md`.
-
-### Skill mirroring
-
-Skills are mirrored across `.claude/skills/`, `.agents/skills/`, `.codebuddy/skills/`. `.claude/skills/` is the only source you edit; the other two are byte-for-byte mirrors of it.
-
-Rules (each has caused real breakage):
-
-- Edit only under `.claude/skills/`; copy the changed file, plus any new/deleted file or directory, to `.agents/skills/` and `.codebuddy/skills/`. Mirror the structure too — no extra top-level files, no file missing from one directory.
-- SKILL.md paths always use the `.claude/skills/<skill>/...` prefix in all three copies; never rewrite the prefix per directory.
-- Frontmatter `name:` must equal the skill's own directory name (e.g. `ocn-starter-dependency-analyze`, not `ocn-starter-dependency-upgrade`).
-- Don't commit or mirror `__pycache__/` / `*.pyc`; delete them from all three if present.
-- After copying, confirm the mirrors match (e.g. `diff -r` or `Get-FileHash` per file).
+Single-context — one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
