@@ -25,14 +25,17 @@
 <a href="https://github.com/continew-org/continew-starter" title="GitHub Forks" target="_blank">
 <img src="https://img.shields.io/github/forks/continew-org/continew-starter?style=social" alt="GitHub Forks" />
 </a>
+<a href="https://atomgit.com/continew/continew-starter" title="AtomGit Stars" target="_blank">
+<img src="https://atomgit.com/continew/continew-starter/star/badge.svg" alt="AtomGit Stars" />
+</a>
+<a href="https://atomgit.com/continew/continew-starter" title="AtomGit Forks" target="_blank">
+<img src="https://atomgit.com/continew/continew-starter/fork/badge.svg" alt="AtomGit Forks" />
+</a>
 <a href="https://gitee.com/continew/continew-starter" title="Gitee Stars" target="_blank">
 <img src="https://gitee.com/continew/continew-starter/badge/star.svg?theme=dark" alt="Gitee Stars" />
 </a>
 <a href="https://gitee.com/continew/continew-starter" title="Gitee Forks" target="_blank">
 <img src="https://gitee.com/continew/continew-starter/badge/fork.svg?theme=dark" alt="Gitee Forks" />
-</a>
-<a href="https://gitcode.com/continew/continew-starter" title="GitCode Stars" target="_blank">
-<img src="https://gitcode.com/continew/continew-starter/star/badge.svg" alt="GitCode Stars" />
 </a>
 
 📚 [在线文档](https://continew.top) | 💬 [吐槽广场（你就是 Talk King!）](https://continew.top/docs/starter/issue-hub.html) | [![问 DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/continew-org/continew-starter)
@@ -68,9 +71,9 @@ ContiNew Starter 将脚手架项目中的通用基础配置进行封装与深度
 
 | 开源平台    | 源码地址                                             |
 |:--------|:-------------------------------------------------|
-| GitCode | https://gitcode.com/continew/continew-starter    |
-| Gitee   | https://gitee.com/continew/continew-starter      |
 | GitHub  | https://github.com/continew-org/continew-starter |
+| AtomGit | https://atomgit.com/continew/continew-starter    |
+| Gitee   | https://gitee.com/continew/continew-starter      |
 
 ## 像数1，2，3一样容易
 
