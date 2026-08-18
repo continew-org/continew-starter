@@ -28,7 +28,6 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import top.continew.starter.apidoc.processor.BaseEnumProcessor;
@@ -42,7 +41,6 @@ import top.nextdoc4j.enums.resolver.EnumMetadataResolver;
  * @author Charles7c
  * @since 1.0.0
  */
-@EnableWebMvc
 @AutoConfiguration(before = SpringDocConfiguration.class)
 @PropertySource(value = "classpath:default-api-doc.yml", factory = GeneralPropertySourceFactory.class)
 public class SpringDocAutoConfiguration implements WebMvcConfigurer {
@@ -51,7 +49,7 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/");
+        registry.addResourceHandler("/favicon.ico").addResourceLocations("classpath:/static/");
     }
 
     /**
