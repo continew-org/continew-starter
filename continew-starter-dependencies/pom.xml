@@ -35,7 +35,8 @@
         <p6spy.version>3.9.1</p6spy.version>
 
         <!-- ID Generator and Job Scheduler Versions -->
-        <cosid.version>2.15.2</cosid.version>
+        <!-- Spring Boot4 之前最高只能使用此版本，2.15.x 破坏引入了 Actuator -->
+        <cosid.version>2.13.3</cosid.version>
         <snail-job.version>1.10.0</snail-job.version>
 
         <!-- Messaging and Notification Versions -->
