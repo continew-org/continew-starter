@@ -66,7 +66,7 @@
         <!-- API Documentation Versions -->
         <nextdoc4j.version>1.4.1</nextdoc4j.version>
         <springdoc.version>2.9.0</springdoc.version>
-        <swagger.version>2.2.45</swagger.version>
+        <swagger.version>2.2.54</swagger.version>
 
         <!-- Tracing and Logging Versions -->
         <tlog.version>1.5.2</tlog.version>
