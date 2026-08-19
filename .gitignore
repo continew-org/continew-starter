@@ -51,3 +51,5 @@ __pycache__/
 *.err
 server_err.txt
 server_out.txt
+
+docs/adr
