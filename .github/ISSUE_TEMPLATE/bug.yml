@@ -39,7 +39,7 @@ body:
       description: 您使用的 ContiNew Starter 版本，如没有支持的版本选项，请查阅 [更新日志](https://continew.top/docs/starter/changelog/) 并升级至最新稳定版本。
       multiple: false
       options:
-        - 2.16.0-SNAPSHOT (开发版本-dev 分支)
+        - 2.16.0
         - 2.15.1
         - 2.15.0
     validations:

@@ -33,6 +33,6 @@ public final class ContiNewStarterVersion {
      * @return the version of ContiNew Starter
      */
     public static String getVersion() {
-        return "2.15.0";
+        return "2.16.0";
     }
 }

@@ -1,3 +1,57 @@
+## [v2.16.0](https://github.com/continew-org/continew-starter/compare/v2.15.1...v2.16.0) (2026-08-20)
+
+### ✨ 新特性
+
+- 【web】支持 CORS 域名 Ant 风格通配符匹配模式 ([8b384c40](https://github.com/continew-org/continew-starter/commit/8b384c40f26b7cdc7e562cc3b4bbc5d975fd5fab)) (Github#21@luoqiz)
+- 【core】添加启动时打印版本日志功能，可通过 spring.main.log-startup-info 一起关闭 ([77bee2ba](https://github.com/continew-org/continew-starter/commit/77bee2ba1150fc72737b022a0f72910e44f3a16e)) @Charles7c
+- 【api-doc】升级并适配 nextdoc4j-1.2.0 版本 ([a2be3b59](https://github.com/continew-org/continew-starter/commit/a2be3b597a6a4d4bbe8c141bc36da3294bb26ca5)) (Gitee#92@dom-w)
+- 【storage】新增上传预签名 URL 生成支持 ([477e82aa](https://github.com/continew-org/continew-starter/commit/477e82aa64aa62b933d6ec81237e64ed4af01384)) (Gitee#90@dom-w)
+- 【storage】支持分片上传初始化及相关功能 ([0ec793eb](https://github.com/continew-org/continew-starter/commit/0ec793ebca05472f14e6093d4a9de41f92a121d4)) (Gitee#89@dom-w)
+
+### 💎 功能优化
+
+- 【core】重构线程池配置，移除 EnableAsync、EnableScheduling 由业务项目自行配置 ([e30ff37b](https://github.com/continew-org/continew-starter/commit/e30ff37b571ba0d8ace981d398ef9f987b1c5d16)) @Charles7c
+- 【data】移除 mapperPackage 扫描默认支持 ([be492c7e](https://github.com/continew-org/continew-starter/commit/be492c7ea24e934c98c159c800f7cb072e2d5544)) @Charles7c
+- 优化 api-doc、messaging-websocket、web 部分类命名 ([c11d4e5b](https://github.com/continew-org/continew-starter/commit/c11d4e5b675a2e40d964e3478f42ec11b09eea88)) @Charles7c
+- 优化 auth-justauth、auth-satoken、captcha-behavior、data-mp、extension-tenant、log 模块 AutoConfiguration 及部分命名 ([d85791c0](https://github.com/continew-org/continew-starter/commit/d85791c051829e728813d800895ac76751bfa806)) @Charles7c
+
+### 🐛 问题修复
+
+- 【api-doc】修复 Spring 6.1+ 下 favicon 资源位置校验失败导致应用启动崩溃 ([caedb340](https://github.com/continew-org/continew-starter/commit/caedb340c04ad0006105ad2355177e4f9a68a97c)) @Charles7c
+- 【json/jackson】重构 BaseEnum 反序列化器，修复使用 JsonProperty 注解反序列化时 NPE 问题 ([88c00886](https://github.com/continew-org/continew-starter/commit/88c00886fd20ca3e66f3046b5b82761c6e0265f7)) @Charles7c
+- 修复升级 Spring Boot 3.5.x 会导致的循环依赖错误 ([e82f5999](https://github.com/continew-org/continew-starter/commit/e82f5999b39d54104dd2191c134189a6e27e275a)) @Charles7c
+- 【storage】修复文件名生成器和存储服务中的问题 ([96e9c992](https://github.com/continew-org/continew-starter/commit/96e9c992c6153b07d1a5fd25062e0a47a5032f29)) (Gitee#91@dom-w)
+- 【storage】优化默认存储下载调用逻辑 ([0ee40fa2](https://github.com/continew-org/continew-starter/commit/0ee40fa2567597a5b58bda011896736d3b8a6e69)) @dom-w
+
+### 📦 依赖升级
+
+- spring-boot 3.4.10 => 3.5.16 ([c6dc3f35](https://github.com/continew-org/continew-starter/commit/c6dc3f354110e24869ad42d5d5074705f74348ca))
+- spring-cloud 2024.0.2 => 2025.0.3
+- jetcache 2.7.8 => 2.7.9
+- sa-token 1.44.0 => 1.45.0
+- mybatis-plus 3.5.14 => 3.5.17
+- mybatis-flex 1.11.3 => 1.11.8
+- dynamic-datasource 4.3.1 => 4.5.0
+- cosid 2.13.3 => 2.15.2
+- snail-job 1.8.0 => 1.10.0
+- poi 5.4.1 => 5.5.1
+- x-file-storage 2.2.1 => 2.3.0
+- aws-sdk-v1 1.12.792 => 1.12.797
+- aws-sdk 2.35.10 => 2.42.41
+- aws-crt 0.39.3 => 0.48.3
+- spel-validator 0.6.0-beta => 0.7.0
+- crane4j 2.9.0 => 2.10.0
+- nextdoc4j 1.2.0 => 1.4.1
+- swagger 2.2.38 => 2.2.54
+- zip4j 2.11.5 => 2.11.6
+- ip2region 3.4.7 => 3.5.7
+- hutool 5.8.41 => 5.8.47
+- snakeyaml 2.5 => 2.6
+- commons-io 2.20.0 => 2.22.0
+- flatten 1.7.3 => 1.8.0
+- spotless 3.0.0 => 3.9.0
+- sonar 5.2.0.4988 => 5.7.0.6970
+
 ## [v2.15.1](https://github.com/continew-org/continew-starter/compare/v2.15.0...v2.15.1) (2026-02-24)
 
 ### ✨ 新特性
