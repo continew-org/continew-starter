@@ -45,7 +45,7 @@ Maven Central，生成交互式依赖升级分析报告，并提供「应用升�
 ### Step 1 扫描（联网，只读）
 
 ```bash
-python .claude/skills/ocn-starter-dependency-analyze/scripts/scan.py -o dep_scan.json
+python .agents/skills/ocn-starter-dependency-analyze/scripts/scan.py -o dep_scan.json
 ```
 
 `scan.py` 解析 `<properties>` 锁定值 → 反查 `groupId:artifactId` → 抓各坐标 maven-metadata → 算分级与三档目标 →
@@ -112,7 +112,7 @@ mvn -B org.owasp:dependency-check-maven:check -DfailOnError=false 2>&1 | Out-Fil
 直接吃 Step 1 的 `dep_scan.json`（`build_analysis` 内部完成转换），默认用一键应用模式：
 
 ```bash
-python .claude/skills/ocn-starter-dependency-analyze/scripts/server.py dep_scan.json   # 自动开浏览器，Ctrl+C 停
+python .agents/skills/ocn-starter-dependency-analyze/scripts/server.py dep_scan.json   # 自动开浏览器，Ctrl+C 停
 ```
 
 `server.py` 起在 127.0.0.1 + 随机端口 + 随机 token；🟢/🟡 目标给「应用升级」按钮，🔴 不给。
@@ -127,7 +127,7 @@ python .claude/skills/ocn-starter-dependency-analyze/scripts/server.py dep_scan.
 （`APPLY=null`，无应用按钮，可单独打开/分享）。也可用静态模式生成文件：
 
 ```bash
-python .claude/skills/ocn-starter-dependency-analyze/scripts/build_report.py dep_scan.json ~/Desktop/dep-report.html \
+python .agents/skills/ocn-starter-dependency-analyze/scripts/build_report.py dep_scan.json ~/Desktop/dep-report.html \
   && start ~/Desktop/dep-report.html   # Windows；macOS 用 open
 ```
 
@@ -172,5 +172,5 @@ Spring Boot↔Cloud 兼容矩阵，无需重复提供上下文。
   漏了仍能分级，只是报告里该坐标「升级要点」为空。
 - **上游发大版本**：在 coordinates.md 对应小节补「迁移到 X.Y 的要点」，这是本 skill 唯一需要人工跟进的维护面。
 - **ADR**：架构决策在仓库根 `docs/adr/`（0001 数据源、0002/0003 写模式），改动铁律前先看 ADR。
-- **三目录镜像**：按 `CLAUDE.md` / `AGENTS.md` 的「Skill mirroring」约定，改完 `.claude/skills/`（源）后把
-  SKILL.md 与相关文件同步到 `.agents/skills/`、`.codebuddy/skills/` 并保持字节一致。
+- **单源维护**：`.agents/skills/` 是技能的唯一事实源，`.claude/skills` 是指向它的符号链接（见根目录
+  `AGENTS.md`）。只编辑 `.agents/skills/` 下的文件，无需同步其它目录。

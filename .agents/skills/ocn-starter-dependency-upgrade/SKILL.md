@@ -101,14 +101,14 @@ python -c "import urllib.request; urllib.request.urlopen('https://api.github.com
 
 用脚本从 git diff 提取（推荐）：
 ```bash
-python .codebuddy/skills/ocn-starter-dependency-upgrade/scripts/diff_versions.py
+python .agents/skills/ocn-starter-dependency-upgrade/scripts/diff_versions.py
 ```
 脚本解析 `git diff continew-starter-dependencies/pom.xml`，只抓 `<xxx.version>` property 的 `-`/`+` 行，
 输出 JSON 三元组；无 git 或 diff 为空则提示改用文本列表。
 
 若用户给了文本列表，调用：
 ```bash
-python .codebuddy/skills/ocn-starter-dependency-upgrade/scripts/parse_list.py "spring-cloud 2025.0.1 => 2025.0.3, hutool 5.8.44 => 5.8.47"
+python .agents/skills/ocn-starter-dependency-upgrade/scripts/parse_list.py "spring-cloud 2025.0.1 => 2025.0.3, hutool 5.8.44 => 5.8.47"
 ```
 解析常见分隔符（`=>`/`->`/`→`/`to`/空格）与「库名↔coordinates.md 映射」生成三元组。
 
@@ -121,8 +121,8 @@ python .codebuddy/skills/ocn-starter-dependency-upgrade/scripts/parse_list.py "s
 > 坐标改名 / BOM 拆包 / 上游删类，compile 全都不报错，必须升级前主动预检。
 
 ```bash
-python .codebuddy/skills/ocn-starter-dependency-upgrade/scripts/diff_versions.py -o .tmp_upgrade_plan.json
-python .codebuddy/skills/ocn-starter-dependency-upgrade/scripts/precheck.py --plan .tmp_upgrade_plan.json -o .tmp_upgrade_precheck.json
+python .agents/skills/ocn-starter-dependency-upgrade/scripts/diff_versions.py -o .tmp_upgrade_plan.json
+python .agents/skills/ocn-starter-dependency-upgrade/scripts/precheck.py --plan .tmp_upgrade_plan.json -o .tmp_upgrade_precheck.json
 ```
 
 `diff_versions.py` 现在**同时输出两类变更**，二者都要看：
@@ -200,7 +200,7 @@ mvn -B compile 2>&1 | tee /tmp/verify-compile.log
 2. **抓官网 changelog**：用 `changelog_fetch.py` 按坐标预置的官方 release-notes / migration 页面拉取该
    版本区间的变更：
    ```bash
-   python .codebuddy/skills/ocn-starter-dependency-upgrade/scripts/changelog_fetch.py \
+   python .agents/skills/ocn-starter-dependency-upgrade/scripts/changelog_fetch.py \
      --group org.springframework.cloud --artifact spring-cloud-dependencies \
      --from 2025.0.1 --to 2025.0.3
    ```
@@ -266,7 +266,7 @@ fallback、SPI 加载、反射调用**全部不在编译验证范围内**。comp
 
 - **新增依赖坐标**：在 analyze 技能的 `coordinates.md` 加小节即可，本技能自动复用；若某库有稳定的官方
   changelog 入口，在 `changelog_fetch.py` 的 `CHANGELOG_SOURCES` 补映射，让 Step 4 自动抓。
-- **三目录镜像**：按 `CLAUDE.md` / `AGENTS.md` 的「Skill mirroring」约定，改完 `.codebuddy/skills/`（源）后
-  把本技能文件同步到 `.agents/skills/`、`.claude/skills/` 并保持字节一致。
+- **单源维护**：`.agents/skills/` 是技能的唯一事实源，`.claude/skills` 是指向它的符号链接（见根目录
+  `AGENTS.md`）。只编辑 `.agents/skills/` 下的文件，无需同步其它目录。
 - **ADR**：架构决策在仓库根 `docs/adr/`（analyze 技能已立 0001 数据源、0002/0003 写模式、0004 verify 拆分），
   本技能对应 0004 的"upgrade"侧，仅引用不另立。

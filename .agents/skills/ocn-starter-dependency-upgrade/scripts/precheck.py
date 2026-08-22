@@ -41,7 +41,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..', 
 LOCAL_REPO = os.environ.get('MAVEN_REPO') \
     or os.path.join(os.path.expanduser('~'), '.m2', 'repository')
 COORDINATES_MD = os.path.join(
-    REPO_ROOT, '.claude', 'skills', 'ocn-starter-dependency-analyze',
+    REPO_ROOT, '.agents', 'skills', 'ocn-starter-dependency-analyze',
     'references', 'coordinates.md')
 
 # coordinates.md 行格式：  - property: X · 坐标: group:artifact

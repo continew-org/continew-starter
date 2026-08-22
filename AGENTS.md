@@ -1,16 +1,49 @@
 # AGENTS.md
 
-This file provides guidance to AI agents when working with code in this repository.
+本文件为在本代码库中工作的 AI 智能体提供指引。
 
-`CLAUDE.md` and `AGENTS.md` are mirror files. Whenever either file changes, apply the identical change to the other file and verify that their contents remain byte-for-byte identical（标题文件名除外）.
+> **注意**：`CLAUDE.md` 是指向本文件的符号链接，`.claude/skills` 是指向 `.agents/skills` 的符号链接。
+> 请直接编辑本文件和 `.agents/skills/`，不要改动链接本身。
 
 ## 项目概述
 
 ContiNew Starter（Continue New Starter）是一个基于 Spring Boot 3.x 的企业级 Starter 库项目（Java 17，LGPL-3.0），封装了 MyBatis-Plus、Sa-Token、Redisson、JetCache 等经过企业实践验证的第三方库，遵循"约定优于配置"理念，为 Spring Boot Web 应用提供完整的自动配置解决方案。
 
-这不是一个应用项目，而是一个发布到 Maven Central 的多模块 Starter 库。groupId 为 `top.continew.starter`，版本通过 `${revision}` 统一管理（当前 `2.16.0-SNAPSHOT`）。
+这不是一个应用项目，而是一个发布到 Maven Central 的多模块 Starter 库。groupId 为 `top.continew.starter`，版本通过 `${revision}` 统一管理。
 
-## 构建与开发命令
+## Repository layout
+
+```
+continew-starter/                    聚合 POM：继承 continew-starter-dependencies，无业务代码
+├── continew-starter-dependencies/   根父 POM：全部第三方依赖版本（~40 坐标）的唯一数据源
+├── continew-starter-bom/            项目 BOM：内部模块坐标与 ${revision} 管理
+│
+├── 平铺模块（单模块直接提供一种能力）
+│   ├── continew-starter-core/       常量、PropertiesConstants、通用工具
+│   ├── continew-starter-web/        Web 场景自动配置（CORS 等）
+│   ├── continew-starter-ratelimiter/ 限流
+│   ├── continew-starter-trace/      链路追踪
+│   ├── continew-starter-validation/ 参数校验
+│   ├── continew-starter-storage/    对象存储
+│   ├── continew-starter-idempotent/ 幂等
+│   └── continew-starter-api-doc/    API 文档
+│
+└── 父子聚合模块（核心 + 实现变体，-core 定义接口与通用逻辑，-mp/-mf 提供特定 ORM 实现）
+    ├── continew-starter-cache/     → cache-redisson, cache-jetcache, cache-springcache
+    ├── continew-starter-data/      → data-core, data-mp（MyBatis Plus）, data-mf（MyBatis Flex）
+    ├── continew-starter-extension/ → extension-crud, extension-datapermission, extension-tenant（各含 -core 与 -mp/-mf）
+    ├── continew-starter-auth/      → auth-satoken, auth-justauth
+    ├── continew-starter-captcha/   → captcha-behavior, captcha-graphic
+    ├── continew-starter-excel/     → excel-core, excel-fastexcel, excel-poi
+    ├── continew-starter-json/      → json-jackson
+    ├── continew-starter-license/   → license-core, license-generator, license-verifier
+    ├── continew-starter-log/       → log-core, log-aop, log-interceptor
+    ├── continew-starter-messaging/ → messaging-mail, messaging-websocket, messaging-mqtt
+    ├── continew-starter-security/  → security-mask, security-sensitivewords, security-xss
+    └── continew-starter-encrypt/   → encrypt-core, encrypt-api, encrypt-field, encrypt-password-encoder
+```
+
+## Commands
 
 ### 编译与格式化（最重要）
 
@@ -27,35 +60,14 @@ mvn compile -Dspotless.apply.skip=true
 
 **关键约定**：提交代码前必须执行 `mvn compile`，编译会自动触发 Spotless 插件按照 `.style/p3c-codestyle.xml`（阿里 P3C 黄山版规范）格式化代码并添加 License Header。编译通过后不要再次在 IDE 中打开代码文件，避免不同 IDE 配置导致格式差异。
 
-### 安装到本地仓库
+### 其它命令
 
 ```bash
-# 安装全部模块到本地 Maven 仓库
-mvn install -DskipTests
-
-# 安装单个模块（含依赖模块）
-mvn -pl :continew-starter-web -am install -DskipTests
-```
-
-### 清理
-
-```bash
-# 清理所有 target 目录及 flatten 生成文件
-mvn clean
-```
-
-### 发布（仅维护者）
-
-```bash
-# 发布到 Maven Central（需要 GPG 签名和 Central 账号配置）
-mvn deploy -Prelease
-```
-
-### 代码质量分析
-
-```bash
-# SonarCloud 分析
-mvn verify -Psonar
+mvn install -DskipTests        # 安装全部模块到本地 Maven 仓库
+mvn -pl :continew-starter-web -am install -DskipTests   # 安装单个模块（含依赖模块）
+mvn clean                      # 清理所有 target 目录及 flatten 生成文件
+mvn deploy -Prelease           # 发布到 Maven Central（仅维护者，需 GPG 签名和 Central 账号）
+mvn verify -Psonar             # SonarCloud 代码质量分析
 ```
 
 ### 测试
@@ -140,7 +152,7 @@ mvn verify -Psonar
 | `docs/adr/` | 架构决策记录 |
 | `docs/agents/` | Agent 相关的领域文档与 issue tracker 约定 |
 
-## Important Notes for Agents
+## Conventions for Agents
 
 1. **修改依赖版本**：只在 `continew-starter-dependencies/pom.xml` 的 `<properties>` 中修改，不要在各模块的 pom.xml 中硬编码版本号。
 2. **新增模块**：需要在 `continew-starter-bom/pom.xml` 注册版本、在 `continew-starter/pom.xml` 的 `<modules>` 中添加聚合、在 `PropertiesConstants` 中定义配置前缀。
@@ -151,14 +163,10 @@ mvn verify -Psonar
 
 ## Agent skills
 
-### Issue tracker
+技能是各 agent 工具（Claude Code / Codex / dsh）共用的**唯一事实源**，统一存放在 `.agents/skills/`，每个技能一个目录、含 `SKILL.md`。
 
-Issues live as GitHub issues in `continew-org/continew-starter`; use the `gh` CLI for all operations. See `docs/agents/issue-tracker.md`.
+## 编辑这些说明
 
-### Triage labels
+`CLAUDE.md` 是根目录 `AGENTS.md` 的符号链接，`.claude/skills` 是 `.agents/skills` 的符号链接——请编辑真实文件（本文件与 `.agents/skills/`），不要改动链接本身。保持每条规则自包含，必要时链接到更高层文档。
 
-Five canonical labels (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
-
-### Domain docs
-
-Single-context — one `CONTEXT.md` + `docs/adr/` at the repo root. See `docs/agents/domain.md`.
+> **Windows 注意**：克隆后如需符号链接生效，需开启开发者模式（或以管理员运行 git），并执行 `git config core.symlinks true`，否则链接会被检出为普通文本文件。团队若以 Windows 为主且符号链接不可靠，可改用脚本同步（`cp AGENTS.md CLAUDE.md && cp -r .agents/skills/* .claude/skills/`）。
