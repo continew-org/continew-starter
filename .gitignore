@@ -1,55 +1,34 @@
-HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
-.idea
-!.idea/icon.png
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-# Maven ignore
 .flattened-pom.xml
-
-### Python ###
-__pycache__/
-*.py[cod]
-
-### Temp ###
-*.log
-*.logs
 *.cache
 *.diff
 *.patch
 *.tmp
-*.out
-*.err
-server_err.txt
-server_out.txt
 
-docs/adr
+# Log
+logs/
+*.log
+*.log.gz
+*.logs
+
+# IntelliJ IDEA
+.idea
+*.iws
+*.iml
+*.ipr
+
+# VS Code
+.vscode/
+
+# Vibe Coding
+.workbuddy/*
+!.workbuddy/skills/
+!.workbuddy/skills/**
+!.workbuddy/.mcp.json
+.codebuddy/*
+!.codebuddy/skills/
+!.codebuddy/skills/**
+!.codebuddy/.mcp.json
