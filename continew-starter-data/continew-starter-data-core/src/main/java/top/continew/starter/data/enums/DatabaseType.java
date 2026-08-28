@@ -32,6 +32,7 @@ public enum DatabaseType implements ISqlFunction {
      * MySQL
      */
     MYSQL("MySQL") {
+
         @Override
         public String findInSet(Serializable value, String set) {
             return "find_in_set('%s', %s) <> 0".formatted(value, set);
@@ -42,6 +43,7 @@ public enum DatabaseType implements ISqlFunction {
      * PostgreSQL
      */
     POSTGRE_SQL("PostgreSQL") {
+
         @Override
         public String findInSet(Serializable value, String set) {
             return "(select position(',%s,' in ','||%s||',')) <> 0".formatted(value, set);

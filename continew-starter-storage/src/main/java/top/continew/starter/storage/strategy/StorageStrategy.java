@@ -122,7 +122,8 @@ public interface StorageStrategy {
      * @param metadata    元数据
      * @return 初始化结果
      */
-    MultipartInitResp initMultipartUpload(String bucket, String path, String contentType, Map<String, String> metadata);
+    MultipartInitResp initMultipartUpload(String bucket, String path, String contentType,
+        Map<String, String> metadata);
 
     /**
      * 上传分片
@@ -132,7 +133,8 @@ public interface StorageStrategy {
      * @param data       分片数据
      * @return 上传结果
      */
-    MultipartUploadResp uploadPart(String bucket, String path, String uploadId, int partNumber, InputStream data);
+    MultipartUploadResp uploadPart(String bucket, String path, String uploadId, int partNumber,
+        InputStream data);
 
     /**
      * 完成分片上传
@@ -145,16 +147,16 @@ public interface StorageStrategy {
      * @return 文件信息
      */
     FileInfo completeMultipartUpload(String bucket,
-                                     String path,
-                                     String uploadId,
-                                     List<MultipartUploadResp> parts,
-                                     boolean verifyParts);
+        String path,
+        String uploadId,
+        List<MultipartUploadResp> parts,
+        boolean verifyParts);
 
     // 保留原方法作为默认实现
     default FileInfo completeMultipartUpload(String bucket,
-                                             String path,
-                                             String uploadId,
-                                             List<MultipartUploadResp> parts) {
+        String path,
+        String uploadId,
+        List<MultipartUploadResp> parts) {
         return completeMultipartUpload(bucket, path, uploadId, parts, true);
     }
 

@@ -37,7 +37,7 @@ public class TopicUtils {
 
     /**
      * 校验 topicFilter
-     * 
+     *
      * @param topicFilterList topicFilter 集合
      */
     public static void validateTopicFilter(List<String> topicFilterList) {
@@ -48,7 +48,7 @@ public class TopicUtils {
 
     /**
      * 校验 topicFilter
-     * 
+     *
      * @param topicFilter topicFilter
      */
     public static void validateTopicFilter(String topicFilter) throws MqttException {
@@ -62,7 +62,8 @@ public class TopicUtils {
         for (int i = 0; i < topicFilterLength; i++) {
             ch = topicFilterChars[i];
             if (Character.isWhitespace(ch)) {
-                throw new MqttException("Mqtt subscribe topicFilter has white space:" + topicFilter);
+                throw new MqttException(
+                    "Mqtt subscribe topicFilter has white space:" + topicFilter);
             } else if (ch == TOPIC_WILDCARDS_MORE) {
                 // 校验: # 通配符只能在最后一位
                 if (i < topicFilterIdxEnd) {
@@ -70,7 +71,8 @@ public class TopicUtils {
                 }
             } else if (ch == TOPIC_WILDCARDS_ONE) {
                 // 校验: 单独 + 是允许的，判断 + 号前一位是否为 /，如果有后一位也必须为 /
-                if ((i > 0 && topicFilterChars[i - 1] != '/') || (i < topicFilterIdxEnd && topicFilterChars[i + 1] != '/')) {
+                if ((i > 0 && topicFilterChars[i - 1] != '/')
+                    || (i < topicFilterIdxEnd && topicFilterChars[i + 1] != '/')) {
                     throw new MqttException("Mqtt subscribe topicFilter illegal:" + topicFilter);
                 }
             }
@@ -79,7 +81,7 @@ public class TopicUtils {
 
     /**
      * 判断是否 topic filter
-     * 
+     *
      * @param topicFilter topicFilter
      * @return 是否 topic filter
      */
@@ -95,7 +97,7 @@ public class TopicUtils {
 
     /**
      * 校验 topicName
-     * 
+     *
      * @param topicName topicName
      */
     public static void validateTopicName(String topicName) throws MqttException {
@@ -109,7 +111,7 @@ public class TopicUtils {
 
     /**
      * 判断 topicFilter topicName 是否匹配
-     * 
+     *
      * @param topicFilter topicFilter
      * @param topicName   topicName
      * @return 是否匹配
@@ -125,8 +127,7 @@ public class TopicUtils {
         // 是否进入 + 号层级通配符
         boolean inLayerWildcard = false;
         int wildcardCharLen = 0;
-        topicFilterLoop:
-        for (int i = 0; i < topicFilterLength; i++) {
+        topicFilterLoop : for (int i = 0; i < topicFilterLength; i++) {
             ch = topicFilterChars[i];
             if (ch == TOPIC_WILDCARDS_MORE) {
                 // 校验: # 通配符只能在最后一位
@@ -136,7 +137,8 @@ public class TopicUtils {
                 return true;
             } else if (ch == TOPIC_WILDCARDS_ONE) {
                 // 校验: 单独 + 是允许的，判断 + 号前一位是否为 /，如果有后一位也必须为 /
-                if ((i > 0 && topicFilterChars[i - 1] != '/') || (i < topicFilterIdxEnd && topicFilterChars[i + 1] != '/')) {
+                if ((i > 0 && topicFilterChars[i - 1] != '/')
+                    || (i < topicFilterIdxEnd && topicFilterChars[i + 1] != '/')) {
                     throw new MqttException("Mqtt subscribe topicFilter illegal:" + topicFilter);
                 }
                 // 如果 + 是最后一位，判断 topicName 中是否还存在层级 /
@@ -157,7 +159,8 @@ public class TopicUtils {
                 }
                 // 预读下一位，如果是 #，并且 topicName 位数已经不足
                 int next = i + 1;
-                if ((topicFilterLength > next) && topicFilterChars[next] == '#' && topicNameLength < next) {
+                if ((topicFilterLength > next) && topicFilterChars[next] == '#'
+                    && topicNameLength < next) {
                     return true;
                 }
             }
@@ -192,7 +195,7 @@ public class TopicUtils {
 
     /**
      * 获取处理完成之后的 topic
-     * 
+     *
      * @param topicTemplate topic 模板
      * @return 获取处理完成之后的 topic
      */
@@ -200,8 +203,9 @@ public class TopicUtils {
         // 替换 ${name} 为 +
         StringBuilder sb = new StringBuilder(topicTemplate.length());
         int cursor = 0;
-        for (int start, end; (start = topicTemplate.indexOf("${", cursor)) != -1 && (end = topicTemplate
-            .indexOf('}', start)) != -1;) {
+        for (int start, end; (start = topicTemplate.indexOf("${", cursor)) != -1
+            && (end = topicTemplate
+                .indexOf('}', start)) != -1;) {
             sb.append(topicTemplate, cursor, start);
             sb.append('+');
             cursor = end + 1;

@@ -42,8 +42,8 @@ public class RequestBodyDecryptWrapper extends HttpServletRequestWrapper {
     private final byte[] body;
 
     public RequestBodyDecryptWrapper(HttpServletRequest request,
-                                     String privateKey,
-                                     String secretKeyHeader) throws IOException {
+        String privateKey,
+        String secretKeyHeader) throws IOException {
         super(request);
         this.body = getDecryptContent(request, privateKey, secretKeyHeader);
     }
@@ -58,8 +58,8 @@ public class RequestBodyDecryptWrapper extends HttpServletRequestWrapper {
      * @throws IOException /
      */
     public byte[] getDecryptContent(HttpServletRequest request,
-                                    String privateKey,
-                                    String secretKeyHeader) throws IOException {
+        String privateKey,
+        String secretKeyHeader) throws IOException {
         // 通过 请求头 获取 AES 密钥，密钥内容经过 RSA 加密
         String secretKeyByRsa = request.getHeader(secretKeyHeader);
         // 通过 RSA 解密，获取 AES 密钥，密钥内容经过 Base64 编码
@@ -70,7 +70,8 @@ public class RequestBodyDecryptWrapper extends HttpServletRequestWrapper {
         byte[] readBytes = IoUtil.readBytes(request.getInputStream(), false);
         String requestBody = new String(readBytes, StandardCharsets.UTF_8);
         // 通过 AES 密钥，解密 请求体
-        return EncryptUtils.decryptByAes(requestBody, aesSecretKey).getBytes(StandardCharsets.UTF_8);
+        return EncryptUtils.decryptByAes(requestBody, aesSecretKey)
+            .getBytes(StandardCharsets.UTF_8);
     }
 
     @Override
@@ -97,6 +98,7 @@ public class RequestBodyDecryptWrapper extends HttpServletRequestWrapper {
     public ServletInputStream getInputStream() {
         final ByteArrayInputStream stream = new ByteArrayInputStream(body);
         return new ServletInputStream() {
+
             @Override
             public int read() {
                 return stream.read();

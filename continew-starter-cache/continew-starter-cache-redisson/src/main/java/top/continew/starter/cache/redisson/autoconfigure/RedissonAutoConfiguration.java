@@ -47,7 +47,8 @@ import java.util.List;
  * @since 1.0.0
  */
 @AutoConfiguration
-@ConditionalOnProperty(prefix = "spring.data.redisson", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "spring.data.redisson", name = PropertiesConstants.ENABLED,
+    havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(RedissonProperties.class)
 public class RedissonAutoConfiguration {
 
@@ -59,8 +60,8 @@ public class RedissonAutoConfiguration {
     private static final String REDISS_PROTOCOL_PREFIX = "rediss://";
 
     public RedissonAutoConfiguration(RedissonProperties properties,
-                                     RedisProperties redisProperties,
-                                     ObjectMapper objectMapper) {
+        RedisProperties redisProperties,
+        ObjectMapper objectMapper) {
         this.properties = properties;
         this.redisProperties = redisProperties;
         this.objectMapper = objectMapper;
@@ -80,7 +81,8 @@ public class RedissonAutoConfiguration {
             }
             // Jackson 处理
             config.setCodec(new JsonJacksonCodec(objectMapper));
-            log.debug("[ContiNew Starter] - Auto Configuration 'Redisson' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'Redisson' completed initialization.");
         };
     }
 
@@ -100,12 +102,14 @@ public class RedissonAutoConfiguration {
         // 下方配置如果为空，则使用 Redis 的配置
         if (CollUtil.isEmpty(clusterServersConfig.getNodeAddresses())) {
             List<String> nodeList = redisProperties.getCluster().getNodes();
-            nodeList.stream().map(node -> protocolPrefix + node).forEach(clusterServersConfig::addNodeAddress);
+            nodeList.stream().map(node -> protocolPrefix + node)
+                .forEach(clusterServersConfig::addNodeAddress);
         }
         // 兼容 Redis 没配置密码的情况
         if (CharSequenceUtil.isBlank(clusterServersConfig.getPassword())) {
             String password = redisProperties.getPassword();
-            clusterServersConfig.setPassword(CharSequenceUtil.isNotBlank(password) ? password : null);
+            clusterServersConfig
+                .setPassword(CharSequenceUtil.isNotBlank(password) ? password : null);
         }
         // Key 前缀
         if (CharSequenceUtil.isNotBlank(properties.getKeyPrefix())) {
@@ -124,17 +128,20 @@ public class RedissonAutoConfiguration {
         SentinelServersConfig customSentinelServersConfig = properties.getSentinelServersConfig();
         if (customSentinelServersConfig != null) {
             BeanUtil.copyProperties(customSentinelServersConfig, sentinelServersConfig);
-            sentinelServersConfig.setSentinelAddresses(customSentinelServersConfig.getSentinelAddresses());
+            sentinelServersConfig
+                .setSentinelAddresses(customSentinelServersConfig.getSentinelAddresses());
         }
         // 下方配置如果为空，则使用 Redis 的配置
         if (CollUtil.isEmpty(sentinelServersConfig.getSentinelAddresses())) {
             List<String> nodeList = redisProperties.getSentinel().getNodes();
-            nodeList.stream().map(node -> protocolPrefix + node).forEach(sentinelServersConfig::addSentinelAddress);
+            nodeList.stream().map(node -> protocolPrefix + node)
+                .forEach(sentinelServersConfig::addSentinelAddress);
         }
         // 兼容 Redis 没配置密码的情况
         if (CharSequenceUtil.isBlank(sentinelServersConfig.getPassword())) {
             String password = redisProperties.getPassword();
-            sentinelServersConfig.setPassword(CharSequenceUtil.isNotBlank(password) ? password : null);
+            sentinelServersConfig
+                .setPassword(CharSequenceUtil.isNotBlank(password) ? password : null);
         }
         if (CharSequenceUtil.isBlank(sentinelServersConfig.getMasterName())) {
             sentinelServersConfig.setMasterName(redisProperties.getSentinel().getMaster());

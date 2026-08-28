@@ -38,16 +38,16 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
 
     // 用于区分不同的读取阶段
     public enum ReadPhase {
-        VALIDATION,     // 验证阶段
-        THUMBNAIL,      // 缩略图生成
-        UPLOAD          // 实际上传
+        VALIDATION, // 验证阶段
+        THUMBNAIL, // 缩略图生成
+        UPLOAD // 实际上传
     }
 
     private volatile ReadPhase currentPhase = ReadPhase.VALIDATION;
 
     public ProgressAwareMultipartFile(MultipartFile originalFile,
-                                      boolean enableCache,
-                                      UploadProgressListener progressListener) {
+        boolean enableCache,
+        UploadProgressListener progressListener) {
         super(originalFile, enableCache);
         this.progressListener = progressListener;
     }

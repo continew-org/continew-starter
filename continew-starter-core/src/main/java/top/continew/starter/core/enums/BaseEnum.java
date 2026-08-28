@@ -78,8 +78,9 @@ public interface BaseEnum<T extends Serializable> {
      */
     static <E extends Enum<E> & BaseEnum> E getByDescription(String description, Class<?> clazz) {
         for (Object e : clazz.getEnumConstants()) {
-            if (e instanceof BaseEnum<?> baseEnum && Objects.equals(baseEnum.getDescription(), description)) {
-                return (E)baseEnum;
+            if (e instanceof BaseEnum<?> baseEnum
+                && Objects.equals(baseEnum.getDescription(), description)) {
+                return (E) baseEnum;
             }
         }
         return null;

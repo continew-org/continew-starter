@@ -69,7 +69,9 @@ import java.util.function.Function;
  * @author Charles7c
  * @since 1.0.0
  */
-public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, Q, C> extends ServiceImpl<M, T> implements CrudService<L, D, Q, C> {
+public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, Q, C>
+    extends ServiceImpl<M, T>
+    implements CrudService<L, D, Q, C> {
 
     private Class<L> listClass;
     private Class<D> detailClass;
@@ -80,7 +82,8 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
     public PageResp<L> page(Q query, PageQuery pageQuery) {
         QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
         this.sort(queryWrapper, pageQuery);
-        IPage<T> page = baseMapper.selectPage(new Page<>(pageQuery.getPage(), pageQuery.getSize()), queryWrapper);
+        IPage<T> page = baseMapper.selectPage(new Page<>(pageQuery.getPage(), pageQuery.getSize()),
+            queryWrapper);
         PageResp<L> pageResp = PageResp.build(page, this.getListClass());
         pageResp.getList().forEach(this::fill);
         return pageResp;
@@ -99,7 +102,8 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
     }
 
     @Override
-    public List<Tree<Long>> tree(Q query, SortQuery sortQuery, boolean isSimple, boolean isSingleRoot) {
+    public List<Tree<Long>> tree(Q query, SortQuery sortQuery, boolean isSimple,
+        boolean isSingleRoot) {
         List<L> list = this.list(query, sortQuery);
         if (CollUtil.isEmpty(list)) {
             return CollUtil.newArrayList();
@@ -120,15 +124,19 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
         if (isSingleRoot) {
             // 构建单根节点树
             return TreeUtil.build(list, rootId, treeNodeConfig, (node,
-                                                                 tree) -> buildTreeField(isSimple, node, tree, treeField));
+                tree) -> buildTreeField(isSimple, node, tree,
+                    treeField));
         } else {
-            Function<L, Long> getId = ReflectUtils.createMethodReference(listClass, CharSequenceUtil.genGetter(treeField
-                .value()));
-            Function<L, Long> getParentId = ReflectUtils.createMethodReference(listClass, CharSequenceUtil
-                .genGetter(treeField.parentIdKey()));
+            Function<L, Long> getId =
+                ReflectUtils.createMethodReference(listClass, CharSequenceUtil.genGetter(treeField
+                    .value()));
+            Function<L, Long> getParentId =
+                ReflectUtils.createMethodReference(listClass, CharSequenceUtil
+                    .genGetter(treeField.parentIdKey()));
             // 构建多根节点树
             return TreeUtils.buildMultiRoot(list, getId, getParentId, treeNodeConfig, (node,
-                                                                                       tree) -> buildTreeField(isSimple, node, tree, treeField));
+                tree) -> buildTreeField(isSimple,
+                    node, tree, treeField));
         }
     }
 
@@ -198,7 +206,8 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
             LabelValueResp<Object> labelValueResp = new LabelValueResp<>();
             labelValueResp.setLabel(Convert.toStr(ReflectUtil.getFieldValue(entity, CharSequenceUtil
                 .toCamelCase(labelKey))));
-            labelValueResp.setValue(ReflectUtil.getFieldValue(entity, CharSequenceUtil.toCamelCase(valueKey)));
+            labelValueResp.setValue(
+                ReflectUtil.getFieldValue(entity, CharSequenceUtil.toCamelCase(valueKey)));
             respList.add(labelValueResp);
             if (CollUtil.isEmpty(extraFieldNames)) {
                 continue;
@@ -220,7 +229,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     public Class<L> getListClass() {
         if (this.listClass == null) {
-            this.listClass = (Class<L>)ClassUtils.getTypeArguments(this.getClass())[2];
+            this.listClass = (Class<L>) ClassUtils.getTypeArguments(this.getClass())[2];
         }
         return this.listClass;
     }
@@ -232,7 +241,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     public Class<D> getDetailClass() {
         if (this.detailClass == null) {
-            this.detailClass = (Class<D>)ClassUtils.getTypeArguments(this.getClass())[3];
+            this.detailClass = (Class<D>) ClassUtils.getTypeArguments(this.getClass())[3];
         }
         return this.detailClass;
     }
@@ -244,7 +253,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     public Class<Q> getQueryClass() {
         if (this.queryClass == null) {
-            this.queryClass = (Class<Q>)ClassUtils.getTypeArguments(this.getClass())[4];
+            this.queryClass = (Class<Q>) ClassUtils.getTypeArguments(this.getClass())[4];
         }
         return this.queryClass;
     }
@@ -275,7 +284,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
         this.sort(queryWrapper, sortQuery);
         List<T> entityList = baseMapper.selectList(queryWrapper);
         if (super.getEntityClass() == targetClass) {
-            return (List<E>)entityList;
+            return (List<E>) entityList;
         }
         return BeanUtil.copyToList(entityList, targetClass);
     }
@@ -296,7 +305,8 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
             String checkProperty;
             // 携带表别名则获取 . 后面的字段名
             if (property.contains(StringConstants.DOT)) {
-                checkProperty = CollUtil.getLast(CharSequenceUtil.split(property, StringConstants.DOT));
+                checkProperty =
+                    CollUtil.getLast(CharSequenceUtil.split(property, StringConstants.DOT));
             } else {
                 checkProperty = property;
             }
@@ -304,7 +314,8 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
                 .filter(field -> checkProperty.equals(field.getName()))
                 .findFirst();
             ValidationUtils.throwIf(optional.isEmpty(), "无效的排序字段 [{}]", property);
-            queryWrapper.orderBy(true, order.isAscending(), CharSequenceUtil.toUnderlineCase(property));
+            queryWrapper.orderBy(true, order.isAscending(),
+                CharSequenceUtil.toUnderlineCase(property));
         }
     }
 
@@ -395,16 +406,20 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     private void buildTreeField(boolean isSimple, L node, Tree<Long> tree, TreeField treeField) {
         tree.setId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.value())));
-        tree.setParentId(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.parentIdKey())));
+        tree.setParentId(
+            ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.parentIdKey())));
         tree.setName(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.nameKey())));
         tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.weightKey())));
         // 如果构建简单树结构，则不包含扩展字段
         if (!isSimple) {
             List<Field> fieldList = ReflectUtils.getNonStaticFields(listClass);
-            fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(), treeField.value(), treeField
-                .parentIdKey(), treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
-            fieldList.forEach(f -> tree.putExtra(f.getName(), ReflectUtil.invoke(node, CharSequenceUtil.genGetter(f
-                .getName()))));
+            fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(),
+                treeField.value(), treeField
+                    .parentIdKey(),
+                treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
+            fieldList.forEach(f -> tree.putExtra(f.getName(),
+                ReflectUtil.invoke(node, CharSequenceUtil.genGetter(f
+                    .getName()))));
         }
     }
 }

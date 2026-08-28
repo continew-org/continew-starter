@@ -56,6 +56,7 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
             return super.getOutputStream();
         }
         return new ServletOutputStream() {
+
             @Override
             public boolean isReady() {
                 return true;

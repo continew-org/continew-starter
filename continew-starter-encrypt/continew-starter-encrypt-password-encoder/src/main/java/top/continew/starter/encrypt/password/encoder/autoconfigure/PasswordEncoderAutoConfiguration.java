@@ -43,10 +43,12 @@ import java.util.Map;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(PasswordEncoderProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.ENCRYPT_PASSWORD_ENCODER, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.ENCRYPT_PASSWORD_ENCODER,
+    name = PropertiesConstants.ENABLED, havingValue = "true")
 public class PasswordEncoderAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(PasswordEncoderAutoConfiguration.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(PasswordEncoderAutoConfiguration.class);
 
     /**
      * 密码编码器配置
@@ -67,12 +69,14 @@ public class PasswordEncoderAutoConfiguration {
         encoders.put(PasswordEncoderAlgorithm.ARGON2.name().toLowerCase(), PasswordEncoderUtil
             .getEncoder(PasswordEncoderAlgorithm.ARGON2));
         PasswordEncoderAlgorithm algorithm = properties.getAlgorithm();
-        CheckUtils.throwIf(PasswordEncoderUtil.getEncoder(algorithm) == null, "不支持的加密算法: {}", algorithm);
+        CheckUtils.throwIf(PasswordEncoderUtil.getEncoder(algorithm) == null, "不支持的加密算法: {}",
+            algorithm);
         return new DelegatingPasswordEncoder(algorithm.name().toLowerCase(), encoders);
     }
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Encrypt-Password Encoder' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Encrypt-Password Encoder' completed initialization.");
     }
 }

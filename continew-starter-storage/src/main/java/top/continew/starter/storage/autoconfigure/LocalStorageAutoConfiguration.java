@@ -54,11 +54,15 @@ public class LocalStorageAutoConfiguration implements StorageStrategyRegistrar {
             : storageProperties.getLocal();
         for (LocalStorageConfig config : localConfigs) {
             if (config.isEnabled()) {
-                if (config.getMultipartUploadThreshold() == null || config.getMultipartUploadThreshold() <= 0) {
-                    config.setMultipartUploadThreshold(storageProperties.getMultipartUploadThreshold());
+                if (config.getMultipartUploadThreshold() == null
+                    || config.getMultipartUploadThreshold() <= 0) {
+                    config.setMultipartUploadThreshold(
+                        storageProperties.getMultipartUploadThreshold());
                 }
-                if (config.getMultipartUploadPartSize() == null || config.getMultipartUploadPartSize() <= 0) {
-                    config.setMultipartUploadPartSize(storageProperties.getMultipartUploadPartSize());
+                if (config.getMultipartUploadPartSize() == null
+                    || config.getMultipartUploadPartSize() <= 0) {
+                    config
+                        .setMultipartUploadPartSize(storageProperties.getMultipartUploadPartSize());
                 }
                 if (StrUtil.isBlank(config.getMultipartTempDir())) {
                     config.setMultipartTempDir(storageProperties.getLocalMultipartTempDir());

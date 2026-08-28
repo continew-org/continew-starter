@@ -62,7 +62,8 @@ public class PropertiesConstants {
     /**
      * 加密-密码编码器
      */
-    public static final String ENCRYPT_PASSWORD_ENCODER = ENCRYPT + StringConstants.DOT + "password-encoder";
+    public static final String ENCRYPT_PASSWORD_ENCODER =
+        ENCRYPT + StringConstants.DOT + "password-encoder";
 
     /**
      * 加密-字段加密
@@ -87,12 +88,14 @@ public class PropertiesConstants {
     /**
      * 安全-敏感词配置
      */
-    public static final String SECURITY_SENSITIVE_WORDS = SECURITY + StringConstants.DOT + "sensitive-words";
+    public static final String SECURITY_SENSITIVE_WORDS =
+        SECURITY + StringConstants.DOT + "sensitive-words";
 
     /**
      * 限流配置
      */
-    public static final String RATE_LIMITER = CONTINEW_STARTER + StringConstants.DOT + "rate-limiter";
+    public static final String RATE_LIMITER =
+        CONTINEW_STARTER + StringConstants.DOT + "rate-limiter";
 
     /**
      * 幂等配置
@@ -167,7 +170,8 @@ public class PropertiesConstants {
     /**
      * 数据权限配置
      */
-    public static final String DATA_PERMISSION = CONTINEW_STARTER + StringConstants.DOT + "data-permission";
+    public static final String DATA_PERMISSION =
+        CONTINEW_STARTER + StringConstants.DOT + "data-permission";
 
     /**
      * 租户配置

@@ -34,13 +34,15 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(prefix = "spring.task.scheduling.extension", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "spring.task.scheduling.extension",
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 class TaskSchedulingConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(TaskSchedulingConfiguration.class);
 
     @Bean
-    public ThreadPoolTaskSchedulerCustomizer threadPoolTaskSchedulerCustomizer(ThreadPoolExtensionProperties properties) {
+    public ThreadPoolTaskSchedulerCustomizer threadPoolTaskSchedulerCustomizer(
+        ThreadPoolExtensionProperties properties) {
         return executor -> executor.setRejectedExecutionHandler(properties.getScheduling()
             .getRejectedPolicy()
             .getRejectedExecutionHandler());
@@ -48,6 +50,7 @@ class TaskSchedulingConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'TaskScheduler' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'TaskScheduler' completed initialization.");
     }
 }

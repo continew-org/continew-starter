@@ -78,7 +78,8 @@ public abstract class AbstractSymmetricCryptoEncryptor extends AbstractEncryptor
         if (CACHE.containsKey(key)) {
             return CACHE.get(key);
         }
-        SymmetricCrypto symmetricCrypto = new SymmetricCrypto(algorithm, password.getBytes(StandardCharsets.UTF_8));
+        SymmetricCrypto symmetricCrypto =
+            new SymmetricCrypto(algorithm, password.getBytes(StandardCharsets.UTF_8));
         CACHE.put(key, symmetricCrypto);
         return symmetricCrypto;
     }

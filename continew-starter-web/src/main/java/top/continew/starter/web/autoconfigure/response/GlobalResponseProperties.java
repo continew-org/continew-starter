@@ -27,4 +27,5 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @since 2.5.0
  */
 @ConfigurationProperties(PropertiesConstants.WEB_RESPONSE)
-public class GlobalResponseProperties extends GracefulResponseProperties {}
+public class GlobalResponseProperties extends GracefulResponseProperties {
+}

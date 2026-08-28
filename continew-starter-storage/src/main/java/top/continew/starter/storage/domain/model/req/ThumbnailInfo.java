@@ -23,6 +23,7 @@ package top.continew.starter.storage.domain.model.req;
  * @since 2.14.0
  */
 public class ThumbnailInfo {
+
     private byte[] data;
     private String format;
     private int width;

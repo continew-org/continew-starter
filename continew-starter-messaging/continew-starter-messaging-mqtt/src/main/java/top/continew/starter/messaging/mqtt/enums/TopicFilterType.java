@@ -31,6 +31,7 @@ public enum TopicFilterType {
      * 默认 TopicFilter
      */
     NONE {
+
         @Override
         public boolean match(String topicFilter, String topicName) {
             return TopicUtils.match(topicFilter, topicName);
@@ -41,6 +42,7 @@ public enum TopicFilterType {
      * $queue/ 为前缀的共享订阅是不带群组的共享订阅
      */
     QUEUE {
+
         @Override
         public boolean match(String topicFilter, String topicName) {
             int prefixLen = TopicFilterType.SHARE_QUEUE_PREFIX.length();
@@ -52,6 +54,7 @@ public enum TopicFilterType {
      * $share/{group-name}/ 为前缀的共享订阅是带群组的共享订阅
      */
     SHARE {
+
         @Override
         public boolean match(String topicFilter, String topicName) {
             // 去除前缀 $share/<group-name>/ ,匹配 topicName / 前缀
@@ -69,7 +72,7 @@ public enum TopicFilterType {
 
     /**
      * 判断 topicFilter 和 topicName 匹配情况
-     * 
+     *
      * @param topicFilter topicFilter
      * @param topicName   topicName
      * @return 是否匹配
@@ -78,7 +81,7 @@ public enum TopicFilterType {
 
     /**
      * 获取 topicFilter 类型
-     * 
+     *
      * @param topicFilter topicFilter
      * @return TopicFilterType
      */
@@ -94,7 +97,7 @@ public enum TopicFilterType {
 
     /**
      * 读取共享订阅的分组名
-     * 
+     *
      * @param topicFilter topicFilter
      * @return 共享订阅分组名
      */

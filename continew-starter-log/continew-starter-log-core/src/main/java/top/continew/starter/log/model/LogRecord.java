@@ -70,7 +70,8 @@ public class LogRecord {
      */
     private String errorMsg;
 
-    public LogRecord(Instant timestamp, LogRequest request, LogResponse response, Duration timeTaken) {
+    public LogRecord(Instant timestamp, LogRequest request, LogResponse response,
+        Duration timeTaken) {
         this.timestamp = timestamp;
         this.request = request;
         this.response = response;
@@ -120,7 +121,8 @@ public class LogRecord {
          * @param includes  包含信息
          * @return 日志记录
          */
-        public LogRecord finish(Instant timestamp, RecordableHttpResponse response, Set<Include> includes) {
+        public LogRecord finish(Instant timestamp, RecordableHttpResponse response,
+            Set<Include> includes) {
             LogRequest logRequest = new LogRequest(this.request, includes);
             LogResponse logResponse = new LogResponse(response, includes);
             Duration duration = Duration.between(this.timestamp, timestamp);

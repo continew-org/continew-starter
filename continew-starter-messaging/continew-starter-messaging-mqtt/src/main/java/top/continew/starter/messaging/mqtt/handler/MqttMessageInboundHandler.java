@@ -53,7 +53,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author echo
  * @since 2.15.0
  */
-public class MqttMessageInboundHandler implements MessageHandler, InitializingBean, ApplicationContextAware {
+public class MqttMessageInboundHandler
+    implements MessageHandler, InitializingBean, ApplicationContextAware {
 
     private static final Logger log = LoggerFactory.getLogger(MqttMessageInboundHandler.class);
 
@@ -71,8 +72,8 @@ public class MqttMessageInboundHandler implements MessageHandler, InitializingBe
     private ApplicationContext applicationContext;
 
     public MqttMessageInboundHandler(List<MqttMessageConsumer> mqttMessageConsumerList,
-                                     MqttOptions mqttOptions,
-                                     Environment environment) {
+        MqttOptions mqttOptions,
+        Environment environment) {
         this.allListeners = mqttMessageConsumerList;
         this.mqttOptions = mqttOptions;
         this.environment = environment;
@@ -165,8 +166,9 @@ public class MqttMessageInboundHandler implements MessageHandler, InitializingBe
         }
 
         // 共享订阅匹配
-        return TopicFilterType.SHARE.equals(TopicFilterType.getType(topicFilter)) && TopicFilterType.SHARE
-            .match(topicFilter, actualTopic);
+        return TopicFilterType.SHARE.equals(TopicFilterType.getType(topicFilter))
+            && TopicFilterType.SHARE
+                .match(topicFilter, actualTopic);
     }
 
     @Override

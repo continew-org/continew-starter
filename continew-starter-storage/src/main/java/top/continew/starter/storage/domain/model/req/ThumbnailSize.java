@@ -23,6 +23,7 @@ package top.continew.starter.storage.domain.model.req;
  * @since 2.14.0
  */
 public class ThumbnailSize {
+
     private int width;
     private int height;
     private boolean keepAspectRatio = true;

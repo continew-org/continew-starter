@@ -42,7 +42,8 @@ public class SensitiveWordsValidator implements ConstraintValidator<SensitiveWor
             // 禁用默认消息
             context.disableDefaultConstraintViolation();
             // 动态设置错误消息
-            context.buildConstraintViolationWithTemplate("内容包含敏感词汇: " + String.join(",", res)).addConstraintViolation();
+            context.buildConstraintViolationWithTemplate("内容包含敏感词汇: " + String.join(",", res))
+                .addConstraintViolation();
             return false;
         }
         return true;

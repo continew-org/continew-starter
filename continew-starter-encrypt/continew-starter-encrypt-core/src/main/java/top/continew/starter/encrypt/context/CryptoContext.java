@@ -105,7 +105,7 @@ public class CryptoContext {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        CryptoContext that = (CryptoContext)o;
+        CryptoContext that = (CryptoContext) o;
         return algorithm == that.algorithm && Objects.equals(encryptor, that.encryptor) && Objects
             .equals(password, that.password) && Objects.equals(publicKey, that.publicKey) && Objects
                 .equals(privateKey, that.privateKey);

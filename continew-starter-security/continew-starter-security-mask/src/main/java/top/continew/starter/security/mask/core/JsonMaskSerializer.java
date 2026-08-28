@@ -51,8 +51,8 @@ public class JsonMaskSerializer extends JsonSerializer<String> implements Contex
 
     @Override
     public void serialize(String str,
-                          JsonGenerator jsonGenerator,
-                          SerializerProvider serializerProvider) throws IOException {
+        JsonGenerator jsonGenerator,
+        SerializerProvider serializerProvider) throws IOException {
         if (CharSequenceUtil.isBlank(str)) {
             jsonGenerator.writeString(StringConstants.EMPTY);
             return;
@@ -62,20 +62,22 @@ public class JsonMaskSerializer extends JsonSerializer<String> implements Contex
         IMaskStrategy maskStrategy = strategyClass != IMaskStrategy.class
             ? SpringUtil.getBean(strategyClass)
             : jsonMask.value();
-        jsonGenerator.writeString(maskStrategy.mask(str, jsonMask.character(), jsonMask.left(), jsonMask.right()));
+        jsonGenerator.writeString(
+            maskStrategy.mask(str, jsonMask.character(), jsonMask.left(), jsonMask.right()));
     }
 
     @Override
     public JsonSerializer<?> createContextual(SerializerProvider serializerProvider,
-                                              BeanProperty beanProperty) throws JsonMappingException {
+        BeanProperty beanProperty) throws JsonMappingException {
         if (beanProperty == null) {
             return serializerProvider.findNullValueSerializer(null);
         }
         if (!Objects.equals(beanProperty.getType().getRawClass(), String.class)) {
             return serializerProvider.findValueSerializer(beanProperty.getType(), beanProperty);
         }
-        JsonMask jsonMaskAnnotation = ObjectUtil.defaultIfNull(beanProperty.getAnnotation(JsonMask.class), beanProperty
-            .getContextAnnotation(JsonMask.class));
+        JsonMask jsonMaskAnnotation =
+            ObjectUtil.defaultIfNull(beanProperty.getAnnotation(JsonMask.class), beanProperty
+                .getContextAnnotation(JsonMask.class));
         if (jsonMaskAnnotation == null) {
             return serializerProvider.findValueSerializer(beanProperty.getType(), beanProperty);
         }

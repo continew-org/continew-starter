@@ -31,7 +31,8 @@ import java.io.LineNumberReader;
  */
 public class ExecCmdUtil {
 
-    private static final String CREATE_3RDSESSION_SHELL_SCRIPT = "head -n 80 /dev/urandom | tr -dc A-Za-z0-9 | head -c 168";
+    private static final String CREATE_3RDSESSION_SHELL_SCRIPT =
+        "head -n 80 /dev/urandom | tr -dc A-Za-z0-9 | head -c 168";
 
     private ExecCmdUtil() {
     }

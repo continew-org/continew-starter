@@ -25,4 +25,5 @@ import com.baomidou.mybatisplus.extension.repository.IRepository;
  * @author Charles7c
  * @since 1.2.0
  */
-public interface IService<T> extends IRepository<T> {}
+public interface IService<T> extends IRepository<T> {
+}

@@ -76,6 +76,7 @@ public class ApplicationProperties {
      * 联系人配置属性
      */
     public static class Contact {
+
         /**
          * 名称
          */
@@ -120,6 +121,7 @@ public class ApplicationProperties {
      * 许可协议配置属性
      */
     public static class License {
+
         /**
          * 名称
          */

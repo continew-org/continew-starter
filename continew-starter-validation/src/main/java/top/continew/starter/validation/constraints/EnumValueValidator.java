@@ -56,7 +56,7 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
 
         // 处理数组场景
         if (value.getClass().isArray()) {
-            Object[] array = (Object[])value;
+            Object[] array = (Object[]) value;
             for (Object element : array) {
                 if (!isValidElement(element)) {
                     return false;
@@ -109,7 +109,9 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
                 }
             }
         } catch (Exception e) {
-            log.error("An error occurred while validating the enum value, please check the @EnumValue parameter configuration.", e);
+            log.error(
+                "An error occurred while validating the enum value, please check the @EnumValue parameter configuration.",
+                e);
         }
         return false;
     }

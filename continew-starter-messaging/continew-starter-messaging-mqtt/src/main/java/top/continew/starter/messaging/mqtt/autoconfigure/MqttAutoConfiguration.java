@@ -65,7 +65,8 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(MqttProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.MESSAGING_MQTT, value = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.MESSAGING_MQTT,
+    value = PropertiesConstants.ENABLED, havingValue = "true")
 public class MqttAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(MqttAutoConfiguration.class);
@@ -124,7 +125,8 @@ public class MqttAutoConfiguration {
         mqttConnectOptions.setCustomWebSocketHeaders(mqttProperties.getCustomWebSocketHeaders());
 
         // 启用 HTTPS 主机名验证（适用于 SSL/TLS）
-        mqttConnectOptions.setHttpsHostnameVerificationEnabled(mqttProperties.getHttpsHostnameVerificationEnabled());
+        mqttConnectOptions.setHttpsHostnameVerificationEnabled(
+            mqttProperties.getHttpsHostnameVerificationEnabled());
 
         // 设置 SSL 连接所需的客户端属性，如证书、密钥、信任库等
         mqttConnectOptions.setSSLProperties(mqttProperties.getSslClientProps());
@@ -139,8 +141,9 @@ public class MqttAutoConfiguration {
             // 设置遗嘱消息内容（字节数组）
             // 设置 QoS 等级
             // 设置是否保留该消息（true 表示新订阅者会收到）
-            mqttConnectOptions.setWill(will.getTopic(), will.getPayload().getBytes(), will.getQos(), will
-                .getRetained());
+            mqttConnectOptions.setWill(will.getTopic(), will.getPayload().getBytes(), will.getQos(),
+                will
+                    .getRetained());
         }
 
         return mqttConnectOptions;
@@ -199,9 +202,10 @@ public class MqttAutoConfiguration {
      * 配置 MQTT 入站适配器，接收来自 MQTT broker 的消息。
      */
     @Bean
-    public MqttPahoMessageDrivenChannelAdapter mqttPahoMessageDrivenChannelAdapter(MqttPahoClientFactory mqttPahoClientFactory,
-                                                                                   @Qualifier(MqttConstant.MQTT_INPUT_CHANNEL_NAME) MessageChannel mqttInputChannel,
-                                                                                   Environment environment) {
+    public MqttPahoMessageDrivenChannelAdapter mqttPahoMessageDrivenChannelAdapter(
+        MqttPahoClientFactory mqttPahoClientFactory,
+        @Qualifier(MqttConstant.MQTT_INPUT_CHANNEL_NAME) MessageChannel mqttInputChannel,
+        Environment environment) {
 
         MqttConsumerProperties consumer = mqttProperties.getConsumer();
         String clientId = consumer.getClientId();
@@ -209,7 +213,9 @@ public class MqttAutoConfiguration {
             clientId = getClientId(environment);
         }
 
-        MqttPahoMessageDrivenChannelAdapter adapter = new MqttPahoMessageDrivenChannelAdapter(clientId, mqttPahoClientFactory);
+        MqttPahoMessageDrivenChannelAdapter adapter =
+            new MqttPahoMessageDrivenChannelAdapter(clientId,
+                mqttPahoClientFactory);
         adapter.setAutoStartup(consumer.getAutoStartUp());
         adapter.setOutputChannel(mqttInputChannel);
         adapter.setQos(consumer.getQos());
@@ -224,14 +230,16 @@ public class MqttAutoConfiguration {
      */
     @Bean
     @ServiceActivator(inputChannel = MqttConstant.MQTT_OUT_BOUND_CHANNEL_NAME)
-    public MqttPahoMessageHandler mqttOutbound(MqttPahoClientFactory mqttPahoClientFactory, Environment environment) {
+    public MqttPahoMessageHandler mqttOutbound(MqttPahoClientFactory mqttPahoClientFactory,
+        Environment environment) {
         MqttProducerProperties producer = mqttProperties.getProducer();
         String clientId = producer.getClientId();
         if (!StringUtils.hasText(clientId)) {
             clientId = getClientId(environment);
         }
 
-        MqttPahoMessageHandler messageHandler = new MqttPahoMessageHandler(clientId, mqttPahoClientFactory);
+        MqttPahoMessageHandler messageHandler =
+            new MqttPahoMessageHandler(clientId, mqttPahoClientFactory);
         messageHandler.setAsync(producer.getAsync());
         messageHandler.setAsyncEvents(producer.getAsyncEvents());
         messageHandler.setDefaultTopic(producer.getDefaultTopic());
@@ -253,9 +261,10 @@ public class MqttAutoConfiguration {
      * 构造入站消息处理器，分发到自定义监听器中。
      */
     @Bean
-    public MqttMessageInboundHandler mqttMessageInboundHandler(List<MqttMessageConsumer> messageListeners,
-                                                               MqttOptions mqttOptions,
-                                                               Environment environment) {
+    public MqttMessageInboundHandler mqttMessageInboundHandler(
+        List<MqttMessageConsumer> messageListeners,
+        MqttOptions mqttOptions,
+        Environment environment) {
         return new MqttMessageInboundHandler(messageListeners, mqttOptions, environment);
     }
 
@@ -263,8 +272,10 @@ public class MqttAutoConfiguration {
      * 配置 MQTT 消息生产者网关
      */
     @Bean
-    public GatewayProxyFactoryBean<?> mqttMessageProducer(@Qualifier(MqttConstant.MQTT_OUT_BOUND_CHANNEL_NAME) MessageChannel outboundChannel) {
-        GatewayProxyFactoryBean<?> factoryBean = new GatewayProxyFactoryBean<>(MqttMessageProducer.class);
+    public GatewayProxyFactoryBean<?> mqttMessageProducer(
+        @Qualifier(MqttConstant.MQTT_OUT_BOUND_CHANNEL_NAME) MessageChannel outboundChannel) {
+        GatewayProxyFactoryBean<?> factoryBean =
+            new GatewayProxyFactoryBean<>(MqttMessageProducer.class);
         factoryBean.setDefaultRequestChannel(outboundChannel);
         return factoryBean;
     }
@@ -321,8 +332,9 @@ public class MqttAutoConfiguration {
      * @return {@link MqttShutdownHandler }
      */
     @Bean
-    public MqttShutdownHandler mqttShutdownHandler(MqttPahoMessageDrivenChannelAdapter inboundAdapter,
-                                                   MqttPahoMessageHandler outboundHandler) {
+    public MqttShutdownHandler mqttShutdownHandler(
+        MqttPahoMessageDrivenChannelAdapter inboundAdapter,
+        MqttPahoMessageHandler outboundHandler) {
         return new MqttShutdownHandler(inboundAdapter, outboundHandler);
     }
 

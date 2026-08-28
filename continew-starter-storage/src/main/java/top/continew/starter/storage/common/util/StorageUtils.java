@@ -43,7 +43,8 @@ public class StorageUtils {
      */
     public static String generatePath() {
         LocalDate date = LocalDate.now();
-        return String.format("%d/%d/%d/", date.getYear(), date.getMonthValue(), date.getDayOfMonth());
+        return String.format("%d/%d/%d/", date.getYear(), date.getMonthValue(),
+            date.getDayOfMonth());
     }
 
     /**
@@ -67,7 +68,8 @@ public class StorageUtils {
      * @param prefix           前缀（可为null）
      * @param useMillis        是否使用毫秒时间戳，false则使用格式化时间戳
      */
-    public static String generateFileName(String originalFilename, String prefix, boolean useMillis) {
+    public static String generateFileName(String originalFilename, String prefix,
+        boolean useMillis) {
         String extension = FileUtil.getSuffix(originalFilename);
         String timestamp = useMillis
             ? String.valueOf(System.currentTimeMillis())

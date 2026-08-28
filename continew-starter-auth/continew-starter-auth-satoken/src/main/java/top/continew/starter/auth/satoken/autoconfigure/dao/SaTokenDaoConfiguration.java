@@ -47,12 +47,14 @@ public class SaTokenDaoConfiguration {
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnMissingBean(SaTokenDao.class)
-    @ConditionalOnProperty(name = "sa-token.extension.dao.type", havingValue = "default", matchIfMissing = true)
+    @ConditionalOnProperty(name = "sa-token.extension.dao.type", havingValue = "default",
+        matchIfMissing = true)
     static class Default {
 
         @Bean
         public SaTokenDao saTokenDao() {
-            log.debug("[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Default' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Default' completed initialization.");
             return new SaTokenDaoDefaultImpl();
         }
     }
@@ -68,7 +70,8 @@ public class SaTokenDaoConfiguration {
 
         @Bean
         public SaTokenDao saTokenDao(RedissonClient redissonClient) {
-            log.debug("[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Redis' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Redis' completed initialization.");
             return new SaTokenDaoForRedisson(redissonClient);
         }
     }
@@ -84,15 +87,18 @@ public class SaTokenDaoConfiguration {
         @ConditionalOnMissingBean
         public SaTokenDao saTokenDao() {
             if (log.isErrorEnabled()) {
-                log.error("[ContiNew Starter] - When 'sa-token.extension.dao.type' is 'custom', you must provide a bean of type '{}' in your configuration.", ResolvableType
-                    .forClass(SaTokenDao.class));
+                log.error(
+                    "[ContiNew Starter] - When 'sa-token.extension.dao.type' is 'custom', you must provide a bean of type '{}' in your configuration.",
+                    ResolvableType
+                        .forClass(SaTokenDao.class));
             }
             throw new NoSuchBeanDefinitionException(SaTokenDao.class);
         }
 
         @PostConstruct
         public void postConstruct() {
-            log.debug("[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Custom' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Custom' completed initialization.");
         }
     }
 }

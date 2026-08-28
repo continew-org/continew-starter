@@ -52,17 +52,18 @@ public class ExcelListConverter implements Converter<List> {
 
     @Override
     public List convertToJavaData(ReadCellData<?> cellData,
-                                  ExcelContentProperty contentProperty,
-                                  GlobalConfiguration globalConfiguration) {
+        ExcelContentProperty contentProperty,
+        GlobalConfiguration globalConfiguration) {
         String stringValue = cellData.getStringValue();
         return CharSequenceUtil.split(stringValue, StringConstants.COMMA);
     }
 
     @Override
     public WriteCellData<Object> convertToExcelData(List value,
-                                                    ExcelContentProperty contentProperty,
-                                                    GlobalConfiguration globalConfiguration) {
-        WriteCellData<Object> writeCellData = new WriteCellData<>(CollUtil.join(value, StringConstants.COMMA));
+        ExcelContentProperty contentProperty,
+        GlobalConfiguration globalConfiguration) {
+        WriteCellData<Object> writeCellData =
+            new WriteCellData<>(CollUtil.join(value, StringConstants.COMMA));
         writeCellData.setType(CellDataTypeEnum.STRING);
         return writeCellData;
     }

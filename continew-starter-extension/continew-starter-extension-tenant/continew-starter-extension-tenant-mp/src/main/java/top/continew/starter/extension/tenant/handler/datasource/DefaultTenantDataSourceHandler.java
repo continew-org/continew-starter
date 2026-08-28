@@ -42,7 +42,7 @@ public class DefaultTenantDataSourceHandler implements TenantDataSourceHandler {
     private final DefaultDataSourceCreator dataSourceCreator;
 
     public DefaultTenantDataSourceHandler(DataSource dataSource) {
-        this.dynamicRoutingDataSource = (DynamicRoutingDataSource)dataSource;
+        this.dynamicRoutingDataSource = (DynamicRoutingDataSource) dataSource;
         this.dataSourceCreator = SpringUtil.getBean(DefaultDataSourceCreator.class);
     }
 
@@ -63,8 +63,9 @@ public class DefaultTenantDataSourceHandler implements TenantDataSourceHandler {
 
     @Override
     public boolean containsDataSource(String dataSourceName) {
-        return CharSequenceUtil.isNotBlank(dataSourceName) && dynamicRoutingDataSource.getDataSources()
-            .containsKey(dataSourceName);
+        return CharSequenceUtil.isNotBlank(dataSourceName)
+            && dynamicRoutingDataSource.getDataSources()
+                .containsKey(dataSourceName);
     }
 
     @Override

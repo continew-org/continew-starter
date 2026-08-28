@@ -52,10 +52,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 @Configuration(proxyBeanMethods = false)
 @EnableConfigurationProperties(GlobalResponseProperties.class)
-@PropertySource(value = "classpath:default-response.yml", factory = GeneralPropertySourceFactory.class)
+@PropertySource(value = "classpath:default-response.yml",
+    factory = GeneralPropertySourceFactory.class)
 public class GlobalResponseAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalResponseAutoConfiguration.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(GlobalResponseAutoConfiguration.class);
 
     /**
      * 全局响应体处理（非 void）
@@ -80,7 +82,8 @@ public class GlobalResponseAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public BeforeControllerAdviceProcess beforeControllerAdviceProcess(GlobalResponseProperties globalResponseProperties) {
+    public BeforeControllerAdviceProcess beforeControllerAdviceProcess(
+        GlobalResponseProperties globalResponseProperties) {
         return new DefaultBeforeControllerAdviceProcess(globalResponseProperties);
     }
 
@@ -88,8 +91,9 @@ public class GlobalResponseAutoConfiguration {
      * 框架异常处理器
      */
     @Bean
-    public FrameworkExceptionAdvice frameworkExceptionAdvice(BeforeControllerAdviceProcess beforeControllerAdviceProcess,
-                                                             @Lazy RejectStrategy rejectStrategy) {
+    public FrameworkExceptionAdvice frameworkExceptionAdvice(
+        BeforeControllerAdviceProcess beforeControllerAdviceProcess,
+        @Lazy RejectStrategy rejectStrategy) {
         FrameworkExceptionAdvice frameworkExceptionAdvice = new FrameworkExceptionAdvice();
         frameworkExceptionAdvice.setRejectStrategy(rejectStrategy);
         frameworkExceptionAdvice.setControllerAdviceProcessor(frameworkExceptionAdvice);
@@ -102,8 +106,9 @@ public class GlobalResponseAutoConfiguration {
      * 数据校验异常处理器
      */
     @Bean
-    public DataExceptionAdvice dataExceptionAdvice(BeforeControllerAdviceProcess beforeControllerAdviceProcess,
-                                                   @Lazy RejectStrategy rejectStrategy) {
+    public DataExceptionAdvice dataExceptionAdvice(
+        BeforeControllerAdviceProcess beforeControllerAdviceProcess,
+        @Lazy RejectStrategy rejectStrategy) {
         DataExceptionAdvice dataExceptionAdvice = new DataExceptionAdvice();
         dataExceptionAdvice.setRejectStrategy(rejectStrategy);
         dataExceptionAdvice.setControllerAdviceProcessor(dataExceptionAdvice);
@@ -116,11 +121,13 @@ public class GlobalResponseAutoConfiguration {
      * 默认全局异常处理器
      */
     @Bean
-    public DefaultGlobalExceptionAdvice defaultGlobalExceptionAdvice(BeforeControllerAdviceProcess beforeControllerAdviceProcess,
-                                                                     @Lazy RejectStrategy rejectStrategy) {
+    public DefaultGlobalExceptionAdvice defaultGlobalExceptionAdvice(
+        BeforeControllerAdviceProcess beforeControllerAdviceProcess,
+        @Lazy RejectStrategy rejectStrategy) {
         DefaultGlobalExceptionAdvice advice = new DefaultGlobalExceptionAdvice();
         advice.setRejectStrategy(rejectStrategy);
-        CopyOnWriteArrayList<ControllerAdvicePredicate> copyOnWriteArrayList = new CopyOnWriteArrayList<>();
+        CopyOnWriteArrayList<ControllerAdvicePredicate> copyOnWriteArrayList =
+            new CopyOnWriteArrayList<>();
         copyOnWriteArrayList.add(advice);
         advice.setPredicates(copyOnWriteArrayList);
         advice.setControllerAdviceProcessor(advice);
@@ -133,8 +140,9 @@ public class GlobalResponseAutoConfiguration {
      * 默认参数校验异常处理器
      */
     @Bean
-    public DefaultValidationExceptionAdvice defaultValidationExceptionAdvice(BeforeControllerAdviceProcess beforeControllerAdviceProcess,
-                                                                             @Lazy RejectStrategy rejectStrategy) {
+    public DefaultValidationExceptionAdvice defaultValidationExceptionAdvice(
+        BeforeControllerAdviceProcess beforeControllerAdviceProcess,
+        @Lazy RejectStrategy rejectStrategy) {
         DefaultValidationExceptionAdvice advice = new DefaultValidationExceptionAdvice();
         advice.setRejectStrategy(rejectStrategy);
         advice.setControllerAdviceProcessor(advice);
@@ -164,7 +172,8 @@ public class GlobalResponseAutoConfiguration {
      * 国际化支持
      */
     @Bean
-    @ConditionalOnProperty(prefix = PropertiesConstants.WEB_RESPONSE, name = "i18n", havingValue = "true")
+    @ConditionalOnProperty(prefix = PropertiesConstants.WEB_RESPONSE, name = "i18n",
+        havingValue = "true")
     public GrI18nResponseBodyAdvice grI18nResponseBodyAdvice() {
         return new GrI18nResponseBodyAdvice();
     }
@@ -173,7 +182,8 @@ public class GlobalResponseAutoConfiguration {
      * 国际化配置
      */
     @Bean
-    @ConditionalOnProperty(prefix = PropertiesConstants.WEB_RESPONSE, name = "i18n", havingValue = "true")
+    @ConditionalOnProperty(prefix = PropertiesConstants.WEB_RESPONSE, name = "i18n",
+        havingValue = "true")
     public MessageSource messageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
         messageSource.setBasenames("i18n", "i18n/messages");
@@ -218,6 +228,7 @@ public class GlobalResponseAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Web-Global Response' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Web-Global Response' completed initialization.");
     }
 }

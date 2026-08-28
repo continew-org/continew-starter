@@ -143,8 +143,10 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      * @param <E>       泛型
      * @return 操作结果
      */
-    protected <E> boolean executeBatch(Collection<E> list, int batchSize, BiFunction<SqlSession, E, Integer> consumer) {
-        return SqlHelper.executeBatch(getSqlSessionFactory(), this.innerLog, list, batchSize, consumer);
+    protected <E> boolean executeBatch(Collection<E> list, int batchSize,
+        BiFunction<SqlSession, E, Integer> consumer) {
+        return SqlHelper.executeBatch(getSqlSessionFactory(), this.innerLog, list, batchSize,
+            consumer);
     }
 
     /**
@@ -155,7 +157,8 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      * @param <E>      泛型
      * @return 操作结果
      */
-    protected <E> boolean executeBatch(Collection<E> list, BiFunction<SqlSession, E, Integer> consumer) {
+    protected <E> boolean executeBatch(Collection<E> list,
+        BiFunction<SqlSession, E, Integer> consumer) {
         return executeBatch(list, DEFAULT_BATCH_SIZE, consumer);
     }
 
@@ -184,7 +187,8 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
     @Override
     public boolean saveBatch(Collection<T> entityList, int batchSize) {
         String sqlStatement = getSqlStatement(SqlMethod.INSERT_ONE);
-        return executeBatch(entityList, batchSize, (sqlSession, entity) -> sqlSession.insert(sqlStatement, entity));
+        return executeBatch(entityList, batchSize,
+            (sqlSession, entity) -> sqlSession.insert(sqlStatement, entity));
     }
 
     /**
@@ -199,9 +203,11 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
     @Override
     public boolean saveOrUpdateBatch(Collection<T> entityList, int batchSize) {
         TableInfo tableInfo = TableInfoHelper.getTableInfo(this.getEntityClass());
-        Assert.notNull(tableInfo, "error: can not execute. because can not find cache of TableInfo for entity!");
+        Assert.notNull(tableInfo,
+            "error: can not execute. because can not find cache of TableInfo for entity!");
         String keyProperty = tableInfo.getKeyProperty();
-        Assert.notEmpty(keyProperty, "error: can not execute. because can not find column for id from entity!");
+        Assert.notEmpty(keyProperty,
+            "error: can not execute. because can not find column for id from entity!");
         return SqlHelper.saveOrUpdateBatch(getSqlSessionFactory(), this
             .getMapperClass(), this.innerLog, entityList, batchSize, (sqlSession, entity) -> {
                 Object idVal = tableInfo.getPropertyValue(entity, keyProperty);
@@ -247,7 +253,7 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
     @Override
     public Class<T> getEntityClass() {
         if (this.entityClass == null) {
-            this.entityClass = (Class<T>)GenericTypeUtils.resolveTypeArguments(this
+            this.entityClass = (Class<T>) GenericTypeUtils.resolveTypeArguments(this
                 .getMapperClass(), BaseMapper.class)[0];
         }
         return this.entityClass;
@@ -260,8 +266,9 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      */
     public Class<M> getMapperClass() {
         if (this.mapperClass == null) {
-            MapperProxyMetadata mapperProxyMetadata = MybatisUtils.getMapperProxy(this.getBaseMapper());
-            this.mapperClass = (Class<M>)mapperProxyMetadata.getMapperInterface();
+            MapperProxyMetadata mapperProxyMetadata =
+                MybatisUtils.getMapperProxy(this.getBaseMapper());
+            this.mapperClass = (Class<M>) mapperProxyMetadata.getMapperInterface();
         }
         return this.mapperClass;
     }
@@ -285,8 +292,10 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      */
     protected SqlSessionFactory getSqlSessionFactory() {
         if (this.sqlSessionFactory == null) {
-            MapperProxyMetadata mapperProxyMetadata = MybatisUtils.getMapperProxy(this.getBaseMapper());
-            this.sqlSessionFactory = MybatisUtils.getSqlSessionFactory(mapperProxyMetadata.getSqlSession());
+            MapperProxyMetadata mapperProxyMetadata =
+                MybatisUtils.getMapperProxy(this.getBaseMapper());
+            this.sqlSessionFactory =
+                MybatisUtils.getSqlSessionFactory(mapperProxyMetadata.getSqlSession());
         }
         return this.sqlSessionFactory;
     }
@@ -311,7 +320,8 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
     protected T getById(Serializable id, boolean isCheckExists) {
         T entity = baseMapper.selectById(id);
         if (isCheckExists) {
-            CheckUtils.throwIfNotExists(entity, ClassUtil.getClassName(this.getEntityClass(), true), "ID", id);
+            CheckUtils.throwIfNotExists(entity, ClassUtil.getClassName(this.getEntityClass(), true),
+                "ID", id);
         }
         return entity;
     }

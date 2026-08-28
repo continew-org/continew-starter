@@ -35,6 +35,7 @@ public class BaseEnumConverterFactory implements ConverterFactory<String, BaseEn
 
     @Override
     public <T extends BaseEnum> Converter<String, T> getConverter(Class<T> targetType) {
-        return CONVERTER_CACHE.computeIfAbsent(targetType, key -> new BaseEnumConverter<>(targetType));
+        return CONVERTER_CACHE.computeIfAbsent(targetType,
+            key -> new BaseEnumConverter<>(targetType));
     }
 }

@@ -38,7 +38,8 @@ import top.continew.starter.core.constant.PropertiesConstants;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(JustAuthProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.AUTH_JUSTAUTH, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.AUTH_JUSTAUTH,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 @Import({JustAuthStateCacheConfiguration.class})
 public class JustAuthAutoConfiguration {
 
@@ -48,7 +49,8 @@ public class JustAuthAutoConfiguration {
      * AuthRequest 工厂配置
      */
     @Bean
-    public AuthRequestFactory authRequestFactory(JustAuthProperties properties, AuthStateCache stateCache) {
+    public AuthRequestFactory authRequestFactory(JustAuthProperties properties,
+        AuthStateCache stateCache) {
         return new AuthRequestFactory(properties, stateCache);
     }
 

@@ -41,6 +41,7 @@ public class TenantWebConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(this.tenantInterceptor).order(OrderedConstants.Interceptor.TENANT_INTERCEPTOR);
+        registry.addInterceptor(this.tenantInterceptor)
+            .order(OrderedConstants.Interceptor.TENANT_INTERCEPTOR);
     }
 }

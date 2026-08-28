@@ -43,7 +43,8 @@ public class TenantInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
+        Object handler) {
         // 设置上下文
         String tenantId = request.getHeader(tenantProperties.getTenantIdHeader());
         TenantContextHolder.setContext(tenantProvider.getByTenantId(tenantId, true));
@@ -53,7 +54,8 @@ public class TenantInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception e) {
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response,
+        Object handler, Exception e) {
         // 清除上下文
         TenantContextHolder.clear();
     }
@@ -70,7 +72,8 @@ public class TenantInterceptor implements HandlerInterceptor {
             if (methodAnnotation != null) {
                 return true;
             }
-            return AnnotationUtil.getAnnotation(handlerMethod.getBeanType(), TenantIgnore.class) != null;
+            return AnnotationUtil.getAnnotation(handlerMethod.getBeanType(),
+                TenantIgnore.class) != null;
         }
         return false;
     }

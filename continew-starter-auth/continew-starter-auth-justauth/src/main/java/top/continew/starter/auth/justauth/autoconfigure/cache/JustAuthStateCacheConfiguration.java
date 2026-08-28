@@ -43,19 +43,22 @@ import top.continew.starter.core.constant.PropertiesConstants;
 @Configuration(proxyBeanMethods = false)
 public class JustAuthStateCacheConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(JustAuthStateCacheConfiguration.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(JustAuthStateCacheConfiguration.class);
 
     /**
      * 使用内存
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnMissingBean(AuthStateCache.class)
-    @ConditionalOnProperty(prefix = PropertiesConstants.AUTH_JUSTAUTH, name = "cache.type", havingValue = "default", matchIfMissing = true)
+    @ConditionalOnProperty(prefix = PropertiesConstants.AUTH_JUSTAUTH, name = "cache.type",
+        havingValue = "default", matchIfMissing = true)
     static class Default {
 
         @Bean
         public AuthStateCache authStateCache() {
-            log.debug("[ContiNew Starter] - Auto Configuration 'JustAuth-StateCache-Default' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'JustAuth-StateCache-Default' completed initialization.");
             return AuthDefaultStateCache.INSTANCE;
         }
     }
@@ -66,12 +69,14 @@ public class JustAuthStateCacheConfiguration {
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnBean(RedissonClient.class)
     @ConditionalOnMissingBean(AuthStateCache.class)
-    @ConditionalOnProperty(prefix = PropertiesConstants.AUTH_JUSTAUTH, name = "cache.type", havingValue = "redis")
+    @ConditionalOnProperty(prefix = PropertiesConstants.AUTH_JUSTAUTH, name = "cache.type",
+        havingValue = "redis")
     static class Redis {
 
         @Bean
         public AuthStateCache authStateCache(JustAuthProperties properties) {
-            log.debug("[ContiNew Starter] - Auto Configuration 'JustAuth-StateCache-Redis' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'JustAuth-StateCache-Redis' completed initialization.");
             return new RedisAuthStateCache(properties.getCache());
         }
     }
@@ -80,22 +85,26 @@ public class JustAuthStateCacheConfiguration {
      * 自定义
      */
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnProperty(prefix = PropertiesConstants.AUTH_JUSTAUTH, name = "cache.type", havingValue = "custom")
+    @ConditionalOnProperty(prefix = PropertiesConstants.AUTH_JUSTAUTH, name = "cache.type",
+        havingValue = "custom")
     static class Custom {
 
         @Bean
         @ConditionalOnMissingBean(AuthStateCache.class)
         public AuthStateCache authStateCache() {
             if (log.isErrorEnabled()) {
-                log.error("[ContiNew Starter] - When 'continew-starter.justauth.cache.type' is 'custom', you must provide a bean of type '{}' in your configuration.", ResolvableType
-                    .forClass(AuthStateCache.class));
+                log.error(
+                    "[ContiNew Starter] - When 'continew-starter.justauth.cache.type' is 'custom', you must provide a bean of type '{}' in your configuration.",
+                    ResolvableType
+                        .forClass(AuthStateCache.class));
             }
             throw new NoSuchBeanDefinitionException(AuthStateCache.class);
         }
 
         @PostConstruct
         public void postConstruct() {
-            log.debug("[ContiNew Starter] - Auto Configuration 'JustAuth-StateCache-Custom' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'JustAuth-StateCache-Custom' completed initialization.");
         }
     }
 }

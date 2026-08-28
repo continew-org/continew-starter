@@ -36,10 +36,12 @@ import top.continew.starter.core.constant.PropertiesConstants;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(LicenseGenerateProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.LICENSE_GENERATOR, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.LICENSE_GENERATOR,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class LicenseGenerateAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(LicenseGenerateAutoConfiguration.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(LicenseGenerateAutoConfiguration.class);
 
     /**
      * license 生成服务接口
@@ -52,6 +54,7 @@ public class LicenseGenerateAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'License-Generator' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'License-Generator' completed initialization.");
     }
 }

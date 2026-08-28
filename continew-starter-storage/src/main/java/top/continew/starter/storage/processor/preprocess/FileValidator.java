@@ -30,7 +30,7 @@ public interface FileValidator extends FileProcessor {
 
     /**
      * 验证文件
-     * 
+     *
      * @param context 上传上下文
      * @throws StorageException 验证失败时抛出异常
      */

@@ -39,7 +39,8 @@ import java.util.List;
 public class WebSocketUtils {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketUtils.class);
-    private static final WebSocketSessionDao SESSION_DAO = SpringUtil.getBean(WebSocketSessionDao.class);
+    private static final WebSocketSessionDao SESSION_DAO =
+        SpringUtil.getBean(WebSocketSessionDao.class);
 
     private WebSocketUtils() {
     }
@@ -73,7 +74,8 @@ public class WebSocketUtils {
      * @since 2.12.1
      */
     public static void sendMessage(List<String> clientIds, String message) {
-        Collection<String> sessionIds = CollUtil.intersection(SESSION_DAO.listAllSessionIds(), clientIds);
+        Collection<String> sessionIds =
+            CollUtil.intersection(SESSION_DAO.listAllSessionIds(), clientIds);
         sessionIds.parallelStream().forEach(sessionId -> sendMessage(sessionId, message));
     }
 

@@ -95,7 +95,8 @@ public class SortQuery implements Serializable {
             return;
         }
         this.sort = sort.stream()
-            .map(order -> order.getProperty() + StringConstants.COMMA + order.getDirection().name().toLowerCase())
+            .map(order -> order.getProperty() + StringConstants.COMMA
+                + order.getDirection().name().toLowerCase())
             .toArray(String[]::new);
     }
 

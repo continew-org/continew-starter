@@ -33,7 +33,8 @@ public class ServerExtensionProperties {
     /**
      * 默认禁止三个不安全的 HTTP 方法（如 CONNECT、TRACE、TRACK）
      */
-    private static final List<String> DEFAULT_ALLOWED_METHODS = List.of("CONNECT", "TRACE", "TRACK");
+    private static final List<String> DEFAULT_ALLOWED_METHODS =
+        List.of("CONNECT", "TRACE", "TRACK");
 
     /**
      * 是否启用

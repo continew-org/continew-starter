@@ -50,10 +50,12 @@ public class ExpressionUtils {
                 return null;
             }
             ExpressionEvaluator expressionEvaluator = new ExpressionEvaluator(script, method);
-            ExpressionInvokeContext invokeContext = new ExpressionInvokeContext(method, args, target);
+            ExpressionInvokeContext invokeContext =
+                new ExpressionInvokeContext(method, args, target);
             return expressionEvaluator.apply(invokeContext);
         } catch (Exception e) {
-            log.error("Error occurs when eval script \"{}\" in {} : {}", script, method, e.getMessage(), e);
+            log.error("Error occurs when eval script \"{}\" in {} : {}", script, method,
+                e.getMessage(), e);
             return null;
         }
     }

@@ -46,8 +46,10 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
 @ConditionalOnWebApplication
 @ConditionalOnClass(Undertow.class)
 @EnableConfigurationProperties(ServerExtensionProperties.class)
-@PropertySource(value = "classpath:default-server.yml", factory = GeneralPropertySourceFactory.class)
-@ConditionalOnProperty(prefix = "server.extension", name = PropertiesConstants.ENABLED, havingValue = "true")
+@PropertySource(value = "classpath:default-server.yml",
+    factory = GeneralPropertySourceFactory.class)
+@ConditionalOnProperty(prefix = "server.extension", name = PropertiesConstants.ENABLED,
+    havingValue = "true")
 public class UndertowAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(UndertowAutoConfiguration.class);
@@ -56,14 +58,18 @@ public class UndertowAutoConfiguration {
      * Undertow 自定义配置
      */
     @Bean
-    public WebServerFactoryCustomizer<UndertowServletWebServerFactory> customize(ServerExtensionProperties properties) {
+    public WebServerFactoryCustomizer<UndertowServletWebServerFactory> customize(
+        ServerExtensionProperties properties) {
         return factory -> {
             factory.addDeploymentInfoCustomizers(deploymentInfo -> deploymentInfo
-                .addInitialHandlerChainWrapper(handler -> new DisallowedMethodsHandler(handler, CollUtils
-                    .mapToSet(properties.getDisallowedMethods(), HttpString::tryFromString))));
-            log.debug("[ContiNew Starter] - Disallowed HTTP methods on Server Undertow: {}.", properties
-                .getDisallowedMethods());
-            log.debug("[ContiNew Starter] - Auto Configuration 'Web-Server Undertow' completed initialization.");
+                .addInitialHandlerChainWrapper(
+                    handler -> new DisallowedMethodsHandler(handler, CollUtils
+                        .mapToSet(properties.getDisallowedMethods(), HttpString::tryFromString))));
+            log.debug("[ContiNew Starter] - Disallowed HTTP methods on Server Undertow: {}.",
+                properties
+                    .getDisallowedMethods());
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'Web-Server Undertow' completed initialization.");
         };
     }
 }

@@ -57,12 +57,13 @@ public class FileStorageService {
     private final StorageStrategyRouter router;
     private final ProcessorRegistry processorRegistry;
     private final FileRecorder fileRecorder;
-    private final ThreadLocal<List<FileProcessor>> tempProcessors = ThreadLocal.withInitial(ArrayList::new);
+    private final ThreadLocal<List<FileProcessor>> tempProcessors =
+        ThreadLocal.withInitial(ArrayList::new);
     private final ThreadLocal<UploadProgressListener> progressListener = new ThreadLocal<>();
 
     public FileStorageService(StorageStrategyRouter router,
-                              ProcessorRegistry processorRegistry,
-                              FileRecorder fileRecorder) {
+        ProcessorRegistry processorRegistry,
+        FileRecorder fileRecorder) {
         this.router = router;
         this.processorRegistry = processorRegistry;
         this.fileRecorder = fileRecorder;
@@ -144,7 +145,8 @@ public class FileStorageService {
      * @param contentType 内容类型
      * @return {@link UploadPretreatment }
      */
-    private UploadPretreatment createPretreatment(Object source, String filename, String contentType) {
+    private UploadPretreatment createPretreatment(Object source, String filename,
+        String contentType) {
         FileWrapper wrapper = (filename != null || contentType != null)
             ? FileWrapper.of(source, filename, contentType)
             : FileWrapper.of(source);
@@ -198,7 +200,8 @@ public class FileStorageService {
             }
 
             // 4. 准备缩略图处理
-            ThumbnailProcessor thumbnailProcessor = prepareThumbnail(context, platform, customProcessors);
+            ThumbnailProcessor thumbnailProcessor =
+                prepareThumbnail(context, platform, customProcessors);
 
             // 5. 执行实际上传
             setFileReadPhase(context.getFile(), ProgressAwareMultipartFile.ReadPhase.UPLOAD);
@@ -256,15 +259,17 @@ public class FileStorageService {
      */
     private void setFileReadPhase(MultipartFile file, ProgressAwareMultipartFile.ReadPhase phase) {
         if (file instanceof ProgressAwareMultipartFile) {
-            ((ProgressAwareMultipartFile)file).setReadPhase(phase);
+            ((ProgressAwareMultipartFile) file).setReadPhase(phase);
         }
     }
 
     /**
      * 执行文件验证
      */
-    private void executeValidation(UploadContext context, String platform, List<FileProcessor> customProcessors) {
-        List<FileValidator> validators = collectProcessors(customProcessors, FileValidator.class, platform, context);
+    private void executeValidation(UploadContext context, String platform,
+        List<FileProcessor> customProcessors) {
+        List<FileValidator> validators =
+            collectProcessors(customProcessors, FileValidator.class, platform, context);
 
         for (FileValidator validator : validators) {
             if (validator.support(context)) {
@@ -276,13 +281,16 @@ public class FileStorageService {
     /**
      * 仅在文件名为空时生成文件名
      */
-    private void generateFileNameIfEmpty(UploadContext context, String platform, List<FileProcessor> customProcessors) {
+    private void generateFileNameIfEmpty(UploadContext context, String platform,
+        List<FileProcessor> customProcessors) {
         // 如果已有文件名，直接返回
         if (StrUtil.isNotBlank(context.getFormatFileName())) {
             return;
         }
 
-        FileNameGenerator nameGenerator = findFirstProcessor(customProcessors, FileNameGenerator.class, platform, context);
+        FileNameGenerator nameGenerator =
+            findFirstProcessor(customProcessors, FileNameGenerator.class, platform,
+                context);
 
         if (nameGenerator != null && nameGenerator.support(context)) {
             context.setFormatFileName(nameGenerator.generate(context));
@@ -292,13 +300,16 @@ public class FileStorageService {
     /**
      * 仅在路径为空时生成路径
      */
-    private void generateFilePathIfEmpty(UploadContext context, String platform, List<FileProcessor> customProcessors) {
+    private void generateFilePathIfEmpty(UploadContext context, String platform,
+        List<FileProcessor> customProcessors) {
         // 如果已有路径，直接返回
         if (StrUtil.isNotBlank(context.getPath())) {
             return;
         }
 
-        FilePathGenerator pathGenerator = findFirstProcessor(customProcessors, FilePathGenerator.class, platform, context);
+        FilePathGenerator pathGenerator =
+            findFirstProcessor(customProcessors, FilePathGenerator.class, platform,
+                context);
 
         if (pathGenerator != null && pathGenerator.support(context)) {
             context.setPath(pathGenerator.path(context));
@@ -309,9 +320,11 @@ public class FileStorageService {
      * 准备缩略图处理
      */
     private ThumbnailProcessor prepareThumbnail(UploadContext context,
-                                                String platform,
-                                                List<FileProcessor> customProcessors) {
-        ThumbnailProcessor thumbnailProcessor = findFirstProcessor(customProcessors, ThumbnailProcessor.class, platform, context);
+        String platform,
+        List<FileProcessor> customProcessors) {
+        ThumbnailProcessor thumbnailProcessor =
+            findFirstProcessor(customProcessors, ThumbnailProcessor.class, platform,
+                context);
 
         boolean needThumbnail = thumbnailProcessor != null && thumbnailProcessor.support(context);
         context.setGenerateThumbnail(needThumbnail);
@@ -337,10 +350,11 @@ public class FileStorageService {
      * 触发上传完成事件
      */
     private void triggerCompleteEvent(FileInfo fileInfo,
-                                      UploadContext context,
-                                      String platform,
-                                      List<FileProcessor> customProcessors) {
-        List<UploadCompleteProcessor> completeProcessors = collectProcessors(customProcessors, UploadCompleteProcessor.class, platform, context);
+        UploadContext context,
+        String platform,
+        List<FileProcessor> customProcessors) {
+        List<UploadCompleteProcessor> completeProcessors = collectProcessors(customProcessors,
+            UploadCompleteProcessor.class, platform, context);
 
         for (UploadCompleteProcessor processor : completeProcessors) {
             if (processor.support(context)) {
@@ -352,10 +366,11 @@ public class FileStorageService {
     /**
      * 收集指定类型的处理器
      */
-    private <T extends FileProcessor> List<T> collectProcessors(List<FileProcessor> customProcessors,
-                                                                Class<T> processorClass,
-                                                                String platform,
-                                                                UploadContext context) {
+    private <T extends FileProcessor> List<T> collectProcessors(
+        List<FileProcessor> customProcessors,
+        Class<T> processorClass,
+        String platform,
+        UploadContext context) {
 
         List<T> processors = new ArrayList<>();
 
@@ -377,9 +392,9 @@ public class FileStorageService {
      * 查找第一个匹配的处理器
      */
     private <T extends FileProcessor> T findFirstProcessor(List<FileProcessor> customProcessors,
-                                                           Class<T> processorClass,
-                                                           String platform,
-                                                           UploadContext context) {
+        Class<T> processorClass,
+        String platform,
+        UploadContext context) {
 
         // 优先从自定义处理器中查找
         if (customProcessors != null) {
@@ -400,7 +415,8 @@ public class FileStorageService {
     /**
      * 处理缩略图
      */
-    private void processThumbnail(FileInfo fileInfo, ThumbnailProcessor processor, UploadContext context) {
+    private void processThumbnail(FileInfo fileInfo, ThumbnailProcessor processor,
+        UploadContext context) {
         try {
             MultipartFile file = context.getFile();
 
@@ -409,19 +425,25 @@ public class FileStorageService {
                 ThumbnailInfo thumbnailInfo = processor.process(context, is);
 
                 // 生成缩略图路径
-                String filePrefix = StrUtil.subBefore(fileInfo.getPath(), StringConstants.DOT, true);
-                String thumbnailPath = filePrefix + StorageConstant.THUMBNAIL_SUFFIX + thumbnailInfo.getFormat();
-                String thumbnailFileName = StrUtil.subAfter(thumbnailPath, StringConstants.SLASH, true);
+                String filePrefix =
+                    StrUtil.subBefore(fileInfo.getPath(), StringConstants.DOT, true);
+                String thumbnailPath =
+                    filePrefix + StorageConstant.THUMBNAIL_SUFFIX + thumbnailInfo.getFormat();
+                String thumbnailFileName =
+                    StrUtil.subAfter(thumbnailPath, StringConstants.SLASH, true);
 
                 // 创建缩略图文件
-                EnhancedMultipartFile thumbnailFile = new EnhancedMultipartFile(thumbnailFileName, thumbnailFileName, StorageConstant.CONTENT_TYPE_IMAGE + thumbnailInfo
-                    .getFormat(), thumbnailInfo.getData());
+                EnhancedMultipartFile thumbnailFile =
+                    new EnhancedMultipartFile(thumbnailFileName, thumbnailFileName,
+                        StorageConstant.CONTENT_TYPE_IMAGE + thumbnailInfo
+                            .getFormat(),
+                        thumbnailInfo.getData());
 
                 // 上传缩略图
                 upload(context.getPlatform(), context.getBucket(), thumbnailPath, thumbnailFile);
 
                 fileInfo.setThumbnailPath(thumbnailPath);
-                fileInfo.setThumbnailSize((long)thumbnailInfo.getData().length);
+                fileInfo.setThumbnailSize((long) thumbnailInfo.getData().length);
             }
         } catch (Exception e) {
             log.warn("缩略图处理失败: {}", e.getMessage());
@@ -445,9 +467,9 @@ public class FileStorageService {
      */
     private void cleanupFileCache(MultipartFile file) {
         if (file instanceof ProgressAwareMultipartFile) {
-            ((ProgressAwareMultipartFile)file).clearCache();
+            ((ProgressAwareMultipartFile) file).clearCache();
         } else if (file instanceof EnhancedMultipartFile) {
-            ((EnhancedMultipartFile)file).clearCache();
+            ((EnhancedMultipartFile) file).clearCache();
         }
     }
 
@@ -455,12 +477,13 @@ public class FileStorageService {
      * 初始化分片上传
      */
     public MultipartInitResp initMultipartUpload(String bucket,
-                                                 String platform,
-                                                 String path,
-                                                 String contentType,
-                                                 Map<String, String> metadata) {
+        String platform,
+        String path,
+        String contentType,
+        Map<String, String> metadata) {
         bucket = bucket == null ? getDefaultBucket(platform) : bucket;
-        MultipartInitResp result = router.route(platform).initMultipartUpload(bucket, path, contentType, metadata);
+        MultipartInitResp result =
+            router.route(platform).initMultipartUpload(bucket, path, contentType, metadata);
 
         // 记录文件信息
         if (fileRecorder != null) {
@@ -492,8 +515,9 @@ public class FileStorageService {
             String cachedUploadId = fileRecorder.getUploadIdByMd5(req.getFileMd5());
             if (StrUtil.isNotBlank(cachedUploadId)) {
                 MultipartInitResp cachedSession = fileRecorder.getMultipartSession(cachedUploadId);
-                if (cachedSession != null && StrUtil.equals(platform, cachedSession.getPlatform()) && StrUtil
-                    .equals(bucket, cachedSession.getBucket())) {
+                if (cachedSession != null && StrUtil.equals(platform, cachedSession.getPlatform())
+                    && StrUtil
+                        .equals(bucket, cachedSession.getBucket())) {
                     List<FilePartInfo> fileParts = fileRecorder.getFileParts(cachedUploadId);
                     cachedSession.setUploadedPartNumbers(fileParts.stream()
                         .map(FilePartInfo::getPartNumber)
@@ -503,7 +527,8 @@ public class FileStorageService {
             }
         }
 
-        MultipartInitResp result = initMultipartUpload(bucket, platform, path, req.getContentType(), req.getMetadata());
+        MultipartInitResp result =
+            initMultipartUpload(bucket, platform, path, req.getContentType(), req.getMetadata());
         result.setFileName(req.getFileName());
         result.setFileMd5(req.getFileMd5());
         result.setFileSize(req.getFileSize());
@@ -525,12 +550,13 @@ public class FileStorageService {
      * 上传分片
      */
     public MultipartUploadResp uploadPart(String platform,
-                                          String bucket,
-                                          String path,
-                                          String uploadId,
-                                          int partNumber,
-                                          InputStream data) {
-        MultipartUploadResp result = router.route(platform).uploadPart(bucket, path, uploadId, partNumber, data);
+        String bucket,
+        String path,
+        String uploadId,
+        int partNumber,
+        InputStream data) {
+        MultipartUploadResp result =
+            router.route(platform).uploadPart(bucket, path, uploadId, partNumber, data);
 
         // 记录分片信息
         if (fileRecorder != null && result.isSuccess()) {
@@ -553,10 +579,10 @@ public class FileStorageService {
      * 完成分片上传
      */
     public FileInfo completeMultipartUpload(String platform,
-                                            String bucket,
-                                            String path,
-                                            String uploadId,
-                                            List<MultipartUploadResp> clientParts) {
+        String bucket,
+        String path,
+        String uploadId,
+        List<MultipartUploadResp> clientParts) {
         // 从 FileRecorder 获取所有分片信息
         List<FilePartInfo> recordedParts = fileRecorder != null
             ? fileRecorder.getFileParts(uploadId)
@@ -583,7 +609,8 @@ public class FileStorageService {
         // 获取策略，判断是否需要验证
         boolean needVerify = true;
         // 完成上传
-        FileInfo fileInfo = router.route(platform).completeMultipartUpload(bucket, path, uploadId, parts, needVerify);
+        FileInfo fileInfo = router.route(platform).completeMultipartUpload(bucket, path, uploadId,
+            parts, needVerify);
 
         // 更新文件记录
         if (fileRecorder != null) {
@@ -595,7 +622,8 @@ public class FileStorageService {
                 fileInfo.setOriginalFileName(StrUtil.blankToDefault(session.getFileName(), fileInfo
                     .getOriginalFileName()));
                 fileInfo.getMetadata()
-                    .put("fileMd5", StrUtil.blankToDefault(session.getFileMd5(), StringConstants.EMPTY));
+                    .put("fileMd5",
+                        StrUtil.blankToDefault(session.getFileMd5(), StringConstants.EMPTY));
             }
             fileInfo.getMetadata().put("uploadId", uploadId);
             fileInfo.getMetadata().put("status", "COMPLETED");
@@ -610,7 +638,8 @@ public class FileStorageService {
     /**
      * 根据 uploadId 完成分片上传
      */
-    public FileInfo completeMultipartUpload(String uploadId, List<MultipartUploadResp> clientParts) {
+    public FileInfo completeMultipartUpload(String uploadId,
+        List<MultipartUploadResp> clientParts) {
         MultipartInitResp session = getMultipartSession(uploadId);
         if (session == null) {
             throw new StorageException("无效的 uploadId: " + uploadId);
@@ -642,7 +671,8 @@ public class FileStorageService {
             }
             return;
         }
-        abortMultipartUpload(session.getPlatform(), session.getBucket(), session.getPath(), uploadId);
+        abortMultipartUpload(session.getPlatform(), session.getBucket(), session.getPath(),
+            uploadId);
     }
 
     /**
@@ -654,7 +684,8 @@ public class FileStorageService {
         }
 
         // 检查分片编号连续性
-        List<Integer> partNumbers = parts.stream().map(MultipartUploadResp::getPartNumber).sorted().toList();
+        List<Integer> partNumbers =
+            parts.stream().map(MultipartUploadResp::getPartNumber).sorted().toList();
 
         for (int i = 0; i < partNumbers.size(); i++) {
             if (partNumbers.get(i) != i + 1) {
@@ -676,7 +707,8 @@ public class FileStorageService {
     /**
      * 列出已上传的分片
      */
-    public List<MultipartUploadResp> listParts(String platform, String bucket, String path, String uploadId) {
+    public List<MultipartUploadResp> listParts(String platform, String bucket, String path,
+        String uploadId) {
         return router.route(platform).listParts(bucket, path, uploadId);
     }
 
@@ -748,7 +780,8 @@ public class FileStorageService {
     public void delete(FileInfo info) {
         router.route(info.getPlatform()).delete(info.getBucket(), info.getFullPath());
         if (fileRecorder != null) {
-            fileRecorder.delete(info.getPlatform(), StrUtil.blankToDefault(info.getPath(), info.getFullPath()));
+            fileRecorder.delete(info.getPlatform(),
+                StrUtil.blankToDefault(info.getPath(), info.getFullPath()));
         }
     }
 
@@ -797,14 +830,16 @@ public class FileStorageService {
     /**
      * 复制文件
      */
-    public void copy(String platform, String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
+    public void copy(String platform, String sourceBucket, String targetBucket, String sourcePath,
+        String targetPath) {
         router.route(platform).copy(sourceBucket, targetBucket, sourcePath, targetPath);
     }
 
     /**
      * 移动文件
      */
-    public void move(String platform, String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
+    public void move(String platform, String sourceBucket, String targetBucket, String sourcePath,
+        String targetPath) {
         router.route(platform).move(sourceBucket, targetBucket, sourcePath, targetPath);
     }
 
@@ -818,7 +853,8 @@ public class FileStorageService {
     /**
      * 生成预签名URL
      */
-    public String generatePresignedUrl(String platform, String bucket, String path, long expireSeconds) {
+    public String generatePresignedUrl(String platform, String bucket, String path,
+        long expireSeconds) {
         return router.route(platform).generatePresignedUrl(bucket, path, expireSeconds);
     }
 
@@ -832,7 +868,8 @@ public class FileStorageService {
     /**
      * 生成上传预签名URL
      */
-    public String generateUploadPresignedUrl(String platform, String bucket, String path, long expireSeconds) {
+    public String generateUploadPresignedUrl(String platform, String bucket, String path,
+        long expireSeconds) {
         return router.route(platform).generateUploadPresignedUrl(bucket, path, expireSeconds);
     }
 
@@ -916,7 +953,8 @@ public class FileStorageService {
         if (StrUtil.isBlank(parentPath) || StringConstants.SLASH.equals(parentPath)) {
             return StringConstants.SLASH;
         }
-        String normalized = parentPath.replace("\\", StringConstants.SLASH).replaceAll("/+", StringConstants.SLASH);
+        String normalized =
+            parentPath.replace("\\", StringConstants.SLASH).replaceAll("/+", StringConstants.SLASH);
         return StringConstants.SLASH + StrUtil.removeSuffix(StrUtil
             .removePrefix(normalized, StringConstants.SLASH), StringConstants.SLASH);
     }
@@ -926,6 +964,7 @@ public class FileStorageService {
         if (StringConstants.SLASH.equals(parentPath)) {
             return normalizedName;
         }
-        return StrUtil.removePrefix(parentPath + StringConstants.SLASH + normalizedName, StringConstants.SLASH);
+        return StrUtil.removePrefix(parentPath + StringConstants.SLASH + normalizedName,
+            StringConstants.SLASH);
     }
 }

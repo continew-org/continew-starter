@@ -39,7 +39,8 @@ import top.continew.starter.core.constant.PropertiesConstants;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(LicenseVerifyProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.LICENSE_VERIFIER, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.LICENSE_VERIFIER,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class LicenseVerifyAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(LicenseVerifyAutoConfiguration.class);
@@ -63,7 +64,8 @@ public class LicenseVerifyAutoConfiguration {
      */
     @Bean
     @DependsOn("licenseInstallerBean")
-    public LicenseStarterInitializingBean licenseStarterInitializingBean(LicenseInstallerBean licenseInstallerBean) {
+    public LicenseStarterInitializingBean licenseStarterInitializingBean(
+        LicenseInstallerBean licenseInstallerBean) {
         return new LicenseStarterInitializingBean(licenseInstallerBean);
     }
 
@@ -80,7 +82,8 @@ public class LicenseVerifyAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'License-Verifier' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'License-Verifier' completed initialization.");
     }
 
 }

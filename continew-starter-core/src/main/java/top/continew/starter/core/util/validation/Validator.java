@@ -47,7 +47,8 @@ public class Validator {
      * @param message       提示信息
      * @param exceptionType 异常类型
      */
-    protected static void throwIfNull(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
+    protected static void throwIfNull(Object obj, String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(obj == null, message, exceptionType);
     }
 
@@ -58,7 +59,8 @@ public class Validator {
      * @param message       提示信息
      * @param exceptionType 异常类型
      */
-    protected static void throwIfNotNull(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
+    protected static void throwIfNotNull(Object obj, String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(obj != null, message, exceptionType);
     }
 
@@ -69,7 +71,8 @@ public class Validator {
      * @param message       提示信息
      * @param exceptionType 异常类型
      */
-    protected static void throwIfEmpty(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
+    protected static void throwIfEmpty(Object obj, String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(ObjectUtil.isEmpty(obj), message, exceptionType);
     }
 
@@ -80,7 +83,8 @@ public class Validator {
      * @param message       提示信息
      * @param exceptionType 异常类型
      */
-    protected static void throwIfNotEmpty(Object obj, String message, Class<? extends RuntimeException> exceptionType) {
+    protected static void throwIfNotEmpty(Object obj, String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(ObjectUtil.isNotEmpty(obj), message, exceptionType);
     }
 
@@ -92,8 +96,8 @@ public class Validator {
      * @param exceptionType 异常类型
      */
     protected static void throwIfBlank(CharSequence str,
-                                       String message,
-                                       Class<? extends RuntimeException> exceptionType) {
+        String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(CharSequenceUtil.isBlank(str), message, exceptionType);
     }
 
@@ -105,8 +109,8 @@ public class Validator {
      * @param exceptionType 异常类型
      */
     protected static void throwIfNotBlank(CharSequence str,
-                                          String message,
-                                          Class<? extends RuntimeException> exceptionType) {
+        String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(CharSequenceUtil.isNotBlank(str), message, exceptionType);
     }
 
@@ -119,9 +123,9 @@ public class Validator {
      * @param exceptionType 异常类型
      */
     protected static void throwIfEqual(Object obj1,
-                                       Object obj2,
-                                       String message,
-                                       Class<? extends RuntimeException> exceptionType) {
+        Object obj2,
+        String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(ObjectUtil.equal(obj1, obj2), message, exceptionType);
     }
 
@@ -134,9 +138,9 @@ public class Validator {
      * @param exceptionType 异常类型
      */
     protected static void throwIfNotEqual(Object obj1,
-                                          Object obj2,
-                                          String message,
-                                          Class<? extends RuntimeException> exceptionType) {
+        Object obj2,
+        String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(ObjectUtil.notEqual(obj1, obj2), message, exceptionType);
     }
 
@@ -149,9 +153,9 @@ public class Validator {
      * @param exceptionType 异常类型
      */
     protected static void throwIfEqualIgnoreCase(CharSequence str1,
-                                                 CharSequence str2,
-                                                 String message,
-                                                 Class<? extends RuntimeException> exceptionType) {
+        CharSequence str2,
+        String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(CharSequenceUtil.equalsIgnoreCase(str1, str2), message, exceptionType);
     }
 
@@ -164,9 +168,9 @@ public class Validator {
      * @param exceptionType 异常类型
      */
     protected static void throwIfNotEqualIgnoreCase(CharSequence str1,
-                                                    CharSequence str2,
-                                                    String message,
-                                                    Class<? extends RuntimeException> exceptionType) {
+        CharSequence str2,
+        String message,
+        Class<? extends RuntimeException> exceptionType) {
         throwIf(!CharSequenceUtil.equalsIgnoreCase(str1, str2), message, exceptionType);
     }
 
@@ -177,7 +181,8 @@ public class Validator {
      * @param message       提示信息
      * @param exceptionType 异常类型
      */
-    protected static void throwIf(boolean condition, String message, Class<? extends RuntimeException> exceptionType) {
+    protected static void throwIf(boolean condition, String message,
+        Class<? extends RuntimeException> exceptionType) {
         if (condition) {
             throw ReflectUtil.newInstance(exceptionType, message);
         }
@@ -191,8 +196,8 @@ public class Validator {
      * @param exceptionType     异常类型
      */
     protected static void throwIf(BooleanSupplier conditionSupplier,
-                                  String message,
-                                  Class<? extends RuntimeException> exceptionType) {
+        String message,
+        Class<? extends RuntimeException> exceptionType) {
         if (conditionSupplier != null && conditionSupplier.getAsBoolean()) {
             throw ReflectUtil.newInstance(exceptionType, message);
         }

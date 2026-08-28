@@ -47,7 +47,8 @@ import java.util.concurrent.Executor;
  * @since 1.0.0
  */
 @Configuration(proxyBeanMethods = false)
-@ConditionalOnProperty(prefix = "spring.task.execution.extension", name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "spring.task.execution.extension",
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class TaskExecutionConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(TaskExecutionConfiguration.class);
@@ -62,7 +63,8 @@ public class TaskExecutionConfiguration {
     private int queueCapacity;
 
     @Bean
-    public ThreadPoolTaskExecutorCustomizer threadPoolTaskExecutorCustomizer(ThreadPoolExtensionProperties properties) {
+    public ThreadPoolTaskExecutorCustomizer threadPoolTaskExecutorCustomizer(
+        ThreadPoolExtensionProperties properties) {
         return executor -> {
             // 核心（最小）线程数
             executor.setCorePoolSize(corePoolSize);
@@ -85,35 +87,39 @@ public class TaskExecutionConfiguration {
     @Bean
     @ConditionalOnMissingBean(AsyncConfigurer.class)
     public AsyncConfigurer asyncConfigurer(BeanFactory beanFactory,
-                                           ObjectProvider<AsyncUncaughtExceptionHandler> exceptionHandlerProvider) {
+        ObjectProvider<AsyncUncaughtExceptionHandler> exceptionHandlerProvider) {
 
         return new AsyncConfigurer() {
+
             @Override
             public Executor getAsyncExecutor() {
                 return beanFactory
-                    .getBean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME, Executor.class);
+                    .getBean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME,
+                        Executor.class);
             }
 
             @Override
             public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
                 AsyncUncaughtExceptionHandler handler = exceptionHandlerProvider.getIfAvailable();
-                return Objects.requireNonNullElseGet(handler, () -> (throwable, method, objects) -> {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("Exception message: ")
-                        .append(throwable.getMessage())
-                        .append(", Method name: ")
-                        .append(method.getName());
-                    if (ArrayUtil.isNotEmpty(objects)) {
-                        sb.append(", Parameter value: ").append(Arrays.toString(objects));
-                    }
-                    throw new BaseException(sb.toString(), throwable);
-                });
+                return Objects.requireNonNullElseGet(handler,
+                    () -> (throwable, method, objects) -> {
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Exception message: ")
+                            .append(throwable.getMessage())
+                            .append(", Method name: ")
+                            .append(method.getName());
+                        if (ArrayUtil.isNotEmpty(objects)) {
+                            sb.append(", Parameter value: ").append(Arrays.toString(objects));
+                        }
+                        throw new BaseException(sb.toString(), throwable);
+                    });
             }
         };
     }
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'TaskExecutor' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'TaskExecutor' completed initialization.");
     }
 }

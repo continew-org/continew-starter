@@ -38,7 +38,8 @@ import java.util.stream.Collectors;
  * @since 2.4.0
  */
 @JacksonStdImpl
-public class BaseEnumDeserializer extends JsonDeserializer<BaseEnum> implements ContextualDeserializer {
+public class BaseEnumDeserializer extends JsonDeserializer<BaseEnum>
+    implements ContextualDeserializer {
 
     private final Class<? extends BaseEnum> fieldTypeClass;
     private final Map<String, BaseEnum> valueMap;
@@ -54,7 +55,7 @@ public class BaseEnumDeserializer extends JsonDeserializer<BaseEnum> implements 
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext deserializationContext,
-                                                BeanProperty beanProperty) {
+        BeanProperty beanProperty) {
         // 获取字段类型
         Class<?> fieldType = null;
         if (beanProperty != null) {
@@ -64,13 +65,13 @@ public class BaseEnumDeserializer extends JsonDeserializer<BaseEnum> implements 
         }
 
         return fieldType != null && BaseEnum.class.isAssignableFrom(fieldType)
-            ? new BaseEnumDeserializer((Class<? extends BaseEnum>)fieldType)
+            ? new BaseEnumDeserializer((Class<? extends BaseEnum>) fieldType)
             : this;
     }
 
     @Override
     public BaseEnum deserialize(JsonParser jsonParser,
-                                DeserializationContext deserializationContext) throws IOException {
+        DeserializationContext deserializationContext) throws IOException {
         if (fieldTypeClass == null || valueMap.isEmpty()) {
             return null;
         }
@@ -83,8 +84,10 @@ public class BaseEnumDeserializer extends JsonDeserializer<BaseEnum> implements 
         BaseEnum baseEnum = valueMap.get(value);
         if (baseEnum == null) {
             throw InvalidFormatException
-                .from(jsonParser, "Cannot deserialize value of type %s from %s: no matching enum constant"
-                    .formatted(fieldTypeClass.getName(), value), value, fieldTypeClass);
+                .from(jsonParser,
+                    "Cannot deserialize value of type %s from %s: no matching enum constant"
+                        .formatted(fieldTypeClass.getName(), value),
+                    value, fieldTypeClass);
         }
         return baseEnum;
     }

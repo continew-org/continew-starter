@@ -41,7 +41,8 @@ public class BaseEnumSerializer extends JsonSerializer<BaseEnum> {
     public static final BaseEnumSerializer SERIALIZER_INSTANCE = new BaseEnumSerializer();
 
     @Override
-    public void serialize(BaseEnum value, JsonGenerator generator, SerializerProvider serializers) throws IOException {
+    public void serialize(BaseEnum value, JsonGenerator generator, SerializerProvider serializers)
+        throws IOException {
         generator.writeObject(value.getValue());
     }
 }

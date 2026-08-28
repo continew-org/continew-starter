@@ -135,7 +135,8 @@ public class UploadPretreatment {
      * 设置简单的进度监听（只关心百分比）
      */
     public UploadPretreatment onProgress(Consumer<Integer> progressConsumer) {
-        this.progressListener = (bytesRead, totalBytes, percentage) -> progressConsumer.accept(percentage);
+        this.progressListener =
+            (bytesRead, totalBytes, percentage) -> progressConsumer.accept(percentage);
         return this;
     }
 

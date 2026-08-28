@@ -66,11 +66,15 @@ public class MybatisBaseEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandl
         this.enumClassType = enumClassType;
         MetaClass metaClass = MetaClass.forClass(enumClassType, REFLECTOR_FACTORY);
         String name = "value";
-        if (!BaseEnum.class.isAssignableFrom(enumClassType) && !IEnum.class.isAssignableFrom(enumClassType)) {
-            name = findEnumValueFieldName(this.enumClassType).orElseThrow(() -> new IllegalArgumentException(String
-                .format("Could not find @EnumValue in Class: %s.", this.enumClassType.getName())));
+        if (!BaseEnum.class.isAssignableFrom(enumClassType)
+            && !IEnum.class.isAssignableFrom(enumClassType)) {
+            name = findEnumValueFieldName(this.enumClassType)
+                .orElseThrow(() -> new IllegalArgumentException(String
+                    .format("Could not find @EnumValue in Class: %s.",
+                        this.enumClassType.getName())));
         }
-        this.propertyType = ReflectionKit.resolvePrimitiveIfNecessary(metaClass.getGetterType(name));
+        this.propertyType =
+            ReflectionKit.resolvePrimitiveIfNecessary(metaClass.getGetterType(name));
         this.getInvoker = metaClass.getGetInvoker(name);
     }
 
@@ -83,10 +87,11 @@ public class MybatisBaseEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandl
     public static Optional<String> findEnumValueFieldName(Class<?> clazz) {
         if (clazz != null && clazz.isEnum()) {
             String className = clazz.getName();
-            return Optional.ofNullable(CollectionUtils.computeIfAbsent(TABLE_METHOD_OF_ENUM_TYPES, className, key -> {
-                Optional<Field> fieldOptional = findEnumValueAnnotationField(clazz);
-                return fieldOptional.map(Field::getName).orElse(null);
-            }));
+            return Optional.ofNullable(
+                CollectionUtils.computeIfAbsent(TABLE_METHOD_OF_ENUM_TYPES, className, key -> {
+                    Optional<Field> fieldOptional = findEnumValueAnnotationField(clazz);
+                    return fieldOptional.map(Field::getName).orElse(null);
+                }));
         }
         return Optional.empty();
     }
@@ -104,13 +109,15 @@ public class MybatisBaseEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandl
      * @return 是否为MP枚举处理
      */
     public static boolean isMpEnums(Class<?> clazz) {
-        return clazz != null && clazz.isEnum() && (BaseEnum.class.isAssignableFrom(clazz) || IEnum.class
-            .isAssignableFrom(clazz) || findEnumValueFieldName(clazz).isPresent());
+        return clazz != null && clazz.isEnum()
+            && (BaseEnum.class.isAssignableFrom(clazz) || IEnum.class
+                .isAssignableFrom(clazz) || findEnumValueFieldName(clazz).isPresent());
     }
 
     @SuppressWarnings("Duplicates")
     @Override
-    public void setNonNullParameter(PreparedStatement ps, int i, E parameter, JdbcType jdbcType) throws SQLException {
+    public void setNonNullParameter(PreparedStatement ps, int i, E parameter, JdbcType jdbcType)
+        throws SQLException {
         if (jdbcType == null) {
             ps.setObject(i, this.getValue(parameter));
         } else {
@@ -148,7 +155,8 @@ public class MybatisBaseEnumTypeHandler<E extends Enum<E>> extends BaseTypeHandl
 
     private E valueOf(Object value) {
         E[] es = this.enumClassType.getEnumConstants();
-        return Arrays.stream(es).filter(e -> equalsValue(value, getValue(e))).findAny().orElse(null);
+        return Arrays.stream(es).filter(e -> equalsValue(value, getValue(e))).findAny()
+            .orElse(null);
     }
 
     /**

@@ -40,7 +40,8 @@ import top.continew.starter.ratelimiter.generator.RateLimiterNameGenerator;
  */
 @AutoConfiguration(after = RedissonAutoConfiguration.class)
 @EnableConfigurationProperties(RateLimiterProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.RATE_LIMITER, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.RATE_LIMITER,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class RateLimiterAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(RateLimiterAutoConfiguration.class);
@@ -50,8 +51,8 @@ public class RateLimiterAutoConfiguration {
      */
     @Bean
     public RateLimiterAspect rateLimiterAspect(RateLimiterProperties properties,
-                                               RateLimiterNameGenerator rateLimiterNameGenerator,
-                                               RedissonClient redissonClient) {
+        RateLimiterNameGenerator rateLimiterNameGenerator,
+        RedissonClient redissonClient) {
         return new RateLimiterAspect(properties, rateLimiterNameGenerator, redissonClient);
     }
 
@@ -66,6 +67,7 @@ public class RateLimiterAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'RateLimiter' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'RateLimiter' completed initialization.");
     }
 }

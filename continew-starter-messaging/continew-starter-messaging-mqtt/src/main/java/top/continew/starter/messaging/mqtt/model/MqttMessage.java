@@ -64,9 +64,12 @@ public class MqttMessage implements Serializable {
 
     public MqttMessage(Message<?> message) {
         this.messageHeaders = message.getHeaders();
-        this.topic = (String)Objects.requireNonNull(message.getHeaders().get(MqttHeaders.RECEIVED_TOPIC));
-        this.qos = (Integer)Objects.requireNonNull(message.getHeaders().get(MqttHeaders.RECEIVED_QOS));
-        this.retained = (Boolean)Objects.requireNonNull(message.getHeaders().get(MqttHeaders.RECEIVED_RETAINED));
+        this.topic =
+            (String) Objects.requireNonNull(message.getHeaders().get(MqttHeaders.RECEIVED_TOPIC));
+        this.qos =
+            (Integer) Objects.requireNonNull(message.getHeaders().get(MqttHeaders.RECEIVED_QOS));
+        this.retained = (Boolean) Objects
+            .requireNonNull(message.getHeaders().get(MqttHeaders.RECEIVED_RETAINED));
         this.payload = message.getPayload();
     }
 

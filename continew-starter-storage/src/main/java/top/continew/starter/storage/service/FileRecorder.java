@@ -33,7 +33,7 @@ public interface FileRecorder {
 
     /**
      * 保存文件记录
-     * 
+     *
      * @param fileInfo 文件信息
      * @return 是否保存成功
      */
@@ -41,7 +41,7 @@ public interface FileRecorder {
 
     /**
      * 更新文件记录
-     * 
+     *
      * @param fileInfo 文件信息
      * @return 是否更新成功
      */
@@ -49,7 +49,7 @@ public interface FileRecorder {
 
     /**
      * 删除文件记录
-     * 
+     *
      * @param platform 存储平台
      * @param path     文件路径
      * @return 是否删除成功
@@ -68,14 +68,14 @@ public interface FileRecorder {
 
     /**
      * 保存文件分片信息
-     * 
+     *
      * @param filePartInfo 文件分片信息
      */
     void saveFilePart(FilePartInfo filePartInfo);
 
     /**
      * 获取文件所有分片信息
-     * 
+     *
      * @param fileId 文件ID
      * @return 分片信息列表
      */
@@ -83,7 +83,7 @@ public interface FileRecorder {
 
     /**
      * 删除文件分片信息
-     * 
+     *
      * @param fileId 文件ID
      */
     void deleteFileParts(String fileId);
@@ -110,7 +110,8 @@ public interface FileRecorder {
     /**
      * 保存分片上传会话（可选实现）
      */
-    default void saveMultipartSession(String uploadId, MultipartInitResp initResp, Map<String, String> metadata) {
+    default void saveMultipartSession(String uploadId, MultipartInitResp initResp,
+        Map<String, String> metadata) {
     }
 
     /**

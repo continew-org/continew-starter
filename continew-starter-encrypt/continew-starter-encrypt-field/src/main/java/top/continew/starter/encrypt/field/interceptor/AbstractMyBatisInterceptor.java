@@ -40,7 +40,8 @@ import java.util.stream.Stream;
 public abstract class AbstractMyBatisInterceptor {
 
     private static final Map<Class<?>, List<Field>> CLASS_FIELD_CACHE = new ConcurrentHashMap<>();
-    private static final Map<String, Map<String, FieldEncrypt>> ENCRYPT_PARAM_CACHE = new ConcurrentHashMap<>();
+    private static final Map<String, Map<String, FieldEncrypt>> ENCRYPT_PARAM_CACHE =
+        new ConcurrentHashMap<>();
 
     /**
      * 获取所有字符串类型、需要加/解密的、有值字段
@@ -62,10 +63,11 @@ public abstract class AbstractMyBatisInterceptor {
      * @return 字段列表
      */
     protected List<Field> getEncryptFields(Class<?> clazz) {
-        return CLASS_FIELD_CACHE.computeIfAbsent(clazz, key -> Arrays.stream(ReflectUtil.getFields(clazz))
-            .filter(field -> String.class.equals(field.getType()))
-            .filter(field -> field.getAnnotation(FieldEncrypt.class) != null)
-            .toList());
+        return CLASS_FIELD_CACHE.computeIfAbsent(clazz,
+            key -> Arrays.stream(ReflectUtil.getFields(clazz))
+                .filter(field -> String.class.equals(field.getType()))
+                .filter(field -> field.getAnnotation(FieldEncrypt.class) != null)
+                .toList());
     }
 
     /**
@@ -110,7 +112,8 @@ public abstract class AbstractMyBatisInterceptor {
         String methodName = CharSequenceUtil.subAfter(mappedStatementId, StringConstants.DOT, true);
         try {
             Method[] methods = ReflectUtil.getMethods(Class.forName(className));
-            return Stream.of(methods).filter(method -> method.getName().equals(methodName)).findFirst().orElse(null);
+            return Stream.of(methods).filter(method -> method.getName().equals(methodName))
+                .findFirst().orElse(null);
         } catch (ClassNotFoundException e) {
             throw new BaseException(e);
         }

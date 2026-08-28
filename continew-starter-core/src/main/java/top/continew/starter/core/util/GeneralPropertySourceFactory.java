@@ -41,10 +41,11 @@ public class GeneralPropertySourceFactory extends DefaultPropertySourceFactory {
 
     @Override
     public PropertySource<?> createPropertySource(@Nullable String name,
-                                                  EncodedResource encodedResource) throws IOException {
+        EncodedResource encodedResource) throws IOException {
         Resource resource = encodedResource.getResource();
         String resourceName = resource.getFilename();
-        if (CharSequenceUtil.isNotBlank(resourceName) && CharSequenceUtil.endWithAny(resourceName, ".yml", ".yaml")) {
+        if (CharSequenceUtil.isNotBlank(resourceName)
+            && CharSequenceUtil.endWithAny(resourceName, ".yml", ".yaml")) {
             return new YamlPropertySourceLoader().load(resourceName, resource).get(0);
         }
         return super.createPropertySource(name, encodedResource);

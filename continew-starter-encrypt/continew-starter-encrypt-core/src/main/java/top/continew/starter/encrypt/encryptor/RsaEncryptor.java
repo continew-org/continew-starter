@@ -45,7 +45,8 @@ public class RsaEncryptor extends AbstractEncryptor {
 
     @Override
     public String encrypt(String plaintext) {
-        return Base64.encode(SecureUtil.rsa(null, context.getPublicKey()).encrypt(plaintext, KeyType.PublicKey));
+        return Base64.encode(
+            SecureUtil.rsa(null, context.getPublicKey()).encrypt(plaintext, KeyType.PublicKey));
     }
 
     @Override

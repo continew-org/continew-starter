@@ -55,7 +55,8 @@ public class CustomKeyStoreParam extends AbstractKeyStoreParam {
         super(clazz, s);
     }
 
-    public CustomKeyStoreParam(Class clazz, String resource, String alias, String storePass, String keyPass) {
+    public CustomKeyStoreParam(Class clazz, String resource, String alias, String storePass,
+        String keyPass) {
         super(clazz, resource);
         this.storePath = resource;
         this.alias = alias;

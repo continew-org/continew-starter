@@ -132,11 +132,13 @@ public class FileWrapper {
         try {
             RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
             if (requestAttributes instanceof ServletRequestAttributes) {
-                HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
+                HttpServletRequest request =
+                    ((ServletRequestAttributes) requestAttributes).getRequest();
 
                 // 检查是否是 multipart 请求
                 String requestContentType = request.getContentType();
-                if (requestContentType != null && requestContentType.toLowerCase().startsWith("multipart/")) {
+                if (requestContentType != null
+                    && requestContentType.toLowerCase().startsWith("multipart/")) {
                     Collection<Part> parts = request.getParts();
 
                     for (Part part : parts) {
@@ -160,11 +162,13 @@ public class FileWrapper {
         try {
             RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
             if (requestAttributes instanceof ServletRequestAttributes) {
-                HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
+                HttpServletRequest request =
+                    ((ServletRequestAttributes) requestAttributes).getRequest();
 
                 // 检查是否是 multipart 请求
                 String requestContentType = request.getContentType();
-                if (requestContentType != null && requestContentType.toLowerCase().startsWith("multipart/")) {
+                if (requestContentType != null
+                    && requestContentType.toLowerCase().startsWith("multipart/")) {
                     Collection<Part> parts = request.getParts();
 
                     for (Part part : parts) {
@@ -201,24 +205,25 @@ public class FileWrapper {
 
         // 如果是 MultipartFile，直接处理
         if (obj instanceof MultipartFile) {
-            return of((MultipartFile)obj);
+            return of((MultipartFile) obj);
         }
 
         // 如果是 byte[]
         if (obj instanceof byte[]) {
-            return of((byte[])obj, filename, contentType);
+            return of((byte[]) obj, filename, contentType);
         }
 
         // 如果是 InputStream
         if (obj instanceof InputStream) {
-            return of((InputStream)obj, filename, contentType);
+            return of((InputStream) obj, filename, contentType);
         }
 
         // 其他对象，转换为 JSON
         String json = convertToJson(obj);
         byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
         String finalFilename = filename != null ? filename : "data.json";
-        String finalContentType = contentType != null ? contentType : MediaType.APPLICATION_JSON_VALUE;
+        String finalContentType =
+            contentType != null ? contentType : MediaType.APPLICATION_JSON_VALUE;
 
         return of(jsonBytes, finalFilename, finalContentType);
     }
@@ -232,13 +237,17 @@ public class FileWrapper {
         }
 
         if (bytes != null) {
-            return new EnhancedMultipartFile(getFilenameWithoutExtension(originalFilename), originalFilename, contentType, bytes);
+            return new EnhancedMultipartFile(getFilenameWithoutExtension(originalFilename),
+                originalFilename,
+                contentType, bytes);
         }
 
         if (inputStream != null) {
             try {
                 byte[] data = inputStream.readAllBytes();
-                return new EnhancedMultipartFile(getFilenameWithoutExtension(originalFilename), originalFilename, contentType, data);
+                return new EnhancedMultipartFile(getFilenameWithoutExtension(originalFilename),
+                    originalFilename,
+                    contentType, data);
             } catch (IOException e) {
                 throw new StorageException("读取输入流失败", e);
             }

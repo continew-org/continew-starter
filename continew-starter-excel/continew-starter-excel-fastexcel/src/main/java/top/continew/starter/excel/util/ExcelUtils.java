@@ -53,7 +53,8 @@ public class ExcelUtils {
      * @param clazz    导出数据类型
      * @param response 响应对象
      */
-    public static <T> void export(List<T> list, String fileName, Class<T> clazz, HttpServletResponse response) {
+    public static <T> void export(List<T> list, String fileName, Class<T> clazz,
+        HttpServletResponse response) {
         export(list, fileName, "Sheet1", Collections.emptySet(), clazz, response);
     }
 
@@ -68,16 +69,17 @@ public class ExcelUtils {
      * @param response                响应对象
      */
     public static <T> void export(List<T> list,
-                                  String fileName,
-                                  String sheetName,
-                                  Set<String> excludeColumnFieldNames,
-                                  Class<T> clazz,
-                                  HttpServletResponse response) {
+        String fileName,
+        String sheetName,
+        Set<String> excludeColumnFieldNames,
+        Class<T> clazz,
+        HttpServletResponse response) {
         try {
             String exportFileName = URLUtil.encode("%s_%s.xlsx".formatted(fileName, DateUtil
                 .format(new Date(), DatePattern.PURE_DATETIME_PATTERN)));
             response.setHeader("Content-disposition", "attachment;filename=" + exportFileName);
-            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
+            response.setContentType(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=utf-8");
             FastExcelFactory.write(response.getOutputStream(), clazz)
                 .autoCloseStream(false)
                 // 自动适配宽度
@@ -88,7 +90,8 @@ public class ExcelUtils {
                 .excludeColumnFieldNames(excludeColumnFieldNames)
                 .doWrite(list);
         } catch (Exception e) {
-            log.error("Export excel occurred an error: {}. fileName: {}.", e.getMessage(), fileName, e);
+            log.error("Export excel occurred an error: {}. fileName: {}.", e.getMessage(), fileName,
+                e);
             response.reset();
             throw new BaseException("导出 Excel 出现错误");
         }

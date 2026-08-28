@@ -51,7 +51,8 @@ public class LicenseInstallerBean {
         try {
             this.licenseManager = CustomLicenseManager.getInstance(properties);
             licenseManager.uninstall();
-            File licenseFile = Paths.get(properties.getStorePath(), "clientLicense", "license.lic").toFile();
+            File licenseFile =
+                Paths.get(properties.getStorePath(), "clientLicense", "license.lic").toFile();
             LicenseContent licenseContent = licenseManager.install(licenseFile);
             log.info("证书认证通过，安装成功: {}", licenseContent.getSubject());
         } catch (Exception e) {

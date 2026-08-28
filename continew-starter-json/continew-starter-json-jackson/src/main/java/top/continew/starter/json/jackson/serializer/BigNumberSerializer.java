@@ -38,7 +38,8 @@ public class BigNumberSerializer extends NumberSerializer {
     /**
      * 静态实例
      */
-    public static final BigNumberSerializer SERIALIZER_INSTANCE = new BigNumberSerializer(Number.class);
+    public static final BigNumberSerializer SERIALIZER_INSTANCE =
+        new BigNumberSerializer(Number.class);
     /**
      * JS：Number.MAX_SAFE_INTEGER
      */
@@ -53,7 +54,8 @@ public class BigNumberSerializer extends NumberSerializer {
     }
 
     @Override
-    public void serialize(Number value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+    public void serialize(Number value, JsonGenerator gen, SerializerProvider provider)
+        throws IOException {
         if (value.longValue() > MIN_SAFE_INTEGER && value.longValue() < MAX_SAFE_INTEGER) {
             super.serialize(value, gen, provider);
         } else {

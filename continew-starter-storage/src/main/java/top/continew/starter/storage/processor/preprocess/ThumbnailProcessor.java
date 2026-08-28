@@ -32,7 +32,7 @@ public interface ThumbnailProcessor extends FileProcessor {
 
     /**
      * 生成缩略图
-     * 
+     *
      * @param context           上传上下文
      * @param sourceInputStream 原始文件流
      * @return 缩略图信息

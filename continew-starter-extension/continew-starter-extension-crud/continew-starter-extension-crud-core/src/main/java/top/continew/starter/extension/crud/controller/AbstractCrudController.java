@@ -51,7 +51,8 @@ import java.util.List;
  * @author Charles7c
  * @since 1.0.0
  */
-public abstract class AbstractCrudController<S extends CrudService<L, D, Q, C>, L, D, Q, C> implements CrudApiHandler {
+public abstract class AbstractCrudController<S extends CrudService<L, D, Q, C>, L, D, Q, C>
+    implements CrudApiHandler {
 
     @Autowired
     protected S baseService;

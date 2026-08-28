@@ -39,7 +39,8 @@ public class StorageDecoratorManager {
 
     private final ApplicationContext applicationContext;
 
-    private final Map<Class<? extends StorageStrategy>, List<StorageStrategyDecorator<?>>> decoratorMap = new ConcurrentHashMap<>();
+    private final Map<Class<? extends StorageStrategy>, List<StorageStrategyDecorator<?>>> decoratorMap =
+        new ConcurrentHashMap<>();
 
     private volatile boolean initialized = false;
 
@@ -60,13 +61,16 @@ public class StorageDecoratorManager {
             Class<?> targetClass = decorator.getTargetStrategyClass();
 
             if (targetClass != null) {
-                decoratorMap.computeIfAbsent((Class<? extends StorageStrategy>)targetClass, k -> new ArrayList<>())
+                decoratorMap
+                    .computeIfAbsent((Class<? extends StorageStrategy>) targetClass,
+                        k -> new ArrayList<>())
                     .add(decorator);
             }
         }
 
         // 按优先级排序
-        decoratorMap.values().forEach(list -> list.sort(Comparator.comparingInt(StorageStrategyDecorator::getOrder)));
+        decoratorMap.values().forEach(
+            list -> list.sort(Comparator.comparingInt(StorageStrategyDecorator::getOrder)));
         this.initialized = true;
     }
 
@@ -106,7 +110,8 @@ public class StorageDecoratorManager {
      * @param strategyClass 策略类
      * @return {@link List }<{@link StorageStrategyDecorator }<{@link ? }>>
      */
-    private List<StorageStrategyDecorator<?>> findApplicableDecorators(Class<? extends StorageStrategy> strategyClass) {
+    private List<StorageStrategyDecorator<?>> findApplicableDecorators(
+        Class<? extends StorageStrategy> strategyClass) {
         List<StorageStrategyDecorator<?>> result = new ArrayList<>();
 
         // 精确匹配
@@ -138,10 +143,12 @@ public class StorageDecoratorManager {
     public void registerDecorator(StorageStrategyDecorator<?> decorator) {
         Class<?> targetClass = decorator.getTargetStrategyClass();
         if (targetClass != null) {
-            decoratorMap.computeIfAbsent((Class<? extends StorageStrategy>)targetClass, k -> new ArrayList<>())
+            decoratorMap
+                .computeIfAbsent((Class<? extends StorageStrategy>) targetClass,
+                    k -> new ArrayList<>())
                 .add(decorator);
             // 重新排序
-            decoratorMap.get((Class<? extends StorageStrategy>)targetClass)
+            decoratorMap.get((Class<? extends StorageStrategy>) targetClass)
                 .sort(Comparator.comparingInt(StorageStrategyDecorator::getOrder));
         }
     }
@@ -155,7 +162,7 @@ public class StorageDecoratorManager {
         Class<?> targetClass = decorator.getTargetStrategyClass();
         if (targetClass != null) {
             List<StorageStrategyDecorator<?>> decorators = decoratorMap
-                .get((Class<? extends StorageStrategy>)targetClass);
+                .get((Class<? extends StorageStrategy>) targetClass);
             if (decorators != null) {
                 decorators.remove(decorator);
             }
@@ -166,6 +173,7 @@ public class StorageDecoratorManager {
      * 装饰器注册事件
      */
     public static class DecoratorRegisteredEvent extends ApplicationEvent {
+
         private final Class<?> targetClass;
 
         public DecoratorRegisteredEvent(Object source, Class<?> targetClass) {
@@ -182,6 +190,7 @@ public class StorageDecoratorManager {
      * 装饰器注销事件
      */
     public static class DecoratorUnregisteredEvent extends ApplicationEvent {
+
         private final Class<?> targetClass;
 
         public DecoratorUnregisteredEvent(Object source, Class<?> targetClass) {

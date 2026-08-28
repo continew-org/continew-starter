@@ -28,13 +28,15 @@ import top.continew.starter.data.service.IService;
  * @author hellokaton
  * @since 1.5.0
  */
-public class ServiceImpl<M extends BaseMapper<T>, T> extends com.mybatisflex.spring.service.impl.ServiceImpl<M, T> implements IService<T> {
+public class ServiceImpl<M extends BaseMapper<T>, T>
+    extends com.mybatisflex.spring.service.impl.ServiceImpl<M, T>
+    implements IService<T> {
 
     protected final Class<?>[] typeArguments = ClassUtils.getTypeArguments(this.getClass());
     protected final Class<T> entityClass = currentModelClass();
 
     protected Class<T> currentModelClass() {
-        return (Class<T>)this.typeArguments[1];
+        return (Class<T>) this.typeArguments[1];
     }
 
 }

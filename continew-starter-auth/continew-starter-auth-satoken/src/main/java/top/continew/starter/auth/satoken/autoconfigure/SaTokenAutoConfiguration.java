@@ -44,8 +44,10 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(SaTokenExtensionProperties.class)
-@ConditionalOnProperty(prefix = "sa-token.extension", name = PropertiesConstants.ENABLED, havingValue = "true")
-@PropertySource(value = "classpath:default-auth-satoken.yml", factory = GeneralPropertySourceFactory.class)
+@ConditionalOnProperty(prefix = "sa-token.extension", name = PropertiesConstants.ENABLED,
+    havingValue = "true")
+@PropertySource(value = "classpath:default-auth-satoken.yml",
+    factory = GeneralPropertySourceFactory.class)
 @Import({SaTokenWebConfiguration.class, SaTokenDaoConfiguration.class})
 public class SaTokenAutoConfiguration {
 
@@ -67,7 +69,8 @@ public class SaTokenAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = "sa-token.extension", name = "jwt-enabled", havingValue = "true")
+    @ConditionalOnProperty(prefix = "sa-token.extension", name = "jwt-enabled",
+        havingValue = "true")
     public StpLogic stpLogic() {
         return new StpLogicJwtForSimple();
     }

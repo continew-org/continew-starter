@@ -41,15 +41,18 @@ public class WebSocketHandler extends TextWebSocketHandler {
     private final WebSocketProperties webSocketProperties;
     private final WebSocketSessionDao webSocketSessionDao;
 
-    public WebSocketHandler(WebSocketProperties webSocketProperties, WebSocketSessionDao webSocketSessionDao) {
+    public WebSocketHandler(WebSocketProperties webSocketProperties,
+        WebSocketSessionDao webSocketSessionDao) {
         this.webSocketProperties = webSocketProperties;
         this.webSocketSessionDao = webSocketSessionDao;
     }
 
     @Override
-    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+    protected void handleTextMessage(WebSocketSession session, TextMessage message)
+        throws Exception {
         String clientId = this.getClientId(session);
-        log.info("WebSocket receive message. clientId: {}, message: {}.", clientId, message.getPayload());
+        log.info("WebSocket receive message. clientId: {}, message: {}.", clientId,
+            message.getPayload());
         super.handleTextMessage(session, message);
     }
 
@@ -68,7 +71,8 @@ public class WebSocketHandler extends TextWebSocketHandler {
     }
 
     @Override
-    public void handleTransportError(WebSocketSession session, Throwable exception) throws IOException {
+    public void handleTransportError(WebSocketSession session, Throwable exception)
+        throws IOException {
         String clientId = this.getClientId(session);
         if (session.isOpen()) {
             session.close();

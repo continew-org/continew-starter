@@ -45,7 +45,8 @@ import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
 @AutoConfiguration
 @EnableWebSocket
 @EnableConfigurationProperties(WebSocketProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.MESSAGING_WEBSOCKET, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.MESSAGING_WEBSOCKET,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class WebSocketAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketAutoConfiguration.class);
@@ -56,7 +57,8 @@ public class WebSocketAutoConfiguration {
     }
 
     @Bean
-    public WebSocketConfigurer webSocketConfigurer(WebSocketHandler handler, HandshakeInterceptor interceptor) {
+    public WebSocketConfigurer webSocketConfigurer(WebSocketHandler handler,
+        HandshakeInterceptor interceptor) {
         return registry -> registry.addHandler(handler, properties.getPath())
             .addInterceptors(interceptor)
             .setAllowedOrigins(properties.getAllowedOrigins().toArray(String[]::new));
@@ -65,12 +67,14 @@ public class WebSocketAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public WebSocketHandler webSocketHandler(WebSocketSessionDao webSocketSessionDao) {
-        return new top.continew.starter.messaging.websocket.core.WebSocketHandler(properties, webSocketSessionDao);
+        return new top.continew.starter.messaging.websocket.core.WebSocketHandler(properties,
+            webSocketSessionDao);
     }
 
     @Bean
     @ConditionalOnMissingBean
-    public HandshakeInterceptor handshakeInterceptor(WebSocketClientService webSocketClientService) {
+    public HandshakeInterceptor handshakeInterceptor(
+        WebSocketClientService webSocketClientService) {
         return new WebSocketInterceptor(properties, webSocketClientService);
     }
 
@@ -94,6 +98,7 @@ public class WebSocketAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Messaging-WebSocket' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Messaging-WebSocket' completed initialization.");
     }
 }

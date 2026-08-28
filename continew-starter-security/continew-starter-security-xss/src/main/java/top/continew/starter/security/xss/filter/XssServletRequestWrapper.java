@@ -48,12 +48,16 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
 
     private String body = "";
 
-    public XssServletRequestWrapper(HttpServletRequest request, XssProperties xssProperties) throws IOException {
+    public XssServletRequestWrapper(HttpServletRequest request, XssProperties xssProperties)
+        throws IOException {
         super(request);
         this.xssProperties = xssProperties;
-        if (CharSequenceUtil.equalsAnyIgnoreCase(request.getMethod().toUpperCase(), Method.POST.name(), Method.PATCH
-            .name(), Method.PUT.name())) {
-            String charset = StrUtil.blankToDefault(request.getCharacterEncoding(), CharsetUtil.UTF_8);
+        if (CharSequenceUtil.equalsAnyIgnoreCase(request.getMethod().toUpperCase(),
+            Method.POST.name(), Method.PATCH
+                .name(),
+            Method.PUT.name())) {
+            String charset =
+                StrUtil.blankToDefault(request.getCharacterEncoding(), CharsetUtil.UTF_8);
             body = IoUtil.read(request.getInputStream(), CharsetUtil.charset(charset));
             if (CharSequenceUtil.isBlank(body)) {
                 return;
@@ -126,6 +130,7 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
     static ServletInputStream getServletInputStream(String body) {
         final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
         return new ServletInputStream() {
+
             @Override
             public int read() {
                 return byteArrayInputStream.read();

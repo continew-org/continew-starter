@@ -41,7 +41,10 @@ public class AccessLogUtils {
      * 静态资源路径模式
      */
     private static final List<String> RESOURCE_PATH = List
-        .of("/**/doc/**", "/**/doc.html", "/**/nextdoc/**", "/**/v*/api-docs/**", "/**/api-docs/**", "/**/swagger-ui/**", "/**/swagger-ui.html", "/**/swagger-resources/**", "/**/webjars/**", "/**/favicon.ico", "/**/static/**", "/**/assets/**", "/**/actuator/**", "/error", "/health");
+        .of("/**/doc/**", "/**/doc.html", "/**/nextdoc/**", "/**/v*/api-docs/**", "/**/api-docs/**",
+            "/**/swagger-ui/**", "/**/swagger-ui.html", "/**/swagger-resources/**",
+            "/**/webjars/**", "/**/favicon.ico",
+            "/**/static/**", "/**/assets/**", "/**/actuator/**", "/error", "/health");
 
     private AccessLogUtils() {
     }
@@ -81,8 +84,9 @@ public class AccessLogUtils {
 
         // 是否自动截断超长参数值
         if (properties.isLongParamTruncate()) {
-            paramObj = processTruncateLongParams(paramObj, properties.getLongParamThreshold(), properties
-                .getLongParamMaxLength(), properties.getLongParamSuffix());
+            paramObj =
+                processTruncateLongParams(paramObj, properties.getLongParamThreshold(), properties
+                    .getLongParamMaxLength(), properties.getLongParamSuffix());
         }
         return JSONUtil.toJsonStr(paramObj);
     }
@@ -109,11 +113,11 @@ public class AccessLogUtils {
      */
     private static Object processSensitiveParams(Object params, List<String> sensitiveParams) {
         if (params instanceof Map) {
-            return filterSensitiveParams((Map<String, Object>)params, sensitiveParams);
+            return filterSensitiveParams((Map<String, Object>) params, sensitiveParams);
         } else if (params instanceof List) {
-            return ((List<?>)params).stream()
+            return ((List<?>) params).stream()
                 .filter(Map.class::isInstance)
-                .map(item -> filterSensitiveParams((Map<String, Object>)item, sensitiveParams))
+                .map(item -> filterSensitiveParams((Map<String, Object>) item, sensitiveParams))
                 .collect(Collectors.toList());
         }
         return params;
@@ -126,8 +130,10 @@ public class AccessLogUtils {
      * @param sensitiveParams 敏感参数列表
      * @return 处理后的参数 Map
      */
-    private static Map<String, Object> filterSensitiveParams(Map<String, Object> params, List<String> sensitiveParams) {
-        if (params == null || params.isEmpty() || sensitiveParams == null || sensitiveParams.isEmpty()) {
+    private static Map<String, Object> filterSensitiveParams(Map<String, Object> params,
+        List<String> sensitiveParams) {
+        if (params == null || params.isEmpty() || sensitiveParams == null
+            || sensitiveParams.isEmpty()) {
             return params;
         }
 
@@ -149,13 +155,15 @@ public class AccessLogUtils {
      * @param suffix    后缀（如 "..."）
      * @return 处理后的参数
      */
-    private static Object processTruncateLongParams(Object params, int threshold, int maxLength, String suffix) {
+    private static Object processTruncateLongParams(Object params, int threshold, int maxLength,
+        String suffix) {
         if (params instanceof Map) {
-            return truncateLongParams((Map<String, Object>)params, threshold, maxLength, suffix);
+            return truncateLongParams((Map<String, Object>) params, threshold, maxLength, suffix);
         } else if (params instanceof List) {
-            return ((List<?>)params).stream()
+            return ((List<?>) params).stream()
                 .filter(Map.class::isInstance)
-                .map(item -> truncateLongParams((Map<String, Object>)item, threshold, maxLength, suffix))
+                .map(item -> truncateLongParams((Map<String, Object>) item, threshold, maxLength,
+                    suffix))
                 .collect(Collectors.toList());
         }
         return params;
@@ -171,9 +179,9 @@ public class AccessLogUtils {
      * @return 处理后的参数 Map
      */
     private static Map<String, Object> truncateLongParams(Map<String, Object> params,
-                                                          int threshold,
-                                                          int maxLength,
-                                                          String suffix) {
+        int threshold,
+        int maxLength,
+        String suffix) {
         if (params == null || params.isEmpty()) {
             return params;
         }
@@ -183,7 +191,8 @@ public class AccessLogUtils {
             Object value = entry.getValue();
             if (value instanceof String strValue) {
                 if (strValue.length() > threshold) {
-                    entry.setValue(strValue.substring(0, Math.min(strValue.length(), maxLength)) + suffix);
+                    entry.setValue(
+                        strValue.substring(0, Math.min(strValue.length(), maxLength)) + suffix);
                 }
             }
         }

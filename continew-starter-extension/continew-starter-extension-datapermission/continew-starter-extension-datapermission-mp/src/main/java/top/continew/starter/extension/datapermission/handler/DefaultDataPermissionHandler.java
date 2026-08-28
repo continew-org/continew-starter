@@ -65,9 +65,11 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
     /**
      * Mapper类中所有方法数据权限注解缓存
      */
-    private final Map<String, Map<String, DataPermission>> annotationCache = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, DataPermission>> annotationCache =
+        new ConcurrentHashMap<>();
 
-    public DefaultDataPermissionHandler(DataPermissionUserDataProvider dataPermissionUserDataProvider) {
+    public DefaultDataPermissionHandler(
+        DataPermissionUserDataProvider dataPermissionUserDataProvider) {
         this.dataPermissionUserDataProvider = dataPermissionUserDataProvider;
     }
 
@@ -79,7 +81,8 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
                 return buildDataScopeFilter(dataPermission, where);
             }
         } catch (Exception e) {
-            log.error("Data permission handler build data scope filter occurred an error: {}.", e.getMessage(), e);
+            log.error("Data permission handler build data scope filter occurred an error: {}.",
+                e.getMessage(), e);
         }
         return where;
     }
@@ -155,7 +158,8 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
             }
 
             expression = switch (dataScope) {
-                case DEPT_AND_CHILD -> buildDeptAndChildExpression(dataPermission, userData, expression);
+                case DEPT_AND_CHILD ->
+                    buildDeptAndChildExpression(dataPermission, userData, expression);
                 case DEPT -> buildDeptExpression(dataPermission, userData, expression);
                 case SELF -> buildSelfExpression(dataPermission, userData, expression);
                 case CUSTOM -> buildCustomExpression(dataPermission, roleData, expression);
@@ -163,7 +167,8 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
             };
         }
 
-        return where != null ? new AndExpression(where, new ParenthesedExpressionList<>(expression)) : expression;
+        return where != null ? new AndExpression(where, new ParenthesedExpressionList<>(expression))
+            : expression;
     }
 
     /**
@@ -180,11 +185,12 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
      * @return 处理完后的表达式
      */
     private Expression buildDeptAndChildExpression(DataPermission dataPermission,
-                                                   UserData userData,
-                                                   Expression expression) {
+        UserData userData,
+        Expression expression) {
         ParenthesedSelect subSelect = new ParenthesedSelect();
         PlainSelect select = new PlainSelect();
-        select.setSelectItems(Collections.singletonList(new SelectItem<>(new Column(dataPermission.id()))));
+        select.setSelectItems(
+            Collections.singletonList(new SelectItem<>(new Column(dataPermission.id()))));
         select.setFromItem(new Table(dataPermission.deptTableAlias()));
 
         EqualsTo equalsTo = new EqualsTo();
@@ -199,11 +205,14 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
             findInSetFunction.setParameters(new ExpressionList(new LongValue(userData
                 .getDeptId()), new Column(DataPermissionConstants.ANCESTORS_COLUMN)));
             inSetExpression = findInSetFunction;
-        } else if (DatabaseType.POSTGRE_SQL.getDatabase().equalsIgnoreCase(databaseType.getDatabase())) {
+        } else if (DatabaseType.POSTGRE_SQL.getDatabase()
+            .equalsIgnoreCase(databaseType.getDatabase())) {
             // 构建 concat 函数
             Function concatFunction = new Function("concat");
             concatFunction
-                .setParameters(new ExpressionList<>(new Column(DataPermissionConstants.ANCESTORS_COLUMN), new StringValue(",")));
+                .setParameters(
+                    new ExpressionList<>(new Column(DataPermissionConstants.ANCESTORS_COLUMN),
+                        new StringValue(",")));
 
             // 创建 LIKE 函数
             LikeExpression likeExpression = new LikeExpression();
@@ -218,7 +227,8 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
         subSelect.setSelect(select);
         // 构建父查询
         InExpression inExpression = new InExpression();
-        inExpression.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
+        inExpression.setLeftExpression(
+            this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
         inExpression.setRightExpression(subSelect);
         return expression != null ? new OrExpression(expression, inExpression) : inExpression;
     }
@@ -235,9 +245,11 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
      * @param expression     处理前的表达式
      * @return 处理完后的表达式
      */
-    private Expression buildDeptExpression(DataPermission dataPermission, UserData userData, Expression expression) {
+    private Expression buildDeptExpression(DataPermission dataPermission, UserData userData,
+        Expression expression) {
         EqualsTo equalsTo = new EqualsTo();
-        equalsTo.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
+        equalsTo.setLeftExpression(
+            this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
         equalsTo.setRightExpression(new LongValue(userData.getDeptId()));
         return expression != null ? new OrExpression(expression, equalsTo) : equalsTo;
     }
@@ -254,9 +266,11 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
      * @param expression     处理前的表达式
      * @return 处理完后的表达式
      */
-    private Expression buildSelfExpression(DataPermission dataPermission, UserData userData, Expression expression) {
+    private Expression buildSelfExpression(DataPermission dataPermission, UserData userData,
+        Expression expression) {
         EqualsTo equalsTo = new EqualsTo();
-        equalsTo.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.userId()));
+        equalsTo.setLeftExpression(
+            this.buildColumn(dataPermission.tableAlias(), dataPermission.userId()));
         equalsTo.setRightExpression(new LongValue(userData.getUserId()));
         return expression != null ? new OrExpression(expression, equalsTo) : equalsTo;
     }
@@ -274,10 +288,12 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
      * @param expression     处理前的表达式
      * @return 处理完后的表达式
      */
-    private Expression buildCustomExpression(DataPermission dataPermission, RoleData roleData, Expression expression) {
+    private Expression buildCustomExpression(DataPermission dataPermission, RoleData roleData,
+        Expression expression) {
         ParenthesedSelect subSelect = new ParenthesedSelect();
         PlainSelect select = new PlainSelect();
-        select.setSelectItems(Collections.singletonList(new SelectItem<>(new Column(dataPermission.deptId()))));
+        select.setSelectItems(
+            Collections.singletonList(new SelectItem<>(new Column(dataPermission.deptId()))));
         select.setFromItem(new Table(dataPermission.roleDeptTableAlias()));
         EqualsTo equalsTo = new EqualsTo();
         equalsTo.setLeftExpression(new Column(dataPermission.roleId()));
@@ -286,7 +302,8 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
         subSelect.setSelect(select);
         // 构建父查询
         InExpression inExpression = new InExpression();
-        inExpression.setLeftExpression(this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
+        inExpression.setLeftExpression(
+            this.buildColumn(dataPermission.tableAlias(), dataPermission.deptId()));
         inExpression.setRightExpression(subSelect);
         return expression != null ? new OrExpression(expression, inExpression) : inExpression;
     }

@@ -46,10 +46,10 @@ public class ApiEncryptFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest servletRequest,
-                         ServletResponse servletResponse,
-                         FilterChain chain) throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest)servletRequest;
-        HttpServletResponse response = (HttpServletResponse)servletResponse;
+        ServletResponse servletResponse,
+        FilterChain chain) throws IOException, ServletException {
+        HttpServletRequest request = (HttpServletRequest) servletRequest;
+        HttpServletResponse response = (HttpServletResponse) servletResponse;
         // 是否加密响应
         boolean isResponseEncrypt = this.isResponseEncrypt(request);
         // 密钥标头
@@ -58,12 +58,14 @@ public class ApiEncryptFilter implements Filter {
         ServletResponse responseWrapper = null;
         ResponseBodyEncryptWrapper responseBodyEncryptWrapper = null;
         // 是否为 PUT 或者 POST 请求
-        if (HttpMethod.PUT.matches(request.getMethod()) || HttpMethod.POST.matches(request.getMethod())) {
+        if (HttpMethod.PUT.matches(request.getMethod())
+            || HttpMethod.POST.matches(request.getMethod())) {
             // 获取密钥值
             String secretKeyValue = request.getHeader(secretKeyHeader);
             if (CharSequenceUtil.isNotBlank(secretKeyValue)) {
                 // 请求解密
-                requestWrapper = new RequestBodyDecryptWrapper(request, properties.getPrivateKey(), secretKeyHeader);
+                requestWrapper = new RequestBodyDecryptWrapper(request, properties.getPrivateKey(),
+                    secretKeyHeader);
             }
         }
         // 响应加密，响应包装器替换响应体加密包装器
@@ -78,8 +80,9 @@ public class ApiEncryptFilter implements Filter {
         if (isResponseEncrypt) {
             servletResponse.reset();
             // 获取密文
-            String encryptContent = responseBodyEncryptWrapper.getEncryptContent(response, properties
-                .getPublicKey(), secretKeyHeader);
+            String encryptContent =
+                responseBodyEncryptWrapper.getEncryptContent(response, properties
+                    .getPublicKey(), secretKeyHeader);
             // 写出密文
             servletResponse.getWriter().write(encryptContent);
         }

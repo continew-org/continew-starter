@@ -26,6 +26,7 @@ import top.continew.starter.license.bean.LicenseInstallerBean;
  * @since 1.2.0
  */
 public class LicenseStarterInitializingBean implements InitializingBean {
+
     private final LicenseInstallerBean licenseInstallerBean;
 
     public LicenseStarterInitializingBean(LicenseInstallerBean licenseInstallerBean) {

@@ -38,26 +38,26 @@ public class WebSocketInterceptor extends HttpSessionHandshakeInterceptor {
     private final WebSocketClientService webSocketClientService;
 
     public WebSocketInterceptor(WebSocketProperties webSocketProperties,
-                                WebSocketClientService webSocketClientService) {
+        WebSocketClientService webSocketClientService) {
         this.webSocketProperties = webSocketProperties;
         this.webSocketClientService = webSocketClientService;
     }
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request,
-                                   ServerHttpResponse response,
-                                   WebSocketHandler wsHandler,
-                                   Map<String, Object> attributes) {
-        String clientId = webSocketClientService.getClientId((ServletServerHttpRequest)request);
+        ServerHttpResponse response,
+        WebSocketHandler wsHandler,
+        Map<String, Object> attributes) {
+        String clientId = webSocketClientService.getClientId((ServletServerHttpRequest) request);
         attributes.put(webSocketProperties.getClientIdKey(), clientId);
         return true;
     }
 
     @Override
     public void afterHandshake(ServerHttpRequest request,
-                               ServerHttpResponse response,
-                               WebSocketHandler wsHandler,
-                               Exception exception) {
+        ServerHttpResponse response,
+        WebSocketHandler wsHandler,
+        Exception exception) {
         super.afterHandshake(request, response, wsHandler, exception);
     }
 }

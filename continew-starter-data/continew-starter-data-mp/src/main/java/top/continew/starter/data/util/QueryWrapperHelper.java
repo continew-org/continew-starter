@@ -67,7 +67,8 @@ public class QueryWrapperHelper {
         }
         for (Sort.Order order : sort) {
             String property = order.getProperty();
-            queryWrapper.orderBy(true, order.isAscending(), CharSequenceUtil.toUnderlineCase(property));
+            queryWrapper.orderBy(true, order.isAscending(),
+                CharSequenceUtil.toUnderlineCase(property));
         }
     }
 
@@ -122,7 +123,8 @@ public class QueryWrapperHelper {
      * @param <R>          查询数据类型
      * @return QueryWrapper
      */
-    public static <Q, R> QueryWrapper<R> build(Q query, List<Field> fields, QueryWrapper<R> queryWrapper) {
+    public static <Q, R> QueryWrapper<R> build(Q query, List<Field> fields,
+        QueryWrapper<R> queryWrapper) {
         // 没有查询条件，直接返回
         if (query == null) {
             return queryWrapper;
@@ -144,7 +146,8 @@ public class QueryWrapperHelper {
      * @param <R>   查询数据类型
      * @return QueryWrapper Consumer
      */
-    private static <Q, R> List<Consumer<QueryWrapper<R>>> buildWrapperConsumer(Q query, Field field) {
+    private static <Q, R> List<Consumer<QueryWrapper<R>>> buildWrapperConsumer(Q query,
+        Field field) {
         try {
             // 如果字段值为空，直接返回
             Object fieldValue = ReflectUtil.getFieldValue(query, field);
@@ -164,7 +167,8 @@ public class QueryWrapperHelper {
             final int columnLength = ArrayUtil.length(columns);
             List<Consumer<QueryWrapper<R>>> consumers = new ArrayList<>(columnLength);
             if (columnLength <= 1) {
-                String columnName = columnLength == 1 ? columns[0] : CharSequenceUtil.toUnderlineCase(fieldName);
+                String columnName =
+                    columnLength == 1 ? columns[0] : CharSequenceUtil.toUnderlineCase(fieldName);
                 parse(queryType, columnName, fieldValue, consumers);
                 return consumers;
             }
@@ -204,9 +208,9 @@ public class QueryWrapperHelper {
      * @param <R>        查询数据类型
      */
     private static <R> void parse(QueryType queryType,
-                                  String columnName,
-                                  Object fieldValue,
-                                  List<Consumer<QueryWrapper<R>>> consumers) {
+        String columnName,
+        Object fieldValue,
+        List<Consumer<QueryWrapper<R>>> consumers) {
         switch (queryType) {
             case EQ -> consumers.add(q -> q.eq(columnName, fieldValue));
             case NE -> consumers.add(q -> q.ne(columnName, fieldValue));
@@ -217,8 +221,8 @@ public class QueryWrapperHelper {
             case BETWEEN -> {
                 // 数组转集合
                 List<Object> between = new ArrayList<>(ArrayUtil.isArray(fieldValue)
-                    ? List.of((Object[])fieldValue)
-                    : (List<Object>)fieldValue);
+                    ? List.of((Object[]) fieldValue)
+                    : (List<Object>) fieldValue);
                 ValidationUtils.throwIf(between.size() != 2, "[{}] 必须是一个范围", columnName);
                 consumers.add(q -> q.between(columnName, between.get(0), between.get(1)));
             }
@@ -228,14 +232,14 @@ public class QueryWrapperHelper {
             case IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
                 consumers.add(q -> q.in(columnName, ArrayUtil.isArray(fieldValue)
-                    ? List.of((Object[])fieldValue)
-                    : (Collection<Object>)fieldValue));
+                    ? List.of((Object[]) fieldValue)
+                    : (Collection<Object>) fieldValue));
             }
             case NOT_IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
                 consumers.add(q -> q.notIn(columnName, ArrayUtil.isArray(fieldValue)
-                    ? List.of((Object[])fieldValue)
-                    : (Collection<Object>)fieldValue));
+                    ? List.of((Object[]) fieldValue)
+                    : (Collection<Object>) fieldValue));
             }
             case IS_NULL -> consumers.add(q -> q.isNull(columnName));
             case IS_NOT_NULL -> consumers.add(q -> q.isNotNull(columnName));

@@ -45,7 +45,8 @@ public class IdempotentAspect {
     private final IdempotentProperties properties;
     private final IdempotentNameGenerator nameGenerator;
 
-    public IdempotentAspect(IdempotentProperties properties, IdempotentNameGenerator nameGenerator) {
+    public IdempotentAspect(IdempotentProperties properties,
+        IdempotentNameGenerator nameGenerator) {
         this.properties = properties;
         this.nameGenerator = nameGenerator;
     }
@@ -85,7 +86,7 @@ public class IdempotentAspect {
      */
     private String getCacheKey(ProceedingJoinPoint joinPoint, Idempotent idempotent) {
         Object target = joinPoint.getTarget();
-        MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
         Object[] args = joinPoint.getArgs();
         // 获取名称

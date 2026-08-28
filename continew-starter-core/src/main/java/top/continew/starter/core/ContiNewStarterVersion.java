@@ -29,7 +29,7 @@ public final class ContiNewStarterVersion {
 
     /**
      * Return the full version string of the present ContiNew Starter codebase.
-     * 
+     *
      * @return the version of ContiNew Starter
      */
     public static String getVersion() {

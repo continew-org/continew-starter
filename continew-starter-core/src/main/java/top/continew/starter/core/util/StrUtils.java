@@ -40,7 +40,8 @@ public class StrUtils {
      * @return 转换后的字符串或指定的默认字符串
      * @since 2.0.1
      */
-    public static <T> T blankToDefault(CharSequence str, T defaultValue, Function<String, T> mapper) {
+    public static <T> T blankToDefault(CharSequence str, T defaultValue,
+        Function<String, T> mapper) {
         return CharSequenceUtil.isBlank(str) ? defaultValue : mapper.apply(str.toString());
     }
 }

@@ -29,6 +29,7 @@ import java.util.List;
  * @since 2.14.0
  */
 public class DefaultFileRecorder implements FileRecorder {
+
     @Override
     public boolean save(FileInfo fileInfo) {
         return false;

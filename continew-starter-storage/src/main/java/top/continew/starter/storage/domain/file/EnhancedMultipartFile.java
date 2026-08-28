@@ -60,7 +60,8 @@ public class EnhancedMultipartFile implements MultipartFile {
     /**
      * 创建模式构造器 - 直接从字节数组创建
      */
-    public EnhancedMultipartFile(String name, String originalFilename, String contentType, byte[] content) {
+    public EnhancedMultipartFile(String name, String originalFilename, String contentType,
+        byte[] content) {
         this.originalFile = null;
         this.name = name;
         this.originalFilename = originalFilename;
@@ -75,7 +76,7 @@ public class EnhancedMultipartFile implements MultipartFile {
      */
     public static EnhancedMultipartFile wrap(MultipartFile file, boolean enableCache) {
         if (file instanceof EnhancedMultipartFile) {
-            return (EnhancedMultipartFile)file;
+            return (EnhancedMultipartFile) file;
         }
         return new EnhancedMultipartFile(file, enableCache);
     }
@@ -91,9 +92,9 @@ public class EnhancedMultipartFile implements MultipartFile {
      * 便捷的静态工厂方法 - 创建新文件
      */
     public static EnhancedMultipartFile create(String name,
-                                               String originalFilename,
-                                               String contentType,
-                                               byte[] content) {
+        String originalFilename,
+        String contentType,
+        byte[] content) {
         return new EnhancedMultipartFile(name, originalFilename, contentType, content);
     }
 

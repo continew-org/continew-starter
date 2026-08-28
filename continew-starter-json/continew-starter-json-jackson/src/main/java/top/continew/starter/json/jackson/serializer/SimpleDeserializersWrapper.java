@@ -47,8 +47,8 @@ public class SimpleDeserializersWrapper extends SimpleDeserializers {
 
     @Override
     public JsonDeserializer<?> findEnumDeserializer(Class<?> type,
-                                                    DeserializationConfig config,
-                                                    BeanDescription beanDesc) throws JsonMappingException {
+        DeserializationConfig config,
+        BeanDescription beanDesc) throws JsonMappingException {
         JsonDeserializer<?> deser = super.findEnumDeserializer(type, config, beanDesc);
         if (deser != null) {
             return deser;

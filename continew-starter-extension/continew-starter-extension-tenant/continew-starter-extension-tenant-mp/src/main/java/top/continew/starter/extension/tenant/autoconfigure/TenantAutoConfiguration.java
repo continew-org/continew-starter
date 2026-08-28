@@ -83,7 +83,8 @@ public class TenantAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public TenantLineInnerInterceptor tenantLineInnerInterceptor(TenantLineHandler tenantLineHandler) {
+    public TenantLineInnerInterceptor tenantLineInnerInterceptor(
+        TenantLineHandler tenantLineHandler) {
         return new TenantLineInnerInterceptor(tenantLineHandler);
     }
 
@@ -102,7 +103,8 @@ public class TenantAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnClass(name = "com.baomidou.dynamic.datasource.DynamicRoutingDataSource")
-    public TenantDataSourceAdvisor tenantDataSourceAdvisor(TenantDataSourceInterceptor tenantDataSourceInterceptor) {
+    public TenantDataSourceAdvisor tenantDataSourceAdvisor(
+        TenantDataSourceInterceptor tenantDataSourceInterceptor) {
         return new TenantDataSourceAdvisor(tenantDataSourceInterceptor);
     }
 
@@ -112,7 +114,8 @@ public class TenantAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     @ConditionalOnClass(name = "com.baomidou.dynamic.datasource.DynamicRoutingDataSource")
-    public TenantDataSourceInterceptor tenantDataSourceInterceptor(TenantDataSourceHandler tenantDataSourceHandler) {
+    public TenantDataSourceInterceptor tenantDataSourceInterceptor(
+        TenantDataSourceHandler tenantDataSourceHandler) {
         return new TenantDataSourceInterceptor(tenantDataSourceHandler);
     }
 
@@ -133,8 +136,10 @@ public class TenantAutoConfiguration {
     @ConditionalOnMissingBean
     public TenantProvider tenantProvider() {
         if (log.isErrorEnabled()) {
-            log.error("[ContiNew Starter] - Consider defining a bean of type '{}' in your configuration.", ResolvableType
-                .forClass(TenantProvider.class));
+            log.error(
+                "[ContiNew Starter] - Consider defining a bean of type '{}' in your configuration.",
+                ResolvableType
+                    .forClass(TenantProvider.class));
         }
         throw new NoSuchBeanDefinitionException(TenantProvider.class);
     }

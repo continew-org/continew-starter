@@ -466,7 +466,8 @@ public class RedisUtils {
      * @return 元素列表
      * @since 2.7.3
      */
-    public static <T> Collection<T> zRangeByScore(String key, double min, double max, int offset, int count) {
+    public static <T> Collection<T> zRangeByScore(String key, double min, double max, int offset,
+        int count) {
         RScoredSortedSet<T> zSet = CLIENT.getScoredSortedSet(key);
         return zSet.valueRange(min, true, max, true, offset, count);
     }
@@ -527,7 +528,8 @@ public class RedisUtils {
      * @param rateInterval 速率间隔（时间间隔）
      * @return true：成功；false：失败
      */
-    public static boolean rateLimit(String key, RateType rateType, int rate, Duration rateInterval) {
+    public static boolean rateLimit(String key, RateType rateType, int rate,
+        Duration rateInterval) {
         RRateLimiter rateLimiter = CLIENT.getRateLimiter(key);
         rateLimiter.trySetRate(rateType, rate, rateInterval);
         return rateLimiter.tryAcquire(1);

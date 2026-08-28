@@ -32,20 +32,24 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * 支持多种加密算法，可通过编码ID动态选择加密方式
  * </p>
- * 
+ *
  * @author Charles7c
  * @since 2.13.3
  */
 public final class PasswordEncoderUtil {
 
-    private static final Map<PasswordEncoderAlgorithm, PasswordEncoder> ENCODER_CACHE = new ConcurrentHashMap<>();
+    private static final Map<PasswordEncoderAlgorithm, PasswordEncoder> ENCODER_CACHE =
+        new ConcurrentHashMap<>();
 
     static {
         // 初始化默认的加密算法实例
         ENCODER_CACHE.put(PasswordEncoderAlgorithm.BCRYPT, new BCryptPasswordEncoder());
-        ENCODER_CACHE.put(PasswordEncoderAlgorithm.SCRYPT, SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
-        ENCODER_CACHE.put(PasswordEncoderAlgorithm.PBKDF2, Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
-        ENCODER_CACHE.put(PasswordEncoderAlgorithm.ARGON2, Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+        ENCODER_CACHE.put(PasswordEncoderAlgorithm.SCRYPT,
+            SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
+        ENCODER_CACHE.put(PasswordEncoderAlgorithm.PBKDF2,
+            Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+        ENCODER_CACHE.put(PasswordEncoderAlgorithm.ARGON2,
+            Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
     }
 
     private PasswordEncoderUtil() {
@@ -90,7 +94,8 @@ public final class PasswordEncoderUtil {
      * @return 是否匹配
      * @throws IllegalArgumentException 如果不支持指定的加密算法
      */
-    public static boolean matches(PasswordEncoderAlgorithm algorithm, String rawPassword, String encodedPassword) {
+    public static boolean matches(PasswordEncoderAlgorithm algorithm, String rawPassword,
+        String encodedPassword) {
         // 参数校验
         if (algorithm == null) {
             throw new IllegalArgumentException("加密算法不能为空");

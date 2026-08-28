@@ -45,7 +45,8 @@ public class CheckUtils extends Validator {
      * @param fieldName  字段名
      * @param fieldValue 字段值
      */
-    public static void throwIfNotExists(Object obj, String entityName, String fieldName, Object fieldValue) {
+    public static void throwIfNotExists(Object obj, String entityName, String fieldName,
+        Object fieldValue) {
         String message = "%s 为 [%s] 的 %s 记录已不存在".formatted(fieldName, fieldValue, CharSequenceUtil
             .replace(entityName, "DO", StringConstants.EMPTY));
         throwIfNull(obj, message, EXCEPTION_TYPE);
@@ -81,7 +82,8 @@ public class CheckUtils extends Validator {
      * @param fieldName  字段名
      * @param fieldValue 字段值
      */
-    public static void throwIfExists(Object obj, String entityName, String fieldName, Object fieldValue) {
+    public static void throwIfExists(Object obj, String entityName, String fieldName,
+        Object fieldValue) {
         String message = "%s 为 [%s] 的 %s 记录已存在".formatted(fieldName, fieldValue, entityName);
         throwIfNotNull(obj, message, EXCEPTION_TYPE);
     }
@@ -150,7 +152,8 @@ public class CheckUtils extends Validator {
      * @param template 异常信息模板，被替换的部分用 {} 表示，如果模板为 null，返回 "null"
      * @param params   参数值
      */
-    public static void throwIfNotEqual(Object obj1, Object obj2, String template, Object... params) {
+    public static void throwIfNotEqual(Object obj1, Object obj2, String template,
+        Object... params) {
         throwIfNotEqual(obj1, obj2, CharSequenceUtil.format(template, params), EXCEPTION_TYPE);
     }
 
@@ -162,8 +165,10 @@ public class CheckUtils extends Validator {
      * @param template 异常信息模板，被替换的部分用 {} 表示，如果模板为 null，返回 "null"
      * @param params   参数值
      */
-    public static void throwIfEqualIgnoreCase(CharSequence str1, CharSequence str2, String template, Object... params) {
-        throwIfEqualIgnoreCase(str1, str2, CharSequenceUtil.format(template, params), EXCEPTION_TYPE);
+    public static void throwIfEqualIgnoreCase(CharSequence str1, CharSequence str2, String template,
+        Object... params) {
+        throwIfEqualIgnoreCase(str1, str2, CharSequenceUtil.format(template, params),
+            EXCEPTION_TYPE);
     }
 
     /**
@@ -175,10 +180,11 @@ public class CheckUtils extends Validator {
      * @param params   参数值
      */
     public static void throwIfNotEqualIgnoreCase(CharSequence str1,
-                                                 CharSequence str2,
-                                                 String template,
-                                                 Object... params) {
-        throwIfNotEqualIgnoreCase(str1, str2, CharSequenceUtil.format(template, params), EXCEPTION_TYPE);
+        CharSequence str2,
+        String template,
+        Object... params) {
+        throwIfNotEqualIgnoreCase(str1, str2, CharSequenceUtil.format(template, params),
+            EXCEPTION_TYPE);
     }
 
     /**
@@ -199,7 +205,8 @@ public class CheckUtils extends Validator {
      * @param template          异常信息模板，被替换的部分用 {} 表示，如果模板为 null，返回 "null"
      * @param params            参数值
      */
-    public static void throwIf(BooleanSupplier conditionSupplier, String template, Object... params) {
+    public static void throwIf(BooleanSupplier conditionSupplier, String template,
+        Object... params) {
         throwIf(conditionSupplier, CharSequenceUtil.format(template, params), EXCEPTION_TYPE);
     }
 }

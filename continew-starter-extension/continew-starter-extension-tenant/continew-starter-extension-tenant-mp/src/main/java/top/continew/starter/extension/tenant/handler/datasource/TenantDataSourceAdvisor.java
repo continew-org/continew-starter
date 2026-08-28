@@ -68,6 +68,6 @@ public class TenantDataSourceAdvisor extends AbstractPointcutAdvisor implements 
         cut.setExpression("""
             execution(* *..controller..*(..))
             """);
-        return new ComposablePointcut((Pointcut)cut);
+        return new ComposablePointcut((Pointcut) cut);
     }
 }

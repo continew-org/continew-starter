@@ -37,7 +37,8 @@ import top.continew.starter.core.util.MapUtils;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(MailProperties.class)
-@PropertySource(value = "classpath:default-messaging-mail.yml", factory = GeneralPropertySourceFactory.class)
+@PropertySource(value = "classpath:default-messaging-mail.yml",
+    factory = GeneralPropertySourceFactory.class)
 public class MailAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(MailAutoConfiguration.class);

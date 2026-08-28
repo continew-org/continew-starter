@@ -69,7 +69,8 @@ public class StorageConstant {
     /**
      * 缩略图后缀
      */
-    public static final String THUMBNAIL_SUFFIX = StringConstants.DOT + "thumb" + StringConstants.DOT;
+    public static final String THUMBNAIL_SUFFIX =
+        StringConstants.DOT + "thumb" + StringConstants.DOT;
 
     /**
      * ContentType 图片前缀

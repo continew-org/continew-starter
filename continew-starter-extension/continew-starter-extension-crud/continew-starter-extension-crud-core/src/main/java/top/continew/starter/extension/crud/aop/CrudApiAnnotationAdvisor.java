@@ -38,9 +38,11 @@ public class CrudApiAnnotationAdvisor extends AbstractPointcutAdvisor implements
     private final Advice advice;
     private final Pointcut pointcut;
 
-    public CrudApiAnnotationAdvisor(CrudApiAnnotationInterceptor advice, Class<? extends Annotation> annotation) {
+    public CrudApiAnnotationAdvisor(CrudApiAnnotationInterceptor advice,
+        Class<? extends Annotation> annotation) {
         this.advice = advice;
-        this.pointcut = new ComposablePointcut(AnnotationMatchingPointcut.forMethodAnnotation(annotation));
+        this.pointcut =
+            new ComposablePointcut(AnnotationMatchingPointcut.forMethodAnnotation(annotation));
     }
 
     @Override

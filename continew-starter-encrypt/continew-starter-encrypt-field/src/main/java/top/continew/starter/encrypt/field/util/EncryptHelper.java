@@ -73,9 +73,11 @@ public class EncryptHelper {
      */
     public static IEncryptor registerAndGetEncryptor(CryptoContext cryptoContext) {
         int key = cryptoContext.hashCode();
-        return ENCRYPTOR_CACHE.computeIfAbsent(key, k -> cryptoContext.getEncryptor().equals(IEncryptor.class)
-            ? ReflectUtil.newInstance(cryptoContext.getAlgorithm().getEncryptor(), cryptoContext)
-            : ReflectUtil.newInstance(cryptoContext.getEncryptor(), cryptoContext));
+        return ENCRYPTOR_CACHE.computeIfAbsent(key,
+            k -> cryptoContext.getEncryptor().equals(IEncryptor.class)
+                ? ReflectUtil.newInstance(cryptoContext.getAlgorithm().getEncryptor(),
+                    cryptoContext)
+                : ReflectUtil.newInstance(cryptoContext.getEncryptor(), cryptoContext));
     }
 
     /**
@@ -86,7 +88,8 @@ public class EncryptHelper {
      * @return 字段上的 @FieldEncrypt 注解
      * @throws NoSuchFieldException /
      */
-    public static FieldEncrypt getFieldEncrypt(Object obj, String fieldName) throws NoSuchFieldException {
+    public static FieldEncrypt getFieldEncrypt(Object obj, String fieldName)
+        throws NoSuchFieldException {
         Field field = obj.getClass().getDeclaredField(fieldName);
         return field.getAnnotation(FieldEncrypt.class);
     }

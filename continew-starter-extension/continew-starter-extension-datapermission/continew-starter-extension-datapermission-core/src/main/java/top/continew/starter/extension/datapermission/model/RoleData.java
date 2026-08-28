@@ -65,7 +65,7 @@ public class RoleData {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        RoleData roleData = (RoleData)o;
+        RoleData roleData = (RoleData) o;
         return roleId.equals(roleData.roleId) && dataScope == roleData.dataScope;
     }
 

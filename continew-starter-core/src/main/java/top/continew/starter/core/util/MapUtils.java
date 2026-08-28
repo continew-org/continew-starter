@@ -70,8 +70,8 @@ public class MapUtils {
             Object fromValue = from.get(toKey);
             if (fromValue != null) {
                 if (toValue instanceof Map) {
-                    Map<String, Object> childTo = (Map<String, Object>)toValue;
-                    mergeMap(childTo, (Map<String, Object>)fromValue);
+                    Map<String, Object> childTo = (Map<String, Object>) toValue;
+                    mergeMap(childTo, (Map<String, Object>) fromValue);
                 } else {
                     to.put(toKey, fromValue);
                 }

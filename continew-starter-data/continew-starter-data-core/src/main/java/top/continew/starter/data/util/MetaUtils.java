@@ -55,7 +55,8 @@ public class MetaUtils {
      * @return 数据库类型
      * @since 1.4.1
      */
-    public static DatabaseType getDatabaseTypeOrDefault(DataSource dataSource, DatabaseType defaultValue) {
+    public static DatabaseType getDatabaseTypeOrDefault(DataSource dataSource,
+        DatabaseType defaultValue) {
         DatabaseType databaseType = getDatabaseType(dataSource);
         return databaseType == null ? defaultValue : databaseType;
     }

@@ -23,4 +23,5 @@ package top.continew.starter.data.service;
  * @author hellokaton
  * @since 1.2.0
  */
-public interface IService<T> extends com.mybatisflex.core.service.IService<T> {}
+public interface IService<T> extends com.mybatisflex.core.service.IService<T> {
+}

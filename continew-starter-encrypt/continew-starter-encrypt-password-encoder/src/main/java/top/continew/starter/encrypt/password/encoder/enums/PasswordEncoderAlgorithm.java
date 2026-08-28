@@ -36,7 +36,8 @@ public enum PasswordEncoderAlgorithm {
     PBKDF2(Pattern.compile("\\A\\$pbkdf2-sha256\\$\\d+\\$[0-9a-f]+\\$[0-9a-f]+")),
 
     /** Argon2加密算法 */
-    ARGON2(Pattern.compile("\\A\\$argon2(id|i|d)\\$v=\\d+\\$m=\\d+,t=\\d+,p=\\d+\\$[0-9a-zA-Z+/]+\\$[0-9a-zA-Z+/]+"));
+    ARGON2(Pattern.compile(
+        "\\A\\$argon2(id|i|d)\\$v=\\d+\\$m=\\d+,t=\\d+,p=\\d+\\$[0-9a-zA-Z+/]+\\$[0-9a-zA-Z+/]+"));
 
     /** 正则匹配 */
     private final Pattern pattern;

@@ -120,7 +120,7 @@ public class ExceptionUtils {
      * @throws E 自定义异常
      */
     public static <T, E extends Exception> T exToThrow(ExSupplier<T> exSupplier,
-                                                       Function<Exception, E> exceptionMapper) throws E {
+        Function<Exception, E> exceptionMapper) throws E {
         try {
             return exSupplier.get();
         } catch (Exception e) {
@@ -137,7 +137,8 @@ public class ExceptionUtils {
      * @param <T>          /
      * @return /
      */
-    public static <T> T exToDefault(ExSupplier<T> exSupplier, T defaultValue, Consumer<Exception> exConsumer) {
+    public static <T> T exToDefault(ExSupplier<T> exSupplier, T defaultValue,
+        Consumer<Exception> exConsumer) {
         try {
             return exSupplier.get();
         } catch (Exception e) {
@@ -154,6 +155,7 @@ public class ExceptionUtils {
      * @param <T> /
      */
     public interface ExSupplier<T> {
+
         /**
          * 获取返回值
          *

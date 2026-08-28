@@ -32,4 +32,5 @@ import java.lang.annotation.*;
 @Documented
 @Inherited
 @Import({GlobalResponseAutoConfiguration.class})
-public @interface EnableGlobalResponse {}
+public @interface EnableGlobalResponse {
+}

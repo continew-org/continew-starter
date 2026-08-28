@@ -36,7 +36,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class ProcessorRegistry {
 
     private final Map<Class<?>, List<FileProcessor>> processors = new ConcurrentHashMap<>();
-    private final Map<String, Map<Class<?>, List<FileProcessor>>> platformProcessors = new ConcurrentHashMap<>();
+    private final Map<String, Map<Class<?>, List<FileProcessor>>> platformProcessors =
+        new ConcurrentHashMap<>();
 
     /**
      * 注册处理器（自动识别类型）
@@ -83,13 +84,15 @@ public class ProcessorRegistry {
      * 获取指定类型的处理器（支持优先级排序）
      */
     @SuppressWarnings("unchecked")
-    public <T extends FileProcessor> List<T> getProcessors(Class<T> type, String platform, UploadContext context) {
+    public <T extends FileProcessor> List<T> getProcessors(Class<T> type, String platform,
+        UploadContext context) {
         List<T> result = new ArrayList<>();
 
         // 添加全局处理器
         List<FileProcessor> globalList = processors.get(type);
         if (globalList != null) {
-            globalList.stream().filter(p -> p.support(context)).map(p -> (T)p).forEach(result::add);
+            globalList.stream().filter(p -> p.support(context)).map(p -> (T) p)
+                .forEach(result::add);
         }
 
         // 添加平台特定处理器
@@ -98,7 +101,8 @@ public class ProcessorRegistry {
             if (platformMap != null) {
                 List<FileProcessor> platformList = platformMap.get(type);
                 if (platformList != null) {
-                    platformList.stream().filter(p -> p.support(context)).map(p -> (T)p).forEach(result::add);
+                    platformList.stream().filter(p -> p.support(context)).map(p -> (T) p)
+                        .forEach(result::add);
                 }
             }
         }
@@ -111,7 +115,8 @@ public class ProcessorRegistry {
     /**
      * 获取最高优先级的处理器
      */
-    public <T extends FileProcessor> T getProcessor(Class<T> type, String platform, UploadContext context) {
+    public <T extends FileProcessor> T getProcessor(Class<T> type, String platform,
+        UploadContext context) {
         List<T> processors = getProcessors(type, platform, context);
         return processors.isEmpty() ? null : processors.get(0);
     }

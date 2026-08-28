@@ -56,7 +56,8 @@ public class RedisAuthStateCache implements AuthStateCache {
      */
     @Override
     public void cache(String key, String value, long timeout) {
-        RedisUtils.set(RedisUtils.formatKey(cacheProperties.getPrefix(), key), value, Duration.ofMillis(timeout));
+        RedisUtils.set(RedisUtils.formatKey(cacheProperties.getPrefix(), key), value,
+            Duration.ofMillis(timeout));
     }
 
     /**

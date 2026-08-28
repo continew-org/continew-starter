@@ -36,12 +36,14 @@ public class TenantContextHolder {
     /**
      * 租户上下文
      */
-    private static final TransmittableThreadLocal<TenantContext> CONTEXT_HOLDER = new TransmittableThreadLocal<>();
+    private static final TransmittableThreadLocal<TenantContext> CONTEXT_HOLDER =
+        new TransmittableThreadLocal<>();
 
     /**
      * 是否忽略租户
      */
-    private static final TransmittableThreadLocal<Boolean> IGNORE_HOLDER = new TransmittableThreadLocal<>();
+    private static final TransmittableThreadLocal<Boolean> IGNORE_HOLDER =
+        new TransmittableThreadLocal<>();
 
     private TenantContextHolder() {
     }

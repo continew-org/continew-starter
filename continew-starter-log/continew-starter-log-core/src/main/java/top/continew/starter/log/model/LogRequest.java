@@ -104,7 +104,8 @@ public class LogRequest {
             .findFirst()
             .orElse(null);
         if (CharSequenceUtil.isNotBlank(userAgentString)) {
-            this.browser = (includes.contains(Include.BROWSER)) ? ServletUtils.getBrowser(userAgentString) : null;
+            this.browser = (includes.contains(Include.BROWSER))
+                ? ServletUtils.getBrowser(userAgentString) : null;
             this.os = (includes.contains(Include.OS)) ? ServletUtils.getOs(userAgentString) : null;
         }
     }

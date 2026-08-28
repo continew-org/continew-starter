@@ -64,7 +64,8 @@ public class ReflectUtils {
      */
     public static List<Field> getNonStaticFields(Class<?> beanClass) throws SecurityException {
         Field[] fields = ReflectUtil.getFields(beanClass);
-        return Arrays.stream(fields).filter(f -> !Modifier.isStatic(f.getModifiers())).collect(Collectors.toList());
+        return Arrays.stream(fields).filter(f -> !Modifier.isStatic(f.getModifiers()))
+            .collect(Collectors.toList());
     }
 
     /**
@@ -84,9 +85,11 @@ public class ReflectUtils {
         try {
             Method method = ReflectUtil.getMethodByName(clazz, methodName);
             method.setAccessible(true);
-            return MethodHandleProxies.asInterfaceInstance(Function.class, MethodHandles.lookup().unreflect(method));
+            return MethodHandleProxies.asInterfaceInstance(Function.class,
+                MethodHandles.lookup().unreflect(method));
         } catch (Exception e) {
-            throw new BusinessException("创建方法引用失败：" + clazz.getName() + StringConstants.DOT + methodName, e);
+            throw new BusinessException(
+                "创建方法引用失败：" + clazz.getName() + StringConstants.DOT + methodName, e);
         }
     }
 }

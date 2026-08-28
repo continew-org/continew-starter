@@ -96,7 +96,8 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     @Override
     public String getParams() {
         String body = this.getBody();
-        return CharSequenceUtil.isNotBlank(body) ? body : JSONUtil.toJsonStr(ServletUtils.getParamMap(request));
+        return CharSequenceUtil.isNotBlank(body) ? body
+            : JSONUtil.toJsonStr(ServletUtils.getParamMap(request));
     }
 
     @Override

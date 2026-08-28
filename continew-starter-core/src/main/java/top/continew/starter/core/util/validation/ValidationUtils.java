@@ -122,7 +122,8 @@ public class ValidationUtils extends Validator {
      * @param template 异常信息模板，被替换的部分用 {} 表示，如果模板为 null，返回 "null"
      * @param params   参数值
      */
-    public static void throwIfNotEqual(Object obj1, Object obj2, String template, Object... params) {
+    public static void throwIfNotEqual(Object obj1, Object obj2, String template,
+        Object... params) {
         throwIfNotEqual(obj1, obj2, CharSequenceUtil.format(template, params), EXCEPTION_TYPE);
     }
 
@@ -134,8 +135,10 @@ public class ValidationUtils extends Validator {
      * @param template 异常信息模板，被替换的部分用 {} 表示，如果模板为 null，返回 "null"
      * @param params   参数值
      */
-    public static void throwIfEqualIgnoreCase(CharSequence str1, CharSequence str2, String template, Object... params) {
-        throwIfEqualIgnoreCase(str1, str2, CharSequenceUtil.format(template, params), EXCEPTION_TYPE);
+    public static void throwIfEqualIgnoreCase(CharSequence str1, CharSequence str2, String template,
+        Object... params) {
+        throwIfEqualIgnoreCase(str1, str2, CharSequenceUtil.format(template, params),
+            EXCEPTION_TYPE);
     }
 
     /**
@@ -147,10 +150,11 @@ public class ValidationUtils extends Validator {
      * @param params   参数值
      */
     public static void throwIfNotEqualIgnoreCase(CharSequence str1,
-                                                 CharSequence str2,
-                                                 String template,
-                                                 Object... params) {
-        throwIfNotEqualIgnoreCase(str1, str2, CharSequenceUtil.format(template, params), EXCEPTION_TYPE);
+        CharSequence str2,
+        String template,
+        Object... params) {
+        throwIfNotEqualIgnoreCase(str1, str2, CharSequenceUtil.format(template, params),
+            EXCEPTION_TYPE);
     }
 
     /**
@@ -171,7 +175,8 @@ public class ValidationUtils extends Validator {
      * @param template          异常信息模板，被替换的部分用 {} 表示，如果模板为 null，返回 "null"
      * @param params            参数值
      */
-    public static void throwIf(BooleanSupplier conditionSupplier, String template, Object... params) {
+    public static void throwIf(BooleanSupplier conditionSupplier, String template,
+        Object... params) {
         throwIf(conditionSupplier, CharSequenceUtil.format(template, params), EXCEPTION_TYPE);
     }
 }

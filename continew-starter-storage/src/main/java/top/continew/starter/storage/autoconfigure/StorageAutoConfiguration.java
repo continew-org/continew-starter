@@ -61,7 +61,8 @@ public class StorageAutoConfiguration {
     private final StorageProperties properties;
     private final ApplicationContext applicationContext;
 
-    public StorageAutoConfiguration(StorageProperties properties, ApplicationContext applicationContext) {
+    public StorageAutoConfiguration(StorageProperties properties,
+        ApplicationContext applicationContext) {
         this.properties = properties;
         this.applicationContext = applicationContext;
     }
@@ -74,7 +75,7 @@ public class StorageAutoConfiguration {
      */
     @Bean
     public StorageStrategyRouter strategyRouter(List<StorageStrategyRegistrar> registrars,
-                                                StorageDecoratorManager storageDecoratorManager) {
+        StorageDecoratorManager storageDecoratorManager) {
         return new StorageStrategyRouter(registrars, properties, storageDecoratorManager);
     }
 
@@ -98,8 +99,8 @@ public class StorageAutoConfiguration {
      */
     @Bean
     public FileStorageService fileStorageService(StorageStrategyRouter router,
-                                                 ProcessorRegistry processorRegistry,
-                                                 FileRecorder fileRecorder) {
+        ProcessorRegistry processorRegistry,
+        FileRecorder fileRecorder) {
         return new FileStorageService(router, processorRegistry, fileRecorder);
     }
 
@@ -122,11 +123,13 @@ public class StorageAutoConfiguration {
         ProcessorRegistry registry = new ProcessorRegistry();
 
         // 自动发现并注册所有 FileProcessor 实现
-        Map<String, FileProcessor> processors = applicationContext.getBeansOfType(FileProcessor.class);
+        Map<String, FileProcessor> processors =
+            applicationContext.getBeansOfType(FileProcessor.class);
         processors.values().forEach(processor -> {
             // 检查是否有平台注解（兼容代理类）
             Class<?> targetClass = AopUtils.getTargetClass(processor);
-            PlatformProcessor annotation = AnnotationUtils.findAnnotation(targetClass, PlatformProcessor.class);
+            PlatformProcessor annotation =
+                AnnotationUtils.findAnnotation(targetClass, PlatformProcessor.class);
             if (annotation != null) {
                 for (String platform : annotation.platforms()) {
                     registry.register(processor, platform);

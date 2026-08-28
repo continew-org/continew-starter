@@ -50,7 +50,8 @@ public class LicenseCreateService {
 
     private static volatile LicenseCreateService instance;
 
-    private static final X500Principal DEFAULT_HOLDER_ISSUER = new X500Principal("CN=localhost, OU=localhost, O=localhost, L=SH, ST=SH, C=CN");
+    private static final X500Principal DEFAULT_HOLDER_ISSUER = new X500Principal(
+        "CN=localhost, OU=localhost, O=localhost, L=SH, ST=SH, C=CN");
 
     private LicenseCreateService() {
     }
@@ -113,7 +114,8 @@ public class LicenseCreateService {
         String customerName = paramVO.getCustomerName();
         String privateAlias = customerName + "-private-alias";
         String publicAlias = customerName + "-public-alias";
-        String currentCustomerDir = relativePath(paramVO) + customerName + IdUtil.fastSimpleUUID() + File.separator;
+        String currentCustomerDir =
+            relativePath(paramVO) + customerName + IdUtil.fastSimpleUUID() + File.separator;
         File customerDirFile = new File(currentCustomerDir);
         if (!customerDirFile.exists() && !customerDirFile.mkdirs()) {
             throw new IOException("Failed to create directory: " + currentCustomerDir);
@@ -141,18 +143,26 @@ public class LicenseCreateService {
         // 生成私钥库
         String keyAlgOption = checkJavaVersion() ? "-keyalg DSA" : ""; // JDK>=17 要指定 keyalg
         String genKeyCmd = String
-            .format("keytool -genkeypair %s -keysize 1024 -validity %d -alias %s -keystore %s -storepass %s -keypass %s -dname %s", keyAlgOption, validity, privateAlias, privateKeystore, paramVO
-                .getStorePass(), paramVO.getKeyPass(), dname);
+            .format(
+                "keytool -genkeypair %s -keysize 1024 -validity %d -alias %s -keystore %s -storepass %s -keypass %s -dname %s",
+                keyAlgOption, validity, privateAlias, privateKeystore, paramVO
+                    .getStorePass(),
+                paramVO.getKeyPass(), dname);
 
         // 导出证书
         String exportCertCmd = String
-            .format("keytool -exportcert -alias %s -keystore %s -storepass %s -file \"%s\"", privateAlias, privateKeystore, paramVO
-                .getStorePass(), certFilePath);
+            .format("keytool -exportcert -alias %s -keystore %s -storepass %s -file \"%s\"",
+                privateAlias,
+                privateKeystore, paramVO
+                    .getStorePass(),
+                certFilePath);
 
         // 导入到公钥库
         String importCertCmd = String
-            .format("keytool -noprompt -import -alias %s -file \"%s\" -keystore %s -storepass %s", publicAlias, certFilePath, publicKeystore, paramVO
-                .getStorePass());
+            .format("keytool -noprompt -import -alias %s -file \"%s\" -keystore %s -storepass %s",
+                publicAlias,
+                certFilePath, publicKeystore, paramVO
+                    .getStorePass());
 
         // 执行命令
         ExecCmdUtil.exec(genKeyCmd);
@@ -182,8 +192,8 @@ public class LicenseCreateService {
     }
 
     private ZipFile generateClientConfig(LicenseCreatorParam param,
-                                         String currentCustomerDir,
-                                         String publicAlias) throws Exception {
+        String currentCustomerDir,
+        String publicAlias) throws Exception {
         ZipFile clientLicense = new ZipFile(currentCustomerDir + "clientLicense.zip");
         File config = new File(currentCustomerDir + "clientConfig.json");
         ConfigParam configParam = new ConfigParam();
@@ -231,7 +241,7 @@ public class LicenseCreateService {
         if (remaining > 0) {
             validity++;
         }
-        return (int)validity;
+        return (int) validity;
     }
 
     /**
@@ -268,8 +278,10 @@ public class LicenseCreateService {
         //设置密钥
         CipherParam cipherParam = new DefaultCipherParam(param.getStorePass());
         KeyStoreParam privateStoreParam = new CustomKeyStoreParam(LicenseCreateService.class, param
-            .getPrivateKeysStorePath(), param.getPrivateAlias(), param.getStorePass(), param.getKeyPass());
-        return new DefaultLicenseParam(param.getSubject(), preferences, privateStoreParam, cipherParam);
+            .getPrivateKeysStorePath(), param.getPrivateAlias(), param.getStorePass(),
+            param.getKeyPass());
+        return new DefaultLicenseParam(param.getSubject(), preferences, privateStoreParam,
+            cipherParam);
 
     }
 

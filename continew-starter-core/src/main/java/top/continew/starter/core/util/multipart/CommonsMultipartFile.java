@@ -58,7 +58,7 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
 
     /**
      * Create an instance wrapping the given FileItem.
-     * 
+     *
      * @param fileItem the FileItem to wrap
      */
     public CommonsMultipartFile(FileItem fileItem) {
@@ -80,7 +80,7 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
      * <p>Default is "false", stripping off path information that may prefix the
      * actual filename e.g. from Opera. Switch this to "true" for preserving the
      * client-specified filename as-is, including potential path separators.
-     * 
+     *
      * @since 4.3.5
      * @see #getOriginalFilename()
      */
@@ -156,7 +156,8 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
     @Override
     public void transferTo(File dest) throws IOException, IllegalStateException {
         if (!isAvailable()) {
-            throw new IllegalStateException("File has already been moved - cannot be transferred again");
+            throw new IllegalStateException(
+                "File has already been moved - cannot be transferred again");
         }
 
         if (dest.exists() && !dest.delete()) {
@@ -171,9 +172,12 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
                 if (!this.fileItem.isInMemory()) {
                     action = (isAvailable() ? "copied" : "moved");
                 }
-                return "Part '" + getName() + "',  filename '" + getOriginalFilename() + "'" + (Boolean.TRUE
-                    .equals(traceOn) ? ", stored " + getStorageDescription() : "") + ": " + action + " to [" + dest
-                        .getAbsolutePath() + "]";
+                return "Part '" + getName() + "',  filename '" + getOriginalFilename() + "'"
+                    + (Boolean.TRUE
+                        .equals(traceOn) ? ", stored " + getStorageDescription() : "")
+                    + ": " + action + " to [" + dest
+                        .getAbsolutePath()
+                    + "]";
             });
         } catch (FileUploadException ex) {
             throw new IllegalStateException(ex.getMessage(), ex);
@@ -189,7 +193,8 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
     @Override
     public void transferTo(Path dest) throws IOException, IllegalStateException {
         if (!isAvailable()) {
-            throw new IllegalStateException("File has already been moved - cannot be transferred again");
+            throw new IllegalStateException(
+                "File has already been moved - cannot be transferred again");
         }
 
         FileCopyUtils.copy(this.fileItem.getInputStream(), Files.newOutputStream(dest));
@@ -229,10 +234,13 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
 
     @Override
     public String toString() {
-        return "MultipartFile[field=\"" + this.fileItem.getFieldName() + "\"" + (this.fileItem.getName() != null
-            ? ", filename=" + this.fileItem.getName()
-            : "") + (this.fileItem.getContentType() != null
+        return "MultipartFile[field=\"" + this.fileItem.getFieldName() + "\""
+            + (this.fileItem.getName() != null
+                ? ", filename=" + this.fileItem.getName()
+                : "")
+            + (this.fileItem.getContentType() != null
                 ? ", contentType=" + this.fileItem.getContentType()
-                : "") + ", size=" + this.fileItem.getSize() + "]";
+                : "")
+            + ", size=" + this.fileItem.getSize() + "]";
     }
 }

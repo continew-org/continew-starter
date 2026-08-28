@@ -152,7 +152,8 @@ public class QueryWrapperHelper {
             final int columnLength = ArrayUtil.length(columns);
             List<Consumer<QueryWrapper>> consumers = new ArrayList<>(columnLength);
             if (columnLength <= 1) {
-                String columnName = columnLength == 1 ? columns[0] : CharSequenceUtil.toUnderlineCase(fieldName);
+                String columnName =
+                    columnLength == 1 ? columns[0] : CharSequenceUtil.toUnderlineCase(fieldName);
                 parse(queryType, columnName, fieldValue, consumers);
                 return consumers;
             }
@@ -178,9 +179,9 @@ public class QueryWrapperHelper {
      * @param fieldValue 字段值
      */
     private static void parse(QueryType queryType,
-                              String columnName,
-                              Object fieldValue,
-                              List<Consumer<QueryWrapper>> consumers) {
+        String columnName,
+        Object fieldValue,
+        List<Consumer<QueryWrapper>> consumers) {
         switch (queryType) {
             case EQ -> consumers.add(q -> q.eq(columnName, fieldValue));
             case NE -> consumers.add(q -> q.ne(columnName, fieldValue));
@@ -191,7 +192,7 @@ public class QueryWrapperHelper {
             case BETWEEN -> {
                 List<Object> between = new ArrayList<>(ArrayUtil.isArray(fieldValue)
                     ? CollUtil.toList(fieldValue)
-                    : (List<Object>)fieldValue);
+                    : (List<Object>) fieldValue);
                 ValidationUtils.throwIf(between.size() != 2, "[{}] 必须是一个范围", columnName);
                 consumers.add(q -> q.between(columnName, between.get(0), between.get(1)));
             }
@@ -202,13 +203,13 @@ public class QueryWrapperHelper {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
                 consumers.add(q -> q.in(columnName, ArrayUtil.isArray(fieldValue)
                     ? CollUtil.toList(fieldValue)
-                    : (Collection<Object>)fieldValue));
+                    : (Collection<Object>) fieldValue));
             }
             case NOT_IN -> {
                 ValidationUtils.throwIfEmpty(fieldValue, "[{}] 不能为空", columnName);
                 consumers.add(q -> q.notIn(columnName, ArrayUtil.isArray(fieldValue)
                     ? CollUtil.toList(fieldValue)
-                    : (Collection<Object>)fieldValue));
+                    : (Collection<Object>) fieldValue));
             }
             case IS_NULL -> consumers.add(q -> q.isNull(columnName));
             case IS_NOT_NULL -> consumers.add(q -> q.isNotNull(columnName));

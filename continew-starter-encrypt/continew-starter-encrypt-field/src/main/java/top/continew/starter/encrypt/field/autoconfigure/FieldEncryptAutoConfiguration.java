@@ -38,7 +38,8 @@ import top.continew.starter.encrypt.field.util.EncryptHelper;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(FieldEncryptProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.ENCRYPT_FIELD, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.ENCRYPT_FIELD,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class FieldEncryptAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(FieldEncryptAutoConfiguration.class);
@@ -69,6 +70,7 @@ public class FieldEncryptAutoConfiguration {
     @PostConstruct
     public void postConstruct() {
         EncryptHelper.init(properties);
-        log.debug("[ContiNew Starter] - Auto Configuration 'Encrypt-Field' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Encrypt-Field' completed initialization.");
     }
 }

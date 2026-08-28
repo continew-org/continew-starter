@@ -39,10 +39,12 @@ import top.continew.starter.extension.datapermission.handler.DefaultDataPermissi
  */
 @AutoConfiguration
 @EnableConfigurationProperties(DataPermissionProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.DATA_PERMISSION, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.DATA_PERMISSION,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class DataPermissionAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(DataPermissionAutoConfiguration.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(DataPermissionAutoConfiguration.class);
 
     private DataPermissionAutoConfiguration() {
     }
@@ -52,7 +54,8 @@ public class DataPermissionAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public DataPermissionInterceptor dataPermissionInterceptor(DataPermissionHandler dataPermissionHandler) {
+    public DataPermissionInterceptor dataPermissionInterceptor(
+        DataPermissionHandler dataPermissionHandler) {
         return new DataPermissionInterceptor(dataPermissionHandler);
     }
 
@@ -61,7 +64,8 @@ public class DataPermissionAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public DataPermissionHandler dataPermissionHandler(DataPermissionUserDataProvider dataPermissionUserDataProvider) {
+    public DataPermissionHandler dataPermissionHandler(
+        DataPermissionUserDataProvider dataPermissionUserDataProvider) {
         return new DefaultDataPermissionHandler(dataPermissionUserDataProvider);
     }
 
@@ -72,13 +76,16 @@ public class DataPermissionAutoConfiguration {
     @ConditionalOnMissingBean
     public DataPermissionUserDataProvider dataPermissionUserDataProvider() {
         if (log.isErrorEnabled()) {
-            log.error("[ContiNew Starter] - Consider defining a bean of type '{}' in your configuration.", ResolvableType
-                .forClass(DataPermissionUserDataProvider.class));
+            log.error(
+                "[ContiNew Starter] - Consider defining a bean of type '{}' in your configuration.",
+                ResolvableType
+                    .forClass(DataPermissionUserDataProvider.class));
         }
         throw new NoSuchBeanDefinitionException(DataPermissionUserDataProvider.class);
     }
 
     static {
-        log.debug("[ContiNew Starter] - Auto Configuration 'DataPermission' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'DataPermission' completed initialization.");
     }
 }

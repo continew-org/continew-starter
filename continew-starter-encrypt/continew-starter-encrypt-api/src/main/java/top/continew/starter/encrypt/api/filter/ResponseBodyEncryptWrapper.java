@@ -89,8 +89,8 @@ public class ResponseBodyEncryptWrapper extends HttpServletResponseWrapper {
      * @return 加密内容
      */
     public String getEncryptContent(HttpServletResponse response,
-                                    String publicKey,
-                                    String secretKeyHeader) throws IOException {
+        String publicKey,
+        String secretKeyHeader) throws IOException {
         // 生成 AES 密钥
         String aesSecretKey = RandomUtil.randomString(32);
         // Base64 编码
@@ -110,6 +110,7 @@ public class ResponseBodyEncryptWrapper extends HttpServletResponseWrapper {
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
         return new ServletOutputStream() {
+
             @Override
             public boolean isReady() {
                 return false;

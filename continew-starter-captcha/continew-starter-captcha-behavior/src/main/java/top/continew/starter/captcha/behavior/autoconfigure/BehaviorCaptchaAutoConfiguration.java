@@ -51,11 +51,13 @@ import java.util.Properties;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(BehaviorCaptchaProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_BEHAVIOR, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_BEHAVIOR,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 @Import({BehaviorCaptchaCacheConfiguration.class})
 public class BehaviorCaptchaAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(BehaviorCaptchaAutoConfiguration.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(BehaviorCaptchaAutoConfiguration.class);
 
     /**
      * 行为验证码服务
@@ -70,8 +72,10 @@ public class BehaviorCaptchaAutoConfiguration {
         config.put(Const.CAPTCHA_FONT_TYPE, properties.getFontType());
         config.put(Const.CAPTCHA_TYPE, properties.getType().getCodeValue());
         config.put(Const.CAPTCHA_INTERFERENCE_OPTIONS, properties.getInterferenceOptions());
-        config.put(Const.ORIGINAL_PATH_JIGSAW, CharSequenceUtil.emptyIfNull(properties.getJigsawBaseMapPath()));
-        config.put(Const.ORIGINAL_PATH_PIC_CLICK, CharSequenceUtil.emptyIfNull(properties.getPicClickBaseMapPath()));
+        config.put(Const.ORIGINAL_PATH_JIGSAW,
+            CharSequenceUtil.emptyIfNull(properties.getJigsawBaseMapPath()));
+        config.put(Const.ORIGINAL_PATH_PIC_CLICK,
+            CharSequenceUtil.emptyIfNull(properties.getPicClickBaseMapPath()));
         config.put(Const.CAPTCHA_SLIP_OFFSET, properties.getSlipOffset());
         config.put(Const.CAPTCHA_AES_STATUS, String.valueOf(properties.getEnableAes()));
         config.put(Const.CAPTCHA_WATER_FONT, properties.getWaterFont());
@@ -87,11 +91,13 @@ public class BehaviorCaptchaAutoConfiguration {
         config.put(Const.CAPTCHA_FONT_SIZE, properties.getFontSize());
         config.put(Const.CAPTCHA_FONT_STYLE, properties.getFontStyle());
         config.put(Const.CAPTCHA_WORD_COUNT, 4);
-        if (CharSequenceUtil.startWith(properties.getJigsawBaseMapPath(), "classpath:") || CharSequenceUtil
-            .startWith(properties.getPicClickBaseMapPath(), "classpath:")) {
+        if (CharSequenceUtil.startWith(properties.getJigsawBaseMapPath(), "classpath:")
+            || CharSequenceUtil
+                .startWith(properties.getPicClickBaseMapPath(), "classpath:")) {
             // 自定义 resources 目录下初始化底图
             config.put(Const.CAPTCHA_INIT_ORIGINAL, true);
-            initializeBaseMap(properties.getJigsawBaseMapPath(), properties.getPicClickBaseMapPath());
+            initializeBaseMap(properties.getJigsawBaseMapPath(),
+                properties.getPicClickBaseMapPath());
         }
         return CaptchaServiceFactory.getInstance(config);
     }
@@ -104,7 +110,10 @@ public class BehaviorCaptchaAutoConfiguration {
      */
     private static void initializeBaseMap(String jigsaw, String picClick) {
         ImageUtils
-            .cacheBootImage(getResourcesImagesFile(jigsaw + "/original/*.png"), getResourcesImagesFile(jigsaw + "/slidingBlock/*.png"), getResourcesImagesFile(picClick + "/*.png"));
+            .cacheBootImage(getResourcesImagesFile(jigsaw + "/original/*.png"),
+                getResourcesImagesFile(
+                    jigsaw + "/slidingBlock/*.png"),
+                getResourcesImagesFile(picClick + "/*.png"));
     }
 
     /**
@@ -131,6 +140,7 @@ public class BehaviorCaptchaAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Captcha-Behavior' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Captcha-Behavior' completed initialization.");
     }
 }

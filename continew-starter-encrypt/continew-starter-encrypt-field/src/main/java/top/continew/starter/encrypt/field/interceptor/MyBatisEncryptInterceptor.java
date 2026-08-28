@@ -47,18 +47,19 @@ import java.util.regex.Pattern;
  * @author lishuyan
  * @since 1.4.0
  */
-public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implements InnerInterceptor {
+public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
+    implements InnerInterceptor {
 
     private static final Pattern PARAM_PAIRS_PATTERN = Pattern
         .compile("#\\{ew\\.paramNameValuePairs\\.(" + Constants.WRAPPER_PARAM + "\\d+)\\}");
 
     @Override
     public void beforeQuery(Executor executor,
-                            MappedStatement mappedStatement,
-                            Object parameterObject,
-                            RowBounds rowBounds,
-                            ResultHandler resultHandler,
-                            BoundSql boundSql) {
+        MappedStatement mappedStatement,
+        Object parameterObject,
+        RowBounds rowBounds,
+        ResultHandler resultHandler,
+        BoundSql boundSql) {
         if (parameterObject == null) {
             return;
         }
@@ -68,7 +69,8 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
     }
 
     @Override
-    public void beforeUpdate(Executor executor, MappedStatement mappedStatement, Object parameterObject) {
+    public void beforeUpdate(Executor executor, MappedStatement mappedStatement,
+        Object parameterObject) {
         if (parameterObject == null) {
             return;
         }
@@ -87,7 +89,8 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      * @param parameterMap    参数
      * @param mappedStatement 映射语句
      */
-    private void encryptQueryParameter(Map<String, Object> parameterMap, MappedStatement mappedStatement) {
+    private void encryptQueryParameter(Map<String, Object> parameterMap,
+        MappedStatement mappedStatement) {
         Map<String, FieldEncrypt> encryptParameterMap = super.getEncryptParameters(mappedStatement);
         for (Map.Entry<String, Object> parameterEntrySet : parameterMap.entrySet()) {
             String parameterName = parameterEntrySet.getKey();
@@ -138,11 +141,13 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
     private void encryptMap(Map<String, Object> parameterMap, MappedStatement mappedStatement) {
         Object parameter;
         // 别名带有 et（针对 MP 的 updateById、update 等方法）
-        if (parameterMap.containsKey(Constants.ENTITY) && (parameter = parameterMap.get(Constants.ENTITY)) != null) {
+        if (parameterMap.containsKey(Constants.ENTITY)
+            && (parameter = parameterMap.get(Constants.ENTITY)) != null) {
             this.encryptEntity(super.getEncryptFields(parameter), parameter);
         }
         // 别名带有 ew（针对 MP 的 UpdateWrapper、LambdaUpdateWrapper 等参数）
-        if (parameterMap.containsKey(Constants.WRAPPER) && (parameter = parameterMap.get(Constants.WRAPPER)) != null) {
+        if (parameterMap.containsKey(Constants.WRAPPER)
+            && (parameter = parameterMap.get(Constants.WRAPPER)) != null) {
             this.encryptUpdateWrapper(parameter, mappedStatement);
         }
     }
@@ -183,7 +188,8 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
                 if (matcher.matches()) {
                     String valueKey = matcher.group(1);
                     Object value = updateWrapper.getParamNameValuePairs().get(valueKey);
-                    updateWrapper.getParamNameValuePairs().put(valueKey, this.doEncrypt(value, fieldEncrypt));
+                    updateWrapper.getParamNameValuePairs().put(valueKey,
+                        this.doEncrypt(value, fieldEncrypt));
                 }
             }
         }

@@ -64,9 +64,12 @@ public class CustomLicenseManager extends LicenseManager {
         // 安装证书
         Preferences preferences = Preferences.userNodeForPackage(LicenseInstallerBean.class);
         CipherParam cipherParam = new DefaultCipherParam(configParam.getStorePass());
-        KeyStoreParam publicKeyStoreParam = new CustomKeyStoreParam(LicenseInstallerBean.class, properties
-            .getStorePath() + File.separator + "clientLicense/publicCerts.keystore", configParam
-                .getPublicAlias(), configParam.getStorePass(), null);
+        KeyStoreParam publicKeyStoreParam = new CustomKeyStoreParam(LicenseInstallerBean.class,
+            properties
+                .getStorePath() + File.separator + "clientLicense/publicCerts.keystore",
+            configParam
+                .getPublicAlias(),
+            configParam.getStorePass(), null);
         LicenseParam licenseParam = new DefaultLicenseParam(configParam
             .getSubject(), preferences, publicKeyStoreParam, cipherParam);
 
@@ -112,7 +115,8 @@ public class CustomLicenseManager extends LicenseManager {
      * @return {@link ConfigParam }
      */
     private ConfigParam getConfigParam() {
-        Path configPath = Paths.get(properties.getStorePath(), "clientLicense", "clientConfig.json");
+        Path configPath =
+            Paths.get(properties.getStorePath(), "clientLicense", "clientConfig.json");
 
         if (!Files.exists(configPath)) {
             log.warn("配置文件不存在: {}", configPath);
@@ -167,11 +171,12 @@ public class CustomLicenseManager extends LicenseManager {
      * @throws Exception 例外
      */
     @Override
-    protected synchronized LicenseContent install(final byte[] key, LicenseNotary notary) throws Exception {
+    protected synchronized LicenseContent install(final byte[] key, LicenseNotary notary)
+        throws Exception {
 
         final GenericCertificate certificate = getPrivacyGuard().key2cert(key);
         notary.verify(certificate);
-        final LicenseContent content = (LicenseContent)certificate.getContent();
+        final LicenseContent content = (LicenseContent) certificate.getContent();
         this.validate(content);
         setLicenseKey(key);
         setCertificate(certificate);
@@ -190,7 +195,7 @@ public class CustomLicenseManager extends LicenseManager {
     protected synchronized LicenseContent verify(LicenseNotary notary) throws Exception {
         GenericCertificate certificate = getCertificate();
         if (certificate != null) {
-            return (LicenseContent)certificate.getContent();
+            return (LicenseContent) certificate.getContent();
         }
         byte[] licenseKey = getLicenseKey();
         if (licenseKey == null) {
@@ -202,7 +207,7 @@ public class CustomLicenseManager extends LicenseManager {
         // 验证证书签名
         notary.verify(certificate);
         // 提取内容并进行业务校验
-        LicenseContent content = (LicenseContent)certificate.getContent();
+        LicenseContent content = (LicenseContent) certificate.getContent();
         this.validate(content);
         // 缓存证书
         setCertificate(certificate);

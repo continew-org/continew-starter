@@ -32,6 +32,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface PlatformProcessor {
+
     /**
      * 适用的平台列表
      */

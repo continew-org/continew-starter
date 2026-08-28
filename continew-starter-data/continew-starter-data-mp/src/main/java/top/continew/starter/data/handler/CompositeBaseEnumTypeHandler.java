@@ -50,14 +50,16 @@ public class CompositeBaseEnumTypeHandler<E extends Enum<E>> implements TypeHand
             throw new IllegalArgumentException("Type argument cannot be null");
         }
         if (Boolean.TRUE.equals(CollectionUtils
-            .computeIfAbsent(MP_ENUM_CACHE, enumClassType, MybatisBaseEnumTypeHandler::isMpEnums))) {
+            .computeIfAbsent(MP_ENUM_CACHE, enumClassType,
+                MybatisBaseEnumTypeHandler::isMpEnums))) {
             delegate = new MybatisBaseEnumTypeHandler<>(enumClassType);
         } else {
             delegate = getInstance(enumClassType, defaultEnumTypeHandler);
         }
     }
 
-    public static void setDefaultEnumTypeHandler(Class<? extends TypeHandler> defaultEnumTypeHandler) {
+    public static void setDefaultEnumTypeHandler(
+        Class<? extends TypeHandler> defaultEnumTypeHandler) {
         if (defaultEnumTypeHandler != null && !MybatisBaseEnumTypeHandler.class
             .isAssignableFrom(defaultEnumTypeHandler)) {
             CompositeBaseEnumTypeHandler.defaultEnumTypeHandler = defaultEnumTypeHandler;
@@ -65,7 +67,8 @@ public class CompositeBaseEnumTypeHandler<E extends Enum<E>> implements TypeHand
     }
 
     @Override
-    public void setParameter(PreparedStatement ps, int i, E parameter, JdbcType jdbcType) throws SQLException {
+    public void setParameter(PreparedStatement ps, int i, E parameter, JdbcType jdbcType)
+        throws SQLException {
         delegate.setParameter(ps, i, parameter, jdbcType);
     }
 
@@ -89,18 +92,20 @@ public class CompositeBaseEnumTypeHandler<E extends Enum<E>> implements TypeHand
         if (javaTypeClass != null) {
             try {
                 Constructor<?> c = typeHandlerClass.getConstructor(Class.class);
-                return (TypeHandler<T>)c.newInstance(javaTypeClass);
+                return (TypeHandler<T>) c.newInstance(javaTypeClass);
             } catch (NoSuchMethodException ignored) {
                 // ignored
             } catch (Exception e) {
-                throw new TypeException("Failed invoking constructor for handler " + typeHandlerClass, e);
+                throw new TypeException(
+                    "Failed invoking constructor for handler " + typeHandlerClass, e);
             }
         }
         try {
             Constructor<?> c = typeHandlerClass.getConstructor();
-            return (TypeHandler<T>)c.newInstance();
+            return (TypeHandler<T>) c.newInstance();
         } catch (Exception e) {
-            throw new TypeException("Unable to find a usable constructor for " + typeHandlerClass, e);
+            throw new TypeException("Unable to find a usable constructor for " + typeHandlerClass,
+                e);
         }
     }
 }

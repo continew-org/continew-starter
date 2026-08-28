@@ -44,7 +44,8 @@ public class CrudApiAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public CrudApiAnnotationAdvisor crudApiAnnotationAdvisor(CrudApiAnnotationInterceptor crudApiAnnotationInterceptor) {
+    public CrudApiAnnotationAdvisor crudApiAnnotationAdvisor(
+        CrudApiAnnotationInterceptor crudApiAnnotationInterceptor) {
         return new CrudApiAnnotationAdvisor(crudApiAnnotationInterceptor, CrudApi.class);
     }
 
@@ -59,6 +60,7 @@ public class CrudApiAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Extension-CRUD API' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Extension-CRUD API' completed initialization.");
     }
 }

@@ -86,7 +86,8 @@ public interface CrudService<L, D, Q, C> {
      * @see TreeField
      * @see top.continew.starter.extension.crud.autoconfigure.CrudTreeDictModelProperties
      */
-    List<Tree<Long>> tree(@Valid Q query, @Valid SortQuery sortQuery, boolean isSimple, boolean isSingleRoot);
+    List<Tree<Long>> tree(@Valid Q query, @Valid SortQuery sortQuery, boolean isSimple,
+        boolean isSingleRoot);
 
     /**
      * 查询详情

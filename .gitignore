@@ -32,3 +32,4 @@ logs/
 !.codebuddy/skills/
 !.codebuddy/skills/**
 !.codebuddy/.mcp.json
+.mindfs

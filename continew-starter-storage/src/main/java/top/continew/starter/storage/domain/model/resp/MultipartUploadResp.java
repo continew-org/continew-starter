@@ -23,6 +23,7 @@ package top.continew.starter.storage.domain.model.resp;
  * @since 2.14.0
  */
 public class MultipartUploadResp {
+
     /**
      * 分片编号
      */

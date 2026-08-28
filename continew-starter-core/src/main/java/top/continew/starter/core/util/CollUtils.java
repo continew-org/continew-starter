@@ -45,7 +45,8 @@ public class CollUtils {
      * @return 抽取后的新列表（默认去除 null 值）
      * @see CollUtil#map(Iterable, Function, boolean)
      */
-    public static <T, R> List<R> mapToList(Collection<T> collection, Function<? super T, ? extends R> func) {
+    public static <T, R> List<R> mapToList(Collection<T> collection,
+        Function<? super T, ? extends R> func) {
         return mapToList(collection, func, true);
     }
 
@@ -62,14 +63,15 @@ public class CollUtils {
      * @see CollUtil#map(Iterable, Function, boolean)
      */
     public static <T, R> List<R> mapToList(Collection<T> collection,
-                                           Function<? super T, ? extends R> func,
-                                           boolean ignoreNull) {
+        Function<? super T, ? extends R> func,
+        boolean ignoreNull) {
         if (CollUtil.isEmpty(collection)) {
             return new ArrayList<>(0);
         }
         Stream<T> stream = collection.stream();
         if (ignoreNull) {
-            return stream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).collect(Collectors.toList());
+            return stream.filter(Objects::nonNull).map(func).filter(Objects::nonNull)
+                .collect(Collectors.toList());
         }
         return stream.map(func).collect(Collectors.toList());
     }
@@ -85,7 +87,8 @@ public class CollUtils {
      * @return 抽取后的新集合（默认去除 null 值）
      * @see CollUtil#map(Iterable, Function, boolean)
      */
-    public static <T, R> Set<R> mapToSet(Collection<T> collection, Function<? super T, ? extends R> func) {
+    public static <T, R> Set<R> mapToSet(Collection<T> collection,
+        Function<? super T, ? extends R> func) {
         return mapToSet(collection, func, true);
     }
 
@@ -102,14 +105,15 @@ public class CollUtils {
      * @see CollUtil#map(Iterable, Function, boolean)
      */
     public static <T, R> Set<R> mapToSet(Collection<T> collection,
-                                         Function<? super T, ? extends R> func,
-                                         boolean ignoreNull) {
+        Function<? super T, ? extends R> func,
+        boolean ignoreNull) {
         if (CollUtil.isEmpty(collection)) {
             return new HashSet<>(0);
         }
         Stream<T> stream = collection.stream();
         if (ignoreNull) {
-            return stream.filter(Objects::nonNull).map(func).filter(Objects::nonNull).collect(Collectors.toSet());
+            return stream.filter(Objects::nonNull).map(func).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         }
         return stream.map(func).collect(Collectors.toSet());
     }

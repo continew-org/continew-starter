@@ -35,10 +35,12 @@ import top.continew.starter.core.constant.PropertiesConstants;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(GraphicCaptchaProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_GRAPHIC, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.CAPTCHA_GRAPHIC,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class GraphicCaptchaAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(GraphicCaptchaAutoConfiguration.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(GraphicCaptchaAutoConfiguration.class);
 
     /**
      * 验证码服务接口配置
@@ -51,6 +53,7 @@ public class GraphicCaptchaAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Captcha-Graphic' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Captcha-Graphic' completed initialization.");
     }
 }

@@ -40,7 +40,8 @@ import top.continew.starter.core.constant.StringConstants;
 @Lazy
 @AutoConfiguration
 @ConditionalOnWebApplication
-@ConditionalOnProperty(prefix = PropertiesConstants.WEB_CORS, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.WEB_CORS, name = PropertiesConstants.ENABLED,
+    havingValue = "true")
 @EnableConfigurationProperties(CorsProperties.class)
 public class CorsAutoConfiguration {
 
@@ -56,12 +57,14 @@ public class CorsAutoConfiguration {
         // 设置跨域允许时间
         config.setMaxAge(1800L);
         // 配置允许跨域的域名
-        if (properties.getAllowedOriginPatterns() != null && !properties.getAllowedOriginPatterns().isEmpty()) {
+        if (properties.getAllowedOriginPatterns() != null
+            && !properties.getAllowedOriginPatterns().isEmpty()) {
             if (!properties.getAllowedOriginPatterns().contains(StringConstants.ASTERISK)) {
                 config.setAllowCredentials(true);
             }
             config.setAllowedOriginPatterns(properties.getAllowedOriginPatterns());
-        } else if (properties.getAllowedOrigins() != null && !properties.getAllowedOrigins().isEmpty()) {
+        } else if (properties.getAllowedOrigins() != null
+            && !properties.getAllowedOrigins().isEmpty()) {
             if (properties.getAllowedOrigins().contains(StringConstants.ASTERISK)) {
                 config.addAllowedOriginPattern(StringConstants.ASTERISK);
             } else {
@@ -80,7 +83,8 @@ public class CorsAutoConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration(StringConstants.PATH_PATTERN, config);
         CorsFilter corsFilter = new CorsFilter(source);
-        log.debug("[ContiNew Starter] - Auto Configuration 'Web-CorsFilter' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Web-CorsFilter' completed initialization.");
         return corsFilter;
     }
 }

@@ -73,7 +73,8 @@ public class TreeUtils extends TreeUtil {
      * @param nodeParser 解析器，用于将输入节点转换为树节点
      * @return 构建好的树形结构列表
      */
-    public static <T, K> List<Tree<K>> build(List<T> list, K parentId, NodeParser<T, K> nodeParser) {
+    public static <T, K> List<Tree<K>> build(List<T> list, K parentId,
+        NodeParser<T, K> nodeParser) {
         if (CollUtil.isEmpty(list)) {
             return new ArrayList<>(0);
         }
@@ -92,9 +93,9 @@ public class TreeUtils extends TreeUtil {
      * @return 构建好的树形结构列表
      */
     public static <T, K> List<Tree<K>> build(List<T> list,
-                                             K parentId,
-                                             TreeNodeConfig treeNodeConfig,
-                                             NodeParser<T, K> nodeParser) {
+        K parentId,
+        TreeNodeConfig treeNodeConfig,
+        NodeParser<T, K> nodeParser) {
         if (CollUtil.isEmpty(list)) {
             return new ArrayList<>(0);
         }
@@ -113,9 +114,9 @@ public class TreeUtils extends TreeUtil {
      * @return 构建完成的树形结构（可能包含多个顶级根节点）
      */
     public static <T, K> List<Tree<K>> buildMultiRoot(List<T> list,
-                                                      Function<T, K> getId,
-                                                      Function<T, K> getParentId,
-                                                      NodeParser<T, K> parser) {
+        Function<T, K> getId,
+        Function<T, K> getParentId,
+        NodeParser<T, K> parser) {
         if (CollUtil.isEmpty(list)) {
             return new ArrayList<>(0);
         }
@@ -140,10 +141,10 @@ public class TreeUtils extends TreeUtil {
      * @return 构建完成的树形结构（可能包含多个顶级根节点）
      */
     public static <T, K> List<Tree<K>> buildMultiRoot(List<T> list,
-                                                      Function<T, K> getId,
-                                                      Function<T, K> getParentId,
-                                                      TreeNodeConfig treeNodeConfig,
-                                                      NodeParser<T, K> parser) {
+        Function<T, K> getId,
+        Function<T, K> getParentId,
+        TreeNodeConfig treeNodeConfig,
+        NodeParser<T, K> parser) {
         if (CollUtil.isEmpty(list)) {
             return new ArrayList<>(0);
         }
@@ -151,7 +152,8 @@ public class TreeUtils extends TreeUtil {
         rootParentIds.removeAll(CollUtils.mapToSet(list, getId));
         // 构建每一个根 parentId 下的树，并合并成最终结果列表
         return rootParentIds.stream()
-            .flatMap(rootParentId -> TreeUtil.build(list, rootParentId, treeNodeConfig, parser).stream())
+            .flatMap(
+                rootParentId -> TreeUtil.build(list, rootParentId, treeNodeConfig, parser).stream())
             .collect(Collectors.toList());
     }
 

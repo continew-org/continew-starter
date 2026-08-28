@@ -47,7 +47,8 @@ public class LogInterceptor implements HandlerInterceptor {
     private final LogProperties logProperties;
     private final LogHandler logHandler;
     private final LogDao logDao;
-    private final TransmittableThreadLocal<LogRecord.Started> logTtl = new TransmittableThreadLocal<>();
+    private final TransmittableThreadLocal<LogRecord.Started> logTtl =
+        new TransmittableThreadLocal<>();
 
     public LogInterceptor(LogProperties logProperties, LogHandler logHandler, LogDao logDao) {
         this.logProperties = logProperties;
@@ -57,8 +58,8 @@ public class LogInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(@NonNull HttpServletRequest request,
-                             @NonNull HttpServletResponse response,
-                             @NonNull Object handler) {
+        @NonNull HttpServletResponse response,
+        @NonNull Object handler) {
         Instant startTime = Instant.now();
         // 访问日志
         logHandler.accessLogStart(AccessLogContext.builder()
@@ -76,9 +77,9 @@ public class LogInterceptor implements HandlerInterceptor {
 
     @Override
     public void afterCompletion(@NonNull HttpServletRequest request,
-                                @NonNull HttpServletResponse response,
-                                @NonNull Object handler,
-                                Exception e) {
+        @NonNull HttpServletResponse response,
+        @NonNull Object handler,
+        Exception e) {
         try {
             Instant endTime = Instant.now();
             // 访问日志
@@ -91,11 +92,12 @@ public class LogInterceptor implements HandlerInterceptor {
                 return;
             }
             // 结束日志记录
-            HandlerMethod handlerMethod = (HandlerMethod)handler;
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
             Method targetMethod = handlerMethod.getMethod();
             Class<?> targetClass = handlerMethod.getBeanType();
-            LogRecord logRecord = logHandler.finish(startedLogRecord, endTime, response, logProperties
-                .getIncludes(), targetMethod, targetClass);
+            LogRecord logRecord =
+                logHandler.finish(startedLogRecord, endTime, response, logProperties
+                    .getIncludes(), targetMethod, targetClass);
             logDao.add(logRecord);
         } catch (Exception ex) {
             log.error("Logging http log occurred an error: {}.", ex.getMessage(), ex);

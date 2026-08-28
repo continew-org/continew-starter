@@ -95,6 +95,7 @@ public class LogProperties {
      * @return true: 匹配; false: 不匹配
      */
     public boolean isMatchExcludeUri(String uri) {
-        return this.getExcludePatterns().stream().anyMatch(pattern -> SpringUtils.isMatch(uri, pattern));
+        return this.getExcludePatterns().stream()
+            .anyMatch(pattern -> SpringUtils.isMatch(uri, pattern));
     }
 }

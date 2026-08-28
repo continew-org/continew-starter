@@ -51,7 +51,9 @@ public class ApiDocUtils {
      * @return GroupedOpenApi
      * @since 2.13.0
      */
-    public static GroupedOpenApi buildGroupedOpenApi(String group, String displayName, String... pathsToMatch) {
-        return GroupedOpenApi.builder().group(group).displayName(displayName).pathsToMatch(pathsToMatch).build();
+    public static GroupedOpenApi buildGroupedOpenApi(String group, String displayName,
+        String... pathsToMatch) {
+        return GroupedOpenApi.builder().group(group).displayName(displayName)
+            .pathsToMatch(pathsToMatch).build();
     }
 }

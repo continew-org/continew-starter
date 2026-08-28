@@ -220,8 +220,9 @@ public class LocalStorageStrategy implements StorageStrategy {
             fileInfo.setName(filePath.getFileName().toString());
             fileInfo.setSize(attrs.size());
             fileInfo.setUrl(config.getEndpoint() + StringConstants.SLASH + normalizedPath);
-            fileInfo.setUploadTime(LocalDateTime.ofInstant(attrs.creationTime().toInstant(), java.time.ZoneId
-                .systemDefault()));
+            fileInfo.setUploadTime(
+                LocalDateTime.ofInstant(attrs.creationTime().toInstant(), java.time.ZoneId
+                    .systemDefault()));
 
             // 添加元数据
             Map<String, String> metadata = new HashMap<>();
@@ -259,7 +260,8 @@ public class LocalStorageStrategy implements StorageStrategy {
      * 复制文件
      */
     @Override
-    public void copy(String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
+    public void copy(String sourceBucket, String targetBucket, String sourcePath,
+        String targetPath) {
         Path source = Paths.get(sourceBucket, normalizePath(sourcePath));
         Path target = Paths.get(targetBucket, normalizePath(targetPath));
 
@@ -272,7 +274,8 @@ public class LocalStorageStrategy implements StorageStrategy {
     }
 
     @Override
-    public void move(String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
+    public void move(String sourceBucket, String targetBucket, String sourcePath,
+        String targetPath) {
         copy(sourceBucket, targetBucket, sourcePath, targetPath);
         delete(sourceBucket, sourcePath);
     }
@@ -333,9 +336,9 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     @Override
     public MultipartInitResp initMultipartUpload(String bucket,
-                                                 String path,
-                                                 String contentType,
-                                                 Map<String, String> metadata) {
+        String path,
+        String contentType,
+        Map<String, String> metadata) {
         try {
             String uploadId = UUID.randomUUID().toString();
             String normalizedPath = normalizePath(path);
@@ -360,16 +363,17 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     @Override
     public MultipartUploadResp uploadPart(String bucket,
-                                          String path,
-                                          String uploadId,
-                                          int partNumber,
-                                          InputStream data) {
+        String path,
+        String uploadId,
+        int partNumber,
+        InputStream data) {
         MultipartUploadResp result = new MultipartUploadResp();
         result.setPartNumber(partNumber);
 
         try {
             // 分片文件路径
-            Path partPath = resolveMultipartTempPath(bucket, uploadId).resolve(buildPartFileName(partNumber));
+            Path partPath =
+                resolveMultipartTempPath(bucket, uploadId).resolve(buildPartFileName(partNumber));
             Files.createDirectories(partPath.getParent());
 
             // 保存分片
@@ -391,10 +395,10 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     @Override
     public FileInfo completeMultipartUpload(String bucket,
-                                            String path,
-                                            String uploadId,
-                                            List<MultipartUploadResp> parts,
-                                            boolean verifyParts) {
+        String path,
+        String uploadId,
+        List<MultipartUploadResp> parts,
+        boolean verifyParts) {
         try {
             // 本地存储不需要验证，直接使用传入的分片信息
             String normalizedPath = normalizePath(path);
@@ -403,7 +407,8 @@ public class LocalStorageStrategy implements StorageStrategy {
 
             // 合并分片
             try (OutputStream out = Files
-                .newOutputStream(targetPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+                .newOutputStream(targetPath, StandardOpenOption.CREATE,
+                    StandardOpenOption.TRUNCATE_EXISTING)) {
 
                 // 按分片编号排序
                 List<MultipartUploadResp> sortedParts = parts.stream()
@@ -413,8 +418,9 @@ public class LocalStorageStrategy implements StorageStrategy {
 
                 // 逐个读取并写入
                 for (MultipartUploadResp part : sortedParts) {
-                    Path partPath = resolveMultipartTempPath(bucket, uploadId).resolve(buildPartFileName(part
-                        .getPartNumber()));
+                    Path partPath =
+                        resolveMultipartTempPath(bucket, uploadId).resolve(buildPartFileName(part
+                            .getPartNumber()));
 
                     if (!Files.exists(partPath)) {
                         throw new StorageException("分片文件不存在: part " + part.getPartNumber());
@@ -493,7 +499,8 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     private String normalizePath(String rawPath) {
         String normalized = rawPath == null ? StringConstants.EMPTY : rawPath.trim();
-        normalized = normalized.replace("\\", StringConstants.SLASH).replaceAll("/+", StringConstants.SLASH);
+        normalized =
+            normalized.replace("\\", StringConstants.SLASH).replaceAll("/+", StringConstants.SLASH);
         while (normalized.startsWith(StringConstants.SLASH)) {
             normalized = normalized.substring(1);
         }
@@ -547,7 +554,8 @@ public class LocalStorageStrategy implements StorageStrategy {
             return;
         }
         try {
-            SpringUtils.deRegisterResourceHandler(MapUtil.of(resourceHandlerPath, config.getBucketName()));
+            SpringUtils
+                .deRegisterResourceHandler(MapUtil.of(resourceHandlerPath, config.getBucketName()));
         } catch (Exception e) {
             log.warn("清理本地存储静态资源映射失败: platform={}", config.getPlatform(), e);
         }

@@ -29,10 +29,12 @@ public interface CrudValidationGroup extends Default {
     /**
      * CRUD 分组校验-创建
      */
-    interface Create extends CrudValidationGroup {}
+    interface Create extends CrudValidationGroup {
+    }
 
     /**
      * CRUD 分组校验-修改
      */
-    interface Update extends CrudValidationGroup {}
+    interface Update extends CrudValidationGroup {
+    }
 }

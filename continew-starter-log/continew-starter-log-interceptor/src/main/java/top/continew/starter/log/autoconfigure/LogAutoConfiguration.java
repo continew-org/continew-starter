@@ -98,6 +98,7 @@ public class LogAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Log-Interceptor' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Log-Interceptor' completed initialization.");
     }
 }

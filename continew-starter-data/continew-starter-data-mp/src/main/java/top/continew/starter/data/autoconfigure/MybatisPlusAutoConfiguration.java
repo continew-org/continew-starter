@@ -50,8 +50,10 @@ import java.util.Map;
 @AutoConfiguration
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableConfigurationProperties(MyBatisPlusExtensionProperties.class)
-@ConditionalOnProperty(prefix = "mybatis-plus.extension", name = PropertiesConstants.ENABLED, havingValue = "true")
-@PropertySource(value = "classpath:default-data-mybatis-plus.yml", factory = GeneralPropertySourceFactory.class)
+@ConditionalOnProperty(prefix = "mybatis-plus.extension", name = PropertiesConstants.ENABLED,
+    havingValue = "true")
+@PropertySource(value = "classpath:default-data-mybatis-plus.yml",
+    factory = GeneralPropertySourceFactory.class)
 @Import({MyBatisPlusIdGeneratorConfiguration.class})
 public class MybatisPlusAutoConfiguration {
 
@@ -73,15 +75,18 @@ public class MybatisPlusAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean
-    public MybatisPlusInterceptor mybatisPlusInterceptor(MyBatisPlusExtensionProperties properties) {
+    public MybatisPlusInterceptor mybatisPlusInterceptor(
+        MyBatisPlusExtensionProperties properties) {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
         // 其他拦截器
-        Map<String, InnerInterceptor> innerInterceptors = SpringUtil.getBeansOfType(InnerInterceptor.class);
+        Map<String, InnerInterceptor> innerInterceptors =
+            SpringUtil.getBeansOfType(InnerInterceptor.class);
         if (!innerInterceptors.isEmpty()) {
             innerInterceptors.values().forEach(interceptor::addInnerInterceptor);
         }
         // 分页插件
-        MyBatisPlusExtensionProperties.PaginationProperties paginationProperties = properties.getPagination();
+        MyBatisPlusExtensionProperties.PaginationProperties paginationProperties =
+            properties.getPagination();
         if (paginationProperties != null && paginationProperties.isEnabled()) {
             interceptor.addInnerInterceptor(this.paginationInnerInterceptor(paginationProperties));
         }
@@ -99,10 +104,12 @@ public class MybatisPlusAutoConfiguration {
     /**
      * 分页插件配置（<a href="https://baomidou.com/pages/97710a/#paginationinnerinterceptor">PaginationInnerInterceptor</a>）
      */
-    private PaginationInnerInterceptor paginationInnerInterceptor(MyBatisPlusExtensionProperties.PaginationProperties paginationProperties) {
+    private PaginationInnerInterceptor paginationInnerInterceptor(
+        MyBatisPlusExtensionProperties.PaginationProperties paginationProperties) {
         // 对于单一数据库类型来说，都建议配置该值，避免每次分页都去抓取数据库类型
-        PaginationInnerInterceptor paginationInnerInterceptor = new PaginationInnerInterceptor(paginationProperties
-            .getDbType());
+        PaginationInnerInterceptor paginationInnerInterceptor =
+            new PaginationInnerInterceptor(paginationProperties
+                .getDbType());
         paginationInnerInterceptor.setOverflow(paginationProperties.isOverflow());
         paginationInnerInterceptor.setMaxLimit(paginationProperties.getMaxLimit());
         return paginationInnerInterceptor;
@@ -110,6 +117,7 @@ public class MybatisPlusAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'MyBatis Plus' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'MyBatis Plus' completed initialization.");
     }
 }

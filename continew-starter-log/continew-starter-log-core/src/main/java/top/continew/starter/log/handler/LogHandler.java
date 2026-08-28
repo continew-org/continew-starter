@@ -62,7 +62,8 @@ public interface LogHandler {
      * @param includes 包含信息
      * @return 日志记录
      */
-    LogRecord finish(LogRecord.Started started, Instant endTime, HttpServletResponse response, Set<Include> includes);
+    LogRecord finish(LogRecord.Started started, Instant endTime, HttpServletResponse response,
+        Set<Include> includes);
 
     /**
      * 结束日志记录
@@ -76,11 +77,11 @@ public interface LogHandler {
      * @return 日志记录
      */
     LogRecord finish(LogRecord.Started started,
-                     Instant endTime,
-                     HttpServletResponse response,
-                     Set<Include> includes,
-                     Method targetMethod,
-                     Class<?> targetClass);
+        Instant endTime,
+        HttpServletResponse response,
+        Set<Include> includes,
+        Method targetMethod,
+        Class<?> targetClass);
 
     /**
      * 记录日志描述

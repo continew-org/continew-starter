@@ -39,14 +39,16 @@ public class CrudApiAnnotationInterceptor implements MethodInterceptor {
     @Override
     public Object invoke(MethodInvocation invocation) throws Throwable {
         // 获取目标类
-        Class<?> targetClass = AopUtils.getTargetClass(Objects.requireNonNull(invocation.getThis()));
+        Class<?> targetClass =
+            AopUtils.getTargetClass(Objects.requireNonNull(invocation.getThis()));
         // 获取目标方法
-        Method specificMethod = ClassUtils.getMostSpecificMethod(invocation.getMethod(), targetClass);
+        Method specificMethod =
+            ClassUtils.getMostSpecificMethod(invocation.getMethod(), targetClass);
         Method targetMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);
         // 获取 @CrudApi 注解
         CrudApi crudApi = AnnotatedElementUtils.findMergedAnnotation(targetMethod, CrudApi.class);
         // 执行处理
-        AbstractCrudController crudController = (AbstractCrudController)invocation.getThis();
+        AbstractCrudController crudController = (AbstractCrudController) invocation.getThis();
         crudController.preHandle(crudApi, invocation.getArguments(), targetMethod, targetClass);
         return invocation.proceed();
     }

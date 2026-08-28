@@ -56,8 +56,8 @@ public class ExcelBigNumberConverter implements Converter<Long> {
      */
     @Override
     public Long convertToJavaData(ReadCellData<?> cellData,
-                                  ExcelContentProperty contentProperty,
-                                  GlobalConfiguration globalConfiguration) {
+        ExcelContentProperty contentProperty,
+        GlobalConfiguration globalConfiguration) {
         return Convert.toLong(cellData.getData());
     }
 
@@ -66,8 +66,8 @@ public class ExcelBigNumberConverter implements Converter<Long> {
      */
     @Override
     public WriteCellData<Object> convertToExcelData(Long value,
-                                                    ExcelContentProperty contentProperty,
-                                                    GlobalConfiguration globalConfiguration) {
+        ExcelContentProperty contentProperty,
+        GlobalConfiguration globalConfiguration) {
         if (value != null) {
             String str = Long.toString(value);
             if (str.length() > MAX_LENGTH) {

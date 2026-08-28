@@ -32,7 +32,8 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
  */
 @AutoConfiguration
 @Import(com.alicp.jetcache.autoconfigure.JetCacheAutoConfiguration.class)
-@PropertySource(value = "classpath:default-cache-jetcache.yml", factory = GeneralPropertySourceFactory.class)
+@PropertySource(value = "classpath:default-cache-jetcache.yml",
+    factory = GeneralPropertySourceFactory.class)
 public class JetCacheAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(JetCacheAutoConfiguration.class);

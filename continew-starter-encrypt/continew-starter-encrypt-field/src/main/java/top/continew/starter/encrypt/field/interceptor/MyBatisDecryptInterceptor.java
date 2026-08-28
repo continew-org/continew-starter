@@ -42,7 +42,8 @@ import java.util.Map;
  * @author lishuyan
  * @since 1.4.0
  */
-@Intercepts({@Signature(type = ResultSetHandler.class, method = "handleResultSets", args = {Statement.class})})
+@Intercepts({@Signature(type = ResultSetHandler.class, method = "handleResultSets",
+    args = {Statement.class})})
 public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implements Interceptor {
 
     @Override

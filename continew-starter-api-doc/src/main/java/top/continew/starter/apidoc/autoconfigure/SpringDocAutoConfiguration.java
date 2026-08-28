@@ -42,7 +42,8 @@ import top.nextdoc4j.enums.resolver.EnumMetadataResolver;
  * @since 1.0.0
  */
 @AutoConfiguration(before = SpringDocConfiguration.class)
-@PropertySource(value = "classpath:default-api-doc.yml", factory = GeneralPropertySourceFactory.class)
+@PropertySource(value = "classpath:default-api-doc.yml",
+    factory = GeneralPropertySourceFactory.class)
 public class SpringDocAutoConfiguration implements WebMvcConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(SpringDocAutoConfiguration.class);
@@ -63,7 +64,8 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
             .description(applicationProperties.getDescription());
         ApplicationProperties.Contact contact = applicationProperties.getContact();
         if (contact != null) {
-            info.contact(new Contact().name(contact.getName()).email(contact.getEmail()).url(contact.getUrl()));
+            info.contact(new Contact().name(contact.getName()).email(contact.getEmail())
+                .url(contact.getUrl()));
         }
         ApplicationProperties.License license = applicationProperties.getLicense();
         if (license != null) {

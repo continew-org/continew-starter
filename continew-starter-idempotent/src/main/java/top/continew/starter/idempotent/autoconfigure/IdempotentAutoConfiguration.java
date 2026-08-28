@@ -39,7 +39,8 @@ import top.continew.starter.idempotent.generator.IdempotentNameGenerator;
  */
 @AutoConfiguration(after = RedissonAutoConfiguration.class)
 @EnableConfigurationProperties(IdempotentProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.IDEMPOTENT, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.IDEMPOTENT, name = PropertiesConstants.ENABLED,
+    havingValue = "true", matchIfMissing = true)
 public class IdempotentAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(IdempotentAutoConfiguration.class);
@@ -49,7 +50,7 @@ public class IdempotentAutoConfiguration {
      */
     @Bean
     public IdempotentAspect idempotentAspect(IdempotentProperties properties,
-                                             IdempotentNameGenerator idempotentNameGenerator) {
+        IdempotentNameGenerator idempotentNameGenerator) {
         return new IdempotentAspect(properties, idempotentNameGenerator);
     }
 

@@ -72,7 +72,8 @@ public class EncryptUtils {
         if (!ArrayUtil.contains(array, password.length())) {
             throw new IllegalArgumentException("AES秘钥长度要求为16位、24位、32位");
         }
-        return SecureUtil.aes(password.getBytes(StandardCharsets.UTF_8)).encryptBase64(data, StandardCharsets.UTF_8);
+        return SecureUtil.aes(password.getBytes(StandardCharsets.UTF_8)).encryptBase64(data,
+            StandardCharsets.UTF_8);
     }
 
     /**
@@ -92,7 +93,8 @@ public class EncryptUtils {
         if (!ArrayUtil.contains(array, password.length())) {
             throw new IllegalArgumentException("AES秘钥长度要求为16位、24位、32位");
         }
-        return SecureUtil.aes(password.getBytes(StandardCharsets.UTF_8)).decryptStr(data, StandardCharsets.UTF_8);
+        return SecureUtil.aes(password.getBytes(StandardCharsets.UTF_8)).decryptStr(data,
+            StandardCharsets.UTF_8);
     }
 
     /**

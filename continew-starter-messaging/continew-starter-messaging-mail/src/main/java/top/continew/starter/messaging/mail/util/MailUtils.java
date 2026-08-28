@@ -55,7 +55,8 @@ public class MailUtils {
      * @param to      收件人
      * @throws MessagingException /
      */
-    public static void sendText(String to, String subject, String content) throws MessagingException {
+    public static void sendText(String to, String subject, String content)
+        throws MessagingException {
         send(splitAddress(to), null, null, subject, content, false);
     }
 
@@ -67,7 +68,8 @@ public class MailUtils {
      * @param to      收件人
      * @throws MessagingException /
      */
-    public static void sendHtml(String to, String subject, String content) throws MessagingException {
+    public static void sendHtml(String to, String subject, String content)
+        throws MessagingException {
         send(splitAddress(to), null, null, subject, content, true);
     }
 
@@ -80,7 +82,8 @@ public class MailUtils {
      * @param files   附件列表
      * @throws MessagingException /
      */
-    public static void sendHtml(String to, String subject, String content, File... files) throws MessagingException {
+    public static void sendHtml(String to, String subject, String content, File... files)
+        throws MessagingException {
         send(splitAddress(to), null, null, subject, content, true, files);
     }
 
@@ -94,9 +97,9 @@ public class MailUtils {
      * @throws MessagingException /
      */
     public static void sendHtml(Collection<String> tos,
-                                String subject,
-                                String content,
-                                File... files) throws MessagingException {
+        String subject,
+        String content,
+        File... files) throws MessagingException {
         send(tos, null, null, subject, content, true, files);
     }
 
@@ -111,10 +114,10 @@ public class MailUtils {
      * @throws MessagingException /
      */
     public static void sendHtml(Collection<String> tos,
-                                Collection<String> ccs,
-                                String subject,
-                                String content,
-                                File... files) throws MessagingException {
+        Collection<String> ccs,
+        String subject,
+        String content,
+        File... files) throws MessagingException {
         send(tos, ccs, null, subject, content, true, files);
     }
 
@@ -130,11 +133,11 @@ public class MailUtils {
      * @throws MessagingException /
      */
     public static void sendHtml(Collection<String> tos,
-                                Collection<String> ccs,
-                                Collection<String> bccs,
-                                String subject,
-                                String content,
-                                File... files) throws MessagingException {
+        Collection<String> ccs,
+        Collection<String> bccs,
+        String subject,
+        String content,
+        File... files) throws MessagingException {
         send(tos, ccs, bccs, subject, content, true, files);
     }
 
@@ -151,18 +154,19 @@ public class MailUtils {
      * @throws MessagingException /
      */
     public static void send(Collection<String> tos,
-                            Collection<String> ccs,
-                            Collection<String> bccs,
-                            String subject,
-                            String content,
-                            boolean isHtml,
-                            File... files) throws MessagingException {
+        Collection<String> ccs,
+        Collection<String> bccs,
+        String subject,
+        String content,
+        boolean isHtml,
+        File... files) throws MessagingException {
         Assert.isFalse(CollUtil.isEmpty(tos), "请至少指定一名收件人");
         JavaMailSenderImpl mailSender = getMailSender();
         MimeMessage mimeMessage = mailSender.createMimeMessage();
         // 创建邮件发送器
-        MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8
-            .displayName());
+        MimeMessageHelper messageHelper =
+            new MimeMessageHelper(mimeMessage, true, StandardCharsets.UTF_8
+                .displayName());
         // 设置基本信息
         messageHelper.setFrom(CharSequenceUtil.blankToDefault(mailSender.getJavaMailProperties()
             .getProperty("mail.from"), mailSender.getUsername()));
@@ -217,7 +221,8 @@ public class MailUtils {
      */
     public static JavaMailSenderImpl getMailSender() {
         JavaMailSenderImpl mailSender = SpringUtil.getBean(JavaMailSenderImpl.class);
-        MailConfigurer mailConfigurer = ExceptionUtils.exToNull(() -> SpringUtil.getBean(MailConfigurer.class));
+        MailConfigurer mailConfigurer =
+            ExceptionUtils.exToNull(() -> SpringUtil.getBean(MailConfigurer.class));
         if (mailConfigurer != null && mailConfigurer.getMailConfig() != null) {
             mailConfigurer.apply(mailConfigurer.getMailConfig(), mailSender);
         }

@@ -53,8 +53,9 @@ public class IpUtils {
         if (ipInfo == null) {
             return null;
         }
-        Set<String> regionSet = CollUtil.newLinkedHashSet(ipInfo.getCountry(), ipInfo.getRegion(), ipInfo
-            .getProvince(), ipInfo.getCity(), ipInfo.getIsp());
+        Set<String> regionSet =
+            CollUtil.newLinkedHashSet(ipInfo.getCountry(), ipInfo.getRegion(), ipInfo
+                .getProvince(), ipInfo.getCity(), ipInfo.getIsp());
         regionSet.removeIf(Objects::isNull);
         return String.join(StringConstants.PIPE, regionSet);
     }
@@ -66,6 +67,7 @@ public class IpUtils {
      * @return 是否为内网 IP
      */
     public static boolean isInnerIpv4(String ip) {
-        return NetUtil.isInnerIP("0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : HtmlUtil.cleanHtmlTag(ip));
+        return NetUtil
+            .isInnerIP("0:0:0:0:0:0:0:1".equals(ip) ? "127.0.0.1" : HtmlUtil.cleanHtmlTag(ip));
     }
 }

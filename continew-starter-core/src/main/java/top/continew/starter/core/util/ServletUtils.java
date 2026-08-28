@@ -72,7 +72,8 @@ public class ServletUtils extends JakartaServletUtil {
             }
             String browserName = userAgent.getBrowser().getName();
             String version = userAgent.getVersion();
-            return CharSequenceUtil.isBlank(version) ? browserName : browserName + StringConstants.SPACE + version;
+            return CharSequenceUtil.isBlank(version) ? browserName
+                : browserName + StringConstants.SPACE + version;
         } catch (Exception e) {
             return null;
         }
@@ -172,7 +173,7 @@ public class ServletUtils extends JakartaServletUtil {
     public static ServletRequestAttributes getRequestAttributes() {
         try {
             RequestAttributes attributes = RequestContextHolder.getRequestAttributes();
-            return (ServletRequestAttributes)attributes;
+            return (ServletRequestAttributes) attributes;
         } catch (Exception e) {
             return null;
         }
@@ -210,7 +211,8 @@ public class ServletUtils extends JakartaServletUtil {
      * @since 2.15.1
      */
     public static boolean isForm(HttpServletRequest request) {
-        return StrUtil.contains(request.getContentType(), MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+        return StrUtil.contains(request.getContentType(),
+            MediaType.APPLICATION_FORM_URLENCODED_VALUE);
     }
 
     /**

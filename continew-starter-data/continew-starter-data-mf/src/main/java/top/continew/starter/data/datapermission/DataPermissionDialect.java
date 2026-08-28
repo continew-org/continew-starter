@@ -54,11 +54,13 @@ public class DataPermissionDialect extends CommonsDialectImpl {
                 return super.buildSelectSql(queryWrapper);
             }
             switch (dataScope) {
-                case DEPT_AND_CHILD -> this.buildDeptAndChildExpression(dataPermission, currentUser, queryWrapper);
+                case DEPT_AND_CHILD ->
+                    this.buildDeptAndChildExpression(dataPermission, currentUser, queryWrapper);
                 case DEPT -> this.buildDeptExpression(dataPermission, currentUser, queryWrapper);
                 case SELF -> this.buildSelfExpression(dataPermission, currentUser, queryWrapper);
                 case CUSTOM -> this.buildCustomExpression(dataPermission, role, queryWrapper);
-                default -> throw new IllegalArgumentException("暂不支持 [%s] 数据权限".formatted(dataScope));
+                default ->
+                    throw new IllegalArgumentException("暂不支持 [%s] 数据权限".formatted(dataScope));
             }
         }
         return super.buildSelectSql(queryWrapper);
@@ -78,12 +80,13 @@ public class DataPermissionDialect extends CommonsDialectImpl {
      * @return 处理完后的表达式
      */
     private void buildCustomExpression(DataPermission dataPermission,
-                                       DataPermissionCurrentUser.CurrentUserRole role,
-                                       QueryWrapper queryWrapper) {
+        DataPermissionCurrentUser.CurrentUserRole role,
+        QueryWrapper queryWrapper) {
         QueryWrapper subQueryWrapper = QueryWrapper.create();
         subQueryWrapper.select(dataPermission.deptId()).from(dataPermission.roleDeptTableAlias());
         subQueryWrapper.eq(dataPermission.roleId(), role.getRoleId());
-        queryWrapper.in(buildColumn(dataPermission.tableAlias(), dataPermission.deptId()), subQueryWrapper);
+        queryWrapper.in(buildColumn(dataPermission.tableAlias(), dataPermission.deptId()),
+            subQueryWrapper);
     }
 
     /**
@@ -98,9 +101,10 @@ public class DataPermissionDialect extends CommonsDialectImpl {
      * @param queryWrapper   处理前的表达式
      */
     private void buildSelfExpression(DataPermission dataPermission,
-                                     DataPermissionCurrentUser currentUser,
-                                     QueryWrapper queryWrapper) {
-        queryWrapper.eq(buildColumn(dataPermission.tableAlias(), dataPermission.userId()), currentUser.getUserId());
+        DataPermissionCurrentUser currentUser,
+        QueryWrapper queryWrapper) {
+        queryWrapper.eq(buildColumn(dataPermission.tableAlias(), dataPermission.userId()),
+            currentUser.getUserId());
     }
 
     /**
@@ -115,9 +119,10 @@ public class DataPermissionDialect extends CommonsDialectImpl {
      * @param queryWrapper   查询条件
      */
     private void buildDeptExpression(DataPermission dataPermission,
-                                     DataPermissionCurrentUser currentUser,
-                                     QueryWrapper queryWrapper) {
-        queryWrapper.eq(buildColumn(dataPermission.tableAlias(), dataPermission.deptId()), currentUser.getDeptId());
+        DataPermissionCurrentUser currentUser,
+        QueryWrapper queryWrapper) {
+        queryWrapper.eq(buildColumn(dataPermission.tableAlias(), dataPermission.deptId()),
+            currentUser.getDeptId());
     }
 
     /**
@@ -133,15 +138,16 @@ public class DataPermissionDialect extends CommonsDialectImpl {
      * @param queryWrapper   查询条件
      */
     private void buildDeptAndChildExpression(DataPermission dataPermission,
-                                             DataPermissionCurrentUser currentUser,
-                                             QueryWrapper queryWrapper) {
+        DataPermissionCurrentUser currentUser,
+        QueryWrapper queryWrapper) {
         QueryWrapper subQueryWrapper = QueryWrapper.create();
         subQueryWrapper.select(dataPermission.id()).from(dataPermission.deptTableAlias());
         subQueryWrapper.and(qw -> {
             qw.eq(dataPermission.id(), currentUser.getDeptId())
                 .or("find_in_set(" + currentUser.getDeptId() + ",ancestors)");
         });
-        queryWrapper.in(buildColumn(dataPermission.tableAlias(), dataPermission.deptId()), subQueryWrapper);
+        queryWrapper.in(buildColumn(dataPermission.tableAlias(), dataPermission.deptId()),
+            subQueryWrapper);
     }
 
     /**

@@ -27,6 +27,7 @@ import com.yomahub.tlog.id.snowflake.UniqueIdGenerator;
  * @since 1.3.0
  */
 public class TraceIdGenerator extends TLogIdGenerator {
+
     @Override
     public String generateTraceId() {
         return String.valueOf(UniqueIdGenerator.generateId());

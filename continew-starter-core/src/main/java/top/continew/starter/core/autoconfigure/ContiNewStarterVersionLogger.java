@@ -34,7 +34,8 @@ public class ContiNewStarterVersionLogger implements ApplicationListener<Applica
     @Override
     public void onApplicationEvent(ApplicationPreparedEvent event) {
         ConfigurableEnvironment environment = event.getApplicationContext().getEnvironment();
-        boolean isLogStartupInfo = environment.getProperty("spring.main.log-startup-info", Boolean.class, true);
+        boolean isLogStartupInfo =
+            environment.getProperty("spring.main.log-startup-info", Boolean.class, true);
         if (!isLogStartupInfo) {
             return;
         }

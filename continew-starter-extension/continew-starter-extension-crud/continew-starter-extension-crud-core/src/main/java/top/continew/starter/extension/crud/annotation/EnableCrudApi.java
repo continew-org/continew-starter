@@ -32,4 +32,5 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Import({CrudRequestMappingAutoConfiguration.class, CrudApiAutoConfiguration.class})
-public @interface EnableCrudApi {}
+public @interface EnableCrudApi {
+}

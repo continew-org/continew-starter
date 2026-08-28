@@ -57,13 +57,16 @@ public class FileUploadUtils {
      * @param isKeepOriginalFilename 是否保留原文件名
      * @return 目标文件对象
      */
-    public static File upload(MultipartFile multipartFile, String filePath, boolean isKeepOriginalFilename) {
+    public static File upload(MultipartFile multipartFile, String filePath,
+        boolean isKeepOriginalFilename) {
         String originalFilename = multipartFile.getOriginalFilename();
         String extensionName = FileNameUtil.extName(originalFilename);
         String fileName;
         if (isKeepOriginalFilename) {
-            fileName = "%s-%s.%s".formatted(FileNameUtil.getPrefix(originalFilename), DateUtil.format(LocalDateTime
-                .now(), DatePattern.PURE_DATETIME_MS_PATTERN), extensionName);
+            fileName = "%s-%s.%s".formatted(FileNameUtil.getPrefix(originalFilename),
+                DateUtil.format(LocalDateTime
+                    .now(), DatePattern.PURE_DATETIME_MS_PATTERN),
+                extensionName);
         } else {
             fileName = "%s.%s".formatted(IdUtil.fastSimpleUUID(), extensionName);
         }
@@ -102,11 +105,12 @@ public class FileUploadUtils {
      * @since 2.5.0
      */
     public static void download(HttpServletResponse response,
-                                InputStream inputStream,
-                                String fileName) throws IOException {
+        InputStream inputStream,
+        String fileName) throws IOException {
         response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + URLUtil.encode(fileName));
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=" + URLUtil.encode(fileName));
         try (inputStream; var outputStream = response.getOutputStream()) {
             response.setContentLengthLong(inputStream.transferTo(outputStream));
         }

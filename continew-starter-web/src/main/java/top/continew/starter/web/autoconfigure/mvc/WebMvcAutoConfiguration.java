@@ -48,7 +48,8 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
     private static final Logger log = LoggerFactory.getLogger(WebMvcAutoConfiguration.class);
     private final MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter;
 
-    public WebMvcAutoConfiguration(MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter) {
+    public WebMvcAutoConfiguration(
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter) {
         this.mappingJackson2HttpMessageConverter = mappingJackson2HttpMessageConverter;
     }
 

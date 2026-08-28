@@ -40,7 +40,8 @@ import top.continew.starter.security.xss.filter.XssFilter;
 @AutoConfiguration
 @ConditionalOnWebApplication
 @EnableConfigurationProperties(XssProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_XSS, name = PropertiesConstants.ENABLED, havingValue = "true")
+@ConditionalOnProperty(prefix = PropertiesConstants.SECURITY_XSS,
+    name = PropertiesConstants.ENABLED, havingValue = "true")
 public class XssAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(XssAutoConfiguration.class);
@@ -60,6 +61,7 @@ public class XssAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Security-XSS' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Security-XSS' completed initialization.");
     }
 }

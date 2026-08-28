@@ -58,7 +58,7 @@ mvn -pl :continew-starter-web -am compile
 mvn compile -Dspotless.apply.skip=true
 ```
 
-**关键约定**：提交代码前必须执行 `mvn compile`，编译会自动触发 Spotless 插件按照 `.style/p3c-codestyle.xml`（阿里 P3C 黄山版规范）格式化代码并添加 License Header。编译通过后不要再次在 IDE 中打开代码文件，避免不同 IDE 配置导致格式差异。
+**关键约定**：提交代码前必须执行 `./mvnw compile`（Windows 为 `mvnw.cmd compile`），编译会自动触发 Spotless 插件按照 `style/ocn-eclipse-formatter.xml`（Eclipse formatter 格式）格式化代码并添加 License Header。编译通过后不要再次在 IDE 中打开代码文件，避免不同 IDE 配置导致格式差异。
 
 ### 其它命令
 
@@ -125,12 +125,12 @@ mvn verify -Psonar             # SonarCloud 代码质量分析
 
 ### License Header 强制要求
 
-所有 Java 文件必须包含 LGPL-3.0 License Header（定义在 `.style/license-header`）。Spotless 插件在编译时会自动检查并补全。新建 Java 文件时请从现有文件复制 header，或直接执行 `mvn compile` 让插件自动添加。
+所有 Java 文件必须包含 LGPL-3.0 License Header（定义在 `style/license-header`）。Spotless 插件在编译时会自动检查并补全。新建 Java 文件时请从现有文件复制 header，或直接执行 `./mvnw compile` 让插件自动添加。
 
 ### 代码风格规范
 
-- 遵循阿里《Java开发手册(黄山版)》（`.style/Java开发手册(黄山版).pdf`）
-- 代码格式由 `.style/p3c-codestyle.xml`（Eclipse formatter 格式）定义
+- 遵循阿里《Java开发手册(黄山版)》（官方仓库：https://github.com/alibaba/p3c ）
+- 代码格式由 `style/ocn-eclipse-formatter.xml`（Eclipse formatter 格式）定义
 - 类注释需包含 `@author` 和 `@since` 标签
 - 提交信息遵循 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular)
 
@@ -147,8 +147,8 @@ mvn verify -Psonar             # SonarCloud 代码质量分析
 | `continew-starter-dependencies/pom.xml` | 第三方依赖版本管理（修改依赖版本的唯一入口） |
 | `continew-starter-bom/pom.xml` | 项目内部模块版本管理 |
 | `continew-starter-core/.../PropertiesConstants.java` | 所有配置属性前缀常量 |
-| `.style/p3c-codestyle.xml` | 代码格式化规则（Spotless 使用） |
-| `.style/license-header` | License Header 模板 |
+| `style/ocn-eclipse-formatter.xml` | 代码格式化规则（Spotless 使用） |
+| `style/license-header` | License Header 模板 |
 | `docs/adr/` | 架构决策记录 |
 | `docs/agents/` | Agent 相关的领域文档与 issue tracker 约定 |
 

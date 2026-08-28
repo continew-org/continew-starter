@@ -31,4 +31,5 @@ import org.springframework.context.annotation.Import;
 @ComponentScan("cn.hutool.extra.spring")
 @Import(cn.hutool.extra.spring.SpringUtil.class)
 @EnableConfigurationProperties(ApplicationProperties.class)
-public class ApplicationAutoConfiguration {}
+public class ApplicationAutoConfiguration {
+}

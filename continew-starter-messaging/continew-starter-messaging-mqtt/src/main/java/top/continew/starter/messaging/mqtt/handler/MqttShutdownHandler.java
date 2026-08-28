@@ -29,13 +29,14 @@ import org.springframework.integration.mqtt.outbound.MqttPahoMessageHandler;
  * @since 2.15.0
  */
 @SuppressWarnings("ClassCanBeRecord")
-public class MqttShutdownHandler implements DisposableBean, ApplicationListener<ContextClosedEvent> {
+public class MqttShutdownHandler
+    implements DisposableBean, ApplicationListener<ContextClosedEvent> {
 
     private final MqttPahoMessageDrivenChannelAdapter inboundAdapter;
     private final MqttPahoMessageHandler outboundHandler;
 
     public MqttShutdownHandler(MqttPahoMessageDrivenChannelAdapter inboundAdapter,
-                               MqttPahoMessageHandler outboundHandler) {
+        MqttPahoMessageHandler outboundHandler) {
         this.inboundAdapter = inboundAdapter;
         this.outboundHandler = outboundHandler;
     }

@@ -37,5 +37,6 @@ public interface CrudApiHandler {
      * @param targetClass  目标类
      * @throws Exception 处理异常
      */
-    void preHandle(CrudApi crudApi, Object[] args, Method targetMethod, Class<?> targetClass) throws Exception;
+    void preHandle(CrudApi crudApi, Object[] args, Method targetMethod, Class<?> targetClass)
+        throws Exception;
 }

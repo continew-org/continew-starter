@@ -46,7 +46,8 @@ import java.util.Map;
  * @since 1.2.0
  */
 @AutoConfiguration
-@PropertySource(value = "classpath:default-cache-springcache.yml", factory = GeneralPropertySourceFactory.class)
+@PropertySource(value = "classpath:default-cache-springcache.yml",
+    factory = GeneralPropertySourceFactory.class)
 public class SpringCacheAutoConfiguration implements CachingConfigurer {
 
     private static final Logger log = LoggerFactory.getLogger(SpringCacheAutoConfiguration.class);
@@ -66,14 +67,18 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
     public RedisCacheConfiguration redisCacheConfiguration(CacheProperties cacheProperties) {
         ObjectMapper objectMapperCopy = objectMapper.copy();
         objectMapperCopy.activateDefaultTyping(objectMapperCopy
-            .getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
-        RedisCacheConfiguration redisCacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
-            .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
-            .serializeValuesWith(RedisSerializationContext.SerializationPair
-                .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapperCopy)));
+            .getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL,
+            JsonTypeInfo.As.PROPERTY);
+        RedisCacheConfiguration redisCacheConfiguration =
+            RedisCacheConfiguration.defaultCacheConfig()
+                .serializeKeysWith(RedisSerializationContext.SerializationPair
+                    .fromSerializer(new StringRedisSerializer()))
+                .serializeValuesWith(RedisSerializationContext.SerializationPair
+                    .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapperCopy)));
         CacheProperties.Redis redisCacheProperties = cacheProperties.getRedis();
         if (redisCacheProperties.getTimeToLive() != null) {
-            redisCacheConfiguration = redisCacheConfiguration.entryTtl(redisCacheProperties.getTimeToLive());
+            redisCacheConfiguration =
+                redisCacheConfiguration.entryTtl(redisCacheProperties.getTimeToLive());
         }
         if (!redisCacheProperties.isCacheNullValues()) {
             redisCacheConfiguration = redisCacheConfiguration.disableCachingNullValues();
@@ -103,6 +108,7 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Spring Cache' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Spring Cache' completed initialization.");
     }
 }

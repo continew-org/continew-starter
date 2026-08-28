@@ -29,7 +29,7 @@ public interface FileNameGenerator extends FileProcessor {
 
     /**
      * 生成文件名
-     * 
+     *
      * @param context 上传上下文
      * @return 生成的文件名
      */

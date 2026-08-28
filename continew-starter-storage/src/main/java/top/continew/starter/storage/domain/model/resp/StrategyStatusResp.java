@@ -49,10 +49,10 @@ public class StrategyStatusResp {
     private String description;
 
     public StrategyStatusResp(String platform,
-                              boolean hasConfig,
-                              boolean hasDynamic,
-                              String activeType,
-                              String description) {
+        boolean hasConfig,
+        boolean hasDynamic,
+        String activeType,
+        String description) {
         this.platform = platform;
         this.hasConfig = hasConfig;
         this.hasDynamic = hasDynamic;

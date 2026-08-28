@@ -46,6 +46,7 @@ public class ServerInfoUtils {
     private static final Logger log = LoggerFactory.getLogger(ServerInfoUtils.class);
 
     private static class ServerInfosContainer {
+
         private static Set<String> ipAddress = null;
         private static Set<String> macAddress = null;
         private static String cpuSerial = null;
@@ -203,7 +204,8 @@ public class ServerInfoUtils {
         String command = "dmidecode | grep 'Serial Number' | awk '{print $3}' | tail -1";
         try {
             Process process = new ProcessBuilder("sh", "-c", command).start();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            try (BufferedReader reader =
+                new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 return reader.lines().findFirst().orElse(StringConstants.EMPTY);
             }
         } catch (IOException e) {
@@ -321,15 +323,17 @@ public class ServerInfoUtils {
     private static Set<InetAddress> getLocalAllInetAddress() throws Exception {
         Set<InetAddress> result = CollUtil.newHashSet();
         // 遍历所有的网络接口
-        for (Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
-            networkInterfaces.hasMoreElements();) {
+        for (Enumeration<NetworkInterface> networkInterfaces =
+            NetworkInterface.getNetworkInterfaces(); networkInterfaces.hasMoreElements();) {
             NetworkInterface ni = networkInterfaces.nextElement();
             // 在所有的接口下再遍历IP
-            for (Enumeration<InetAddress> addresses = ni.getInetAddresses(); addresses.hasMoreElements();) {
+            for (Enumeration<InetAddress> addresses = ni.getInetAddresses(); addresses
+                .hasMoreElements();) {
                 InetAddress address = addresses.nextElement();
                 //排除LoopbackAddress、SiteLocalAddress、LinkLocalAddress、MulticastAddress类型的IP地址
                 /*&& !inetAddr.isSiteLocalAddress()*/
-                if (!address.isLoopbackAddress() && !address.isLinkLocalAddress() && !address.isMulticastAddress()) {
+                if (!address.isLoopbackAddress() && !address.isLinkLocalAddress()
+                    && !address.isMulticastAddress()) {
                     result.add(address);
                 }
             }

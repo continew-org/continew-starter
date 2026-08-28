@@ -39,7 +39,8 @@ public class DefaultBeforeControllerAdviceProcess implements BeforeControllerAdv
     }
 
     @Override
-    public void call(HttpServletRequest request, HttpServletResponse response, @Nullable Object handler, Exception e) {
+    public void call(HttpServletRequest request, HttpServletResponse response,
+        @Nullable Object handler, Exception e) {
         if (globalResponseProperties.isPrintExceptionInGlobalAdvice()) {
             log.error("[{}] {}", request.getMethod(), request.getRequestURI(), e);
         }

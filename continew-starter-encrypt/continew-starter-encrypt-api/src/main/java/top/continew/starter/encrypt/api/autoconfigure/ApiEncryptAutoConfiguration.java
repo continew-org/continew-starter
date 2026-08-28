@@ -39,7 +39,8 @@ import top.continew.starter.encrypt.api.filter.ApiEncryptFilter;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(ApiEncryptProperties.class)
-@ConditionalOnProperty(prefix = PropertiesConstants.ENCRYPT_API, name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = PropertiesConstants.ENCRYPT_API, name = PropertiesConstants.ENABLED,
+    havingValue = "true", matchIfMissing = true)
 public class ApiEncryptAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(ApiEncryptAutoConfiguration.class);
@@ -48,7 +49,8 @@ public class ApiEncryptAutoConfiguration {
      * API 加密过滤器
      */
     @Bean
-    public FilterRegistrationBean<ApiEncryptFilter> apiEncryptFilter(ApiEncryptProperties properties) {
+    public FilterRegistrationBean<ApiEncryptFilter> apiEncryptFilter(
+        ApiEncryptProperties properties) {
         FilterRegistrationBean<ApiEncryptFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new ApiEncryptFilter(properties));
         registrationBean.setOrder(OrderedConstants.Filter.API_ENCRYPT_FILTER);
@@ -59,6 +61,7 @@ public class ApiEncryptAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Encrypt-API' completed initialization.");
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'Encrypt-API' completed initialization.");
     }
 }

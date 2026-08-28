@@ -41,7 +41,8 @@ import java.lang.reflect.Method;
 public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMapping {
 
     @Override
-    protected RequestMappingInfo getMappingForMethod(@NonNull Method method, @NonNull Class<?> handlerType) {
+    protected RequestMappingInfo getMappingForMethod(@NonNull Method method,
+        @NonNull Class<?> handlerType) {
         RequestMappingInfo requestMappingInfo = super.getMappingForMethod(method, handlerType);
         if (requestMappingInfo == null) {
             return null;
@@ -50,7 +51,8 @@ public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMappi
         if (!handlerType.isAnnotationPresent(CrudRequestMapping.class)) {
             return requestMappingInfo;
         }
-        CrudRequestMapping crudRequestMapping = handlerType.getDeclaredAnnotation(CrudRequestMapping.class);
+        CrudRequestMapping crudRequestMapping =
+            handlerType.getDeclaredAnnotation(CrudRequestMapping.class);
         CrudApi crudApi = AnnotatedElementUtils.findMergedAnnotation(method, CrudApi.class);
         // 过滤 API：如果非本类中定义，且 API 列表中不包含，则忽略
         Api[] apis = crudRequestMapping.api();
@@ -71,8 +73,8 @@ public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMappi
      * @return 请求映射信息
      */
     private RequestMappingInfo getMappingForMethodWrapper(@NonNull Method method,
-                                                          @NonNull Class<?> handlerType,
-                                                          CrudRequestMapping crudRequestMapping) {
+        @NonNull Class<?> handlerType,
+        CrudRequestMapping crudRequestMapping) {
         RequestMappingInfo info = this.buildRequestMappingInfo(method);
         if (info != null) {
             RequestMappingInfo typeInfo = this.buildRequestMappingInfo(handlerType);
@@ -81,7 +83,8 @@ public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMappi
             }
             String prefix = crudRequestMapping.value();
             if (prefix != null) {
-                RequestMappingInfo.BuilderConfiguration options = new RequestMappingInfo.BuilderConfiguration();
+                RequestMappingInfo.BuilderConfiguration options =
+                    new RequestMappingInfo.BuilderConfiguration();
                 options.setPatternParser(PathPatternParser.defaultInstance);
                 info = RequestMappingInfo.paths(prefix).options(options).build().combine(info);
             }
@@ -96,10 +99,12 @@ public class CrudRequestMappingHandlerMapping extends RequestMappingHandlerMappi
      * @return 请求映射信息
      */
     private RequestMappingInfo buildRequestMappingInfo(AnnotatedElement element) {
-        RequestMapping requestMapping = AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
+        RequestMapping requestMapping =
+            AnnotatedElementUtils.findMergedAnnotation(element, RequestMapping.class);
         RequestCondition<?> condition = (element instanceof Class<?> clazz
             ? getCustomTypeCondition(clazz)
-            : getCustomMethodCondition((Method)element));
-        return (requestMapping != null ? super.createRequestMappingInfo(requestMapping, condition) : null);
+            : getCustomMethodCondition((Method) element));
+        return (requestMapping != null ? super.createRequestMappingInfo(requestMapping, condition)
+            : null);
     }
 }

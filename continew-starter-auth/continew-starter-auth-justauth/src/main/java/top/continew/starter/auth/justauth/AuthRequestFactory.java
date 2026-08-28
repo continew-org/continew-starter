@@ -97,10 +97,12 @@ public class AuthRequestFactory {
             return null;
         }
 
-        Map<String, JustAuthExtendProperties.ExtendRequestConfig> extendConfig = properties.getExtend().getConfig();
+        Map<String, JustAuthExtendProperties.ExtendRequestConfig> extendConfig =
+            properties.getExtend().getConfig();
         Map<String, JustAuthExtendProperties.ExtendRequestConfig> upperConfig = new HashMap<>(6);
         extendConfig.forEach((k, v) -> upperConfig.put(k.toUpperCase(), v));
-        JustAuthExtendProperties.ExtendRequestConfig extendRequestConfig = upperConfig.get(upperSource);
+        JustAuthExtendProperties.ExtendRequestConfig extendRequestConfig =
+            upperConfig.get(upperSource);
         if (extendRequestConfig != null) {
             // 配置 HTTP
             this.configureHttpConfig(upperSource, extendRequestConfig, properties.getHttp());
@@ -148,12 +150,14 @@ public class AuthRequestFactory {
      * @param authConfig {@link AuthConfig}
      * @param httpConfig {@link JustAuthHttpProperties}
      */
-    private void configureHttpConfig(String authSource, AuthConfig authConfig, JustAuthHttpProperties httpConfig) {
+    private void configureHttpConfig(String authSource, AuthConfig authConfig,
+        JustAuthHttpProperties httpConfig) {
         if (null == httpConfig) {
             return;
         }
 
-        Map<String, JustAuthHttpProperties.JustAuthProxyConfig> proxyConfigMap = httpConfig.getProxy();
+        Map<String, JustAuthHttpProperties.JustAuthProxyConfig> proxyConfigMap =
+            httpConfig.getProxy();
         if (CollUtil.isEmpty(proxyConfigMap)) {
             return;
         }
@@ -165,8 +169,9 @@ public class AuthRequestFactory {
 
         authConfig.setHttpConfig(HttpConfig.builder()
             .timeout(httpConfig.getTimeout())
-            .proxy(new Proxy(Proxy.Type.valueOf(proxyConfig.getType()), new InetSocketAddress(proxyConfig
-                .getHostname(), proxyConfig.getPort())))
+            .proxy(new Proxy(Proxy.Type.valueOf(proxyConfig.getType()),
+                new InetSocketAddress(proxyConfig
+                    .getHostname(), proxyConfig.getPort())))
             .build());
     }
 }

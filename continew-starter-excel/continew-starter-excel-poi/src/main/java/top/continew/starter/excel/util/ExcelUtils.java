@@ -77,7 +77,8 @@ public class ExcelUtils {
         return getBeanList(array, clazz);
     }
 
-    public static <T> List<T> readMultipartFile(MultipartFile mFile, Class<T> clazz) throws Exception {
+    public static <T> List<T> readMultipartFile(MultipartFile mFile, Class<T> clazz)
+        throws Exception {
         JSONArray array = readMultipartFile(mFile);
         return getBeanList(array, clazz);
     }
@@ -110,7 +111,8 @@ public class ExcelUtils {
     /**
      * 获取每个对象的数据
      */
-    private static <T> T getBean(Class<T> c, JSONObject obj, Map<Integer, String> uniqueMap) throws Exception {
+    private static <T> T getBean(Class<T> c, JSONObject obj, Map<Integer, String> uniqueMap)
+        throws Exception {
         T t = c.newInstance();
         Field[] fields = c.getDeclaredFields();
         List<String> errMsgList = new ArrayList<>();
@@ -176,10 +178,10 @@ public class ExcelUtils {
     }
 
     private static <T> void setFieldValue(T t,
-                                          Field field,
-                                          JSONObject obj,
-                                          StringBuilder uniqueBuilder,
-                                          List<String> errMsgList) {
+        Field field,
+        JSONObject obj,
+        StringBuilder uniqueBuilder,
+        List<String> errMsgList) {
         // 获取 ExcelImport 注解属性
         ExcelImport annotation = field.getAnnotation(ExcelImport.class);
         if (annotation == null) {
@@ -216,7 +218,8 @@ public class ExcelUtils {
         // 判断是否超过最大长度
         int maxLength = annotation.maxLength();
         if (maxLength > 0 && val.length() > maxLength) {
-            errMsgList.add(String.format("[%s]长度不能超过%s个字符(当前%s个字符)", cname, maxLength, val.length()));
+            errMsgList
+                .add(String.format("[%s]长度不能超过%s个字符(当前%s个字符)", cname, maxLength, val.length()));
         }
         // 判断当前属性是否有映射关系
         LinkedHashMap<String, String> kvMap = getKvMap(annotation.kv());
@@ -265,7 +268,8 @@ public class ExcelUtils {
         }
     }
 
-    private static Map<String, JSONArray> readExcelManySheet(MultipartFile mFile, File file) throws IOException {
+    private static Map<String, JSONArray> readExcelManySheet(MultipartFile mFile, File file)
+        throws IOException {
         Workbook book = getWorkbook(mFile, file);
         if (book == null) {
             return Collections.emptyMap();
@@ -342,7 +346,7 @@ public class ExcelUtils {
         }
         // 如果表头没有数据则不进行解析
         if (keyMap.isEmpty()) {
-            return (JSONArray)Collections.emptyList();
+            return (JSONArray) Collections.emptyList();
         }
         // 获取每行JSON对象的值
         JSONArray array = new JSONArray();
@@ -409,29 +413,30 @@ public class ExcelUtils {
         return cell.getCellFormula();
     }
 
-    public static <T> void exportTemplate(HttpServletResponse response, String fileName, Class<T> clazz) {
+    public static <T> void exportTemplate(HttpServletResponse response, String fileName,
+        Class<T> clazz) {
         exportTemplate(response, fileName, fileName, clazz, false);
     }
 
     public static <T> void exportTemplate(HttpServletResponse response,
-                                          String fileName,
-                                          String sheetName,
-                                          Class<T> clazz) {
+        String fileName,
+        String sheetName,
+        Class<T> clazz) {
         exportTemplate(response, fileName, sheetName, clazz, false);
     }
 
     public static <T> void exportTemplate(HttpServletResponse response,
-                                          String fileName,
-                                          Class<T> clazz,
-                                          boolean isContainExample) {
+        String fileName,
+        Class<T> clazz,
+        boolean isContainExample) {
         exportTemplate(response, fileName, fileName, clazz, isContainExample);
     }
 
     public static <T> void exportTemplate(HttpServletResponse response,
-                                          String fileName,
-                                          String sheetName,
-                                          Class<T> clazz,
-                                          boolean isContainExample) {
+        String fileName,
+        String sheetName,
+        Class<T> clazz,
+        boolean isContainExample) {
         // 获取表头字段
         List<ExcelClassField> headFieldList = getExcelClassFieldList(clazz);
         // 获取表头数据和示例数据
@@ -575,7 +580,8 @@ public class ExcelUtils {
      * @param list     导出数据
      * @throws IOException IO异常
      */
-    public static <T> File exportFile(String filePath, String fileName, List<T> list) throws IOException {
+    public static <T> File exportFile(String filePath, String fileName, List<T> list)
+        throws IOException {
         File file = getFile(filePath, fileName);
         List<List<Object>> sheetData = getSheetData(list);
         exportFile(file, sheetData);
@@ -693,35 +699,37 @@ public class ExcelUtils {
         export(response, fileName, sheetDataList);
     }
 
-    public static void export(HttpServletResponse response, String fileName, List<List<Object>> sheetDataList) {
+    public static void export(HttpServletResponse response, String fileName,
+        List<List<Object>> sheetDataList) {
         export(response, fileName, fileName, sheetDataList, null);
     }
 
     public static void exportManySheet(HttpServletResponse response,
-                                       String fileName,
-                                       Map<String, List<List<Object>>> sheetMap) {
+        String fileName,
+        Map<String, List<List<Object>>> sheetMap) {
         export(response, null, fileName, sheetMap, null);
     }
 
     public static void export(HttpServletResponse response,
-                              String fileName,
-                              String sheetName,
-                              List<List<Object>> sheetDataList) {
+        String fileName,
+        String sheetName,
+        List<List<Object>> sheetDataList) {
         export(response, fileName, sheetName, sheetDataList, null);
     }
 
     public static void export(HttpServletResponse response,
-                              String fileName,
-                              String sheetName,
-                              List<List<Object>> sheetDataList,
-                              Map<Integer, List<String>> selectMap) {
+        String fileName,
+        String sheetName,
+        List<List<Object>> sheetDataList,
+        Map<Integer, List<String>> selectMap) {
 
         Map<String, List<List<Object>>> map = new HashMap<>();
         map.put(sheetName, sheetDataList);
         export(response, null, fileName, map, selectMap);
     }
 
-    public static <T, K> void export(HttpServletResponse response, String fileName, List<T> list, Class<K> template) {
+    public static <T, K> void export(HttpServletResponse response, String fileName, List<T> list,
+        Class<K> template) {
         // list 是否为空
         boolean lisIsEmpty = list == null || list.isEmpty();
         // 如果模板数据为空，且导入的数据为空，则导出空文件
@@ -740,17 +748,17 @@ public class ExcelUtils {
     }
 
     public static void export(HttpServletResponse response,
-                              String fileName,
-                              List<List<Object>> sheetDataList,
-                              Map<Integer, List<String>> selectMap) {
+        String fileName,
+        List<List<Object>> sheetDataList,
+        Map<Integer, List<String>> selectMap) {
         export(response, fileName, fileName, sheetDataList, selectMap);
     }
 
     private static void export(HttpServletResponse response,
-                               File file,
-                               String fileName,
-                               Map<String, List<List<Object>>> sheetMap,
-                               Map<Integer, List<String>> selectMap) {
+        File file,
+        String fileName,
+        Map<String, List<List<Object>>> sheetMap,
+        Map<Integer, List<String>> selectMap) {
         // 整个 Excel 表格 book 对象
         SXSSFWorkbook book = new SXSSFWorkbook();
         // 每个 Sheet 页
@@ -785,7 +793,7 @@ public class ExcelUtils {
                     int v = 0;
                     if (o instanceof URL) {
                         // 如果要导出图片的话, 链接需要传递 URL 对象
-                        setCellPicture(book, row, patriarch, i, j, (URL)o);
+                        setCellPicture(book, row, patriarch, i, j, (URL) o);
                     } else {
                         Cell cell = row.createCell(j);
                         if (i == 0) {
@@ -891,8 +899,10 @@ public class ExcelUtils {
         }
     }
 
-    private static void write(HttpServletResponse response, SXSSFWorkbook book, String fileName) throws IOException {
-        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+    private static void write(HttpServletResponse response, SXSSFWorkbook book, String fileName)
+        throws IOException {
+        response
+            .setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         String name = new String(fileName.getBytes("GBK"), "ISO8859_1") + XLSX;
         response.addHeader("Content-Disposition", "attachment;filename=" + name);
@@ -932,7 +942,8 @@ public class ExcelUtils {
             }
         }
         // 是否为字符串
-        if (o instanceof Integer || o instanceof Long || o instanceof Double || o instanceof Float) {
+        if (o instanceof Integer || o instanceof Long || o instanceof Double
+            || o instanceof Float) {
             cell.setCellType(CellType.NUMERIC);
             cell.setCellValue(Double.parseDouble(o.toString()));
             return CELL_OTHER;
@@ -940,19 +951,19 @@ public class ExcelUtils {
         // 是否为Boolean
         if (o instanceof Boolean) {
             cell.setCellType(CellType.BOOLEAN);
-            cell.setCellValue((Boolean)o);
+            cell.setCellValue((Boolean) o);
             return CELL_OTHER;
         }
         // 如果是BigDecimal，则默认3位小数
         if (o instanceof BigDecimal) {
             cell.setCellType(CellType.NUMERIC);
-            cell.setCellValue(((BigDecimal)o).setScale(3, RoundingMode.HALF_UP).doubleValue());
+            cell.setCellValue(((BigDecimal) o).setScale(3, RoundingMode.HALF_UP).doubleValue());
             return CELL_OTHER;
         }
         // 如果是Date数据，则显示格式化数据
         if (o instanceof Date) {
             cell.setCellType(CellType.STRING);
-            cell.setCellValue(formatDate((Date)o));
+            cell.setCellValue(formatDate((Date) o));
             return CELL_OTHER;
         }
         // 如果是其他，则默认字符串类型
@@ -961,11 +972,13 @@ public class ExcelUtils {
         return CELL_OTHER;
     }
 
-    private static void setCellPicture(SXSSFWorkbook wb, Row sr, Drawing<?> patriarch, int x, int y, URL url) {
+    private static void setCellPicture(SXSSFWorkbook wb, Row sr, Drawing<?> patriarch, int x, int y,
+        URL url) {
         // 设置图片宽高
-        sr.setHeight((short)(IMG_WIDTH * IMG_HEIGHT));
+        sr.setHeight((short) (IMG_WIDTH * IMG_HEIGHT));
         // （jdk1.7版本try中定义流可自动关闭）
-        try (InputStream is = url.openStream(); ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+        try (InputStream is = url.openStream();
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             byte[] buff = new byte[BYTES_DEFAULT_LENGTH];
             int rc;
             while ((rc = is.read(buff, 0, BYTES_DEFAULT_LENGTH)) > 0) {
@@ -975,7 +988,8 @@ public class ExcelUtils {
             XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, y, x, y + 1, x + 1);
             // 设置这个，图片会自动填满单元格的长宽
             anchor.setAnchorType(AnchorType.MOVE_AND_RESIZE);
-            patriarch.createPicture(anchor, wb.addPicture(outputStream.toByteArray(), HSSFWorkbook.PICTURE_TYPE_JPEG));
+            patriarch.createPicture(anchor,
+                wb.addPicture(outputStream.toByteArray(), HSSFWorkbook.PICTURE_TYPE_JPEG));
         } catch (Exception e) {
             e.printStackTrace();
         }

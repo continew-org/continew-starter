@@ -41,8 +41,10 @@ import top.continew.starter.data.datapermission.DataPermissionFilter;
 @AutoConfiguration
 @EnableTransactionManagement(proxyTargetClass = true)
 @EnableConfigurationProperties(MyBatisFlexExtensionProperties.class)
-@ConditionalOnProperty(prefix = "mybatis-flex.extension", name = PropertiesConstants.ENABLED, havingValue = "true")
-@PropertySource(value = "classpath:default-data-mybatis-flex.yml", factory = GeneralPropertySourceFactory.class)
+@ConditionalOnProperty(prefix = "mybatis-flex.extension", name = PropertiesConstants.ENABLED,
+    havingValue = "true")
+@PropertySource(value = "classpath:default-data-mybatis-flex.yml",
+    factory = GeneralPropertySourceFactory.class)
 public class MybatisFlexAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(MybatisFlexAutoConfiguration.class);
@@ -52,8 +54,10 @@ public class MybatisFlexAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'MyBatis Flex' completed initialization.");
-        DialectFactory.registerDialect(DbType.MYSQL, new DataPermissionDialect(dataPermissionFilter));
+        log.debug(
+            "[ContiNew Starter] - Auto Configuration 'MyBatis Flex' completed initialization.");
+        DialectFactory.registerDialect(DbType.MYSQL,
+            new DataPermissionDialect(dataPermissionFilter));
     }
 
 }

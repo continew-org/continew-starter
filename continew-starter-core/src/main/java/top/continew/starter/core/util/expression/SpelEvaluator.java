@@ -56,7 +56,7 @@ public class SpelEvaluator implements Function<Object, Object> {
     @Override
     public Object apply(Object rootObject) {
         EvaluationContext context = new StandardEvaluationContext(rootObject);
-        ExpressionInvokeContext invokeContext = (ExpressionInvokeContext)rootObject;
+        ExpressionInvokeContext invokeContext = (ExpressionInvokeContext) rootObject;
         if (parameterNames != null) {
             for (int i = 0; i < parameterNames.length; i++) {
                 context.setVariable(parameterNames[i], invokeContext.getArgs()[i]);

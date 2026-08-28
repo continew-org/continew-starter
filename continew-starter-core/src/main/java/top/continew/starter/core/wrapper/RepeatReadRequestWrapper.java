@@ -89,7 +89,7 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public ServletInputStream getInputStream() throws IOException {
         // 如果是文件上传，直接返回原始输入流
-        if (ServletUtils.isMultipart((HttpServletRequest)super.getRequest())) {
+        if (ServletUtils.isMultipart((HttpServletRequest) super.getRequest())) {
             return super.getRequest().getInputStream();
         }
         synchronized (this) {
@@ -101,13 +101,14 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
     @Override
     public BufferedReader getReader() throws IOException {
         // 如果是文件上传，直接返回原始Reader
-        if (ServletUtils.isMultipart((HttpServletRequest)super.getRequest())) {
+        if (ServletUtils.isMultipart((HttpServletRequest) super.getRequest())) {
             return super.getRequest().getReader();
         }
 
         // BufferedReader不支持多次reset()（除非手动调用 mark() 并控制其生命周期），最安全的方式是每次调用getReader()时基于缓存内容重新创建一个新的BufferedReader实例。
         synchronized (this) {
-            return new BufferedReader(new InputStreamReader(getInputStream(), getCharacterEncoding()));
+            return new BufferedReader(
+                new InputStreamReader(getInputStream(), getCharacterEncoding()));
         }
     }
 
@@ -115,15 +116,19 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
         try {
             if (this.cachedContent.size() == 0) {
                 Map<String, String[]> form = super.getParameterMap();
-                for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator.hasNext();) {
+                for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator
+                    .hasNext();) {
                     String name = nameIterator.next();
                     List<String> values = Arrays.asList(form.get(name));
-                    for (Iterator<String> valueIterator = values.iterator(); valueIterator.hasNext();) {
+                    for (Iterator<String> valueIterator = values.iterator(); valueIterator
+                        .hasNext();) {
                         String value = valueIterator.next();
-                        this.cachedContent.write(URLEncoder.encode(name, characterEncoding).getBytes());
+                        this.cachedContent
+                            .write(URLEncoder.encode(name, characterEncoding).getBytes());
                         if (value != null) {
                             this.cachedContent.write(StringConstants.EQUALS.getBytes());
-                            this.cachedContent.write(URLEncoder.encode(value, characterEncoding).getBytes());
+                            this.cachedContent
+                                .write(URLEncoder.encode(value, characterEncoding).getBytes());
                             if (valueIterator.hasNext()) {
                                 this.cachedContent.write(StringConstants.AMP.getBytes());
                             }
@@ -135,7 +140,8 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
                 }
             }
         } catch (IOException ex) {
-            throw new IllegalStateException("Failed to write request parameters to cached content", ex);
+            throw new IllegalStateException("Failed to write request parameters to cached content",
+                ex);
         }
     }
 

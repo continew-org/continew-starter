@@ -64,7 +64,8 @@ public class TenantUtils {
             TenantContextHolder.setIgnore(false);
             // 数据源级隔离：切换数据源
             if (TenantIsolationLevel.DATASOURCE.equals(newContext.getIsolationLevel())) {
-                SpringUtil.getBean(TenantDataSourceHandler.class).changeDataSource(newContext.getDataSource());
+                SpringUtil.getBean(TenantDataSourceHandler.class)
+                    .changeDataSource(newContext.getDataSource());
                 isPush = true;
             }
             // 执行业务逻辑

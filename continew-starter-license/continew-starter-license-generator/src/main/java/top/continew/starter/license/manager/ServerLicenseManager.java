@@ -65,7 +65,8 @@ public class ServerLicenseManager extends LicenseManager {
      * @throws Exception 例外
      */
     @Override
-    protected synchronized byte[] create(LicenseContent content, LicenseNotary notary) throws Exception {
+    protected synchronized byte[] create(LicenseContent content, LicenseNotary notary)
+        throws Exception {
         initialize(content);
         validateCreate(content);
         final GenericCertificate genericCertificate = notary.sign(content);

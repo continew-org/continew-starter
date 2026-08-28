@@ -50,9 +50,10 @@ public class ExcelBaseEnumConverter implements Converter<BaseEnum<?>> {
      */
     @Override
     public BaseEnum<?> convertToJavaData(ReadCellData<?> cellData,
-                                         ExcelContentProperty contentProperty,
-                                         GlobalConfiguration globalConfiguration) {
-        return BaseEnum.getByDescription(cellData.getStringValue(), contentProperty.getField().getType());
+        ExcelContentProperty contentProperty,
+        GlobalConfiguration globalConfiguration) {
+        return BaseEnum.getByDescription(cellData.getStringValue(),
+            contentProperty.getField().getType());
     }
 
     /**
@@ -60,8 +61,8 @@ public class ExcelBaseEnumConverter implements Converter<BaseEnum<?>> {
      */
     @Override
     public WriteCellData<String> convertToExcelData(BaseEnum<?> value,
-                                                    ExcelContentProperty contentProperty,
-                                                    GlobalConfiguration globalConfiguration) {
+        ExcelContentProperty contentProperty,
+        GlobalConfiguration globalConfiguration) {
         if (value == null) {
             return new WriteCellData<>(StringConstants.EMPTY);
         }

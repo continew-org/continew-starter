@@ -49,9 +49,10 @@ public class TLogServletFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request,
-                         ServletResponse response,
-                         FilterChain chain) throws IOException, ServletException {
-        if (request instanceof HttpServletRequest httpServletRequest && response instanceof HttpServletResponse httpServletResponse) {
+        ServletResponse response,
+        FilterChain chain) throws IOException, ServletException {
+        if (request instanceof HttpServletRequest httpServletRequest
+            && response instanceof HttpServletResponse httpServletResponse) {
             try {
                 TLogWebCommon.loadInstance().preHandle(httpServletRequest);
                 // 把 traceId 放入 response 的 header，为了方便有些人有这样的需求，从前端拿整条链路的 traceId

@@ -53,7 +53,8 @@ import java.util.Set;
 public abstract class AbstractLogHandler implements LogHandler {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractLogHandler.class);
-    private final TransmittableThreadLocal<AccessLogContext> logContextThread = new TransmittableThreadLocal<>();
+    private final TransmittableThreadLocal<AccessLogContext> logContextThread =
+        new TransmittableThreadLocal<>();
 
     @Override
     public boolean isRecord(Method targetMethod, Class<?> targetClass) {
@@ -85,11 +86,11 @@ public abstract class AbstractLogHandler implements LogHandler {
 
     @Override
     public LogRecord finish(LogRecord.Started started,
-                            Instant endTime,
-                            HttpServletResponse response,
-                            Set<Include> includes,
-                            Method targetMethod,
-                            Class<?> targetClass) {
+        Instant endTime,
+        HttpServletResponse response,
+        Set<Include> includes,
+        Method targetMethod,
+        Class<?> targetClass) {
         Set<Include> includeSet = this.getIncludes(includes, targetMethod, targetClass);
         LogRecord logRecord = this.finish(started, endTime, response, includeSet);
         // 记录日志描述
@@ -105,9 +106,9 @@ public abstract class AbstractLogHandler implements LogHandler {
 
     @Override
     public LogRecord finish(LogRecord.Started started,
-                            Instant endTime,
-                            HttpServletResponse response,
-                            Set<Include> includes) {
+        Instant endTime,
+        HttpServletResponse response,
+        Set<Include> includes) {
         return started.finish(endTime, new RecordableServletHttpResponse(response), includes);
     }
 
@@ -119,7 +120,8 @@ public abstract class AbstractLogHandler implements LogHandler {
      */
     @Override
     public void logDescription(LogRecord logRecord, Method targetMethod) {
-        logRecord.setDescription("请在该接口方法上添加 @top.continew.starter.log.annotation.Log(value) 来指定日志描述");
+        logRecord
+            .setDescription("请在该接口方法上添加 @top.continew.starter.log.annotation.Log(value) 来指定日志描述");
         Log methodLog = AnnotationUtil.getAnnotation(targetMethod, Log.class);
         // 例如：@Log("新增部门") -> 新增部门
         if (methodLog != null && CharSequenceUtil.isNotBlank(methodLog.value())) {
@@ -142,7 +144,8 @@ public abstract class AbstractLogHandler implements LogHandler {
      */
     @Override
     public void logModule(LogRecord logRecord, Method targetMethod, Class<?> targetClass) {
-        logRecord.setModule("请在该接口方法或类上添加 @top.continew.starter.log.annotation.Log(module) 来指定所属模块");
+        logRecord
+            .setModule("请在该接口方法或类上添加 @top.continew.starter.log.annotation.Log(module) 来指定所属模块");
         Log methodLog = AnnotationUtil.getAnnotation(targetMethod, Log.class);
         // 例如：@Log(module = "部门管理") -> 部门管理
         // 方法级注解优先级高于类级注解
@@ -163,7 +166,8 @@ public abstract class AbstractLogHandler implements LogHandler {
     }
 
     @Override
-    public Set<Include> getIncludes(Set<Include> includes, Method targetMethod, Class<?> targetClass) {
+    public Set<Include> getIncludes(Set<Include> includes, Method targetMethod,
+        Class<?> targetClass) {
         Log classLog = AnnotationUtil.getAnnotation(targetClass, Log.class);
         Set<Include> includeSet = new HashSet<>(includes);
         if (classLog != null) {
@@ -198,16 +202,19 @@ public abstract class AbstractLogHandler implements LogHandler {
     public void accessLogStart(AccessLogContext context) {
         AccessLogProperties properties = context.getProperties().getAccessLog();
         // 是否需要打印
-        if (!properties.isEnabled() || AccessLogUtils.exclusionPath(context.getProperties(), context.getRequest()
-            .getPath())) {
+        if (!properties.isEnabled()
+            || AccessLogUtils.exclusionPath(context.getProperties(), context.getRequest()
+                .getPath())) {
             return;
         }
         // 构建上下文
         logContextThread.set(context);
         RecordableHttpRequest request = context.getRequest();
         String param = AccessLogUtils.getParam(request, properties);
-        log.info(param != null ? "[Start] [{}] {} param: {}" : "[Start] [{}] {}", request.getMethod(), request
-            .getPath(), param);
+        log.info(param != null ? "[Start] [{}] {} param: {}" : "[Start] [{}] {}",
+            request.getMethod(), request
+                .getPath(),
+            param);
     }
 
     @Override
@@ -220,8 +227,9 @@ public abstract class AbstractLogHandler implements LogHandler {
             RecordableHttpRequest request = logContext.getRequest();
             RecordableHttpResponse response = context.getResponse();
             Duration timeTaken = Duration.between(logContext.getStartTime(), context.getEndTime());
-            log.info("[End] [{}] {} {} {}ms", request.getMethod(), request.getPath(), response.getStatus(), timeTaken
-                .toMillis());
+            log.info("[End] [{}] {} {} {}ms", request.getMethod(), request.getPath(),
+                response.getStatus(), timeTaken
+                    .toMillis());
         } finally {
             logContextThread.remove();
         }

@@ -52,7 +52,8 @@ import top.continew.starter.json.jackson.serializer.SimpleDeserializersWrapper;
  */
 @AutoConfiguration
 @EnableConfigurationProperties(JacksonExtensionProperties.class)
-@PropertySource(value = "classpath:default-json-jackson.yml", factory = GeneralPropertySourceFactory.class)
+@PropertySource(value = "classpath:default-json-jackson.yml",
+    factory = GeneralPropertySourceFactory.class)
 public class JacksonAutoConfiguration {
 
     private static final Logger log = LoggerFactory.getLogger(JacksonAutoConfiguration.class);
@@ -71,7 +72,8 @@ public class JacksonAutoConfiguration {
 
             builder.timeZone(TimeZone.getDefault());
             builder.modules(javaTimeModule, baseEnumModule, bigNumberModule);
-            log.debug("[ContiNew Starter] - Auto Configuration 'Jackson' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'Jackson' completed initialization.");
         };
     }
 
@@ -84,15 +86,20 @@ public class JacksonAutoConfiguration {
     private JavaTimeModule javaTimeModule() {
         JavaTimeModule javaTimeModule = new JavaTimeModule();
         // 针对时间类型：LocalDateTime 的序列化和反序列化处理
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN);
-        javaTimeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
-        javaTimeModule.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer(dateTimeFormatter));
+        DateTimeFormatter dateTimeFormatter =
+            DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN);
+        javaTimeModule.addSerializer(LocalDateTime.class,
+            new LocalDateTimeSerializer(dateTimeFormatter));
+        javaTimeModule.addDeserializer(LocalDateTime.class,
+            new LocalDateTimeDeserializer(dateTimeFormatter));
         // 针对时间类型：LocalDate 的序列化和反序列化处理
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(DatePattern.NORM_DATE_PATTERN);
+        DateTimeFormatter dateFormatter =
+            DateTimeFormatter.ofPattern(DatePattern.NORM_DATE_PATTERN);
         javaTimeModule.addSerializer(LocalDate.class, new LocalDateSerializer(dateFormatter));
         javaTimeModule.addDeserializer(LocalDate.class, new LocalDateDeserializer(dateFormatter));
         // 针对时间类型：LocalTime 的序列化和反序列化处理
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(DatePattern.NORM_TIME_PATTERN);
+        DateTimeFormatter timeFormatter =
+            DateTimeFormatter.ofPattern(DatePattern.NORM_TIME_PATTERN);
         javaTimeModule.addSerializer(LocalTime.class, new LocalTimeSerializer(timeFormatter));
         javaTimeModule.addDeserializer(LocalTime.class, new LocalTimeDeserializer(timeFormatter));
         // 针对时间类型：Instant 的序列化和反序列化处理
@@ -131,14 +138,16 @@ public class JacksonAutoConfiguration {
             case FLEXIBLE -> {
                 bigNumberModule.addSerializer(Long.class, BigNumberSerializer.SERIALIZER_INSTANCE);
                 bigNumberModule.addSerializer(Long.TYPE, BigNumberSerializer.SERIALIZER_INSTANCE);
-                bigNumberModule.addSerializer(BigInteger.class, BigNumberSerializer.SERIALIZER_INSTANCE);
+                bigNumberModule.addSerializer(BigInteger.class,
+                    BigNumberSerializer.SERIALIZER_INSTANCE);
             }
             case TO_STRING -> {
                 bigNumberModule.addSerializer(Long.class, ToStringSerializer.instance);
                 bigNumberModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
                 bigNumberModule.addSerializer(BigInteger.class, ToStringSerializer.instance);
             }
-            default -> log.warn("[ContiNew Starter] - Jackson 大数值序列化模式：NO_OPERATE，超过 JS 范围的数值会损失精度");
+            default ->
+                log.warn("[ContiNew Starter] - Jackson 大数值序列化模式：NO_OPERATE，超过 JS 范围的数值会损失精度");
         }
         return bigNumberModule;
     }

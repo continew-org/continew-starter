@@ -38,7 +38,8 @@ import top.continew.starter.encrypt.password.encoder.autoconfigure.PasswordEncod
  */
 public class PasswordEncoderEncryptor extends AbstractEncryptor {
 
-    private final PasswordEncoderProperties properties = SpringUtils.getBean(PasswordEncoderProperties.class, true);
+    private final PasswordEncoderProperties properties =
+        SpringUtils.getBean(PasswordEncoderProperties.class, true);
 
     public PasswordEncoderEncryptor(CryptoContext context) {
         super(context);
@@ -47,7 +48,8 @@ public class PasswordEncoderEncryptor extends AbstractEncryptor {
     @Override
     public String encrypt(String plaintext) {
         // 如果已经是加密格式，直接返回
-        if (properties == null || properties.getAlgorithm().getPattern().matcher(plaintext).matches()) {
+        if (properties == null
+            || properties.getAlgorithm().getPattern().matcher(plaintext).matches()) {
             return plaintext;
         }
         return SpringUtil.getBean(PasswordEncoder.class).encode(plaintext);

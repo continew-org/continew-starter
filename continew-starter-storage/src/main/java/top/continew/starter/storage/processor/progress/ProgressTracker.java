@@ -57,7 +57,7 @@ public class ProgressTracker {
         }
 
         long currentBytes = bytesRead.addAndGet(bytes);
-        int currentPercentage = totalBytes > 0 ? (int)((currentBytes * 100L) / totalBytes) : -1;
+        int currentPercentage = totalBytes > 0 ? (int) ((currentBytes * 100L) / totalBytes) : -1;
 
         // 检查是否需要通知
         boolean shouldNotify = false;

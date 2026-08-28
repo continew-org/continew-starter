@@ -103,7 +103,8 @@ public class AccessLogAspect {
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         Instant startTime = Instant.now();
         // 非 Web 环境不记录
-        ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes =
+            (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes == null) {
             return joinPoint.proceed();
         }

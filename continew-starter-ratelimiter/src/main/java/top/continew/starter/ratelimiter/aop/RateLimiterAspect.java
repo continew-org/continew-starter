@@ -51,14 +51,15 @@ import java.util.concurrent.ConcurrentHashMap;
 @Aspect
 public class RateLimiterAspect {
 
-    private static final ConcurrentHashMap<String, RRateLimiter> RATE_LIMITER_CACHE = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, RRateLimiter> RATE_LIMITER_CACHE =
+        new ConcurrentHashMap<>();
     private final RateLimiterProperties properties;
     private final RateLimiterNameGenerator nameGenerator;
     private final RedissonClient redissonClient;
 
     public RateLimiterAspect(RateLimiterProperties properties,
-                             RateLimiterNameGenerator nameGenerator,
-                             RedissonClient redissonClient) {
+        RateLimiterNameGenerator nameGenerator,
+        RedissonClient redissonClient) {
         this.properties = properties;
         this.nameGenerator = nameGenerator;
         this.redissonClient = redissonClient;
@@ -87,7 +88,8 @@ public class RateLimiterAspect {
      * @throws Throwable /
      */
     @Around("@annotation(rateLimiter)")
-    public Object aroundRateLimiter(ProceedingJoinPoint joinPoint, RateLimiter rateLimiter) throws Throwable {
+    public Object aroundRateLimiter(ProceedingJoinPoint joinPoint, RateLimiter rateLimiter)
+        throws Throwable {
         if (isRateLimited(joinPoint, rateLimiter)) {
             throw new RateLimiterException(rateLimiter.message());
         }
@@ -103,7 +105,8 @@ public class RateLimiterAspect {
      * @throws Throwable /
      */
     @Around("@annotation(rateLimiters)")
-    public Object aroundRateLimiters(ProceedingJoinPoint joinPoint, RateLimiters rateLimiters) throws Throwable {
+    public Object aroundRateLimiters(ProceedingJoinPoint joinPoint, RateLimiters rateLimiters)
+        throws Throwable {
         for (RateLimiter rateLimiter : rateLimiters.value()) {
             if (isRateLimited(joinPoint, rateLimiter)) {
                 throw new RateLimiterException(rateLimiter.message());
@@ -122,12 +125,15 @@ public class RateLimiterAspect {
     private boolean isRateLimited(ProceedingJoinPoint joinPoint, RateLimiter rateLimiter) {
         try {
             String cacheKey = this.getCacheKey(joinPoint, rateLimiter);
-            RRateLimiter rRateLimiter = RATE_LIMITER_CACHE.computeIfAbsent(cacheKey, key -> redissonClient
-                .getRateLimiter(cacheKey));
+            RRateLimiter rRateLimiter =
+                RATE_LIMITER_CACHE.computeIfAbsent(cacheKey, key -> redissonClient
+                    .getRateLimiter(cacheKey));
             // 限流器配置
-            RateType rateType = rateLimiter.type() == LimitType.CLUSTER ? RateType.PER_CLIENT : RateType.OVERALL;
+            RateType rateType =
+                rateLimiter.type() == LimitType.CLUSTER ? RateType.PER_CLIENT : RateType.OVERALL;
             int rate = rateLimiter.rate();
-            Duration rateInterval = Duration.ofMillis(rateLimiter.unit().toMillis(rateLimiter.interval()));
+            Duration rateInterval =
+                Duration.ofMillis(rateLimiter.unit().toMillis(rateLimiter.interval()));
             // 判断是否需要更新限流器
             if (this.isConfigurationUpdateNeeded(rRateLimiter, rateType, rate, rateInterval)) {
                 // 更新限流器
@@ -149,7 +155,7 @@ public class RateLimiterAspect {
      */
     private String getCacheKey(JoinPoint joinPoint, RateLimiter rateLimiter) {
         Object target = joinPoint.getTarget();
-        MethodSignature methodSignature = (MethodSignature)joinPoint.getSignature();
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         Method method = methodSignature.getMethod();
         Object[] args = joinPoint.getArgs();
         // 获取名称
@@ -185,11 +191,12 @@ public class RateLimiterAspect {
      * @return 是否需要更新配置
      */
     private boolean isConfigurationUpdateNeeded(RRateLimiter rRateLimiter,
-                                                RateType rateType,
-                                                long rate,
-                                                Duration rateInterval) {
+        RateType rateType,
+        long rate,
+        Duration rateInterval) {
         RateLimiterConfig config = rRateLimiter.getConfig();
-        return !Objects.equals(config.getRateType(), rateType) || !Objects.equals(config.getRate(), rate) || !Objects
-            .equals(config.getRateInterval(), rateInterval.toMillis());
+        return !Objects.equals(config.getRateType(), rateType)
+            || !Objects.equals(config.getRate(), rate) || !Objects
+                .equals(config.getRateInterval(), rateInterval.toMillis());
     }
 }

@@ -41,19 +41,22 @@ import top.continew.starter.data.idgenerator.MyBatisPlusCosIdIdentifierGenerator
 @Configuration(proxyBeanMethods = false)
 public class MyBatisPlusIdGeneratorConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(MyBatisPlusIdGeneratorConfiguration.class);
+    private static final Logger log =
+        LoggerFactory.getLogger(MyBatisPlusIdGeneratorConfiguration.class);
 
     /**
      * 使用雪花算法（使用网卡信息绑定雪花生成器，防止集群雪花 ID 重复）
      */
     @Configuration(proxyBeanMethods = false)
     @ConditionalOnMissingBean(IdentifierGenerator.class)
-    @ConditionalOnProperty(name = "mybatis-plus.extension.id-generator.type", havingValue = "default", matchIfMissing = true)
+    @ConditionalOnProperty(name = "mybatis-plus.extension.id-generator.type",
+        havingValue = "default", matchIfMissing = true)
     static class Default {
 
         @Bean
         public IdentifierGenerator identifierGenerator() {
-            log.debug("[ContiNew Starter] - Auto Configuration 'MyBatis Plus-IdGenerator-Default' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'MyBatis Plus-IdGenerator-Default' completed initialization.");
             return new DefaultIdentifierGenerator(NetUtil.getLocalhost());
         }
     }
@@ -69,7 +72,8 @@ public class MyBatisPlusIdGeneratorConfiguration {
 
         @Bean
         public IdentifierGenerator identifierGenerator() {
-            log.debug("[ContiNew Starter] - Auto Configuration 'MyBatis Plus-IdGenerator-CosId' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'MyBatis Plus-IdGenerator-CosId' completed initialization.");
             return new MyBatisPlusCosIdIdentifierGenerator();
         }
     }
@@ -78,22 +82,26 @@ public class MyBatisPlusIdGeneratorConfiguration {
      * 自定义
      */
     @Configuration(proxyBeanMethods = false)
-    @ConditionalOnProperty(name = "mybatis-plus.extension.id-generator.type", havingValue = "custom")
+    @ConditionalOnProperty(name = "mybatis-plus.extension.id-generator.type",
+        havingValue = "custom")
     static class Custom {
 
         @Bean
         @ConditionalOnMissingBean
         public IdentifierGenerator identifierGenerator() {
             if (log.isErrorEnabled()) {
-                log.error("[ContiNew Starter] - When 'mybatis-plus.extension.id-generator.type' is 'custom', you must provide a bean of type '{}' in your configuration.", ResolvableType
-                    .forClass(IdentifierGenerator.class));
+                log.error(
+                    "[ContiNew Starter] - When 'mybatis-plus.extension.id-generator.type' is 'custom', you must provide a bean of type '{}' in your configuration.",
+                    ResolvableType
+                        .forClass(IdentifierGenerator.class));
             }
             throw new NoSuchBeanDefinitionException(IdentifierGenerator.class);
         }
 
         @PostConstruct
         public void postConstruct() {
-            log.debug("[ContiNew Starter] - Auto Configuration 'MyBatis Plus-IdGenerator-Custom' completed initialization.");
+            log.debug(
+                "[ContiNew Starter] - Auto Configuration 'MyBatis Plus-IdGenerator-Custom' completed initialization.");
         }
     }
 }

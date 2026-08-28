@@ -59,7 +59,8 @@ public class PageResp<L> extends BasePageResp<L> {
         if (page == null) {
             return empty();
         }
-        return new PageResp<>(BeanUtil.copyToList(page.getRecords(), targetClass), page.getTotalRow());
+        return new PageResp<>(BeanUtil.copyToList(page.getRecords(), targetClass),
+            page.getTotalRow());
     }
 
     /**

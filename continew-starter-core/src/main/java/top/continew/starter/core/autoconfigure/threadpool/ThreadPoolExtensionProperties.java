@@ -41,10 +41,12 @@ public class ThreadPoolExtensionProperties {
      * 异步任务扩展配置属性
      */
     public static class ExecutorExtensionProperties {
+
         /**
          * 拒绝策略
          */
-        private ThreadPoolExecutorRejectedPolicy rejectedPolicy = ThreadPoolExecutorRejectedPolicy.CALLER_RUNS;
+        private ThreadPoolExecutorRejectedPolicy rejectedPolicy =
+            ThreadPoolExecutorRejectedPolicy.CALLER_RUNS;
 
         public ThreadPoolExecutorRejectedPolicy getRejectedPolicy() {
             return rejectedPolicy;
@@ -59,10 +61,12 @@ public class ThreadPoolExtensionProperties {
      * 调度任务扩展配置属性
      */
     public static class SchedulerExtensionProperties {
+
         /**
          * 拒绝策略
          */
-        private ThreadPoolExecutorRejectedPolicy rejectedPolicy = ThreadPoolExecutorRejectedPolicy.CALLER_RUNS;
+        private ThreadPoolExecutorRejectedPolicy rejectedPolicy =
+            ThreadPoolExecutorRejectedPolicy.CALLER_RUNS;
 
         public ThreadPoolExecutorRejectedPolicy getRejectedPolicy() {
             return rejectedPolicy;

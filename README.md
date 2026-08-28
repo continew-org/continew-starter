@@ -12,8 +12,8 @@
 <a href="https://app.codacy.com/gh/continew-org/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" title="Codacy" target="_blank">
 <img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy" />
 </a>
-<a href="https://sonarcloud.io/summary/new_code?id=Charles7c_continew-starter" title="Sonar" target="_blank">
-<img src="https://sonarcloud.io/api/project_badges/measure?project=Charles7c_continew-starter&metric=alert_status" alt="Sonar" />
+<a href="https://sonarcloud.io/summary/new_code?id=continew-org_continew-starter" title="Sonar" target="_blank">
+<img src="https://sonarcloud.io/api/project_badges/measure?project=continew-org_continew-starter&metric=alert_status" alt="Sonar" />
 </a>
 <br />
 <a href="https://github.com/continew-org/continew-starter/blob/dev/LICENSE" title="License" target="_blank">
@@ -241,7 +241,7 @@ ContiNew 系列项目采用清晰的分支策略，确保开发与维护有序�
 > [!IMPORTANT]
 > 为了确保项目质量和协作效率，请注意以下事项：
 >
-> 1. 代码和配置文件请参考已有风格，遵循清晰的结构与命名规范，提供完善的注释（符合阿里巴巴 <a href="https://github.com/continew-org/continew-starter/blob/dev/.style/Java%E5%BC%80%E5%8F%91%E6%89%8B%E5%86%8C(%E9%BB%84%E5%B1%B1%E7%89%88).pdf" target="_blank">《Java开发手册(黄山版)》</a> 中的代码规范）
+> 1. 代码和配置文件请参考已有风格，遵循清晰的结构与命名规范，提供完善的注释（符合阿里巴巴 <a href="https://github.com/alibaba/p3c" target="_blank">《Java开发手册(黄山版)》</a> 中的代码规范）
 > 2. 提交代码前请关闭所有代码窗口，执行 `mvn compile` 命令进行代码格式化（ContiNew 项目后端编译时会自动执行插件进行代码格式修正）。编译通过后请勿再次打开代码窗口，避免不同 IDE 配置导致的格式差异
 > 3. 提交时，请按照 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) 编写 commit message（参考已有风格）
 

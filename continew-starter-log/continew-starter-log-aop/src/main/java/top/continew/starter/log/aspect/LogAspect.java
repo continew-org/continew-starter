@@ -97,8 +97,9 @@ public class LogAspect {
             try {
                 Instant endTime = Instant.now();
                 HttpServletResponse response = ServletUtils.getResponse();
-                LogRecord logRecord = logHandler.finish(startedLogRecord, endTime, response, logProperties
-                    .getIncludes(), targetMethod, targetClass);
+                LogRecord logRecord =
+                    logHandler.finish(startedLogRecord, endTime, response, logProperties
+                        .getIncludes(), targetMethod, targetClass);
                 // 记录异常信息
                 if (errorMsg != null) {
                     logRecord.setErrorMsg(errorMsg);
@@ -120,7 +121,8 @@ public class LogAspect {
      */
     private boolean isRecord(Method targetMethod, Class<?> targetClass) {
         // 非 Web 环境不记录
-        ServletRequestAttributes attributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
+        ServletRequestAttributes attributes =
+            (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
         if (attributes == null || attributes.getResponse() == null) {
             return false;
         }
@@ -138,7 +140,7 @@ public class LogAspect {
      * @return 方法
      */
     private Method getMethod(JoinPoint joinPoint) {
-        MethodSignature signature = (MethodSignature)joinPoint.getSignature();
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         return signature.getMethod();
     }
 }

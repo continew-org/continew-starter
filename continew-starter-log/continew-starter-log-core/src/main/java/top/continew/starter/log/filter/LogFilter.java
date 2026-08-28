@@ -49,20 +49,22 @@ public class LogFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
-                                    @NonNull HttpServletResponse response,
-                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
+        @NonNull HttpServletResponse response,
+        @NonNull FilterChain filterChain) throws ServletException, IOException {
         if (this.isNotFilter(request)) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // 包装可重复读取请求及响应
-        RepeatReadRequestWrapper wrappedRequest = request instanceof RepeatReadRequestWrapper wrapped
-            ? wrapped
-            : new RepeatReadRequestWrapper(request);
-        RepeatReadResponseWrapper wrappedResponse = response instanceof RepeatReadResponseWrapper wrapped
-            ? wrapped
-            : new RepeatReadResponseWrapper(response);
+        RepeatReadRequestWrapper wrappedRequest =
+            request instanceof RepeatReadRequestWrapper wrapped
+                ? wrapped
+                : new RepeatReadRequestWrapper(request);
+        RepeatReadResponseWrapper wrappedResponse =
+            response instanceof RepeatReadResponseWrapper wrapped
+                ? wrapped
+                : new RepeatReadResponseWrapper(response);
         filterChain.doFilter(wrappedRequest, wrappedResponse);
 
         // 复制缓存数据到原始响应

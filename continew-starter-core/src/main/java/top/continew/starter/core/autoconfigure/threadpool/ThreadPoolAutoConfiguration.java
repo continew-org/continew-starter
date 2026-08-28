@@ -30,7 +30,8 @@ import org.springframework.context.annotation.Lazy;
  * @since 1.0.0
  */
 @Lazy
-@AutoConfiguration(before = {TaskExecutionAutoConfiguration.class, TaskSchedulingAutoConfiguration.class})
+@AutoConfiguration(
+    before = {TaskExecutionAutoConfiguration.class, TaskSchedulingAutoConfiguration.class})
 @EnableConfigurationProperties(ThreadPoolExtensionProperties.class)
 @Import({TaskExecutionConfiguration.class, TaskSchedulingConfiguration.class})
 public class ThreadPoolAutoConfiguration {

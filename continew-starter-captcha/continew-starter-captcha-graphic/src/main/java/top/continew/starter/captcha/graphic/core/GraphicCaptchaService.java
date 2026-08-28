@@ -47,7 +47,8 @@ public class GraphicCaptchaService {
             .getWidth(), properties.getHeight());
         captcha.setLen(properties.getLength());
         if (CharSequenceUtil.isNotBlank(properties.getFontName())) {
-            captcha.setFont(new Font(properties.getFontName(), Font.PLAIN, properties.getFontSize()));
+            captcha
+                .setFont(new Font(properties.getFontName(), Font.PLAIN, properties.getFontSize()));
         }
         return captcha;
     }

@@ -47,6 +47,7 @@ public class DataPermissionException extends BaseException {
     }
 
     public static DataPermissionException methodNotFound(String mappedStatementId) {
-        return new DataPermissionException("Method not found for data permission: " + mappedStatementId);
+        return new DataPermissionException(
+            "Method not found for data permission: " + mappedStatementId);
     }
 }

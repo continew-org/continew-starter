@@ -46,9 +46,11 @@ public class CrudRequestMappingAutoConfiguration extends DelegatingWebMvcConfigu
     @Bean
     @Primary
     @Override
-    public RequestMappingHandlerMapping requestMappingHandlerMapping(@Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
-                                                                     @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-                                                                     @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
-        return super.requestMappingHandlerMapping(contentNegotiationManager, conversionService, resourceUrlProvider);
+    public RequestMappingHandlerMapping requestMappingHandlerMapping(
+        @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
+        @Qualifier("mvcConversionService") FormattingConversionService conversionService,
+        @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
+        return super.requestMappingHandlerMapping(contentNegotiationManager, conversionService,
+            resourceUrlProvider);
     }
 }

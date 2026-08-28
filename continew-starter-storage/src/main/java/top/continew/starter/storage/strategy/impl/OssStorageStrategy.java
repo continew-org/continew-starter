@@ -108,8 +108,9 @@ public class OssStorageStrategy implements StorageStrategy {
      */
     private S3Client createS3Client(OssStorageConfig config) {
         // 登录认证账户密码
-        StaticCredentialsProvider auth = StaticCredentialsProvider.create(AwsBasicCredentials.create(config
-            .getAccessKey(), config.getSecretKey()));
+        StaticCredentialsProvider auth =
+            StaticCredentialsProvider.create(AwsBasicCredentials.create(config
+                .getAccessKey(), config.getSecretKey()));
 
         return S3Client.builder()
             .credentialsProvider(auth)
@@ -127,10 +128,12 @@ public class OssStorageStrategy implements StorageStrategy {
      * @return {@link S3Presigner }
      */
     private S3Presigner createS3Presigner(OssStorageConfig config) {
-        StaticCredentialsProvider auth = StaticCredentialsProvider.create(AwsBasicCredentials.create(config
-            .getAccessKey(), config.getSecretKey()));
+        StaticCredentialsProvider auth =
+            StaticCredentialsProvider.create(AwsBasicCredentials.create(config
+                .getAccessKey(), config.getSecretKey()));
 
-        String domain = StrUtil.isNotBlank(config.getDomain()) ? config.getDomain() : config.getEndpoint();
+        String domain =
+            StrUtil.isNotBlank(config.getDomain()) ? config.getDomain() : config.getEndpoint();
 
         return S3Presigner.builder()
             .credentialsProvider(auth)
@@ -152,8 +155,9 @@ public class OssStorageStrategy implements StorageStrategy {
 
         try {
             // 执行上传
-            s3Client.putObject(requestBuilder.build(), RequestBody.fromInputStream(file.getInputStream(), file
-                .getSize()));
+            s3Client.putObject(requestBuilder.build(),
+                RequestBody.fromInputStream(file.getInputStream(), file
+                    .getSize()));
 
         } catch (Exception e) {
             throw new StorageException("S3上传异常" + e.getMessage(), e);
@@ -166,7 +170,8 @@ public class OssStorageStrategy implements StorageStrategy {
     @Override
     public InputStream download(String bucket, String path) {
         try {
-            return s3Client.getObject(GetObjectRequest.builder().bucket(bucket).key(normalizeKey(path)).build());
+            return s3Client.getObject(
+                GetObjectRequest.builder().bucket(bucket).key(normalizeKey(path)).build());
         } catch (Exception e) {
             throw new StorageException("S3下载失败: " + e.getMessage(), e);
         }
@@ -183,7 +188,8 @@ public class OssStorageStrategy implements StorageStrategy {
     @Override
     public void delete(String bucket, String path) {
         try {
-            s3Client.deleteObject(DeleteObjectRequest.builder().bucket(bucket).key(normalizeKey(path)).build());
+            s3Client.deleteObject(
+                DeleteObjectRequest.builder().bucket(bucket).key(normalizeKey(path)).build());
         } catch (Exception e) {
             throw new StorageException("S3删除失败: " + e.getMessage(), e);
         }
@@ -225,7 +231,8 @@ public class OssStorageStrategy implements StorageStrategy {
     @Override
     public boolean exists(String bucket, String path) {
         try {
-            s3Client.headObject(HeadObjectRequest.builder().bucket(bucket).key(normalizeKey(path)).build());
+            s3Client.headObject(
+                HeadObjectRequest.builder().bucket(bucket).key(normalizeKey(path)).build());
             return true;
         } catch (S3Exception e) {
             if (e.statusCode() == 404) {
@@ -259,7 +266,8 @@ public class OssStorageStrategy implements StorageStrategy {
             fileInfo.setSize(response.contentLength());
             fileInfo.setContentType(response.contentType());
             fileInfo.setUrl(getFileUrl(key));
-            fileInfo.setUploadTime(LocalDateTime.ofInstant(response.lastModified(), java.time.ZoneId.systemDefault()));
+            fileInfo.setUploadTime(
+                LocalDateTime.ofInstant(response.lastModified(), java.time.ZoneId.systemDefault()));
 
             // 添加元数据
             Map<String, String> metadata = new HashMap<>(response.metadata());
@@ -305,8 +313,9 @@ public class OssStorageStrategy implements StorageStrategy {
                 fileInfo.setName(getFileName(s3Object.key()));
                 fileInfo.setSize(s3Object.size());
                 fileInfo.setUrl(getFileUrl(s3Object.key()));
-                fileInfo.setUploadTime(LocalDateTime.ofInstant(s3Object.lastModified(), java.time.ZoneId
-                    .systemDefault()));
+                fileInfo
+                    .setUploadTime(LocalDateTime.ofInstant(s3Object.lastModified(), java.time.ZoneId
+                        .systemDefault()));
 
                 Map<String, String> metadata = new HashMap<>();
                 metadata.put("etag", s3Object.eTag());
@@ -325,7 +334,8 @@ public class OssStorageStrategy implements StorageStrategy {
      * 复制文件
      */
     @Override
-    public void copy(String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
+    public void copy(String sourceBucket, String targetBucket, String sourcePath,
+        String targetPath) {
         try {
             CopyObjectRequest copyRequest = CopyObjectRequest.builder()
                 .sourceBucket(sourceBucket)
@@ -342,7 +352,8 @@ public class OssStorageStrategy implements StorageStrategy {
     }
 
     @Override
-    public void move(String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
+    public void move(String sourceBucket, String targetBucket, String sourcePath,
+        String targetPath) {
         copy(sourceBucket, targetBucket, sourcePath, targetPath);
         delete(sourceBucket, sourcePath);
     }
@@ -370,7 +381,8 @@ public class OssStorageStrategy implements StorageStrategy {
                 .getObjectRequest(getObjectRequest)
                 .build();
 
-            PresignedGetObjectRequest presignedRequest = s3Presigner.presignGetObject(presignRequest);
+            PresignedGetObjectRequest presignedRequest =
+                s3Presigner.presignGetObject(presignRequest);
 
             return presignedRequest.url().toString();
 
@@ -392,7 +404,8 @@ public class OssStorageStrategy implements StorageStrategy {
                 .putObjectRequest(putObjectRequest)
                 .build();
 
-            PresignedPutObjectRequest presignedRequest = s3Presigner.presignPutObject(presignRequest);
+            PresignedPutObjectRequest presignedRequest =
+                s3Presigner.presignPutObject(presignRequest);
             return presignedRequest.url().toString();
         } catch (Exception e) {
             throw new StorageException("S3生成上传预签名URL失败: " + e.getMessage(), e);
@@ -403,7 +416,8 @@ public class OssStorageStrategy implements StorageStrategy {
      * 获取文件URL
      */
     private String getFileUrl(String path) {
-        String baseUrl = StrUtil.isNotBlank(config.getDomain()) ? config.getDomain() : config.getEndpoint();
+        String baseUrl =
+            StrUtil.isNotBlank(config.getDomain()) ? config.getDomain() : config.getEndpoint();
         if (StrUtil.isBlank(baseUrl)) {
             return StringConstants.SLASH + path;
         }
@@ -438,16 +452,17 @@ public class OssStorageStrategy implements StorageStrategy {
      */
     @Override
     public MultipartInitResp initMultipartUpload(String bucket,
-                                                 String path,
-                                                 String contentType,
-                                                 Map<String, String> metadata) {
+        String path,
+        String contentType,
+        Map<String, String> metadata) {
         try {
             String key = normalizeKey(path);
             // 构建请求
-            CreateMultipartUploadRequest.Builder requestBuilder = CreateMultipartUploadRequest.builder()
-                .bucket(bucket)
-                .key(key)
-                .contentType(contentType);
+            CreateMultipartUploadRequest.Builder requestBuilder =
+                CreateMultipartUploadRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .contentType(contentType);
 
             // 添加元数据
             if (metadata != null && !metadata.isEmpty()) {
@@ -460,7 +475,8 @@ public class OssStorageStrategy implements StorageStrategy {
             }
 
             // 执行请求
-            CreateMultipartUploadResponse response = s3Client.createMultipartUpload(requestBuilder.build());
+            CreateMultipartUploadResponse response =
+                s3Client.createMultipartUpload(requestBuilder.build());
 
             // 构建返回结果
             MultipartInitResp result = new MultipartInitResp();
@@ -482,10 +498,10 @@ public class OssStorageStrategy implements StorageStrategy {
      */
     @Override
     public MultipartUploadResp uploadPart(String bucket,
-                                          String path,
-                                          String uploadId,
-                                          int partNumber,
-                                          InputStream data) {
+        String path,
+        String uploadId,
+        int partNumber,
+        InputStream data) {
         byte[] partBytes = null;
         Path tempFile = null;
         long partSize = 0L;
@@ -547,10 +563,10 @@ public class OssStorageStrategy implements StorageStrategy {
      */
     @Override
     public FileInfo completeMultipartUpload(String bucket,
-                                            String path,
-                                            String uploadId,
-                                            List<MultipartUploadResp> parts,
-                                            boolean verifyParts) {
+        String path,
+        String uploadId,
+        List<MultipartUploadResp> parts,
+        boolean verifyParts) {
         try {
             String key = normalizeKey(path);
             if (StrUtil.isBlank(key)) {
@@ -566,7 +582,8 @@ public class OssStorageStrategy implements StorageStrategy {
             // 构建已完成的分片列表
             List<CompletedPart> completedParts = parts.stream()
                 .filter(MultipartUploadResp::isSuccess)
-                .map(part -> CompletedPart.builder().partNumber(part.getPartNumber()).eTag(part.getPartETag()).build())
+                .map(part -> CompletedPart.builder().partNumber(part.getPartNumber())
+                    .eTag(part.getPartETag()).build())
                 .sorted(Comparator.comparingInt(CompletedPart::partNumber))
                 .collect(Collectors.toList());
 
@@ -628,7 +645,8 @@ public class OssStorageStrategy implements StorageStrategy {
             }
 
             // 构建请求
-            ListPartsRequest request = ListPartsRequest.builder().bucket(bucket).key(key).uploadId(uploadId).build();
+            ListPartsRequest request =
+                ListPartsRequest.builder().bucket(bucket).key(key).uploadId(uploadId).build();
 
             // 获取分片列表
             ListPartsResponse response = s3Client.listParts(request);
@@ -653,16 +671,20 @@ public class OssStorageStrategy implements StorageStrategy {
      * @param recordParts 记录部件
      * @param s3Parts     s3零件
      */
-    private void validateParts(List<MultipartUploadResp> recordParts, List<MultipartUploadResp> s3Parts) {
+    private void validateParts(List<MultipartUploadResp> recordParts,
+        List<MultipartUploadResp> s3Parts) {
         Map<Integer, String> recordMap = recordParts.stream()
-            .collect(Collectors.toMap(MultipartUploadResp::getPartNumber, MultipartUploadResp::getPartETag));
+            .collect(Collectors.toMap(MultipartUploadResp::getPartNumber,
+                MultipartUploadResp::getPartETag));
 
         Map<Integer, String> s3Map = s3Parts.stream()
-            .collect(Collectors.toMap(MultipartUploadResp::getPartNumber, MultipartUploadResp::getPartETag));
+            .collect(Collectors.toMap(MultipartUploadResp::getPartNumber,
+                MultipartUploadResp::getPartETag));
 
         // 检查分片数量
         if (recordMap.size() != s3Map.size()) {
-            throw new StorageException(String.format("分片数量不一致: 本地记录=%d, S3=%d", recordMap.size(), s3Map.size()));
+            throw new StorageException(
+                String.format("分片数量不一致: 本地记录=%d, S3=%d", recordMap.size(), s3Map.size()));
         }
 
         // 检查每个分片
@@ -694,7 +716,8 @@ public class OssStorageStrategy implements StorageStrategy {
         if (StrUtil.isBlank(rawKey)) {
             return StringConstants.EMPTY;
         }
-        String key = rawKey.trim().replace("\\", StringConstants.SLASH).replaceAll("/+", StringConstants.SLASH);
+        String key = rawKey.trim().replace("\\", StringConstants.SLASH).replaceAll("/+",
+            StringConstants.SLASH);
         while (key.startsWith(StringConstants.SLASH)) {
             key = key.substring(1);
         }

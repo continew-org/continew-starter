@@ -33,7 +33,8 @@ import java.util.Map;
  * @author echo
  * @since 2.14.0
  */
-public abstract class StorageStrategyDecorator<T extends StorageStrategy> implements StorageStrategy {
+public abstract class StorageStrategyDecorator<T extends StorageStrategy>
+    implements StorageStrategy {
 
     protected T delegate;
 
@@ -107,12 +108,14 @@ public abstract class StorageStrategyDecorator<T extends StorageStrategy> implem
     }
 
     @Override
-    public void copy(String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
+    public void copy(String sourceBucket, String targetBucket, String sourcePath,
+        String targetPath) {
         getDelegate().copy(sourceBucket, targetBucket, sourcePath, targetPath);
     }
 
     @Override
-    public void move(String sourceBucket, String targetBucket, String sourcePath, String targetPath) {
+    public void move(String sourceBucket, String targetBucket, String sourcePath,
+        String targetPath) {
         getDelegate().move(sourceBucket, targetBucket, sourcePath, targetPath);
     }
 
@@ -138,27 +141,27 @@ public abstract class StorageStrategyDecorator<T extends StorageStrategy> implem
 
     @Override
     public MultipartInitResp initMultipartUpload(String bucket,
-                                                 String path,
-                                                 String contentType,
-                                                 Map<String, String> metadata) {
+        String path,
+        String contentType,
+        Map<String, String> metadata) {
         return getDelegate().initMultipartUpload(bucket, path, contentType, metadata);
     }
 
     @Override
     public MultipartUploadResp uploadPart(String bucket,
-                                          String path,
-                                          String uploadId,
-                                          int partNumber,
-                                          InputStream data) {
+        String path,
+        String uploadId,
+        int partNumber,
+        InputStream data) {
         return getDelegate().uploadPart(bucket, path, uploadId, partNumber, data);
     }
 
     @Override
     public FileInfo completeMultipartUpload(String bucket,
-                                            String path,
-                                            String uploadId,
-                                            List<MultipartUploadResp> parts,
-                                            boolean verifyParts) {
+        String path,
+        String uploadId,
+        List<MultipartUploadResp> parts,
+        boolean verifyParts) {
         return getDelegate().completeMultipartUpload(bucket, path, uploadId, parts, verifyParts);
     }
 

@@ -80,7 +80,8 @@ public class MultipartFileUtils {
      * @param contentType 内容类型
      * @return FileItem
      */
-    public static FileItem createFileItem(InputStream is, String fieldName, String fileName, String contentType) {
+    public static FileItem createFileItem(InputStream is, String fieldName, String fileName,
+        String contentType) {
         DiskFileItemFactory factory = new DiskFileItemFactory();
         FileItem fileItem = factory.createItem(fieldName, contentType, true, fileName);
         // 拷贝流

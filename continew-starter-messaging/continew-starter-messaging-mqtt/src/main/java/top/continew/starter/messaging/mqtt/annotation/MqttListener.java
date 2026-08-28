@@ -41,7 +41,7 @@ public @interface MqttListener {
      * @MqttListener(topic = "sensor/temperature")
      *
      * 方式2: 使用配置文件占位符
-     * 
+     *
      * @MqttListener(topic = "${mqtt.topic}")
      *
      *                     方式3: 使用通配符

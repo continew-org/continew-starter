@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
  * @since 2.14.0
  */
 public class FilePartInfo {
+
     /**
      * 文件ID
      */

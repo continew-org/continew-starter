@@ -52,8 +52,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
     private final StorageDecoratorManager decoratorManager;
 
     public StorageStrategyRouter(List<StorageStrategyRegistrar> registrars,
-                                 StorageProperties storageProperties,
-                                 StorageDecoratorManager decoratorManager) {
+        StorageProperties storageProperties,
+        StorageDecoratorManager decoratorManager) {
         this.decoratorManager = decoratorManager;
         this.storageProperties = storageProperties;
         List<StorageStrategy> strategies = new ArrayList<>();
@@ -101,7 +101,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
      * 应用装饰器
      */
     private StorageStrategy applyDecoratorsIfAvailable(StorageStrategy strategy) {
-        return ObjectUtil.isNotEmpty(decoratorManager) ? decoratorManager.applyDecorators(strategy) : strategy;
+        return ObjectUtil.isNotEmpty(decoratorManager) ? decoratorManager.applyDecorators(strategy)
+            : strategy;
     }
 
     /**
@@ -139,7 +140,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
      */
     @Override
     public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof StorageDecoratorManager.DecoratorRegisteredEvent || event instanceof StorageDecoratorManager.DecoratorUnregisteredEvent) {
+        if (event instanceof StorageDecoratorManager.DecoratorRegisteredEvent
+            || event instanceof StorageDecoratorManager.DecoratorUnregisteredEvent) {
             decoratedStrategies.clear();
         }
     }
@@ -165,7 +167,9 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
         }
 
         throw new StorageException(String
-            .format("未找到可用默认存储平台: source=%s, candidates=%s, available=%s", defaultStorageSource, candidates, getAllPlatform()));
+            .format("未找到可用默认存储平台: source=%s, candidates=%s, available=%s", defaultStorageSource,
+                candidates,
+                getAllPlatform()));
     }
 
     /**
@@ -174,7 +178,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
      * @param defaultStorageSource 默认存储源
      * @return {@link List }<{@link String }>
      */
-    private List<String> resolveDefaultStorageCandidates(DefaultStorageSource defaultStorageSource) {
+    private List<String> resolveDefaultStorageCandidates(
+        DefaultStorageSource defaultStorageSource) {
         Set<String> orderedCandidates = new LinkedHashSet<>();
         if (defaultStorageSource == DefaultStorageSource.DYNAMIC) {
             addCandidate(orderedCandidates, dynamicDefaultPlatform);
@@ -268,7 +273,9 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
                 statusDesc += " (已装饰)";
             }
 
-            StrategyStatusResp strategyStatusResp = new StrategyStatusResp(platform, hasConfig, hasDynamic, activeType, statusDesc);
+            StrategyStatusResp strategyStatusResp =
+                new StrategyStatusResp(platform, hasConfig, hasDynamic, activeType,
+                    statusDesc);
 
             status.put(platform, strategyStatusResp);
         }

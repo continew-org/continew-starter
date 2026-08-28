@@ -44,8 +44,9 @@ public interface MailConfigurer {
      */
     default void apply(MailConfig mailConfig, JavaMailSenderImpl sender) {
         String protocolLowerCase = mailConfig.getProtocol().toLowerCase();
-        ValidationUtils.throwIfNotEqual(MailConfig.DEFAULT_PROTOCOL, protocolLowerCase, "邮件配置不正确：不支持的邮件发送协议: %s"
-            .formatted(mailConfig.getProtocol()));
+        ValidationUtils.throwIfNotEqual(MailConfig.DEFAULT_PROTOCOL, protocolLowerCase,
+            "邮件配置不正确：不支持的邮件发送协议: %s"
+                .formatted(mailConfig.getProtocol()));
         sender.setProtocol(mailConfig.getProtocol());
 
         ValidationUtils.throwIfBlank(mailConfig.getHost(), "邮件配置不正确：服务器地址不能为空");
@@ -74,7 +75,8 @@ public interface MailConfigurer {
             ValidationUtils.throwIfNull(mailConfig.getSslPort(), "邮件配置不正确：SSL端口不能为空");
             javaMailProperties.put("mail.smtp.ssl.trust", "*");
             javaMailProperties.put("mail.smtp.socketFactory.port", mailConfig.getSslPort());
-            javaMailProperties.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+            javaMailProperties.put("mail.smtp.socketFactory.class",
+                "javax.net.ssl.SSLSocketFactory");
         }
         sender.setJavaMailProperties(javaMailProperties);
     }

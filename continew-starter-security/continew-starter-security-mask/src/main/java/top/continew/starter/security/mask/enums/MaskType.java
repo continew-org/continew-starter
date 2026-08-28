@@ -32,6 +32,7 @@ public enum MaskType implements IMaskStrategy {
      * 自定义脱敏
      */
     CUSTOM {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             return CharSequenceUtil.replaceByCodePoint(str, left, str.length() - right, character);
@@ -43,6 +44,7 @@ public enum MaskType implements IMaskStrategy {
      * <p>保留前 3 位和后 4 位，例如：135****2210</p>
      */
     MOBILE_PHONE {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             return CharSequenceUtil.replaceByCodePoint(str, 3, str.length() - 4, character);
@@ -56,6 +58,7 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     FIXED_PHONE {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             return CharSequenceUtil.replaceByCodePoint(str, 4, str.length() - 2, character);
@@ -70,6 +73,7 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     EMAIL {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             int index = str.indexOf(StringConstants.AT);
@@ -87,6 +91,7 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     ID_CARD {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             return CharSequenceUtil.replaceByCodePoint(str, 1, str.length() - 2, character);
@@ -106,6 +111,7 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     BANK_CARD {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             String cleanStr = CharSequenceUtil.cleanBlank(str);
@@ -135,6 +141,7 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     CAR_LICENSE {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             // 普通车牌
@@ -157,6 +164,7 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     CHINESE_NAME {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             return CharSequenceUtil.replaceByCodePoint(str, 1, str.length(), character);
@@ -170,6 +178,7 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     PASSWORD {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             return CharSequenceUtil.repeat(character, str.length());
@@ -183,6 +192,7 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     ADDRESS {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             int length = str.length();
@@ -197,6 +207,7 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     IPV4 {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             return CharSequenceUtil.subBefore(str, StringConstants.DOT, false) + String
@@ -211,10 +222,13 @@ public enum MaskType implements IMaskStrategy {
      * </p>
      */
     IPV6 {
+
         @Override
         public String mask(String str, char character, int left, int right) {
             return CharSequenceUtil.subBefore(str, StringConstants.COLON, false) + String
-                .format(":%s:%s:%s:%s:%s:%s:%s", character, character, character, character, character, character, character);
+                .format(":%s:%s:%s:%s:%s:%s:%s", character, character, character, character,
+                    character, character,
+                    character);
         }
     },;
 }
