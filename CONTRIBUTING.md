@@ -115,12 +115,27 @@ git checkout -b feat/your-feature upstream/dev
 
 ### 5. 提交 Commit
 
-请遵循 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular)编写提交信息，参考项目已有提交风格，例如：
+提交信息请遵循 [Conventional Commits（约定式提交）1.0.0](https://www.conventionalcommits.org/zh-hans/v1.0.0/)规范，结构如下：
 
 ```
-feat(cache): 支持 XXX
-fix(web): 修复跨域配置不生效的问题
-docs: 完善 CONTRIBUTING
+<类型>[可选作用域]: <描述>
+
+[可选的正文]
+
+[可选的脚注]
+```
+
+- **类型（type）**：说明变更性质。`feat` 表示新增功能（对应次版本），`fix` 表示 Bug 修复（对应修订版本）；其余常用类型：`docs`（文档）、`refactor`（重构）、`perf`（性能）、`test`（测试）、`style`（格式）、`chore`（构建或工具链）；
+- **作用域（scope）**：可选，表示变更影响的模块，如 `cache`、`web`；
+- **描述（description）**：简短说明本次变更；
+- **破坏性变更（breaking change）**：在类型或作用域后追加 `!`（如 `feat!:`），或在脚注中以 `BREAKING CHANGE: <说明>` 标注（对应主版本）。
+
+示例：
+
+```
+feat(cache): 支持多级缓存的事件监听配置
+fix(web): 修复跨域配置在部分场景下不生效的问题
+feat(api)!: 移除已废弃的 XXX 配置项
 ```
 
 ### 6. 同步与变基
@@ -157,7 +172,7 @@ git push origin feat/your-feature
 - [ ] 本地 `./mvnw compile` 三道门禁全部通过
 - [ ] 如有行为变更，已同步更新相关文档
 - [ ] 按 PR 模板完整填写 Changelog 表格，并关联相关 Issue（Closes/Fixes/Resolves #<issue号>）
-- [ ] commit message 符合 Angular 提交规范
+- [ ] commit message 符合 Conventional Commits（约定式提交）规范
 - [ ] commit 作者邮箱已绑定 GitHub 账号
 
 ## 让 PR 更快被合并
