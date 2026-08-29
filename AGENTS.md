@@ -48,17 +48,17 @@ continew-starter/                    聚合 POM：继承 continew-starter-depend
 ### 编译与格式化（最重要）
 
 ```bash
-# 编译整个项目（编译时自动执行 Spotless 代码格式化）
+# 编译整个项目（validate 阶段执行 Enforcer/Spotless/Checkstyle 门禁检查）
 mvn compile
 
 # 编译单个模块（含依赖模块）
 mvn -pl :continew-starter-web -am compile
 
-# 跳过 Spotless 格式化（仅在需要快速验证时使用）
-mvn compile -Dspotless.apply.skip=true
+# 自动修复格式（被 Spotless check 门禁拦截时使用：格式化 + 清理 import + 补 License Header）
+mvn compile -Pformat
 ```
 
-**关键约定**：提交代码前必须执行 `./mvnw compile`（Windows 为 `mvnw.cmd compile`），编译会自动触发 Spotless 插件按照 `style/ocn-eclipse-formatter.xml`（Eclipse formatter 格式）格式化代码并添加 License Header。编译通过后不要再次在 IDE 中打开代码文件，避免不同 IDE 配置导致格式差异。
+**关键约定**：提交代码前必须执行 `./mvnw compile`（Windows 为 `mvnw.cmd compile`）。validate 阶段依次执行 Enforcer（构建环境）、Spotless（代码格式）、Checkstyle（代码规范）三道门禁，任一不通过都会直接编译失败；被 Spotless 拦截时执行 `./mvnw compile -Pformat` 自动修复。构建过程不会修改任何源码文件。
 
 ### 其它命令
 
@@ -125,12 +125,12 @@ mvn verify -Psonar             # SonarCloud 代码质量分析
 
 ### License Header 强制要求
 
-所有 Java 文件必须包含 LGPL-3.0 License Header（定义在 `style/license-header`）。Spotless 插件在编译时会自动检查并补全。新建 Java 文件时请从现有文件复制 header，或直接执行 `./mvnw compile` 让插件自动添加。
+所有 Java 文件必须包含 LGPL-3.0 License Header（定义在 `style/license-header`）。Spotless 在 validate 阶段强制校验，缺失或不符合将导致编译失败，执行 `./mvnw compile -Pformat` 可自动补全。
 
 ### 代码风格规范
 
 - 遵循阿里《Java开发手册(黄山版)》（官方仓库：https://github.com/alibaba/p3c ）
-- 代码格式由 `style/ocn-eclipse-formatter.xml`（Eclipse formatter 格式）定义
+- 代码格式由 `style/ocn-eclipse-formatter.xml`（Spotless / Eclipse）与 `style/ocn-idea-code-style.xml`（IDEA）定义，IDE 配置说明见 `style/STYLE.md`
 - 类注释需包含 `@author` 和 `@since` 标签
 - 提交信息遵循 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular)
 
@@ -148,6 +148,8 @@ mvn verify -Psonar             # SonarCloud 代码质量分析
 | `continew-starter-bom/pom.xml` | 项目内部模块版本管理 |
 | `continew-starter-core/.../PropertiesConstants.java` | 所有配置属性前缀常量 |
 | `style/ocn-eclipse-formatter.xml` | 代码格式化规则（Spotless 使用） |
+| `style/ocn-idea-code-style.xml` | IntelliJ IDEA 代码风格 Scheme |
+| `style/STYLE.md` | 代码风格与 IDE 配置说明（导入方式、插件、Spotless 用法） |
 | `style/license-header` | License Header 模板 |
 | `docs/adr/` | 架构决策记录 |
 | `docs/agents/` | Agent 相关的领域文档与 issue tracker 约定 |
@@ -157,7 +159,7 @@ mvn verify -Psonar             # SonarCloud 代码质量分析
 1. **修改依赖版本**：只在 `continew-starter-dependencies/pom.xml` 的 `<properties>` 中修改，不要在各模块的 pom.xml 中硬编码版本号。
 2. **新增模块**：需要在 `continew-starter-bom/pom.xml` 注册版本、在 `continew-starter/pom.xml` 的 `<modules>` 中添加聚合、在 `PropertiesConstants` 中定义配置前缀。
 3. **新增自动配置类**：必须注册到对应模块的 `AutoConfiguration.imports` 文件中，否则不会被加载。
-4. **代码格式化**：不要手动调整代码格式，交给 `mvn compile` 的 Spotless 插件处理。IDE 的格式化设置可能与项目规范冲突。
+4. **代码格式化**：不要手动调整代码格式。被 Spotless 门禁拦截时执行 `./mvnw compile -Pformat` 自动修复。IDE 的格式化设置可能与项目规范冲突。
 5. **编译验证**：任何代码改动后，执行 `mvn compile` 或 `mvn -pl :<module> -am compile` 验证编译通过。
 6. **`target/` 目录**：构建产物目录，不应提交到 Git，修改源码时忽略其中的 `.class` 文件。
 

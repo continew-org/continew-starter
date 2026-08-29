@@ -66,33 +66,6 @@
                     <compilerArgument>-parameters</compilerArgument>
                 </configuration>
             </plugin>
-            <!-- 代码格式化插件 -->
-            <plugin>
-                <groupId>com.diffplug.spotless</groupId>
-                <artifactId>spotless-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>apply</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <java>
-                        <!-- 步骤按声明顺序执行：格式化 → 清理 → 补 License Header；@formatter:off/on 包裹的区间跳过 -->
-                        <toggleOffOn/>
-                        <eclipse>
-                            <file>${maven.multiModuleProjectDirectory}/style/ocn-eclipse-formatter.xml</file>
-                        </eclipse>
-                        <removeUnusedImports/>
-                        <trimTrailingWhitespace/>
-                        <licenseHeader>
-                            <file>${maven.multiModuleProjectDirectory}/style/license-header</file>
-                        </licenseHeader>
-                    </java>
-                </configuration>
-            </plugin>
             <!-- 统一版本号插件 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -124,6 +97,35 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <!-- 格式化模式：跳过 validate 阶段的格式与规范门禁（Spotless check、Checkstyle），
+                 改为编译前自动修复格式（格式化 → 清理 import → 补 License Header） -->
+            <id>format</id>
+            <properties>
+                <spotless.check.skip>true</spotless.check.skip>
+                <checkstyle.skip>true</checkstyle.skip>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.diffplug.spotless</groupId>
+                        <artifactId>spotless-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>spotless-apply</id>
+                                <phase>process-sources</phase>
+                                <goals>
+                                    <goal>apply</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <url>https://github.com/continew-org/continew-starter</url>
     <licenses>
