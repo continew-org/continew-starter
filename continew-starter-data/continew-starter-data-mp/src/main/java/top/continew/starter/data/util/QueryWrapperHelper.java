@@ -49,7 +49,7 @@ import java.util.function.Consumer;
  */
 public class QueryWrapperHelper {
 
-    private static final Logger log = LoggerFactory.getLogger(QueryWrapperHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(QueryWrapperHelper.class);
 
     private QueryWrapperHelper() {
     }
@@ -193,7 +193,7 @@ public class QueryWrapperHelper {
         } catch (BadRequestException e) {
             throw e;
         } catch (Exception e) {
-            log.error("Build query wrapper occurred an error: {}. Query: {}, Field: {}.", e
+            LOGGER.error("Build query wrapper occurred an error: {}. Query: {}, Field: {}.", e
                 .getMessage(), query, field, e);
         }
         return Collections.emptyList();

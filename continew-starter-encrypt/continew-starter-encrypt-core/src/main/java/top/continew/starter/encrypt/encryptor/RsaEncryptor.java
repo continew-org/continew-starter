@@ -21,6 +21,8 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import top.continew.starter.encrypt.context.CryptoContext;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * RSA 加密器
  * <p>
@@ -52,6 +54,6 @@ public class RsaEncryptor extends AbstractEncryptor {
     @Override
     public String decrypt(String ciphertext) {
         return new String(SecureUtil.rsa(context.getPrivateKey(), null)
-            .decrypt(Base64.decode(ciphertext), KeyType.PrivateKey));
+            .decrypt(Base64.decode(ciphertext), KeyType.PrivateKey), StandardCharsets.UTF_8);
     }
 }

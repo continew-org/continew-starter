@@ -32,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class RedisLockUtils implements AutoCloseable {
 
-    private static final Logger log = LoggerFactory.getLogger(RedisLockUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedisLockUtils.class);
 
     /**
      * 默认锁过期时间（毫秒）
@@ -47,7 +47,7 @@ public class RedisLockUtils implements AutoCloseable {
     /**
      * Redisson 客户端
      */
-    private static volatile RedissonClient CLIENT;
+    private static volatile RedissonClient client;
 
     /**
      * 锁实例
@@ -65,14 +65,14 @@ public class RedisLockUtils implements AutoCloseable {
      * @return RedissonClient实例
      */
     private static RedissonClient getClient() {
-        if (CLIENT == null) {
+        if (client == null) {
             synchronized (RedisLockUtils.class) {
-                if (CLIENT == null) {
-                    CLIENT = SpringUtils.getBean(RedissonClient.class, false);
+                if (client == null) {
+                    client = SpringUtils.getBean(RedissonClient.class, false);
                 }
             }
         }
-        return CLIENT;
+        return client;
     }
 
     /**
@@ -83,13 +83,13 @@ public class RedisLockUtils implements AutoCloseable {
         try {
             this.isLocked = lock.tryLock(timeout, expireTime, unit);
             if (isLocked) {
-                log.debug("获取锁成功，key: {}", lock.getName());
+                LOGGER.debug("获取锁成功，key: {}", lock.getName());
             } else {
-                log.debug("获取锁失败，key: {}", lock.getName());
+                LOGGER.debug("获取锁失败，key: {}", lock.getName());
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            log.error("获取锁过程中被中断，key: {}", lock.getName(), e);
+            LOGGER.error("获取锁过程中被中断，key: {}", lock.getName(), e);
         }
     }
 
@@ -181,12 +181,12 @@ public class RedisLockUtils implements AutoCloseable {
         if (isLocked && lock.isHeldByCurrentThread()) {
             try {
                 lock.unlockAsync().get();
-                log.debug("释放锁成功，key: {}", lock.getName());
+                LOGGER.debug("释放锁成功，key: {}", lock.getName());
             } catch (Exception e) {
-                log.error("释放锁失败，key: {}", lock.getName(), e);
+                LOGGER.error("释放锁失败，key: {}", lock.getName(), e);
             }
         } else {
-            log.debug("锁未被当前线程持有，无需释放，key: {}", lock.getName());
+            LOGGER.debug("锁未被当前线程持有，无需释放，key: {}", lock.getName());
         }
     }
 }

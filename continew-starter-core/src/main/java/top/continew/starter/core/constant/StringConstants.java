@@ -40,7 +40,7 @@ public class StringConstants {
     /**
      * 制表符 {@code "\t"}
      */
-    public static final String TAB = "	";
+    public static final String TAB = "\t";
 
     /**
      * 空 JSON {@code "{}"}

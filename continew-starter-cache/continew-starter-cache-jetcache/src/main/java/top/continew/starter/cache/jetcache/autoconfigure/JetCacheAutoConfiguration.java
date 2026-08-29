@@ -36,11 +36,12 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
     factory = GeneralPropertySourceFactory.class)
 public class JetCacheAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(JetCacheAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JetCacheAutoConfiguration.class);
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'JetCache' completed initialization.");
+        LOGGER
+            .debug("[ContiNew Starter] - Auto Configuration 'JetCache' completed initialization.");
     }
 
 }

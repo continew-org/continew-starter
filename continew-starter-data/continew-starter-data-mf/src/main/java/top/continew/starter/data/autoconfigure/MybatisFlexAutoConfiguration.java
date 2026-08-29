@@ -47,14 +47,15 @@ import top.continew.starter.data.datapermission.DataPermissionFilter;
     factory = GeneralPropertySourceFactory.class)
 public class MybatisFlexAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(MybatisFlexAutoConfiguration.class);
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(MybatisFlexAutoConfiguration.class);
 
     @Resource
     private DataPermissionFilter dataPermissionFilter;
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'MyBatis Flex' completed initialization.");
         DialectFactory.registerDialect(DbType.MYSQL,
             new DataPermissionDialect(dataPermissionFilter));

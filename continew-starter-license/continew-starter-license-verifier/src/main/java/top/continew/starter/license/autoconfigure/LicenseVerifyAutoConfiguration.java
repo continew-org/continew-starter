@@ -43,7 +43,8 @@ import top.continew.starter.core.constant.PropertiesConstants;
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class LicenseVerifyAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(LicenseVerifyAutoConfiguration.class);
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(LicenseVerifyAutoConfiguration.class);
 
     /**
      * 证书安装业务类
@@ -82,7 +83,7 @@ public class LicenseVerifyAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'License-Verifier' completed initialization.");
     }
 

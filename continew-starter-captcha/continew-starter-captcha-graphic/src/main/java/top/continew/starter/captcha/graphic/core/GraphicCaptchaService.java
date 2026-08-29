@@ -21,7 +21,7 @@ import cn.hutool.core.util.ReflectUtil;
 import com.wf.captcha.base.Captcha;
 import top.continew.starter.captcha.graphic.autoconfigure.GraphicCaptchaProperties;
 
-import java.awt.*;
+import java.awt.Font;
 
 /**
  * 图形验证码服务接口

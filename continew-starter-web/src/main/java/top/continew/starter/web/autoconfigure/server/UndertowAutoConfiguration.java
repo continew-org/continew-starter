@@ -52,7 +52,7 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
     havingValue = "true")
 public class UndertowAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(UndertowAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(UndertowAutoConfiguration.class);
 
     /**
      * Undertow 自定义配置
@@ -65,10 +65,10 @@ public class UndertowAutoConfiguration {
                 .addInitialHandlerChainWrapper(
                     handler -> new DisallowedMethodsHandler(handler, CollUtils
                         .mapToSet(properties.getDisallowedMethods(), HttpString::tryFromString))));
-            log.debug("[ContiNew Starter] - Disallowed HTTP methods on Server Undertow: {}.",
+            LOGGER.debug("[ContiNew Starter] - Disallowed HTTP methods on Server Undertow: {}.",
                 properties
                     .getDisallowedMethods());
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'Web-Server Undertow' completed initialization.");
         };
     }

@@ -18,7 +18,10 @@ package top.continew.starter.core.util;
 
 import cn.hutool.core.map.MapUtil;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
 /**
  * Map 工具类
@@ -49,7 +52,7 @@ public class MapUtils {
      *
      * @param to   需要合并的map
      * @param from 需要被合并的map
-     * @return Map<String, Object> 必须重新使用的map
+     * @return {@code Map<String, Object>} 必须重新使用的map
      * @author luoqiz
      * @since 2.14.0
      */

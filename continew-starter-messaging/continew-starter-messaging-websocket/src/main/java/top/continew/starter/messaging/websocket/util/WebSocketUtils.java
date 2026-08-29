@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class WebSocketUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketUtils.class);
     private static final WebSocketSessionDao SESSION_DAO =
         SpringUtil.getBean(WebSocketSessionDao.class);
 
@@ -97,13 +97,13 @@ public class WebSocketUtils {
      */
     public static void sendMessage(WebSocketSession session, WebSocketMessage<?> message) {
         if (session == null || !session.isOpen()) {
-            log.warn("WebSocket session closed.");
+            LOGGER.warn("WebSocket session closed.");
             return;
         }
         try {
             session.sendMessage(message);
         } catch (IOException e) {
-            log.error("WebSocket send message failed. sessionId: {}.", session.getId(), e);
+            LOGGER.error("WebSocket send message failed. sessionId: {}.", session.getId(), e);
         }
     }
 }

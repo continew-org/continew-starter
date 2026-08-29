@@ -40,7 +40,7 @@ import java.util.Set;
  */
 public class ExcelUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(ExcelUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExcelUtils.class);
 
     private ExcelUtils() {
     }
@@ -90,7 +90,8 @@ public class ExcelUtils {
                 .excludeColumnFieldNames(excludeColumnFieldNames)
                 .doWrite(list);
         } catch (Exception e) {
-            log.error("Export excel occurred an error: {}. fileName: {}.", e.getMessage(), fileName,
+            LOGGER.error("Export excel occurred an error: {}. fileName: {}.", e.getMessage(),
+                fileName,
                 e);
             response.reset();
             throw new BaseException("导出 Excel 出现错误");

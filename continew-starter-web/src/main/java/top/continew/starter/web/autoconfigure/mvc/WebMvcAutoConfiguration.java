@@ -45,7 +45,7 @@ import java.util.Objects;
 @AutoConfiguration
 public class WebMvcAutoConfiguration implements WebMvcConfigurer {
 
-    private static final Logger log = LoggerFactory.getLogger(WebMvcAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebMvcAutoConfiguration.class);
     private final MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter;
 
     public WebMvcAutoConfiguration(
@@ -84,6 +84,6 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Web MVC' completed initialization.");
+        LOGGER.debug("[ContiNew Starter] - Auto Configuration 'Web MVC' completed initialization.");
     }
 }

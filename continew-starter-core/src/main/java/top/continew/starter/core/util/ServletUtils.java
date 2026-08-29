@@ -187,7 +187,7 @@ public class ServletUtils extends JakartaServletUtil {
      * @since 2.13.1
      * @see #write(HttpServletResponse, String, String)
      */
-    public static void writeJSON(HttpServletResponse response, String data) {
+    public static void writeJson(HttpServletResponse response, String data) {
         write(response, data, MediaType.APPLICATION_JSON_VALUE);
     }
 

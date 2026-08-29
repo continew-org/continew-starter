@@ -56,7 +56,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MqttMessageInboundHandler
     implements MessageHandler, InitializingBean, ApplicationContextAware {
 
-    private static final Logger log = LoggerFactory.getLogger(MqttMessageInboundHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MqttMessageInboundHandler.class);
 
     // 精确匹配的topic -> 监听器映射（用于@MqttListener注解的监听器）
     private final Map<String, MqttMessageConsumer> annotatedListenerMap = new ConcurrentHashMap<>();
@@ -108,7 +108,7 @@ public class MqttMessageInboundHandler
                     handled = true;
                 }
             } catch (Exception e) {
-                log.error("注解监听器处理消息时发生错误: {}", entry.getValue().getClass().getSimpleName(), e);
+                LOGGER.error("注解监听器处理消息时发生错误: {}", entry.getValue().getClass().getSimpleName(), e);
             }
         }
 
@@ -139,7 +139,7 @@ public class MqttMessageInboundHandler
             try {
                 listener.onMessage(mqttMessage);
             } catch (Exception e) {
-                log.error("监听器处理消息时发生错误: {}", listener.getClass().getSimpleName(), e);
+                LOGGER.error("监听器处理消息时发生错误: {}", listener.getClass().getSimpleName(), e);
             }
         }
     }
@@ -188,7 +188,7 @@ public class MqttMessageInboundHandler
                 mqttOptions.addTopic(topic, qos);
                 annotatedListenerMap.put(topic, mqttMessageConsumer);
             } else {
-                log.info("发现无注解监听器: {}，将接收所有动态订阅的消息", clazz.getSimpleName());
+                LOGGER.info("发现无注解监听器: {}，将接收所有动态订阅的消息", clazz.getSimpleName());
             }
         }
     }

@@ -44,7 +44,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
 @Configuration(proxyBeanMethods = false)
 public class BehaviorCaptchaCacheConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(BehaviorCaptchaCacheConfiguration.class);
 
     /**
@@ -61,7 +61,7 @@ public class BehaviorCaptchaCacheConfiguration {
             CaptchaCacheServiceMemImpl service = new CaptchaCacheServiceMemImpl();
             CaptchaServiceFactory.cacheService.put(StorageType.DEFAULT.name().toLowerCase(),
                 service);
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'Captcha-Behavior-Cache-Default' completed initialization.");
             return service;
         }
@@ -81,7 +81,7 @@ public class BehaviorCaptchaCacheConfiguration {
         public CaptchaCacheService captchaCacheService() {
             BehaviorCaptchaCacheService service = new BehaviorCaptchaCacheService();
             CaptchaServiceFactory.cacheService.put(StorageType.REDIS.name().toLowerCase(), service);
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'Captcha-Behavior-Cache-Redis' completed initialization.");
             return service;
         }
@@ -101,11 +101,11 @@ public class BehaviorCaptchaCacheConfiguration {
                 CaptchaCacheService service = SpringUtil.getBean(CaptchaCacheService.class);
                 CaptchaServiceFactory.cacheService.put(StorageType.CUSTOM.name().toLowerCase(),
                     service);
-                log.debug(
+                LOGGER.debug(
                     "[ContiNew Starter] - Auto Configuration 'Captcha-Behavior-Cache-Custom' completed initialization.");
             } catch (Exception e) {
-                log.error(
-                    "[ContiNew Starter] - When 'continew-starter.captcha.behavior.cache-type' is 'custom', you must provide a bean of type '{}' in your configuration.",
+                LOGGER.error(
+                    "[ContiNew Starter] - When 'continew-starter.captcha.behavior.cache-type' is 'custom', you must provide a bean of type '{}'.",
                     ResolvableType
                         .forClass(CaptchaCacheService.class));
                 throw e;

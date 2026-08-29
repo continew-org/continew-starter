@@ -51,7 +51,7 @@ import java.util.concurrent.Executor;
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class TaskExecutionConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(TaskExecutionConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskExecutionConfiguration.class);
 
     @Value("${spring.task.execution.pool.core-size:#{T(java.lang.Runtime).getRuntime().availableProcessors() + 1}}")
     private int corePoolSize;
@@ -119,7 +119,7 @@ public class TaskExecutionConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'TaskExecutor' completed initialization.");
     }
 }

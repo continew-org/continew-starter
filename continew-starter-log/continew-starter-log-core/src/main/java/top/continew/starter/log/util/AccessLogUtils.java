@@ -105,7 +105,7 @@ public class AccessLogUtils {
     }
 
     /**
-     * 处理敏感参数，支持 Map 和 List<Map<String, Object>> 类型
+     * 处理敏感参数，支持 {@code Map} 和 {@code List<Map<String, Object>>} 类型
      *
      * @param params          参数
      * @param sensitiveParams 敏感参数列表
@@ -147,7 +147,7 @@ public class AccessLogUtils {
     }
 
     /**
-     * 处理超长参数，支持 Map 和 List<Map<String, Object>> 类型
+     * 处理超长参数，支持 {@code Map} 和 {@code List<Map<String, Object>>} 类型
      *
      * @param params    参数
      * @param threshold 截断阈值（值长度超过该值才截断）

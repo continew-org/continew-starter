@@ -44,7 +44,7 @@ import top.continew.starter.security.xss.filter.XssFilter;
     name = PropertiesConstants.ENABLED, havingValue = "true")
 public class XssAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(XssAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XssAutoConfiguration.class);
 
     /**
      * XSS 过滤器
@@ -61,7 +61,7 @@ public class XssAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Security-XSS' completed initialization.");
     }
 }

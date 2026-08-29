@@ -41,7 +41,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.util.StringUtils;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.messaging.mqtt.autoconfigure.properties.*;
+import top.continew.starter.messaging.mqtt.autoconfigure.properties.MqttConsumerProperties;
+import top.continew.starter.messaging.mqtt.autoconfigure.properties.MqttExecutorProperties;
+import top.continew.starter.messaging.mqtt.autoconfigure.properties.MqttProducerProperties;
+import top.continew.starter.messaging.mqtt.autoconfigure.properties.MqttProperties;
+import top.continew.starter.messaging.mqtt.autoconfigure.properties.MqttWillProperties;
 import top.continew.starter.messaging.mqtt.constant.MqttConstant;
 import top.continew.starter.messaging.mqtt.handler.MqttMessageInboundHandler;
 import top.continew.starter.messaging.mqtt.handler.MqttShutdownHandler;
@@ -50,6 +54,7 @@ import top.continew.starter.messaging.mqtt.msg.MqttMessageProducer;
 import top.continew.starter.messaging.mqtt.strategy.MqttOptions;
 import top.continew.starter.messaging.mqtt.strategy.MqttTemplate;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -69,7 +74,7 @@ import java.util.concurrent.ThreadPoolExecutor;
     value = PropertiesConstants.ENABLED, havingValue = "true")
 public class MqttAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(MqttAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MqttAutoConfiguration.class);
 
     private final MqttProperties mqttProperties;
 
@@ -141,7 +146,8 @@ public class MqttAutoConfiguration {
             // 设置遗嘱消息内容（字节数组）
             // 设置 QoS 等级
             // 设置是否保留该消息（true 表示新订阅者会收到）
-            mqttConnectOptions.setWill(will.getTopic(), will.getPayload().getBytes(), will.getQos(),
+            mqttConnectOptions.setWill(will.getTopic(), will.getPayload()
+                .getBytes(StandardCharsets.UTF_8), will.getQos(),
                 will
                     .getRetained());
         }
@@ -343,6 +349,6 @@ public class MqttAutoConfiguration {
      */
     @PostConstruct
     public void postConstruct() {
-        log.info("[ContiNew Starter] - Auto Configuration 'MQTT' completed initialization.");
+        LOGGER.info("[ContiNew Starter] - Auto Configuration 'MQTT' completed initialization.");
     }
 }

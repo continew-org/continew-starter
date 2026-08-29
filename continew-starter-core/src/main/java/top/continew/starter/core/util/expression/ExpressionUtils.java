@@ -30,7 +30,7 @@ import java.lang.reflect.Method;
  */
 public class ExpressionUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(ExpressionUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionUtils.class);
 
     private ExpressionUtils() {
     }
@@ -54,7 +54,7 @@ public class ExpressionUtils {
                 new ExpressionInvokeContext(method, args, target);
             return expressionEvaluator.apply(invokeContext);
         } catch (Exception e) {
-            log.error("Error occurs when eval script \"{}\" in {} : {}", script, method,
+            LOGGER.error("Error occurs when eval script \"{}\" in {} : {}", script, method,
                 e.getMessage(), e);
             return null;
         }

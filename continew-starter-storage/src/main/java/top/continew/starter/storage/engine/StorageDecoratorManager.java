@@ -48,6 +48,11 @@ public class StorageDecoratorManager {
         this.applicationContext = applicationContext;
     }
 
+    /**
+     * 初始化装饰器管理器
+     * <p>
+     * 扫描容器中所有 {@link StorageStrategyDecorator} 类型的 Bean，按目标策略类型分组注册，并按优先级排序，重复调用不会重复初始化
+     */
     @PostConstruct
     public void init() {
         if (initialized) {

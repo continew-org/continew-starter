@@ -21,7 +21,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import top.continew.starter.json.jackson.exception.JSONException;
+import top.continew.starter.json.jackson.exception.JsonException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,11 +37,11 @@ import java.util.List;
  * @author Charles7c
  * @since 2.11.0
  */
-public class JSONUtils {
+public class JsonUtils {
 
     private static final ObjectMapper OBJECT_MAPPER = SpringUtil.getBean(ObjectMapper.class);
 
-    private JSONUtils() {
+    private JsonUtils() {
     }
 
     /**
@@ -79,7 +79,7 @@ public class JSONUtils {
         try {
             return OBJECT_MAPPER.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            throw new JSONException(e);
+            throw new JsonException(e);
         }
     }
 
@@ -98,7 +98,7 @@ public class JSONUtils {
         try {
             return OBJECT_MAPPER.readValue(jsonString, beanClass);
         } catch (IOException e) {
-            throw new JSONException(e);
+            throw new JsonException(e);
         }
     }
 
@@ -118,7 +118,7 @@ public class JSONUtils {
             return OBJECT_MAPPER.readValue(jsonStr, OBJECT_MAPPER.getTypeFactory()
                 .constructCollectionType(List.class, elementType));
         } catch (IOException e) {
-            throw new JSONException("Failed to parse JSON string to list", e);
+            throw new JsonException("Failed to parse JSON string to list", e);
         }
     }
 
@@ -138,7 +138,7 @@ public class JSONUtils {
             return OBJECT_MAPPER.convertValue(jsonNode, OBJECT_MAPPER.getTypeFactory()
                 .constructCollectionType(List.class, elementType));
         } catch (IllegalArgumentException e) {
-            throw new JSONException("Failed to convert JSON to list", e);
+            throw new JsonException("Failed to convert JSON to list", e);
         }
     }
 
@@ -148,11 +148,11 @@ public class JSONUtils {
      * @param str 字符串
      * @return 是否为JSON类型字符串
      * @since 2.13.2
-     * @see cn.hutool.json.JSONUtil#isTypeJSON(String)
+     * @see cn.hutool.json.JSONUtil#isTypeJson(String)
      * @author Looly（<a href="https://gitee.com/dromara/hutool">Hutool</a>）
      */
-    public static boolean isTypeJSON(String str) {
-        return isTypeJSONObject(str) || isTypeJSONArray(str);
+    public static boolean isTypeJson(String str) {
+        return isTypeJsonObject(str) || isTypeJsonArray(str);
     }
 
     /**
@@ -161,10 +161,10 @@ public class JSONUtils {
      * @param str 字符串
      * @return 是否为JSON字符串
      * @since 2.13.2
-     * @see cn.hutool.json.JSONUtil#isTypeJSONObject(String)
+     * @see cn.hutool.json.JSONUtil#isTypeJsonObject(String)
      * @author Looly（<a href="https://gitee.com/dromara/hutool">Hutool</a>）
      */
-    public static boolean isTypeJSONObject(String str) {
+    public static boolean isTypeJsonObject(String str) {
         if (CharSequenceUtil.isBlank(str)) {
             return false;
         }
@@ -177,10 +177,10 @@ public class JSONUtils {
      * @param str 字符串
      * @return 是否为JSONArray类型字符串
      * @since 2.13.2
-     * @see cn.hutool.json.JSONUtil#isTypeJSONArray(String)
+     * @see cn.hutool.json.JSONUtil#isTypeJsonArray(String)
      * @author Looly（<a href="https://gitee.com/dromara/hutool">Hutool</a>）
      */
-    public static boolean isTypeJSONArray(String str) {
+    public static boolean isTypeJsonArray(String str) {
         if (CharSequenceUtil.isBlank(str)) {
             return false;
         }

@@ -23,8 +23,21 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.poi.hssf.usermodel.HSSFDataValidation;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.ClientAnchor.AnchorType;
+import org.apache.poi.ss.usermodel.DataValidation;
+import org.apache.poi.ss.usermodel.DataValidationConstraint;
+import org.apache.poi.ss.usermodel.DataValidationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.FillPatternType;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.IndexedColors;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
@@ -35,15 +48,28 @@ import top.continew.excel.annotation.ExcelExport;
 import top.continew.excel.annotation.ExcelImport;
 import top.continew.starter.excel.model.ExcelClassField;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -72,23 +98,23 @@ public class ExcelUtils {
     private static final int BYTES_DEFAULT_LENGTH = 10240;
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance();
 
+    public static JSONArray readFile(File file) throws Exception {
+        return readExcel(null, file);
+    }
+
     public static <T> List<T> readFile(File file, Class<T> clazz) throws Exception {
         JSONArray array = readFile(file);
         return getBeanList(array, clazz);
+    }
+
+    public static JSONArray readMultipartFile(MultipartFile mFile) throws Exception {
+        return readExcel(mFile, null);
     }
 
     public static <T> List<T> readMultipartFile(MultipartFile mFile, Class<T> clazz)
         throws Exception {
         JSONArray array = readMultipartFile(mFile);
         return getBeanList(array, clazz);
-    }
-
-    public static JSONArray readFile(File file) throws Exception {
-        return readExcel(null, file);
-    }
-
-    public static JSONArray readMultipartFile(MultipartFile mFile) throws Exception {
-        return readExcel(mFile, null);
     }
 
     public static Map<String, JSONArray> readFileManySheet(File file) throws Exception {
@@ -222,22 +248,42 @@ public class ExcelUtils {
                 .add(String.format("[%s]长度不能超过%s个字符(当前%s个字符)", cname, maxLength, val.length()));
         }
         // 判断当前属性是否有映射关系
-        LinkedHashMap<String, String> kvMap = getKvMap(annotation.kv());
-        if (!kvMap.isEmpty()) {
-            boolean isMatch = false;
-            for (String key : kvMap.keySet()) {
-                if (kvMap.get(key).equals(val)) {
-                    val = key;
-                    isMatch = true;
-                    break;
-                }
-            }
-            if (!isMatch) {
-                errMsgList.add(String.format("[%s]的值不正确(当前值为%s)", cname, val));
-                return;
-            }
+        val = matchKvValue(annotation, val, cname, errMsgList);
+        if (val == null) {
+            return;
         }
         // 其余情况根据类型赋值
+        assignValueByType(t, field, val, cname, errMsgList);
+    }
+
+    /**
+     * 匹配 kv 映射关系，不匹配时记录错误信息并返回 {@code null}
+     */
+    private static String matchKvValue(ExcelImport annotation,
+        String val,
+        String cname,
+        List<String> errMsgList) {
+        LinkedHashMap<String, String> kvMap = getKvMap(annotation.kv());
+        if (kvMap.isEmpty()) {
+            return val;
+        }
+        for (String key : kvMap.keySet()) {
+            if (kvMap.get(key).equals(val)) {
+                return key;
+            }
+        }
+        errMsgList.add(String.format("[%s]的值不正确(当前值为%s)", cname, val));
+        return null;
+    }
+
+    /**
+     * 根据字段类型进行赋值
+     */
+    private static <T> void assignValueByType(T t,
+        Field field,
+        String val,
+        String cname,
+        List<String> errMsgList) {
         String fieldClassName = field.getType().getSimpleName();
         try {
             if ("String".equalsIgnoreCase(fieldClassName)) {
@@ -432,6 +478,9 @@ public class ExcelUtils {
         exportTemplate(response, fileName, fileName, clazz, isContainExample);
     }
 
+    /**
+     * 导出模板（自定义 sheet 名）
+     */
     public static <T> void exportTemplate(HttpServletResponse response,
         String fileName,
         String sheetName,
@@ -691,6 +740,9 @@ public class ExcelUtils {
         return map;
     }
 
+    /**
+     * 导出空文件
+     */
     public static void exportEmpty(HttpServletResponse response, String fileName) {
         List<List<Object>> sheetDataList = new ArrayList<>();
         List<Object> headList = new ArrayList<>();
@@ -699,15 +751,15 @@ public class ExcelUtils {
         export(response, fileName, sheetDataList);
     }
 
-    public static void export(HttpServletResponse response, String fileName,
-        List<List<Object>> sheetDataList) {
-        export(response, fileName, fileName, sheetDataList, null);
-    }
-
     public static void exportManySheet(HttpServletResponse response,
         String fileName,
         Map<String, List<List<Object>>> sheetMap) {
         export(response, null, fileName, sheetMap, null);
+    }
+
+    public static void export(HttpServletResponse response, String fileName,
+        List<List<Object>> sheetDataList) {
+        export(response, fileName, fileName, sheetDataList, null);
     }
 
     public static void export(HttpServletResponse response,
@@ -717,6 +769,9 @@ public class ExcelUtils {
         export(response, fileName, sheetName, sheetDataList, null);
     }
 
+    /**
+     * 导出（自定义 sheet 名与下拉列表数据）
+     */
     public static void export(HttpServletResponse response,
         String fileName,
         String sheetName,
@@ -728,6 +783,9 @@ public class ExcelUtils {
         export(response, null, fileName, map, selectMap);
     }
 
+    /**
+     * 按模板导出列表数据
+     */
     public static <T, K> void export(HttpServletResponse response, String fileName, List<T> list,
         Class<K> template) {
         // list 是否为空

@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class EncryptHelper {
 
-    private static final Logger log = LoggerFactory.getLogger(EncryptHelper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EncryptHelper.class);
 
     /**
      * 默认加密配置
@@ -111,7 +111,7 @@ public class EncryptHelper {
             IEncryptor encryptor = registerAndGetEncryptor(cryptoContext);
             ciphertext = encryptor.encrypt(ciphertext);
         } catch (Exception e) {
-            log.warn("加密失败，请检查加密配置，处理加密字段异常：{}", e.getMessage(), e);
+            LOGGER.warn("加密失败，请检查加密配置，处理加密字段异常：{}", e.getMessage(), e);
         }
         return ciphertext;
     }
@@ -132,7 +132,7 @@ public class EncryptHelper {
             IEncryptor encryptor = registerAndGetEncryptor(cryptoContext);
             ciphertext = encryptor.encrypt(ciphertext);
         } catch (Exception e) {
-            log.warn("加密失败，请检查加密配置，处理加密字段异常：{}", e.getMessage(), e);
+            LOGGER.warn("加密失败，请检查加密配置，处理加密字段异常：{}", e.getMessage(), e);
         }
         return ciphertext;
     }
@@ -154,7 +154,7 @@ public class EncryptHelper {
             IEncryptor encryptor = registerAndGetEncryptor(cryptoContext);
             plaintext = encryptor.decrypt(plaintext);
         } catch (Exception e) {
-            log.warn("解密失败，请检查加密配置，处理解密字段异常：{}", e.getMessage(), e);
+            LOGGER.warn("解密失败，请检查加密配置，处理解密字段异常：{}", e.getMessage(), e);
         }
         return plaintext;
     }
@@ -175,7 +175,7 @@ public class EncryptHelper {
             IEncryptor encryptor = registerAndGetEncryptor(cryptoContext);
             plaintext = encryptor.decrypt(plaintext);
         } catch (Exception e) {
-            log.warn("解密失败，请检查加密配置，处理解密字段异常：{}", e.getMessage(), e);
+            LOGGER.warn("解密失败，请检查加密配置，处理解密字段异常：{}", e.getMessage(), e);
         }
         return plaintext;
     }

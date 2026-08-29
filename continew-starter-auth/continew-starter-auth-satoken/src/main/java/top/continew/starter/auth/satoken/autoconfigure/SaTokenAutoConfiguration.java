@@ -51,7 +51,7 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
 @Import({SaTokenWebConfiguration.class, SaTokenDaoConfiguration.class})
 public class SaTokenAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(SaTokenAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaTokenAutoConfiguration.class);
 
     /**
      * SaToken 拦截器
@@ -77,6 +77,6 @@ public class SaTokenAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'SaToken' completed initialization.");
+        LOGGER.debug("[ContiNew Starter] - Auto Configuration 'SaToken' completed initialization.");
     }
 }

@@ -77,7 +77,6 @@ public class DataPermissionDialect extends CommonsDialectImpl {
      * @param dataPermission 数据权限
      * @param role           当前用户角色
      * @param queryWrapper   查询条件
-     * @return 处理完后的表达式
      */
     private void buildCustomExpression(DataPermission dataPermission,
         DataPermissionCurrentUser.CurrentUserRole role,

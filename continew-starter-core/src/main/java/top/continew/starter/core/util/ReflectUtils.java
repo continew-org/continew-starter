@@ -75,7 +75,7 @@ public class ReflectUtils {
      * @param methodName 方法名
      * @param <T>        实体类类型
      * @param <K>        返回值类型
-     * @return Function<T, K> 方法引用
+     * @return {@code Function<T, K>} 方法引用
      * @throws IllegalArgumentException 如果参数不合法
      * @author lishuyan
      * @since 2.13.2

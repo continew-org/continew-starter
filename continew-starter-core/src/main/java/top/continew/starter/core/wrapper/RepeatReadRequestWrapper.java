@@ -25,7 +25,11 @@ import org.springframework.util.StreamUtils;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.util.ServletUtils;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -123,19 +127,22 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
                     for (Iterator<String> valueIterator = values.iterator(); valueIterator
                         .hasNext();) {
                         String value = valueIterator.next();
-                        this.cachedContent
-                            .write(URLEncoder.encode(name, characterEncoding).getBytes());
+                        this.cachedContent.write(URLEncoder.encode(name, characterEncoding)
+                            .getBytes(StandardCharsets.UTF_8));
                         if (value != null) {
-                            this.cachedContent.write(StringConstants.EQUALS.getBytes());
-                            this.cachedContent
-                                .write(URLEncoder.encode(value, characterEncoding).getBytes());
+                            this.cachedContent.write(StringConstants.EQUALS
+                                .getBytes(StandardCharsets.UTF_8));
+                            this.cachedContent.write(URLEncoder.encode(value, characterEncoding)
+                                .getBytes(StandardCharsets.UTF_8));
                             if (valueIterator.hasNext()) {
-                                this.cachedContent.write(StringConstants.AMP.getBytes());
+                                this.cachedContent.write(StringConstants.AMP
+                                    .getBytes(StandardCharsets.UTF_8));
                             }
                         }
                     }
                     if (nameIterator.hasNext()) {
-                        this.cachedContent.write(StringConstants.AMP.getBytes());
+                        this.cachedContent.write(StringConstants.AMP
+                            .getBytes(StandardCharsets.UTF_8));
                     }
                 }
             }
@@ -165,7 +172,7 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
 
         private final InputStream delegate;
 
-        public ContentCachingInputStream(byte[] body) {
+        ContentCachingInputStream(byte[] body) {
             this.delegate = new ByteArrayInputStream(body);
         }
 

@@ -17,7 +17,16 @@
 package top.continew.starter.web.autoconfigure.response;
 
 import com.feiniaojin.gracefulresponse.ExceptionAliasRegister;
-import com.feiniaojin.gracefulresponse.advice.*;
+import com.feiniaojin.gracefulresponse.advice.AdviceSupport;
+import com.feiniaojin.gracefulresponse.advice.DataExceptionAdvice;
+import com.feiniaojin.gracefulresponse.advice.DefaultGlobalExceptionAdvice;
+import com.feiniaojin.gracefulresponse.advice.DefaultRejectStrategyImpl;
+import com.feiniaojin.gracefulresponse.advice.DefaultValidationExceptionAdvice;
+import com.feiniaojin.gracefulresponse.advice.FrameworkExceptionAdvice;
+import com.feiniaojin.gracefulresponse.advice.GrI18nResponseBodyAdvice;
+import com.feiniaojin.gracefulresponse.advice.GrNotVoidResponseBodyAdvice;
+import com.feiniaojin.gracefulresponse.advice.GrVoidResponseBodyAdvice;
+import com.feiniaojin.gracefulresponse.advice.ReleaseExceptionHandlerExceptionResolver;
 import com.feiniaojin.gracefulresponse.advice.lifecycle.exception.BeforeControllerAdviceProcess;
 import com.feiniaojin.gracefulresponse.advice.lifecycle.exception.ControllerAdvicePredicate;
 import com.feiniaojin.gracefulresponse.advice.lifecycle.exception.RejectStrategy;
@@ -56,7 +65,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
     factory = GeneralPropertySourceFactory.class)
 public class GlobalResponseAutoConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(GlobalResponseAutoConfiguration.class);
 
     /**
@@ -228,7 +237,7 @@ public class GlobalResponseAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Web-Global Response' completed initialization.");
     }
 }

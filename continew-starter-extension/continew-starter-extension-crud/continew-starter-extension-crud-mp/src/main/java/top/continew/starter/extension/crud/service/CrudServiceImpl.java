@@ -54,7 +54,11 @@ import top.continew.starter.extension.crud.model.resp.LabelValueResp;
 import top.continew.starter.extension.crud.model.resp.PageResp;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -94,6 +98,25 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
         List<L> list = this.list(query, sortQuery, this.getListClass());
         list.forEach(this::fill);
         return list;
+    }
+
+    /**
+     * 查询列表
+     *
+     * @param query       查询条件
+     * @param sortQuery   排序查询条件
+     * @param targetClass 指定类型
+     * @return 列表信息
+     */
+    protected <E> List<E> list(Q query, SortQuery sortQuery, Class<E> targetClass) {
+        QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
+        // 设置排序
+        this.sort(queryWrapper, sortQuery);
+        List<T> entityList = baseMapper.selectList(queryWrapper);
+        if (super.getEntityClass() == targetClass) {
+            return (List<E>) entityList;
+        }
+        return BeanUtil.copyToList(entityList, targetClass);
     }
 
     @Override
@@ -268,25 +291,6 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
             this.queryFields = ReflectUtils.getNonStaticFields(this.getQueryClass());
         }
         return queryFields;
-    }
-
-    /**
-     * 查询列表
-     *
-     * @param query       查询条件
-     * @param sortQuery   排序查询条件
-     * @param targetClass 指定类型
-     * @return 列表信息
-     */
-    protected <E> List<E> list(Q query, SortQuery sortQuery, Class<E> targetClass) {
-        QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
-        // 设置排序
-        this.sort(queryWrapper, sortQuery);
-        List<T> entityList = baseMapper.selectList(queryWrapper);
-        if (super.getEntityClass() == targetClass) {
-            return (List<E>) entityList;
-        }
-        return BeanUtil.copyToList(entityList, targetClass);
     }
 
     /**

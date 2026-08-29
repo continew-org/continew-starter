@@ -25,7 +25,7 @@ import java.io.Serializable;
 /**
  * 键值对响应参数
  *
- * @param <T>
+ * @param <T> 值类型
  * @author Charles7c
  * @since 2.1.0
  */

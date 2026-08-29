@@ -127,7 +127,7 @@ public class TopicUtils {
         // 是否进入 + 号层级通配符
         boolean inLayerWildcard = false;
         int wildcardCharLen = 0;
-        topicFilterLoop : for (int i = 0; i < topicFilterLength; i++) {
+        topicFilterLoop: for (int i = 0; i < topicFilterLength; i++) {
             ch = topicFilterChars[i];
             if (ch == TOPIC_WILDCARDS_MORE) {
                 // 校验: # 通配符只能在最后一位

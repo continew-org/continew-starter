@@ -23,7 +23,11 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.MapperProxyMetadata;
 import com.baomidou.mybatisplus.core.metadata.TableInfo;
 import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
-import com.baomidou.mybatisplus.core.toolkit.*;
+import com.baomidou.mybatisplus.core.toolkit.Assert;
+import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.core.toolkit.MybatisUtils;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.reflect.GenericTypeUtils;
 import com.baomidou.mybatisplus.extension.repository.AbstractRepository;
 import com.baomidou.mybatisplus.extension.repository.IRepository;
@@ -244,6 +248,22 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
         return this.getById(id, true);
     }
 
+    /**
+     * 根据 ID 查询
+     *
+     * @param id            ID
+     * @param isCheckExists 是否检查存在
+     * @return 实体信息
+     */
+    protected T getById(Serializable id, boolean isCheckExists) {
+        T entity = baseMapper.selectById(id);
+        if (isCheckExists) {
+            CheckUtils.throwIfNotExists(entity, ClassUtil.getClassName(this.getEntityClass(), true),
+                "ID", id);
+        }
+        return entity;
+    }
+
     @Override
     public M getBaseMapper() {
         Assert.notNull(this.baseMapper, "baseMapper can not be null");
@@ -308,21 +328,5 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
      */
     protected String getSqlStatement(SqlMethod sqlMethod) {
         return SqlHelper.getSqlStatement(this.getMapperClass(), sqlMethod);
-    }
-
-    /**
-     * 根据 ID 查询
-     *
-     * @param id            ID
-     * @param isCheckExists 是否检查存在
-     * @return 实体信息
-     */
-    protected T getById(Serializable id, boolean isCheckExists) {
-        T entity = baseMapper.selectById(id);
-        if (isCheckExists) {
-            CheckUtils.throwIfNotExists(entity, ClassUtil.getClassName(this.getEntityClass(), true),
-                "ID", id);
-        }
-        return entity;
     }
 }

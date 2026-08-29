@@ -46,7 +46,7 @@ import top.nextdoc4j.enums.resolver.EnumMetadataResolver;
     factory = GeneralPropertySourceFactory.class)
 public class SpringDocAutoConfiguration implements WebMvcConfigurer {
 
-    private static final Logger log = LoggerFactory.getLogger(SpringDocAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SpringDocAutoConfiguration.class);
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -89,6 +89,6 @@ public class SpringDocAutoConfiguration implements WebMvcConfigurer {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'ApiDoc' completed initialization.");
+        LOGGER.debug("[ContiNew Starter] - Auto Configuration 'ApiDoc' completed initialization.");
     }
 }

@@ -22,7 +22,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.captcha.behavior.enums.StorageType;
 import top.continew.starter.core.constant.PropertiesConstants;
 
-import java.awt.*;
+import java.awt.Font;
 
 /**
  * 行为验证码配置属性

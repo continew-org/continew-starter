@@ -41,7 +41,7 @@ import top.continew.starter.core.util.MapUtils;
     factory = GeneralPropertySourceFactory.class)
 public class MailAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(MailAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MailAutoConfiguration.class);
 
     @Bean
     JavaMailSenderImpl mailSender(MailProperties properties) {
@@ -76,6 +76,6 @@ public class MailAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Mail' completed initialization.");
+        LOGGER.debug("[ContiNew Starter] - Auto Configuration 'Mail' completed initialization.");
     }
 }

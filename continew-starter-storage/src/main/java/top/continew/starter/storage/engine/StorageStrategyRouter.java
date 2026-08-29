@@ -29,7 +29,14 @@ import top.continew.starter.storage.common.exception.StorageException;
 import top.continew.starter.storage.domain.model.resp.StrategyStatusResp;
 import top.continew.starter.storage.strategy.StorageStrategy;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -40,7 +47,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class StorageStrategyRouter implements ApplicationListener<ApplicationEvent> {
 
-    private static final Logger log = LoggerFactory.getLogger(StorageStrategyRouter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StorageStrategyRouter.class);
 
     private final Map<String, StorageStrategy> configStrategies = new ConcurrentHashMap<>();
     private final Map<String, StorageStrategy> dynamicStrategies = new ConcurrentHashMap<>();
@@ -130,7 +137,7 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
         try {
             strategy.cleanup();
         } catch (Exception e) {
-            log.error("清理存储策略失败: platform={}", platform, e);
+            LOGGER.error("清理存储策略失败: platform={}", platform, e);
         }
         return true;
     }

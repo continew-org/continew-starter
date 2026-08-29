@@ -35,7 +35,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 @AutoConfigureBefore
 public class ValidationAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(ValidationAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValidationAutoConfiguration.class);
 
     /**
      * Validator 失败立即返回模式配置
@@ -59,6 +59,7 @@ public class ValidationAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Validation' completed initialization.");
+        LOGGER.debug(
+            "[ContiNew Starter] - Auto Configuration 'Validation' completed initialization.");
     }
 }

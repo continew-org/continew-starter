@@ -16,7 +16,11 @@
 
 package top.continew.starter.captcha.graphic.enums;
 
-import com.wf.captcha.*;
+import com.wf.captcha.ArithmeticCaptcha;
+import com.wf.captcha.ChineseCaptcha;
+import com.wf.captcha.ChineseGifCaptcha;
+import com.wf.captcha.GifCaptcha;
+import com.wf.captcha.SpecCaptcha;
 import com.wf.captcha.base.Captcha;
 
 /**

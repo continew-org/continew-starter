@@ -48,7 +48,7 @@ import java.nio.file.Path;
 @SuppressWarnings("serial")
 public class CommonsMultipartFile implements MultipartFile, Serializable {
 
-    protected static final Log logger = LogFactory.getLog(CommonsMultipartFile.class);
+    private static final Log LOGGER = LogFactory.getLog(CommonsMultipartFile.class);
 
     private final FileItem fileItem;
 
@@ -167,7 +167,7 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
 
         try {
             this.fileItem.write(dest);
-            LogFormatUtils.traceDebug(logger, traceOn -> {
+            LogFormatUtils.traceDebug(LOGGER, traceOn -> {
                 String action = "transferred";
                 if (!this.fileItem.isInMemory()) {
                     action = (isAvailable() ? "copied" : "moved");

@@ -43,7 +43,7 @@ import top.continew.starter.extension.datapermission.handler.DefaultDataPermissi
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class DataPermissionAutoConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(DataPermissionAutoConfiguration.class);
 
     private DataPermissionAutoConfiguration() {
@@ -75,8 +75,8 @@ public class DataPermissionAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public DataPermissionUserDataProvider dataPermissionUserDataProvider() {
-        if (log.isErrorEnabled()) {
-            log.error(
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error(
                 "[ContiNew Starter] - Consider defining a bean of type '{}' in your configuration.",
                 ResolvableType
                     .forClass(DataPermissionUserDataProvider.class));
@@ -85,7 +85,7 @@ public class DataPermissionAutoConfiguration {
     }
 
     static {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'DataPermission' completed initialization.");
     }
 }

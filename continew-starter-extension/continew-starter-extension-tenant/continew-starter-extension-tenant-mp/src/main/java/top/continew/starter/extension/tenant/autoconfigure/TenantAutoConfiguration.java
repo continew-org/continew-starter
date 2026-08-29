@@ -53,7 +53,7 @@ import javax.sql.DataSource;
 @Import({TenantWebConfiguration.class})
 public class TenantAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(TenantAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TenantAutoConfiguration.class);
     private final TenantProperties properties;
 
     public TenantAutoConfiguration(TenantProperties properties) {
@@ -135,8 +135,8 @@ public class TenantAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public TenantProvider tenantProvider() {
-        if (log.isErrorEnabled()) {
-            log.error(
+        if (LOGGER.isErrorEnabled()) {
+            LOGGER.error(
                 "[ContiNew Starter] - Consider defining a bean of type '{}' in your configuration.",
                 ResolvableType
                     .forClass(TenantProvider.class));
@@ -146,6 +146,6 @@ public class TenantAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Tenant' completed initialization.");
+        LOGGER.debug("[ContiNew Starter] - Auto Configuration 'Tenant' completed initialization.");
     }
 }

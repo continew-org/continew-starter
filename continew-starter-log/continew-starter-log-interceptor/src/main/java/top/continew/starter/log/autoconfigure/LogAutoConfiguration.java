@@ -49,7 +49,7 @@ import top.continew.starter.log.model.LogProperties;
 @Import({LogWebConfiguration.class})
 public class LogAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(LogAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogAutoConfiguration.class);
     private final LogProperties properties;
 
     public LogAutoConfiguration(LogProperties properties) {
@@ -98,7 +98,7 @@ public class LogAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Log-Interceptor' completed initialization.");
     }
 }

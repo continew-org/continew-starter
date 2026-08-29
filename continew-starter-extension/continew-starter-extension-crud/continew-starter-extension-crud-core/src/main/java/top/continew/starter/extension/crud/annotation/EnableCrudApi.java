@@ -19,8 +19,11 @@ package top.continew.starter.extension.crud.annotation;
 import org.springframework.context.annotation.Import;
 import top.continew.starter.extension.crud.autoconfigure.CrudApiAutoConfiguration;
 import top.continew.starter.extension.crud.autoconfigure.CrudRequestMappingAutoConfiguration;
-
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * CRUD API 启用注解

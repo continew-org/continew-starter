@@ -27,10 +27,15 @@ import top.continew.starter.core.util.CollUtils;
 import top.continew.starter.license.exception.LicenseException;
 import top.continew.starter.license.model.LicenseExtraModel;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
@@ -43,7 +48,7 @@ import java.util.Set;
  */
 public class ServerInfoUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(ServerInfoUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerInfoUtils.class);
 
     private static class ServerInfosContainer {
 
@@ -70,7 +75,7 @@ public class ServerInfoUtils {
             result.setCpuSerial(ServerInfosContainer.cpuSerial);
             result.setMainBoardSerial(ServerInfosContainer.mainBoardSerial);
         } catch (Exception e) {
-            log.error("获取服务器硬件信息异常", e);
+            LOGGER.error("获取服务器硬件信息异常", e);
             throw new LicenseException(String.format("获取服务器硬件信息异常, %s", e.getMessage()));
         }
         return result;
@@ -135,7 +140,8 @@ public class ServerInfoUtils {
         try {
             // 管道
             Process p = Runtime.getRuntime().exec(new String[] {"sh", "-c", cpuIdCmd});
-            bufferedReader = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            bufferedReader = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
             String line = null;
             int index = -1;
             while ((line = bufferedReader.readLine()) != null) {
@@ -148,7 +154,7 @@ public class ServerInfoUtils {
                 }
             }
         } catch (IOException e) {
-            log.error("获取Linux cpu信息错误 {}", e.getMessage());
+            LOGGER.error("获取Linux cpu信息错误 {}", e.getMessage());
         } finally {
             IoUtil.close(bufferedReader);
         }
@@ -167,7 +173,7 @@ public class ServerInfoUtils {
         try {
             file = File.createTempFile("tmp", ".vbs");
             file.deleteOnExit();
-            FileWriter fw = new FileWriter(file);
+            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
             String vbs = """
                 Set objWMIService = GetObject("winmgmts:\\\\.\\root\\cimv2")
                 Set colItems = objWMIService.ExecQuery("Select * from Win32_Processor")
@@ -181,13 +187,14 @@ public class ServerInfoUtils {
             fw.close();
 
             Process p = Runtime.getRuntime().exec("cscript //NoLogo " + file.getPath());
-            input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            input = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
             String line;
             while ((line = input.readLine()) != null) {
                 result.append(line);
             }
         } catch (Exception e) {
-            log.error("获取window cpu信息错误, {}", e.getMessage());
+            LOGGER.error("获取window cpu信息错误, {}", e.getMessage());
         } finally {
             IoUtil.close(input);
             FileUtil.del(file);
@@ -205,11 +212,12 @@ public class ServerInfoUtils {
         try {
             Process process = new ProcessBuilder("sh", "-c", command).start();
             try (BufferedReader reader =
-                new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
                 return reader.lines().findFirst().orElse(StringConstants.EMPTY);
             }
         } catch (IOException e) {
-            log.error("获取 Linux 主板序列号失败: {}", e.getMessage());
+            LOGGER.error("获取 Linux 主板序列号失败: {}", e.getMessage());
             return StringConstants.EMPTY;
         }
     }
@@ -226,7 +234,7 @@ public class ServerInfoUtils {
         try {
             file = File.createTempFile("realhowto", ".vbs");
             file.deleteOnExit();
-            FileWriter fw = new FileWriter(file);
+            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
 
             String vbs = """
                 Set objWMIService = GetObject("winmgmts:\\\\.\\root\\cimv2")
@@ -241,13 +249,14 @@ public class ServerInfoUtils {
             fw.write(vbs);
             fw.close();
             Process p = Runtime.getRuntime().exec("cscript //NoLogo " + file.getPath());
-            input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+            input = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
             String line;
             while ((line = input.readLine()) != null) {
                 result.append(line);
             }
         } catch (Exception e) {
-            log.error("获取Window主板信息错误 {}", e.getMessage());
+            LOGGER.error("获取Window主板信息错误 {}", e.getMessage());
         } finally {
             IoUtil.close(input);
             FileUtil.del(file);
@@ -258,7 +267,7 @@ public class ServerInfoUtils {
     /**
      * <p>获取Mac地址</p>
      *
-     * @return List<String> Mac地址
+     * @return List&lt;String&gt; Mac地址
      * @throws Exception 默认异常
      */
     public static Set<String> getMacAddress() throws Exception {
@@ -273,7 +282,7 @@ public class ServerInfoUtils {
     /**
      * <p>获取IP地址</p>
      *
-     * @return List<String> IP地址
+     * @return List&lt;String&gt; IP地址
      * @throws Exception 默认异常
      */
     public static Set<String> getIpAddress() throws Exception {
@@ -309,7 +318,7 @@ public class ServerInfoUtils {
             }
             return stringBuilder.toString().toUpperCase();
         } catch (SocketException e) {
-            log.error("getMacByInetAddress {}", e.getMessage());
+            LOGGER.error("getMacByInetAddress {}", e.getMessage());
         }
         return null;
     }
@@ -317,7 +326,7 @@ public class ServerInfoUtils {
     /**
      * <p>获取当前服务器所有符合条件的网络地址</p>
      *
-     * @return List<InetAddress> 网络地址列表
+     * @return List&lt;InetAddress&gt; 网络地址列表
      * @throws Exception 默认异常
      */
     private static Set<InetAddress> getLocalAllInetAddress() throws Exception {

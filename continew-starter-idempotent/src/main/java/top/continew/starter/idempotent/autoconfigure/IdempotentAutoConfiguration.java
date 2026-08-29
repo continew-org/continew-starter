@@ -43,7 +43,7 @@ import top.continew.starter.idempotent.generator.IdempotentNameGenerator;
     havingValue = "true", matchIfMissing = true)
 public class IdempotentAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(IdempotentAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IdempotentAutoConfiguration.class);
 
     /**
      * 幂等切面
@@ -65,6 +65,7 @@ public class IdempotentAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Idempotent' completed initialization.");
+        LOGGER.debug(
+            "[ContiNew Starter] - Auto Configuration 'Idempotent' completed initialization.");
     }
 }

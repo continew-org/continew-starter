@@ -19,7 +19,16 @@ package top.continew.starter.cache.redisson.util;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import org.redisson.api.*;
+import org.redisson.api.RBatch;
+import org.redisson.api.RBucket;
+import org.redisson.api.RList;
+import org.redisson.api.RListAsync;
+import org.redisson.api.RMap;
+import org.redisson.api.RRateLimiter;
+import org.redisson.api.RScoredSortedSet;
+import org.redisson.api.RTopic;
+import org.redisson.api.RateType;
+import org.redisson.api.RedissonClient;
 import org.redisson.api.options.KeysScanOptions;
 import top.continew.starter.core.constant.StringConstants;
 
@@ -427,7 +436,7 @@ public class RedisUtils {
      * 删除 ZSet 中指定排名范围内的元素
      *
      * <p>
-     * 索引从 0 开始。<code>-1<code> 表示最高分，<code>-2<code> 表示第二高分。
+     * 索引从 0 开始。<code>-1</code> 表示最高分，<code>-2</code> 表示第二高分。
      * </p>
      *
      * @param key        键

@@ -17,7 +17,11 @@
 package top.continew.starter.json.jackson.autoconfigure;
 
 import java.math.BigInteger;
-import java.time.*;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
@@ -32,8 +36,16 @@ import org.springframework.context.annotation.PropertySource;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.*;
-import com.fasterxml.jackson.datatype.jsr310.ser.*;
+import com.fasterxml.jackson.datatype.jsr310.deser.DurationDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.DurationSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 
 import cn.hutool.core.date.DatePattern;
 import top.continew.starter.core.enums.BaseEnum;
@@ -56,7 +68,7 @@ import top.continew.starter.json.jackson.serializer.SimpleDeserializersWrapper;
     factory = GeneralPropertySourceFactory.class)
 public class JacksonAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(JacksonAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JacksonAutoConfiguration.class);
     private final JacksonExtensionProperties properties;
 
     public JacksonAutoConfiguration(JacksonExtensionProperties properties) {
@@ -72,7 +84,7 @@ public class JacksonAutoConfiguration {
 
             builder.timeZone(TimeZone.getDefault());
             builder.modules(javaTimeModule, baseEnumModule, bigNumberModule);
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'Jackson' completed initialization.");
         };
     }
@@ -147,7 +159,7 @@ public class JacksonAutoConfiguration {
                 bigNumberModule.addSerializer(BigInteger.class, ToStringSerializer.instance);
             }
             default ->
-                log.warn("[ContiNew Starter] - Jackson 大数值序列化模式：NO_OPERATE，超过 JS 范围的数值会损失精度");
+                LOGGER.warn("[ContiNew Starter] - Jackson 大数值序列化模式：NO_OPERATE，超过 JS 范围的数值会损失精度");
         }
         return bigNumberModule;
     }

@@ -52,7 +52,7 @@ import java.util.Set;
  */
 public abstract class AbstractLogHandler implements LogHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractLogHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLogHandler.class);
     private final TransmittableThreadLocal<AccessLogContext> logContextThread =
         new TransmittableThreadLocal<>();
 
@@ -211,7 +211,7 @@ public abstract class AbstractLogHandler implements LogHandler {
         logContextThread.set(context);
         RecordableHttpRequest request = context.getRequest();
         String param = AccessLogUtils.getParam(request, properties);
-        log.info(param != null ? "[Start] [{}] {} param: {}" : "[Start] [{}] {}",
+        LOGGER.info(param != null ? "[Start] [{}] {} param: {}" : "[Start] [{}] {}",
             request.getMethod(), request
                 .getPath(),
             param);
@@ -227,7 +227,7 @@ public abstract class AbstractLogHandler implements LogHandler {
             RecordableHttpRequest request = logContext.getRequest();
             RecordableHttpResponse response = context.getResponse();
             Duration timeTaken = Duration.between(logContext.getStartTime(), context.getEndTime());
-            log.info("[End] [{}] {} {} {}ms", request.getMethod(), request.getPath(),
+            LOGGER.info("[End] [{}] {} {} {}ms", request.getMethod(), request.getPath(),
                 response.getStatus(), timeTaken
                     .toMillis());
         } finally {

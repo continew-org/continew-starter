@@ -43,7 +43,7 @@ import top.continew.starter.encrypt.api.filter.ApiEncryptFilter;
     havingValue = "true", matchIfMissing = true)
 public class ApiEncryptAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(ApiEncryptAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ApiEncryptAutoConfiguration.class);
 
     /**
      * API 加密过滤器
@@ -61,7 +61,7 @@ public class ApiEncryptAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Encrypt-API' completed initialization.");
     }
 }

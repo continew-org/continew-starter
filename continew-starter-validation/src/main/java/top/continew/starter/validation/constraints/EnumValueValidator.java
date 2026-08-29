@@ -36,7 +36,7 @@ import java.util.Arrays;
  */
 public class EnumValueValidator implements ConstraintValidator<EnumValue, Object> {
 
-    private static final Logger log = LoggerFactory.getLogger(EnumValueValidator.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(EnumValueValidator.class);
     private Class<? extends Enum> enumClass;
     private String[] enumValues;
     private String enumMethod;
@@ -109,7 +109,7 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
                 }
             }
         } catch (Exception e) {
-            log.error(
+            LOGGER.error(
                 "An error occurred while validating the enum value, please check the @EnumValue parameter configuration.",
                 e);
         }

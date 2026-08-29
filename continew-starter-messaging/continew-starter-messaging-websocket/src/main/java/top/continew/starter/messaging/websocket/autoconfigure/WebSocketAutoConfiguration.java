@@ -49,7 +49,7 @@ import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class WebSocketAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketAutoConfiguration.class);
     private final WebSocketProperties properties;
 
     public WebSocketAutoConfiguration(WebSocketProperties properties) {
@@ -98,7 +98,7 @@ public class WebSocketAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Messaging-WebSocket' completed initialization.");
     }
 }

@@ -37,7 +37,7 @@ import java.io.IOException;
  */
 public class WebSocketHandler extends TextWebSocketHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandler.class);
     private final WebSocketProperties webSocketProperties;
     private final WebSocketSessionDao webSocketSessionDao;
 
@@ -51,7 +51,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message)
         throws Exception {
         String clientId = this.getClientId(session);
-        log.info("WebSocket receive message. clientId: {}, message: {}.", clientId,
+        LOGGER.info("WebSocket receive message. clientId: {}, message: {}.", clientId,
             message.getPayload());
         super.handleTextMessage(session, message);
     }
@@ -60,14 +60,14 @@ public class WebSocketHandler extends TextWebSocketHandler {
     public void afterConnectionEstablished(WebSocketSession session) {
         String clientId = this.getClientId(session);
         webSocketSessionDao.add(clientId, session);
-        log.info("WebSocket client connect successfully. clientId: {}.", clientId);
+        LOGGER.info("WebSocket client connect successfully. clientId: {}.", clientId);
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) {
         String clientId = this.getClientId(session);
         webSocketSessionDao.delete(clientId);
-        log.info("WebSocket client connect closed. clientId: {}.", clientId);
+        LOGGER.info("WebSocket client connect closed. clientId: {}.", clientId);
     }
 
     @Override

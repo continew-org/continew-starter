@@ -25,7 +25,11 @@ import net.sf.jsqlparser.expression.LongValue;
 import net.sf.jsqlparser.expression.StringValue;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.*;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
+import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
+import net.sf.jsqlparser.expression.operators.relational.InExpression;
+import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
+import net.sf.jsqlparser.expression.operators.relational.ParenthesedExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.ParenthesedSelect;
@@ -60,7 +64,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultDataPermissionHandler implements DataPermissionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultDataPermissionHandler.class);
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(DefaultDataPermissionHandler.class);
     private final DataPermissionUserDataProvider dataPermissionUserDataProvider;
     /**
      * Mapper类中所有方法数据权限注解缓存
@@ -81,7 +86,7 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
                 return buildDataScopeFilter(dataPermission, where);
             }
         } catch (Exception e) {
-            log.error("Data permission handler build data scope filter occurred an error: {}.",
+            LOGGER.error("Data permission handler build data scope filter occurred an error: {}.",
                 e.getMessage(), e);
         }
         return where;

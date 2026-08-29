@@ -41,7 +41,7 @@ import top.continew.starter.data.idgenerator.MyBatisPlusCosIdIdentifierGenerator
 @Configuration(proxyBeanMethods = false)
 public class MyBatisPlusIdGeneratorConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(MyBatisPlusIdGeneratorConfiguration.class);
 
     /**
@@ -55,7 +55,7 @@ public class MyBatisPlusIdGeneratorConfiguration {
 
         @Bean
         public IdentifierGenerator identifierGenerator() {
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'MyBatis Plus-IdGenerator-Default' completed initialization.");
             return new DefaultIdentifierGenerator(NetUtil.getLocalhost());
         }
@@ -72,7 +72,7 @@ public class MyBatisPlusIdGeneratorConfiguration {
 
         @Bean
         public IdentifierGenerator identifierGenerator() {
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'MyBatis Plus-IdGenerator-CosId' completed initialization.");
             return new MyBatisPlusCosIdIdentifierGenerator();
         }
@@ -89,9 +89,9 @@ public class MyBatisPlusIdGeneratorConfiguration {
         @Bean
         @ConditionalOnMissingBean
         public IdentifierGenerator identifierGenerator() {
-            if (log.isErrorEnabled()) {
-                log.error(
-                    "[ContiNew Starter] - When 'mybatis-plus.extension.id-generator.type' is 'custom', you must provide a bean of type '{}' in your configuration.",
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error(
+                    "[ContiNew Starter] - When 'mybatis-plus.extension.id-generator.type' is 'custom', you must provide a bean of type '{}'.",
                     ResolvableType
                         .forClass(IdentifierGenerator.class));
             }
@@ -100,7 +100,7 @@ public class MyBatisPlusIdGeneratorConfiguration {
 
         @PostConstruct
         public void postConstruct() {
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'MyBatis Plus-IdGenerator-Custom' completed initialization.");
         }
     }

@@ -16,6 +16,7 @@
 
 package top.continew.starter.license.model;
 
+import java.io.Serializable;
 import java.util.Set;
 
 /**
@@ -24,7 +25,9 @@ import java.util.Set;
  * @author loach
  * @since 2.12.0
  */
-public class LicenseExtraModel {
+public class LicenseExtraModel implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * 可被允许的IP地址

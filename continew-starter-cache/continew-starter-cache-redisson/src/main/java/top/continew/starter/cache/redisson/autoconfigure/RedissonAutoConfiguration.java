@@ -52,7 +52,7 @@ import java.util.List;
 @EnableConfigurationProperties(RedissonProperties.class)
 public class RedissonAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(RedissonAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RedissonAutoConfiguration.class);
     private final RedissonProperties properties;
     private final RedisProperties redisProperties;
     private final ObjectMapper objectMapper;
@@ -81,7 +81,7 @@ public class RedissonAutoConfiguration {
             }
             // Jackson 处理
             config.setCodec(new JsonJacksonCodec(objectMapper));
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'Redisson' completed initialization.");
         };
     }

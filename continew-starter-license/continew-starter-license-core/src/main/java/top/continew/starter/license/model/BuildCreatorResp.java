@@ -40,7 +40,7 @@ public class BuildCreatorResp implements Serializable {
     /**
      * 客户端 Zip 文件
      */
-    private ZipFile clientZipFile;
+    private transient ZipFile clientZipFile;
 
     public BuildCreatorResp(LicenseCreatorParam param, ZipFile clientZipFile) {
         this.param = param;

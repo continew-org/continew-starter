@@ -29,8 +29,16 @@ import top.continew.starter.storage.domain.file.ProgressAwareMultipartFile;
 import top.continew.starter.storage.domain.model.context.UploadContext;
 import top.continew.starter.storage.domain.model.req.MultipartUploadInitReq;
 import top.continew.starter.storage.domain.model.req.ThumbnailInfo;
-import top.continew.starter.storage.domain.model.resp.*;
-import top.continew.starter.storage.processor.preprocess.*;
+import top.continew.starter.storage.domain.model.resp.FileInfo;
+import top.continew.starter.storage.domain.model.resp.FilePartInfo;
+import top.continew.starter.storage.domain.model.resp.MultipartInitResp;
+import top.continew.starter.storage.domain.model.resp.MultipartUploadResp;
+import top.continew.starter.storage.domain.model.resp.StrategyStatusResp;
+import top.continew.starter.storage.processor.preprocess.FileNameGenerator;
+import top.continew.starter.storage.processor.preprocess.FilePathGenerator;
+import top.continew.starter.storage.processor.preprocess.FileValidator;
+import top.continew.starter.storage.processor.preprocess.ThumbnailProcessor;
+import top.continew.starter.storage.processor.preprocess.UploadCompleteProcessor;
 import top.continew.starter.storage.processor.progress.UploadProgressListener;
 import top.continew.starter.storage.processor.registry.ProcessorRegistry;
 import top.continew.starter.storage.engine.StorageStrategyRouter;
@@ -40,7 +48,13 @@ import top.continew.starter.storage.strategy.StorageStrategy;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -52,7 +66,7 @@ import java.util.stream.Collectors;
  */
 public class FileStorageService {
 
-    private static final Logger log = LoggerFactory.getLogger(FileStorageService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileStorageService.class);
 
     private final StorageStrategyRouter router;
     private final ProcessorRegistry processorRegistry;
@@ -229,6 +243,18 @@ public class FileStorageService {
         } finally {
             cleanup(context);
         }
+    }
+
+    /**
+     * 上传
+     *
+     * @param platform 平台
+     * @param bucket   铲斗
+     * @param path     路径
+     * @param file     文件
+     */
+    public void upload(String platform, String bucket, String path, MultipartFile file) {
+        router.route(platform).upload(bucket, path, file);
     }
 
     /**
@@ -446,7 +472,7 @@ public class FileStorageService {
                 fileInfo.setThumbnailSize((long) thumbnailInfo.getData().length);
             }
         } catch (Exception e) {
-            log.warn("缩略图处理失败: {}", e.getMessage());
+            LOGGER.warn("缩略图处理失败: {}", e.getMessage());
         }
     }
 
@@ -730,18 +756,6 @@ public class FileStorageService {
     }
 
     /**
-     * 上传
-     *
-     * @param platform 平台
-     * @param bucket   铲斗
-     * @param path     路径
-     * @param file     文件
-     */
-    public void upload(String platform, String bucket, String path, MultipartFile file) {
-        router.route(platform).upload(bucket, path, file);
-    }
-
-    /**
      * 下载文件
      */
     public InputStream download(String platform, String bucket, String path) {
@@ -811,6 +825,13 @@ public class FileStorageService {
      */
     public boolean exists(String platform, String bucket, String path) {
         return router.route(platform).exists(bucket, path);
+    }
+
+    /**
+     * 检查策略是否存在
+     */
+    public boolean exists(String platform) {
+        return router.getAllPlatform().contains(platform);
     }
 
     /**
@@ -904,13 +925,6 @@ public class FileStorageService {
      */
     public Set<String> getAvailablePlatform() {
         return router.getAllPlatform();
-    }
-
-    /**
-     * 检查策略是否存在
-     */
-    public boolean exists(String platform) {
-        return router.getAllPlatform().contains(platform);
     }
 
     /**

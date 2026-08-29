@@ -14,28 +14,35 @@
  * limitations under the License.
  */
 
-package top.continew.starter.core.util;
+package top.continew.starter.json.jackson.exception;
 
-import cn.hutool.http.HttpUtil;
+import top.continew.starter.core.exception.BaseException;
+
+import java.io.Serial;
 
 /**
- * URL（Uniform Resource Locator）统一资源定位符相关工具类
+ * JSON 异常
  *
  * @author Charles7c
- * @since 1.0.0
+ * @since 2.13.2
  */
-public class URLUtils {
+public class JsonException extends BaseException {
 
-    private URLUtils() {
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    public JsonException() {
     }
 
-    /**
-     * 提供的 URL 是否为 HTTP URL（协议包括："http"，"https"）
-     *
-     * @param url URL
-     * @return 是否为 HTTP URL
-     */
-    public static boolean isHttpUrl(String url) {
-        return HttpUtil.isHttp(url) || HttpUtil.isHttps(url);
+    public JsonException(String message) {
+        super(message);
+    }
+
+    public JsonException(Throwable cause) {
+        super(cause);
+    }
+
+    public JsonException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

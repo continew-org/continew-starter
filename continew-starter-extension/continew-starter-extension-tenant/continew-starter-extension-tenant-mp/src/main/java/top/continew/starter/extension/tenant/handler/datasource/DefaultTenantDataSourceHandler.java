@@ -37,7 +37,8 @@ import javax.sql.DataSource;
  */
 public class DefaultTenantDataSourceHandler implements TenantDataSourceHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultTenantDataSourceHandler.class);
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(DefaultTenantDataSourceHandler.class);
     private final DynamicRoutingDataSource dynamicRoutingDataSource;
     private final DefaultDataSourceCreator dataSourceCreator;
 
@@ -55,10 +56,10 @@ public class DefaultTenantDataSourceHandler implements TenantDataSourceHandler {
         if (!this.containsDataSource(dataSourceName)) {
             DataSource datasource = this.createDataSource(tenantDataSource);
             dynamicRoutingDataSource.addDataSource(dataSourceName, datasource);
-            log.info("Load data source: {}", dataSourceName);
+            LOGGER.info("Load data source: {}", dataSourceName);
         }
         DynamicDataSourceContextHolder.push(dataSourceName);
-        log.info("Change data source: {}", dataSourceName);
+        LOGGER.info("Change data source: {}", dataSourceName);
     }
 
     @Override

@@ -35,11 +35,25 @@ import top.continew.starter.storage.strategy.StorageStrategy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.HexFormat;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,7 +65,7 @@ import java.util.stream.Stream;
  */
 public class LocalStorageStrategy implements StorageStrategy {
 
-    private static final Logger log = LoggerFactory.getLogger(LocalStorageStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LocalStorageStrategy.class);
 
     private final LocalStorageConfig config;
 
@@ -97,7 +111,7 @@ public class LocalStorageStrategy implements StorageStrategy {
             this.resourceHandlerPath = endpointPath;
         } catch (Exception e) {
             // 避免因运行环境差异导致启动失败
-            log.warn("注册本地存储静态资源映射失败，将继续使用存储功能: platform={}", config.getPlatform(), e);
+            LOGGER.warn("注册本地存储静态资源映射失败，将继续使用存储功能: platform={}", config.getPlatform(), e);
         }
     }
 
@@ -109,7 +123,7 @@ public class LocalStorageStrategy implements StorageStrategy {
         try {
             Files.createDirectories(tempPath);
         } catch (IOException e) {
-            log.error("创建临时目录失败", e);
+            LOGGER.error("创建临时目录失败", e);
         }
     }
 
@@ -176,7 +190,7 @@ public class LocalStorageStrategy implements StorageStrategy {
                 parentDirs.add(filePath.getParent());
             } catch (IOException e) {
                 failedPaths.add(path);
-                log.warn("批量删除本地文件失败: path={}", path, e);
+                LOGGER.warn("批量删除本地文件失败: path={}", path, e);
             }
         }
         // 文件删除后统一尝试清理空目录，避免批量删除过程中的重复递归扫描
@@ -450,7 +464,7 @@ public class LocalStorageStrategy implements StorageStrategy {
             // 清理临时文件
             cleanupTempFiles(bucket, uploadId);
         } catch (Exception e) {
-            log.error("取消分片上传失败: uploadId={}", uploadId, e);
+            LOGGER.error("取消分片上传失败: uploadId={}", uploadId, e);
         }
     }
 
@@ -472,11 +486,11 @@ public class LocalStorageStrategy implements StorageStrategy {
                     try {
                         Files.deleteIfExists(path);
                     } catch (IOException e) {
-                        log.error("删除分片临时文件失败: path={}", path, e);
+                        LOGGER.error("删除分片临时文件失败: path={}", path, e);
                     }
                 }
             } catch (IOException e) {
-                log.error("清理临时文件失败: uploadId={}", uploadId, e);
+                LOGGER.error("清理临时文件失败: uploadId={}", uploadId, e);
             }
         }
     }
@@ -557,7 +571,7 @@ public class LocalStorageStrategy implements StorageStrategy {
             SpringUtils
                 .deRegisterResourceHandler(MapUtil.of(resourceHandlerPath, config.getBucketName()));
         } catch (Exception e) {
-            log.warn("清理本地存储静态资源映射失败: platform={}", config.getPlatform(), e);
+            LOGGER.warn("清理本地存储静态资源映射失败: platform={}", config.getPlatform(), e);
         }
     }
 

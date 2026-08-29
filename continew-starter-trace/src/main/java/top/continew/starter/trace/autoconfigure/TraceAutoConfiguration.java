@@ -51,7 +51,7 @@ import top.continew.starter.trace.handler.TraceIdGenerator;
     havingValue = "true")
 public class TraceAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(TraceAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TraceAutoConfiguration.class);
 
     private final TraceProperties traceProperties;
 
@@ -96,6 +96,6 @@ public class TraceAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Trace' completed initialization.");
+        LOGGER.debug("[ContiNew Starter] - Auto Configuration 'Trace' completed initialization.");
     }
 }

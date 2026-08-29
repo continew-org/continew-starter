@@ -57,7 +57,8 @@ import java.util.Map;
 @Import({MyBatisPlusIdGeneratorConfiguration.class})
 public class MybatisPlusAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(MybatisPlusAutoConfiguration.class);
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(MybatisPlusAutoConfiguration.class);
 
     /**
      * MyBatis Plus 配置
@@ -117,7 +118,7 @@ public class MybatisPlusAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'MyBatis Plus' completed initialization.");
     }
 }

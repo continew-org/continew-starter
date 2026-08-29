@@ -105,7 +105,7 @@ public class MetaUtils {
             String catalog = MetaUtil.getCatalog(conn);
             String schema = MetaUtil.getSchema(conn);
             final DatabaseMetaData metaData = conn.getMetaData();
-            try (final ResultSet rs = metaData.getTables(catalog, schema, tableName, Convert
+            try (ResultSet rs = metaData.getTables(catalog, schema, tableName, Convert
                 .toStrArray(TableType.TABLE))) {
                 if (rs != null) {
                     String name;

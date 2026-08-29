@@ -17,7 +17,16 @@
 package top.continew.starter.license.manager;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.schlichtherle.license.*;
+import de.schlichtherle.license.CipherParam;
+import de.schlichtherle.license.DefaultCipherParam;
+import de.schlichtherle.license.DefaultLicenseParam;
+import de.schlichtherle.license.KeyStoreParam;
+import de.schlichtherle.license.LicenseContent;
+import de.schlichtherle.license.LicenseContentException;
+import de.schlichtherle.license.LicenseManager;
+import de.schlichtherle.license.LicenseNotary;
+import de.schlichtherle.license.LicenseParam;
+import de.schlichtherle.license.NoLicenseInstalledException;
 import de.schlichtherle.xml.GenericCertificate;
 import net.lingala.zip4j.ZipFile;
 import org.slf4j.Logger;
@@ -46,9 +55,9 @@ import java.util.prefs.Preferences;
  */
 public class CustomLicenseManager extends LicenseManager {
 
-    private static final Logger log = LoggerFactory.getLogger(CustomLicenseManager.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CustomLicenseManager.class);
 
-    private static volatile CustomLicenseManager INSTANCE;
+    private static volatile CustomLicenseManager instance;
     private LicenseExtraModel extraModel;
 
     private final LicenseVerifyProperties properties;
@@ -77,14 +86,14 @@ public class CustomLicenseManager extends LicenseManager {
     }
 
     public static CustomLicenseManager getInstance(LicenseVerifyProperties properties) {
-        if (INSTANCE == null) {
+        if (instance == null) {
             synchronized (CustomLicenseManager.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = new CustomLicenseManager(properties);
+                if (instance == null) {
+                    instance = new CustomLicenseManager(properties);
                 }
             }
         }
-        return INSTANCE;
+        return instance;
     }
 
     private void initServerExtraModel() {
@@ -104,7 +113,7 @@ public class CustomLicenseManager extends LicenseManager {
             }
             zipFile.extractAll(outputDir.toAbsolutePath().toString());
         } catch (IOException e) {
-            log.error("解压 clientLicense.zip 出错: {}", e.getMessage(), e);
+            LOGGER.error("解压 clientLicense.zip 出错: {}", e.getMessage(), e);
             throw new LicenseException("解压失败", e);
         }
     }
@@ -119,7 +128,7 @@ public class CustomLicenseManager extends LicenseManager {
             Paths.get(properties.getStorePath(), "clientLicense", "clientConfig.json");
 
         if (!Files.exists(configPath)) {
-            log.warn("配置文件不存在: {}", configPath);
+            LOGGER.warn("配置文件不存在: {}", configPath);
             return null;
         }
 
@@ -127,7 +136,7 @@ public class CustomLicenseManager extends LicenseManager {
             ObjectMapper mapper = new ObjectMapper();
             return mapper.readValue(inputStream, ConfigParam.class);
         } catch (IOException e) {
-            log.error("读取配置文件失败: {}", e.getMessage(), e);
+            LOGGER.error("读取配置文件失败: {}", e.getMessage(), e);
             return null;
         }
     }

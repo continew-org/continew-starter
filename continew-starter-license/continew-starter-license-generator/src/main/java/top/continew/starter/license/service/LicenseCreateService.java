@@ -18,13 +18,24 @@ package top.continew.starter.license.service;
 
 import cn.hutool.core.util.IdUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.schlichtherle.license.*;
+import de.schlichtherle.license.CipherParam;
+import de.schlichtherle.license.DefaultCipherParam;
+import de.schlichtherle.license.DefaultLicenseParam;
+import de.schlichtherle.license.KeyStoreParam;
+import de.schlichtherle.license.LicenseContent;
+import de.schlichtherle.license.LicenseManager;
+import de.schlichtherle.license.LicenseParam;
 import net.lingala.zip4j.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.license.exception.LicenseException;
 import top.continew.starter.license.manager.ServerLicenseManager;
-import top.continew.starter.license.model.*;
+import top.continew.starter.license.model.BuildCreatorResp;
+import top.continew.starter.license.model.ConfigParam;
+import top.continew.starter.license.model.CustomKeyStoreParam;
+import top.continew.starter.license.model.LicenseCreatorParam;
+import top.continew.starter.license.model.LicenseCreatorParamVO;
+import top.continew.starter.license.model.LicenseExtraModel;
 import top.continew.starter.license.util.ExecCmdUtil;
 import top.continew.starter.license.util.ServerInfoUtils;
 
@@ -46,7 +57,7 @@ import java.util.prefs.Preferences;
  */
 public class LicenseCreateService {
 
-    private static final Logger log = LoggerFactory.getLogger(LicenseCreateService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LicenseCreateService.class);
 
     private static volatile LicenseCreateService instance;
 
@@ -96,7 +107,7 @@ public class LicenseCreateService {
             LicenseManager licenseManager = new ServerLicenseManager(licenseParam);
             LicenseContent licenseContent = initLicenseContent(param);
             licenseManager.store(licenseContent, new File(param.getLicensePath()));
-            log.info("{} 证书生成成功 路径: {}", param.getSubject(), param.getLicensePath());
+            LOGGER.info("{} 证书生成成功 路径: {}", param.getSubject(), param.getLicensePath());
             clientZipFile.addFile(param.getLicensePath());
         } catch (Exception e) {
             throw new LicenseException("生成证书失败:" + param.getSubject(), e);

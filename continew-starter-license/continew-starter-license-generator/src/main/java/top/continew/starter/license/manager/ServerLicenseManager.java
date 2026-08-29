@@ -16,7 +16,10 @@
 
 package top.continew.starter.license.manager;
 
-import de.schlichtherle.license.*;
+import de.schlichtherle.license.LicenseContent;
+import de.schlichtherle.license.LicenseManager;
+import de.schlichtherle.license.LicenseNotary;
+import de.schlichtherle.license.LicenseParam;
 import de.schlichtherle.xml.GenericCertificate;
 import top.continew.starter.license.exception.LicenseException;
 
@@ -61,7 +64,7 @@ public class ServerLicenseManager extends LicenseManager {
      *
      * @param content 内容
      * @param notary  公证人
-     * @return {@link byte[] }
+     * @return {@code byte[]} 证书密钥内容
      * @throws Exception 例外
      */
     @Override

@@ -35,7 +35,7 @@ public class CharConstants {
     /**
      * 制表符 {@code '\t'}
      */
-    public static final char TAB = '	';
+    public static final char TAB = '\t';
 
     /**
      * 点 {@code '.'}

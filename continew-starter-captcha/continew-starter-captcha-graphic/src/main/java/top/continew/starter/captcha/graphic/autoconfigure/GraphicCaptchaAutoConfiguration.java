@@ -39,7 +39,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class GraphicCaptchaAutoConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(GraphicCaptchaAutoConfiguration.class);
 
     /**
@@ -53,7 +53,7 @@ public class GraphicCaptchaAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Captcha-Graphic' completed initialization.");
     }
 }

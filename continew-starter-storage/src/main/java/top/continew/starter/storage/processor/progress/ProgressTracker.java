@@ -45,12 +45,22 @@ public class ProgressTracker {
         this.listener = listener;
     }
 
+    /**
+     * 标记上传开始并回调监听器，重复调用不会重复回调
+     */
     public void start() {
         if (started.compareAndSet(false, true) && listener != null) {
             listener.onStart();
         }
     }
 
+    /**
+     * 更新上传进度
+     * <p>
+     * 累计已上传字节数，当百分比变化达到 1% 或字节数变化达到 1MB 阈值时回调监听器，达到 100% 时自动标记完成
+     *
+     * @param bytes 本次新增的已上传字节数
+     */
     public void updateProgress(long bytes) {
         if (completed.get() || listener == null) {
             return;
@@ -93,12 +103,20 @@ public class ProgressTracker {
         }
     }
 
+    /**
+     * 标记上传完成并回调监听器，仅首次调用生效
+     */
     public void complete() {
         if (completed.compareAndSet(false, true) && listener != null) {
             listener.onComplete();
         }
     }
 
+    /**
+     * 上报上传异常并回调监听器
+     *
+     * @param e 上传过程中发生的异常
+     */
     public void error(Exception e) {
         if (listener != null) {
             listener.onError(e);

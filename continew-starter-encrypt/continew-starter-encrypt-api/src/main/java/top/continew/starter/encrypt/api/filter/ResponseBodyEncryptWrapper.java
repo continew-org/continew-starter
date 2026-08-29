@@ -30,6 +30,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * 响应体加密包装类
@@ -47,7 +48,8 @@ public class ResponseBodyEncryptWrapper extends HttpServletResponseWrapper {
         super(response);
         this.byteArrayOutputStream = new ByteArrayOutputStream();
         this.servletOutputStream = this.getOutputStream();
-        this.printWriter = new PrintWriter(new OutputStreamWriter(byteArrayOutputStream));
+        this.printWriter = new PrintWriter(new OutputStreamWriter(byteArrayOutputStream,
+            StandardCharsets.UTF_8));
     }
 
     @Override
@@ -77,7 +79,7 @@ public class ResponseBodyEncryptWrapper extends HttpServletResponseWrapper {
 
     public String getContent() throws IOException {
         flushBuffer();
-        return byteArrayOutputStream.toString();
+        return byteArrayOutputStream.toString(StandardCharsets.UTF_8);
     }
 
     /**

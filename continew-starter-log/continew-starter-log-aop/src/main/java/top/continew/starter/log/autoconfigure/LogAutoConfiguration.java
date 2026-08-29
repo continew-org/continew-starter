@@ -51,7 +51,7 @@ import top.continew.starter.log.model.LogProperties;
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class LogAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(LogAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogAutoConfiguration.class);
     private final LogProperties logProperties;
     private final LogHandler logHandler;
 
@@ -116,6 +116,6 @@ public class LogAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Log-AOP' completed initialization.");
+        LOGGER.debug("[ContiNew Starter] - Auto Configuration 'Log-AOP' completed initialization.");
     }
 }

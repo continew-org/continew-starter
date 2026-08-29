@@ -38,7 +38,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 class TaskSchedulingConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(TaskSchedulingConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskSchedulingConfiguration.class);
 
     @Bean
     public ThreadPoolTaskSchedulerCustomizer threadPoolTaskSchedulerCustomizer(
@@ -50,7 +50,7 @@ class TaskSchedulingConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'TaskScheduler' completed initialization.");
     }
 }

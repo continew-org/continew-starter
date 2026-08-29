@@ -33,9 +33,16 @@ import top.continew.starter.storage.annotation.PlatformProcessor;
 import top.continew.starter.storage.autoconfigure.properties.StorageProperties;
 import top.continew.starter.storage.core.FileStorageService;
 import top.continew.starter.storage.engine.StorageDecoratorManager;
+import top.continew.starter.storage.processor.preprocess.FileNameGenerator;
+import top.continew.starter.storage.processor.preprocess.FilePathGenerator;
+import top.continew.starter.storage.processor.preprocess.FileValidator;
+import top.continew.starter.storage.processor.preprocess.ThumbnailProcessor;
+import top.continew.starter.storage.processor.preprocess.impl.DefaultFileNameGenerator;
+import top.continew.starter.storage.processor.preprocess.impl.DefaultFilePathGenerator;
+import top.continew.starter.storage.processor.preprocess.impl.DefaultThumbnailProcessor;
+import top.continew.starter.storage.processor.preprocess.impl.FileSizeValidator;
+import top.continew.starter.storage.processor.preprocess.impl.FileTypeValidator;
 import top.continew.starter.storage.processor.registry.ProcessorRegistry;
-import top.continew.starter.storage.processor.preprocess.*;
-import top.continew.starter.storage.processor.preprocess.impl.*;
 import top.continew.starter.storage.engine.StorageStrategyRegistrar;
 import top.continew.starter.storage.engine.StorageStrategyRouter;
 import top.continew.starter.storage.service.FileProcessor;
@@ -56,7 +63,7 @@ import java.util.Map;
 @Import({OssStorageAutoConfiguration.class, LocalStorageAutoConfiguration.class})
 public class StorageAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(StorageAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StorageAutoConfiguration.class);
 
     private final StorageProperties properties;
     private final ApplicationContext applicationContext;
@@ -190,6 +197,6 @@ public class StorageAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'Storage' completed initialization.");
+        LOGGER.debug("[ContiNew Starter] - Auto Configuration 'Storage' completed initialization.");
     }
 }

@@ -56,7 +56,7 @@ import java.util.Properties;
 @Import({BehaviorCaptchaCacheConfiguration.class})
 public class BehaviorCaptchaAutoConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(BehaviorCaptchaAutoConfiguration.class);
 
     /**
@@ -133,14 +133,14 @@ public class BehaviorCaptchaAutoConfiguration {
                 imgMap.put(imageName, Base64.encode(imageValue));
             }
         } catch (Exception e) {
-            log.error("读取路径为 [{}] 下的图片文件失败", path, e);
+            LOGGER.error("读取路径为 [{}] 下的图片文件失败", path, e);
         }
         return imgMap;
     }
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Captcha-Behavior' completed initialization.");
     }
 }

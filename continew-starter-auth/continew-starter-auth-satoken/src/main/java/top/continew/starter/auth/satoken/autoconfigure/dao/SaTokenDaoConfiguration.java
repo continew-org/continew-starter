@@ -40,7 +40,7 @@ import org.springframework.core.ResolvableType;
 @Configuration(proxyBeanMethods = false)
 public class SaTokenDaoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(SaTokenDaoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SaTokenDaoConfiguration.class);
 
     /**
      * 使用内存
@@ -53,7 +53,7 @@ public class SaTokenDaoConfiguration {
 
         @Bean
         public SaTokenDao saTokenDao() {
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Default' completed initialization.");
             return new SaTokenDaoDefaultImpl();
         }
@@ -70,7 +70,7 @@ public class SaTokenDaoConfiguration {
 
         @Bean
         public SaTokenDao saTokenDao(RedissonClient redissonClient) {
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Redis' completed initialization.");
             return new SaTokenDaoForRedisson(redissonClient);
         }
@@ -86,9 +86,9 @@ public class SaTokenDaoConfiguration {
         @Bean
         @ConditionalOnMissingBean
         public SaTokenDao saTokenDao() {
-            if (log.isErrorEnabled()) {
-                log.error(
-                    "[ContiNew Starter] - When 'sa-token.extension.dao.type' is 'custom', you must provide a bean of type '{}' in your configuration.",
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error(
+                    "[ContiNew Starter] - When 'sa-token.extension.dao.type' is 'custom', you must provide a bean of type '{}'.",
                     ResolvableType
                         .forClass(SaTokenDao.class));
             }
@@ -97,7 +97,7 @@ public class SaTokenDaoConfiguration {
 
         @PostConstruct
         public void postConstruct() {
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'SaToken-Dao-Custom' completed initialization.");
         }
     }

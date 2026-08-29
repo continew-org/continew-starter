@@ -47,7 +47,7 @@ import java.util.Map;
     name = PropertiesConstants.ENABLED, havingValue = "true")
 public class PasswordEncoderAutoConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(PasswordEncoderAutoConfiguration.class);
 
     /**
@@ -76,7 +76,7 @@ public class PasswordEncoderAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Encrypt-Password Encoder' completed initialization.");
     }
 }

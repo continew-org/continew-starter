@@ -17,8 +17,11 @@
 package top.continew.starter.extension.crud.annotation;
 
 import top.continew.starter.extension.crud.enums.Api;
-
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * CRUD（增删改查）请求映射器注解

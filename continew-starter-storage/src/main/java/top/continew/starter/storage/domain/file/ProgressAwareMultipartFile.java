@@ -21,7 +21,11 @@ import top.continew.starter.storage.processor.progress.ProgressInputStream;
 import top.continew.starter.storage.processor.progress.ProgressTracker;
 import top.continew.starter.storage.processor.progress.UploadProgressListener;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * 进度监听 MultipartFile 包装器
@@ -36,7 +40,9 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
     private volatile boolean progressEnabled = false;
     private final Object progressLock = new Object();
 
-    // 用于区分不同的读取阶段
+    /**
+     * 读取阶段（用于区分不同的读取阶段）
+     */
     public enum ReadPhase {
         VALIDATION, // 验证阶段
         THUMBNAIL, // 缩略图生成

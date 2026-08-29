@@ -44,7 +44,8 @@ import top.continew.starter.ratelimiter.generator.RateLimiterNameGenerator;
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class RateLimiterAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(RateLimiterAutoConfiguration.class);
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(RateLimiterAutoConfiguration.class);
 
     /**
      * 限流器切面
@@ -67,7 +68,7 @@ public class RateLimiterAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'RateLimiter' completed initialization.");
     }
 }

@@ -43,7 +43,7 @@ import java.time.Instant;
  */
 public class LogInterceptor implements HandlerInterceptor {
 
-    private static final Logger log = LoggerFactory.getLogger(LogInterceptor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogInterceptor.class);
     private final LogProperties logProperties;
     private final LogHandler logHandler;
     private final LogDao logDao;
@@ -100,7 +100,7 @@ public class LogInterceptor implements HandlerInterceptor {
                     .getIncludes(), targetMethod, targetClass);
             logDao.add(logRecord);
         } catch (Exception ex) {
-            log.error("Logging http log occurred an error: {}.", ex.getMessage(), ex);
+            LOGGER.error("Logging http log occurred an error: {}.", ex.getMessage(), ex);
             throw ex;
         } finally {
             logTtl.remove();

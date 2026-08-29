@@ -49,7 +49,7 @@ import java.time.Instant;
 @Aspect
 public class LogAspect {
 
-    private static final Logger log = LoggerFactory.getLogger(LogAspect.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LogAspect.class);
     private final LogProperties logProperties;
     private final LogHandler logHandler;
     private final LogDao logDao;
@@ -106,7 +106,7 @@ public class LogAspect {
                 }
                 logDao.add(logRecord);
             } catch (Exception e) {
-                log.error("Logging http log occurred an error: {}.", e.getMessage(), e);
+                LOGGER.error("Logging http log occurred an error: {}.", e.getMessage(), e);
                 throw e;
             }
         }

@@ -53,6 +53,12 @@ public enum MqttQoS {
         return value;
     }
 
+    /**
+     * 根据 QoS 等级值获取枚举
+     *
+     * @param value QoS 等级值
+     * @return MqttQoS 枚举
+     */
     public static MqttQoS valueOf(int value) {
         return switch (value) {
             case 0 -> AT_MOST_ONCE;

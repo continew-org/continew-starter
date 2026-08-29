@@ -16,8 +16,18 @@
 
 package top.continew.starter.data.datapermission;
 
-import org.aspectj.lang.annotation.*;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.Pointcut;
 
+/**
+ * 数据权限切面
+ *
+ * @author Charles7c
+ * @since 1.1.0
+ */
 @Aspect
 public class DataPermissionAspect {
 

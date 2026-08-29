@@ -19,7 +19,11 @@ package top.continew.starter.security.xss.filter;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.text.CharSequenceUtil;
-import cn.hutool.core.util.*;
+import cn.hutool.core.util.ArrayUtil;
+import cn.hutool.core.util.CharsetUtil;
+import cn.hutool.core.util.EscapeUtil;
+import cn.hutool.core.util.ReUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HtmlUtil;
 import cn.hutool.http.Method;
 import jakarta.servlet.ReadListener;
@@ -34,6 +38,7 @@ import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -128,7 +133,8 @@ public class XssServletRequestWrapper extends HttpServletRequestWrapper {
     }
 
     static ServletInputStream getServletInputStream(String body) {
-        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body.getBytes());
+        final ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(body
+            .getBytes(StandardCharsets.UTF_8));
         return new ServletInputStream() {
 
             @Override

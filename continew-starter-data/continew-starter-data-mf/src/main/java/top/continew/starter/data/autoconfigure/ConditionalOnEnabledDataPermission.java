@@ -18,8 +18,11 @@ package top.continew.starter.data.autoconfigure;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import top.continew.starter.core.constant.PropertiesConstants;
-
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 是否启用数据权限注解

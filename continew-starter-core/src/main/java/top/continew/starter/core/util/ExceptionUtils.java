@@ -34,7 +34,7 @@ import java.util.function.Function;
  */
 public class ExceptionUtils {
 
-    private static final Logger log = LoggerFactory.getLogger(ExceptionUtils.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionUtils.class);
 
     private ExceptionUtils() {
     }
@@ -60,7 +60,7 @@ public class ExceptionUtils {
             }
         }
         if (throwable != null) {
-            log.error(throwable.getMessage(), throwable);
+            LOGGER.error(throwable.getMessage(), throwable);
         }
     }
 
@@ -110,25 +110,6 @@ public class ExceptionUtils {
     }
 
     /**
-     * 如果有异常，抛出自定义异常
-     *
-     * @param exSupplier      可能会出现异常的方法执行
-     * @param exceptionMapper 异常转换函数
-     * @param <T>             返回值类型
-     * @param <E>             自定义异常类型
-     * @return 执行结果
-     * @throws E 自定义异常
-     */
-    public static <T, E extends Exception> T exToThrow(ExSupplier<T> exSupplier,
-        Function<Exception, E> exceptionMapper) throws E {
-        try {
-            return exSupplier.get();
-        } catch (Exception e) {
-            throw exceptionMapper.apply(e);
-        }
-    }
-
-    /**
      * 如果有异常，执行异常处理，返回默认值
      *
      * @param exSupplier   可能会出现异常的方法执行
@@ -146,6 +127,25 @@ public class ExceptionUtils {
                 exConsumer.accept(e);
             }
             return defaultValue;
+        }
+    }
+
+    /**
+     * 如果有异常，抛出自定义异常
+     *
+     * @param exSupplier      可能会出现异常的方法执行
+     * @param exceptionMapper 异常转换函数
+     * @param <T>             返回值类型
+     * @param <E>             自定义异常类型
+     * @return 执行结果
+     * @throws E 自定义异常
+     */
+    public static <T, E extends Exception> T exToThrow(ExSupplier<T> exSupplier,
+        Function<Exception, E> exceptionMapper) throws E {
+        try {
+            return exSupplier.get();
+        } catch (Exception e) {
+            throw exceptionMapper.apply(e);
         }
     }
 

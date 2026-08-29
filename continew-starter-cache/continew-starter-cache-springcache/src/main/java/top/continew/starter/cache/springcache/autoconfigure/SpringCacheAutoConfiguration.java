@@ -50,7 +50,8 @@ import java.util.Map;
     factory = GeneralPropertySourceFactory.class)
 public class SpringCacheAutoConfiguration implements CachingConfigurer {
 
-    private static final Logger log = LoggerFactory.getLogger(SpringCacheAutoConfiguration.class);
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(SpringCacheAutoConfiguration.class);
 
     private final ObjectMapper objectMapper;
 
@@ -108,7 +109,7 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Spring Cache' completed initialization.");
     }
 }

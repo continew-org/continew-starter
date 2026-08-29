@@ -17,7 +17,12 @@
 package top.continew.starter.security.xss.filter;
 
 import cn.hutool.core.collection.CollUtil;
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.FilterConfig;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +40,7 @@ import java.util.List;
  */
 public class XssFilter implements Filter {
 
-    private static final Logger log = LoggerFactory.getLogger(XssFilter.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(XssFilter.class);
 
     private final XssProperties xssProperties;
 
@@ -45,7 +50,7 @@ public class XssFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Web-XssFilter' completed initialization.");
     }
 

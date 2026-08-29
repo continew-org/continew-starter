@@ -17,7 +17,11 @@
 package top.continew.starter.storage.processor.registry;
 
 import top.continew.starter.storage.domain.model.context.UploadContext;
-import top.continew.starter.storage.processor.preprocess.*;
+import top.continew.starter.storage.processor.preprocess.FileNameGenerator;
+import top.continew.starter.storage.processor.preprocess.FilePathGenerator;
+import top.continew.starter.storage.processor.preprocess.FileValidator;
+import top.continew.starter.storage.processor.preprocess.ThumbnailProcessor;
+import top.continew.starter.storage.processor.preprocess.UploadCompleteProcessor;
 import top.continew.starter.storage.service.FileProcessor;
 
 import java.util.ArrayList;
@@ -67,16 +71,21 @@ public class ProcessorRegistry {
      * 获取处理器类型
      */
     private Class<?> getProcessorType(FileProcessor processor) {
-        if (processor instanceof ThumbnailProcessor)
+        if (processor instanceof ThumbnailProcessor) {
             return ThumbnailProcessor.class;
-        if (processor instanceof FileValidator)
+        }
+        if (processor instanceof FileValidator) {
             return FileValidator.class;
-        if (processor instanceof FileNameGenerator)
+        }
+        if (processor instanceof FileNameGenerator) {
             return FileNameGenerator.class;
-        if (processor instanceof FilePathGenerator)
+        }
+        if (processor instanceof FilePathGenerator) {
             return FilePathGenerator.class;
-        if (processor instanceof UploadCompleteProcessor)
+        }
+        if (processor instanceof UploadCompleteProcessor) {
             return UploadCompleteProcessor.class;
+        }
         return FileProcessor.class;
     }
 

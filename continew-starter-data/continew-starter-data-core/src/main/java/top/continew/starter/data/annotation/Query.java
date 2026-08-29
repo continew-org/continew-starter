@@ -19,7 +19,11 @@ package top.continew.starter.data.annotation;
 import top.continew.starter.data.enums.LogicalRelation;
 import top.continew.starter.data.enums.QueryType;
 
-import java.lang.annotation.*;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
  * 查询注解

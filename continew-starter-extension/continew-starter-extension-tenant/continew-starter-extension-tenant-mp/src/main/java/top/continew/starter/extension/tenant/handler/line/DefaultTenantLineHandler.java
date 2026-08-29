@@ -35,7 +35,7 @@ import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
  */
 public class DefaultTenantLineHandler implements TenantLineHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultTenantLineHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultTenantLineHandler.class);
     private final TenantProperties tenantProperties;
 
     public DefaultTenantLineHandler(TenantProperties tenantProperties) {
@@ -48,7 +48,7 @@ public class DefaultTenantLineHandler implements TenantLineHandler {
         if (tenantId != null) {
             return new LongValue(tenantId);
         }
-        log.warn("Tenant ID not found in current context.");
+        LOGGER.warn("Tenant ID not found in current context.");
         return new NullValue();
     }
 

@@ -26,7 +26,28 @@ import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.AbortMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.CompletedMultipartUpload;
+import software.amazon.awssdk.services.s3.model.CompletedPart;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
+import software.amazon.awssdk.services.s3.model.CreateMultipartUploadResponse;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.ListPartsRequest;
+import software.amazon.awssdk.services.s3.model.ListPartsResponse;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.UploadPartRequest;
+import software.amazon.awssdk.services.s3.model.UploadPartResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -51,7 +72,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -62,7 +88,7 @@ import java.util.stream.Collectors;
  */
 public class OssStorageStrategy implements StorageStrategy {
 
-    private static final Logger log = LoggerFactory.getLogger(OssStorageStrategy.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(OssStorageStrategy.class);
 
     private final S3Client s3Client;
     private final S3Presigner s3Presigner;
@@ -552,7 +578,7 @@ public class OssStorageStrategy implements StorageStrategy {
                 try {
                     Files.deleteIfExists(tempFile);
                 } catch (Exception e) {
-                    log.warn("删除临时分片文件失败: {}", tempFile, e);
+                    LOGGER.warn("删除临时分片文件失败: {}", tempFile, e);
                 }
             }
         }
@@ -614,7 +640,7 @@ public class OssStorageStrategy implements StorageStrategy {
         try {
             String key = normalizeKey(path);
             if (StrUtil.isBlank(key)) {
-                log.warn("无效的uploadId，可能已经完成或取消: {}", uploadId);
+                LOGGER.warn("无效的uploadId，可能已经完成或取消: {}", uploadId);
                 return;
             }
 
@@ -628,7 +654,7 @@ public class OssStorageStrategy implements StorageStrategy {
             // 执行取消
             s3Client.abortMultipartUpload(request);
         } catch (Exception e) {
-            log.error("取消分片上传失败: uploadId={}", uploadId, e);
+            LOGGER.error("取消分片上传失败: uploadId={}", uploadId, e);
             throw new StorageException("S3取消分片上传失败: " + e.getMessage(), e);
         }
     }

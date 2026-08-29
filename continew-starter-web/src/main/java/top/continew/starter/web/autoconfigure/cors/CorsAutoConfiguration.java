@@ -45,7 +45,7 @@ import top.continew.starter.core.constant.StringConstants;
 @EnableConfigurationProperties(CorsProperties.class)
 public class CorsAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(CorsAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CorsAutoConfiguration.class);
 
     /**
      * 跨域过滤器
@@ -83,7 +83,7 @@ public class CorsAutoConfiguration {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration(StringConstants.PATH_PATTERN, config);
         CorsFilter corsFilter = new CorsFilter(source);
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Web-CorsFilter' completed initialization.");
         return corsFilter;
     }

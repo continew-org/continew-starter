@@ -41,7 +41,7 @@ import java.util.Collection;
  */
 public class FileWrapper {
 
-    private static final Logger log = LoggerFactory.getLogger(FileWrapper.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(FileWrapper.class);
 
     private MultipartFile multipartFile;
     private byte[] bytes;
@@ -93,6 +93,46 @@ public class FileWrapper {
         wrapper.inputStream = inputStream;
         wrapper.size = -1;
         return wrapper;
+    }
+
+    /**
+     * 从 Object 创建（智能识别）
+     */
+    public static FileWrapper of(Object obj) {
+        return of(obj, null, null);
+    }
+
+    /**
+     * 从 Object 创建，可指定文件名和类型
+     */
+    public static FileWrapper of(Object obj, String filename, String contentType) {
+        if (obj == null) {
+            throw new StorageException("对象不能为空");
+        }
+
+        // 如果是 MultipartFile，直接处理
+        if (obj instanceof MultipartFile) {
+            return of((MultipartFile) obj);
+        }
+
+        // 如果是 byte[]
+        if (obj instanceof byte[]) {
+            return of((byte[]) obj, filename, contentType);
+        }
+
+        // 如果是 InputStream
+        if (obj instanceof InputStream) {
+            return of((InputStream) obj, filename, contentType);
+        }
+
+        // 其他对象，转换为 JSON
+        String json = convertToJson(obj);
+        byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
+        String finalFilename = filename != null ? filename : "data.json";
+        String finalContentType =
+            contentType != null ? contentType : MediaType.APPLICATION_JSON_VALUE;
+
+        return of(jsonBytes, finalFilename, finalContentType);
     }
 
     /**
@@ -150,7 +190,7 @@ public class FileWrapper {
                 }
             }
         } catch (Exception e) {
-            log.debug("从请求中获取文件名时发生异常: {}", e.getMessage());
+            LOGGER.debug("从请求中获取文件名时发生异常: {}", e.getMessage());
         }
         return null;
     }
@@ -183,49 +223,9 @@ public class FileWrapper {
                 }
             }
         } catch (Exception e) {
-            log.debug("从请求中获取 ContentType 时发生异常: {}", e.getMessage());
+            LOGGER.debug("从请求中获取 ContentType 时发生异常: {}", e.getMessage());
         }
         return null;
-    }
-
-    /**
-     * 从 Object 创建（智能识别）
-     */
-    public static FileWrapper of(Object obj) {
-        return of(obj, null, null);
-    }
-
-    /**
-     * 从 Object 创建，可指定文件名和类型
-     */
-    public static FileWrapper of(Object obj, String filename, String contentType) {
-        if (obj == null) {
-            throw new StorageException("对象不能为空");
-        }
-
-        // 如果是 MultipartFile，直接处理
-        if (obj instanceof MultipartFile) {
-            return of((MultipartFile) obj);
-        }
-
-        // 如果是 byte[]
-        if (obj instanceof byte[]) {
-            return of((byte[]) obj, filename, contentType);
-        }
-
-        // 如果是 InputStream
-        if (obj instanceof InputStream) {
-            return of((InputStream) obj, filename, contentType);
-        }
-
-        // 其他对象，转换为 JSON
-        String json = convertToJson(obj);
-        byte[] jsonBytes = json.getBytes(StandardCharsets.UTF_8);
-        String finalFilename = filename != null ? filename : "data.json";
-        String finalContentType =
-            contentType != null ? contentType : MediaType.APPLICATION_JSON_VALUE;
-
-        return of(jsonBytes, finalFilename, finalContentType);
     }
 
     /**

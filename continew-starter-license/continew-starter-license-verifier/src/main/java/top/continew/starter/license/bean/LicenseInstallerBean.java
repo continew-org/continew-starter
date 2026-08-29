@@ -35,7 +35,7 @@ import java.nio.file.Paths;
  */
 public class LicenseInstallerBean {
 
-    private static final Logger log = LoggerFactory.getLogger(LicenseInstallerBean.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LicenseInstallerBean.class);
 
     private final LicenseVerifyProperties properties;
     private LicenseManager licenseManager;
@@ -54,7 +54,7 @@ public class LicenseInstallerBean {
             File licenseFile =
                 Paths.get(properties.getStorePath(), "clientLicense", "license.lic").toFile();
             LicenseContent licenseContent = licenseManager.install(licenseFile);
-            log.info("证书认证通过，安装成功: {}", licenseContent.getSubject());
+            LOGGER.info("证书认证通过，安装成功: {}", licenseContent.getSubject());
         } catch (Exception e) {
             throw new LicenseException("证书认证失败", e);
         }
@@ -67,9 +67,9 @@ public class LicenseInstallerBean {
         if (licenseManager != null) {
             try {
                 licenseManager.uninstall();
-                log.info("证书已卸载");
+                LOGGER.info("证书已卸载");
             } catch (Exception e) {
-                log.warn("卸载证书失败", e);
+                LOGGER.warn("卸载证书失败", e);
             }
         }
     }
@@ -81,7 +81,7 @@ public class LicenseInstallerBean {
         if (licenseManager != null) {
             try {
                 licenseManager.verify();
-                log.info("证书验证成功");
+                LOGGER.info("证书验证成功");
             } catch (Exception e) {
                 throw new LicenseException("证书认证失败", e);
             }

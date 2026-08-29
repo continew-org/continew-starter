@@ -37,7 +37,7 @@ import top.continew.starter.extension.crud.aop.CrudApiAnnotationInterceptor;
 @EnableConfigurationProperties(CrudProperties.class)
 public class CrudApiAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(CrudApiAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(CrudApiAutoConfiguration.class);
 
     /**
      * CRUD API 注解通知
@@ -60,7 +60,7 @@ public class CrudApiAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Extension-CRUD API' completed initialization.");
     }
 }

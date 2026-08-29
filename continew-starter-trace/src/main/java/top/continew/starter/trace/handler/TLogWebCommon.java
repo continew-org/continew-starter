@@ -38,6 +38,11 @@ public class TLogWebCommon extends TLogRPCHandler {
 
     private static volatile TLogWebCommon tLogWebCommon;
 
+    /**
+     * 获取单例实例
+     *
+     * @return TLogWebCommon 实例
+     */
     public static TLogWebCommon loadInstance() {
         if (tLogWebCommon == null) {
             synchronized (TLogWebCommon.class) {
@@ -49,6 +54,11 @@ public class TLogWebCommon extends TLogRPCHandler {
         return tLogWebCommon;
     }
 
+    /**
+     * 处理服务提供方接收请求时的链路信息传递
+     *
+     * @param request 请求对象
+     */
     public void preHandle(HttpServletRequest request) {
         String traceId = request.getHeader(TLogConstants.TLOG_TRACE_KEY);
         String spanId = request.getHeader(TLogConstants.TLOG_SPANID_KEY);

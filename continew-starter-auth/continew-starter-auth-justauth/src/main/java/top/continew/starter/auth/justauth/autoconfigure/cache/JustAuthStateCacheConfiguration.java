@@ -43,7 +43,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
 @Configuration(proxyBeanMethods = false)
 public class JustAuthStateCacheConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(JustAuthStateCacheConfiguration.class);
 
     /**
@@ -57,7 +57,7 @@ public class JustAuthStateCacheConfiguration {
 
         @Bean
         public AuthStateCache authStateCache() {
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'JustAuth-StateCache-Default' completed initialization.");
             return AuthDefaultStateCache.INSTANCE;
         }
@@ -75,7 +75,7 @@ public class JustAuthStateCacheConfiguration {
 
         @Bean
         public AuthStateCache authStateCache(JustAuthProperties properties) {
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'JustAuth-StateCache-Redis' completed initialization.");
             return new RedisAuthStateCache(properties.getCache());
         }
@@ -92,9 +92,9 @@ public class JustAuthStateCacheConfiguration {
         @Bean
         @ConditionalOnMissingBean(AuthStateCache.class)
         public AuthStateCache authStateCache() {
-            if (log.isErrorEnabled()) {
-                log.error(
-                    "[ContiNew Starter] - When 'continew-starter.justauth.cache.type' is 'custom', you must provide a bean of type '{}' in your configuration.",
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error(
+                    "[ContiNew Starter] - When 'continew-starter.justauth.cache.type' is 'custom', you must provide a bean of type '{}'.",
                     ResolvableType
                         .forClass(AuthStateCache.class));
             }
@@ -103,7 +103,7 @@ public class JustAuthStateCacheConfiguration {
 
         @PostConstruct
         public void postConstruct() {
-            log.debug(
+            LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'JustAuth-StateCache-Custom' completed initialization.");
         }
     }

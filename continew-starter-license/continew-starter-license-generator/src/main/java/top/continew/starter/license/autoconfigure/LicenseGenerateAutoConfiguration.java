@@ -40,7 +40,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class LicenseGenerateAutoConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(LicenseGenerateAutoConfiguration.class);
 
     /**
@@ -54,7 +54,7 @@ public class LicenseGenerateAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'License-Generator' completed initialization.");
     }
 }

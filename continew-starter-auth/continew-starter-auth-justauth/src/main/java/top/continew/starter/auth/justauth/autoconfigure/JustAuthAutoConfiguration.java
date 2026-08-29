@@ -43,7 +43,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
 @Import({JustAuthStateCacheConfiguration.class})
 public class JustAuthAutoConfiguration {
 
-    private static final Logger log = LoggerFactory.getLogger(JustAuthAutoConfiguration.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JustAuthAutoConfiguration.class);
 
     /**
      * AuthRequest 工厂配置
@@ -56,6 +56,7 @@ public class JustAuthAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug("[ContiNew Starter] - Auto Configuration 'JustAuth' completed initialization.");
+        LOGGER
+            .debug("[ContiNew Starter] - Auto Configuration 'JustAuth' completed initialization.");
     }
 }

@@ -32,7 +32,7 @@ import java.util.List;
  * Excel List 集合转换器
  *
  * <p>
- * 仅适合 List<基本类型> <=> xxx,xxx 转换
+ * 仅适合 {@code List<基本类型> <=> xxx,xxx} 转换
  * </p>
  *
  * @author Charles7c

@@ -39,7 +39,7 @@ import top.continew.starter.security.sensitivewords.service.SensitiveWordsServic
 @EnableConfigurationProperties(SensitiveWordsProperties.class)
 public class SensitiveWordsAutoConfiguration {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
         LoggerFactory.getLogger(SensitiveWordsAutoConfiguration.class);
 
     /**
@@ -62,7 +62,7 @@ public class SensitiveWordsAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
-        log.debug(
+        LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Security-Sensitive Words' completed initialization.");
     }
 }
