@@ -18,7 +18,7 @@
     <dependencies>
         <!-- 缓存模块 - Redisson -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-cache-redisson</artifactId>
         </dependency>
 

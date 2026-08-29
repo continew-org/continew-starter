@@ -18,13 +18,13 @@
     <dependencies>
         <!-- 数据权限 - 核心模块 -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-extension-datapermission-core</artifactId>
         </dependency>
 
         <!-- 数据访问模块 - 核心模块 -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-data-core</artifactId>
         </dependency>
 

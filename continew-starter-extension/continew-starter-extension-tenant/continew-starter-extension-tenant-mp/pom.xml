@@ -18,7 +18,7 @@
     <dependencies>
         <!-- 租户 - 核心模块 -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-extension-tenant-core</artifactId>
         </dependency>
 

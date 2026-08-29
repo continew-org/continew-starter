@@ -18,25 +18,25 @@
     <dependencies>
         <!-- API 文档模块 -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-api-doc</artifactId>
         </dependency>
 
         <!-- Web 模块 -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-web</artifactId>
         </dependency>
 
         <!-- 数据访问模块 - 核心模块 -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-data-core</artifactId>
         </dependency>
 
         <!-- Excel 文件处理模块 - FastExcel -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-excel-fastexcel</artifactId>
         </dependency>
     </dependencies>

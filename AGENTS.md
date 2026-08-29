@@ -7,6 +7,7 @@
 - **不得以 AI 身份在 Issue 或 PR 上发表评论**。讨论区只属于人类。
 - **先讨论再实现**：非平凡改动（如新功能、重构）开工前，先在 Issue 评论中与维护者就实现方向达成一致。
 - **依赖版本只改根父 POM**：修改依赖版本只能在 `continew-starter-dependencies/pom.xml` 的版本属性中进行，禁止在各模块 pom.xml 中硬编码版本号。
+- **内部模块依赖统一写 `${project.groupId}`**：模块 POM 与 BOM 中的内部依赖 groupId 一律使用 `${project.groupId}`；版本由 BOM（`${revision}`）统一供给，模块 POM 免写 version；`<parent>` 与项目自身坐标保持字面量。
 - **新增模块需在三处注册**：项目 BOM（`continew-starter-bom/pom.xml`）、聚合 POM 的 `<modules>`（`pom.xml`）；若模块引入配置属性，还须在 `PropertiesConstants` 中定义前缀常量。
 - **自动配置类必须注册到 `AutoConfiguration.imports`**：未注册的配置类不会被加载（参见[配置与自动配置规范](#配置与自动配置规范)）。
 - **披露 AI 使用**：当提交中较大部分由 AI 生成时，请在 commit message 末尾追加 trailer，注明实际使用的智能体，例如：

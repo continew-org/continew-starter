@@ -18,7 +18,7 @@
     <dependencies>
         <!-- License 模块 - 核心模块 -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-license-core</artifactId>
         </dependency>
     </dependencies>

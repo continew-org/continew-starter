@@ -18,7 +18,7 @@
     <dependencies>
         <!-- 加密模块 - 核心模块 -->
         <dependency>
-            <groupId>top.continew.starter</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-encrypt-core</artifactId>
         </dependency>
 
