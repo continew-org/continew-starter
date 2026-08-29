@@ -9,6 +9,9 @@
 <a href="https://github.com/continew-org/continew-starter" title="Open JDK" target="_blank">
 <img src="https://img.shields.io/badge/Open JDK-17-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
 </a>
+<a href="https://github.com/continew-org/continew-starter/actions/workflows/ci.yml" title="CI" target="_blank">
+<img src="https://github.com/continew-org/continew-starter/actions/workflows/ci.yml/badge.svg?branch=dev" alt="CI" />
+</a>
 <a href="https://app.codacy.com/gh/continew-org/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" title="Codacy" target="_blank">
 <img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy" />
 </a>
@@ -74,6 +77,15 @@ ContiNew Starter 将脚手架项目中的通用基础配置进行封装与深度
 | GitHub  | https://github.com/continew-org/continew-starter |
 | AtomGit | https://atomgit.com/continew/continew-starter    |
 | Gitee   | https://gitee.com/continew/continew-starter      |
+
+## OpenContiNew 生态
+
+ContiNew 系列项目均由 OpenContiNew 开源社区维护，除本项目外还包括：
+
+| 项目 | 简介 |
+|:-----|:-----|
+| [ContiNew Admin](https://github.com/continew-org/continew-admin) | 持续迭代优化的前后端分离中后台管理系统框架，开箱即用，ContiNew Starter 的通用基础能力正是源自该项目 |
+| [ContiNew Admin UI](https://github.com/continew-org/continew-admin-ui) | ContiNew Admin 前端适配项目 |
 
 ## 像数1，2，3一样容易
 
@@ -148,9 +160,11 @@ continew-starter.web:
 
 ```
 continew-starter
+├─ continew-starter-dependencies（根父 POM：第三方依赖版本统一管理）
+├─ continew-starter-bom（项目 BOM：内部模块版本统一管理）
 ├─ continew-starter-core（核心模块：包含线程池等自动配置）
 ├─ continew-starter-json（JSON 模块）
-│  └─ continew-starter-json-jackson
+│  └─ continew-starter-json-jackson（Jackson）
 ├─ continew-starter-api-doc（接口文档模块：Spring Doc + NextDoc4j）
 ├─ continew-starter-validation（校验模块：Hibernate Validator）
 ├─ continew-starter-web（Web 开发模块：包含跨域、全局异常+响应、链路追踪等自动配置）
@@ -168,7 +182,7 @@ continew-starter
 ├─ continew-starter-encrypt（加密模块）
 │  ├─ continew-starter-encrypt-core（核心模块）
 │  ├─ continew-starter-encrypt-field（字段加密）
-│  └─ continew-starter-encrypt-api（API 加密）
+│  ├─ continew-starter-encrypt-api（API 加密）
 │  └─ continew-starter-encrypt-password-encoder（密码编码器）
 ├─ continew-starter-security（安全模块）
 │  ├─ continew-starter-security-mask（脱敏：JSON 数据脱敏）
@@ -182,7 +196,8 @@ continew-starter
 │  └─ continew-starter-captcha-behavior（动态验证码）
 ├─ continew-starter-messaging（消息模块）
 │  ├─ continew-starter-messaging-mail（邮件）
-│  └─ continew-starter-messaging-websocket（WebSocket）
+│  ├─ continew-starter-messaging-websocket（WebSocket）
+│  └─ continew-starter-messaging-mqtt（MQTT）
 ├─ continew-starter-log（日志模块）
 │  ├─ continew-starter-log-core（核心模块）
 │  ├─ continew-starter-log-aop（基于 AOP 实现）
@@ -191,8 +206,7 @@ continew-starter
 │  ├─ continew-starter-excel-core（核心模块）
 │  ├─ continew-starter-excel-fastexcel（FastExcel）
 │  └─ continew-starter-excel-poi（POI）
-├─ continew-starter-storage（存储模块）
-│  └─ continew-starter-storage-local（本地存储）
+├─ continew-starter-storage（存储模块：本地存储 & 对象存储（S3 协议，兼容主流云厂商））
 ├─ continew-starter-license（License 模块）
 │  ├─ continew-starter-license-core（核心模块）
 │  ├─ continew-starter-license-generator（License 生成器）
@@ -212,9 +226,18 @@ continew-starter
 
 ## 参与贡献
 
-ContiNew（Continue New）系列项目致力于通过持续迭代，为开发者提供舒适的开发体验。作为开源社区，我们的初衷是希望通过开源协作模式，提升技术透明度、放大集体智慧、共创优秀实践，源源不断地为企业级项目开发提供助力。
+ContiNew（Continue New）系列项目致力于通过持续迭代，为开发者提供舒适的开发体验。作为 OpenContiNew 开源社区，我们的初衷是希望通过开源协作模式，提升技术透明度、放大集体智慧、共创优秀实践，源源不断地为企业级项目开发提供助力。
 
-我们诚挚邀请广大社区用户为 ContiNew 项目贡献力量，包括但不限于 Issue 排查、测试验证、代码开发与重构等。每一份贡献，都是推动项目进步的重要力量（请查阅 [贡献指南](https://continew.top/about/contributing.html)）。欢迎各位感兴趣的小伙伴儿，[添加微信](https://continew.top/discussion.html) 讨论或认领任务。
+我们诚挚邀请广大社区用户为 ContiNew 项目贡献力量，贡献并不仅限于写代码，以下方式都非常欢迎：
+
+- 🐛 报告 Bug：提交 Issue 时请附上版本号、复现步骤与错误日志（[Issue 表单](https://github.com/continew-org/continew-starter/issues/new/choose)）
+- 💡 建议功能：描述使用场景与期望效果
+- 📖 改进文档：修复错别字、完善说明、补充使用示例
+- 👀 审查 PR：帮助我们审查其他贡献者的 [Pull Request](https://github.com/continew-org/continew-starter/pulls)
+- 💻 编写代码：修复 Bug、开发新功能、提升性能
+
+> [!IMPORTANT]
+> 安全漏洞请勿通过公开 Issue 反馈，请参阅 [安全策略](SECURITY.md) 通过 GitHub 安全通告负责任地披露。
 
 ### 分支说明
 
@@ -225,25 +248,7 @@ ContiNew 系列项目采用清晰的分支策略，确保开发与维护有序�
 | dev   | 开发分支，用于下个大版本的 SNAPSHOT 开发，接受新功能或功能优化 PR |
 | x.x.x | 维护分支，用于特定版本（如 vx.x.x）的 bug 修复，仅接受已有功能的修复 PR，不接受新功能 |
 
-### 流程步骤
-
-若您希望提交新功能或优化现有代码，请遵循以下步骤：
-
-1. 在开源平台上将项目 fork 到您的个人仓库
-2. 将 fork 的项目克隆到本地开发环境
-3. 基于当前维护的分支（如 dev）创建新分支（如 feat/newFeature），请勿直接修改源分支（源分支仅做同步 ContiNew 最新代码用）
-4. 在新分支上进行代码修改，完成后提交并 push 到您的远程仓库
-5. 在开源平台上创建 pull request (PR)，选择正确的源分支和目标分支，按模板填写说明信息（参考 [已合并的 PR](https://github.com/continew-org/continew-starter/pulls?q=is%3Apr+is%3Amerged) 可提高合并率）
-6. 提交 PR 后，系统会提示签署 CLA（贡献者协议）。请确保 commit 使用的邮箱与平台绑定邮箱一致（如果不一致，可以在本地通过 `git reset --soft HEAD~1` 回退，然后使用正确邮箱重新提交，最后 `git push -f` 即可，不需要重新创建 PR），然后使用该邮箱签署即可
-7. 耐心等待维护者审核并合并您的 PR（建议通过交流群进行快捷沟通）
-8. PR 合并后，下次贡献前请先同步最新代码，再重复步骤 3 开始
-
-> [!IMPORTANT]
-> 为了确保项目质量和协作效率，请注意以下事项：
->
-> 1. 代码和配置文件请参考已有风格，遵循清晰的结构与命名规范，提供完善的注释（符合阿里巴巴 <a href="https://github.com/alibaba/p3c" target="_blank">《Java开发手册(黄山版)》</a> 中的代码规范）
-> 2. 提交代码前请关闭所有代码窗口，执行 `mvn compile` 命令进行代码格式化（ContiNew 项目后端编译时会自动执行插件进行代码格式修正）。编译通过后请勿再次打开代码窗口，避免不同 IDE 配置导致的格式差异
-> 3. 提交时，请按照 [Angular 提交规范](https://github.com/conventional-changelog/conventional-changelog/tree/master/packages/conventional-changelog-angular) 编写 commit message（参考已有风格）
+详细贡献流程（环境准备、代码规范配置、本地门禁检查、提交规范、CLA 签署等）请查阅 [贡献指南](CONTRIBUTING.md)。欢迎各位感兴趣的小伙伴儿，[添加微信](https://continew.top/discussion.html) 讨论或认领任务。
 
 ## 反馈交流
 
@@ -259,8 +264,6 @@ ContiNew 系列项目采用清晰的分支策略，确保开发与维护有序�
 </div>
 
 ## 鸣谢
-
-### 鸣谢
 
 感谢参与贡献的每一位小伙伴🥰
 

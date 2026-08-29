@@ -1,6 +1,6 @@
 # 代码风格（OCN-CodeStyle）
 
-OCN-CodeStyle 基于 Apache Nacos 社区代码风格调整而来，整体遵循《阿里巴巴 Java 开发手册》。全部风格配置集中于 `style/` 目录：
+OCN-CodeStyle（OCN 即 OpenContiNew 缩写）基于 Apache Nacos 社区代码风格调整而来，整体遵循《阿里巴巴 Java 开发手册》。全部风格配置集中于 `style/` 目录：
 
 | 文件 | 用途 |
 |:--|:--|

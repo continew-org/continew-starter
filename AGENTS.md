@@ -11,6 +11,8 @@ ContiNew Starter（Continue New Starter）是一个基于 Spring Boot 3.x 的企
 
 这不是一个应用项目，而是一个发布到 Maven Central 的多模块 Starter 库。groupId 为 `top.continew.starter`，版本通过 `${revision}` 统一管理。
 
+**品牌说明**：本项目属 OpenContiNew 开源社区（ContiNew 系列项目之一）。内部约定缩写 **OCN** 即 OpenContiNew 的首字母，用于 `style/` 配置文件前缀（`ocn-*.xml`）与 agent 技能命名（`ocn-starter-*`），新增同类文件沿用此前缀。
+
 ## Repository layout
 
 ```
