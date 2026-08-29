@@ -76,8 +76,6 @@ git log ${PREV_TAG}..HEAD --format='%h %aI %an %s'
 
 ### 3. release commit
 
-- `bug.yml` / `question.yml` 的版本下拉：首位改为 `${NEW_VERSION}`（dev 周期时首位是
-  `${NEW_VERSION}-SNAPSHOT (开发版本-dev 分支)`，去掉后缀即新 release）、删最旧，保持 3 个选项。
 - `git add` 上述 6 类发版文件（README 有改动才加）→ `git commit -m "release: v${NEW_VERSION}"`。
 
 ### 4. mvn clean deploy -Prelease,gpg（最危险，单独确认）
