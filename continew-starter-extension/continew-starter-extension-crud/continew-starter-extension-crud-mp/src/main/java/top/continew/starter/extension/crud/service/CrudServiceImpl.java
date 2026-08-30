@@ -252,7 +252,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     public Class<L> getListClass() {
         if (this.listClass == null) {
-            this.listClass = (Class<L>) ClassUtils.getTypeArguments(this.getClass())[2];
+            this.listClass = this.getTypeArgument(2);
         }
         return this.listClass;
     }
@@ -264,7 +264,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     public Class<D> getDetailClass() {
         if (this.detailClass == null) {
-            this.detailClass = (Class<D>) ClassUtils.getTypeArguments(this.getClass())[3];
+            this.detailClass = this.getTypeArgument(3);
         }
         return this.detailClass;
     }
@@ -276,9 +276,23 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     public Class<Q> getQueryClass() {
         if (this.queryClass == null) {
-            this.queryClass = (Class<Q>) ClassUtils.getTypeArguments(this.getClass())[4];
+            this.queryClass = this.getTypeArgument(4);
         }
         return this.queryClass;
+    }
+
+    /**
+     * 获取当前类指定下标的泛型参数
+     *
+     * @param index 泛型参数下标
+     * @param <C>   泛型参数类型
+     * @return 泛型参数类型
+     */
+    private <C> Class<C> getTypeArgument(int index) {
+        Class<?>[] typeArguments = ClassUtils.getTypeArguments(this.getClass());
+        CheckUtils.throwIf(typeArguments.length <= index, "无法解析类 [{}] 的第 [{}] 个泛型参数", this
+            .getClass().getName(), index);
+        return (Class<C>) typeArguments[index];
     }
 
     /**

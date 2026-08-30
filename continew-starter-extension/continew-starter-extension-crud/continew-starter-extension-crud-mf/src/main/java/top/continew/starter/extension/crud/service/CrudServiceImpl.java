@@ -183,6 +183,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
     public void update(C req, Long id) {
         this.beforeUpdate(req, id);
         T entity = this.getById(id);
+        CheckUtils.throwIfNull(entity, "更新数据不存在，请检查后重试");
         BeanUtil.copyProperties(req, entity, CopyOptions.create().ignoreNullValue());
         mapper.update(entity);
         this.afterUpdate(req, entity);

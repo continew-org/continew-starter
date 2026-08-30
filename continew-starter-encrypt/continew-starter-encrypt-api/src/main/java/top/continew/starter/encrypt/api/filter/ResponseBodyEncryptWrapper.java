@@ -23,7 +23,6 @@ import jakarta.servlet.WriteListener;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpServletResponseWrapper;
 import org.springframework.http.HttpHeaders;
-import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.encrypt.util.EncryptUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -102,8 +101,6 @@ public class ResponseBodyEncryptWrapper extends HttpServletResponseWrapper {
         // 设置响应头
         response.addHeader(HttpHeaders.ACCESS_CONTROL_EXPOSE_HEADERS, secretKeyHeader);
         response.setHeader(secretKeyHeader, secretKeyByRsa);
-        response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, StringConstants.ASTERISK);
-        response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_METHODS, StringConstants.ASTERISK);
         response.setCharacterEncoding(CharsetUtil.UTF_8);
         // 通过 AES 密钥，对原始内容进行加密
         return EncryptUtils.encryptByAes(this.getContent(), aesSecretKey);

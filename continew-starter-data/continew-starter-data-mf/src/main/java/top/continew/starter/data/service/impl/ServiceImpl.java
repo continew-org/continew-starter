@@ -17,6 +17,7 @@
 package top.continew.starter.data.service.impl;
 
 import top.continew.starter.core.util.ClassUtils;
+import top.continew.starter.core.util.validation.CheckUtils;
 import top.continew.starter.data.base.BaseMapper;
 import top.continew.starter.data.service.IService;
 
@@ -36,6 +37,8 @@ public class ServiceImpl<M extends BaseMapper<T>, T>
     protected final Class<T> entityClass = currentModelClass();
 
     protected Class<T> currentModelClass() {
+        CheckUtils.throwIf(this.typeArguments.length < 2, "无法解析类 [{}] 的实体泛型参数", this
+            .getClass().getName());
         return (Class<T>) this.typeArguments[1];
     }
 

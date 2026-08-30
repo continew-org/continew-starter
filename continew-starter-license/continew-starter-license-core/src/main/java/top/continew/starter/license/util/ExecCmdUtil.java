@@ -17,6 +17,8 @@
 package top.continew.starter.license.util;
 
 import cn.hutool.core.util.ArrayUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +32,8 @@ import java.io.LineNumberReader;
  * @since 2.12.0
  */
 public class ExecCmdUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExecCmdUtil.class);
 
     private static final String CREATE_3RDSESSION_SHELL_SCRIPT =
         "head -n 80 /dev/urandom | tr -dc A-Za-z0-9 | head -c 168";
@@ -76,7 +80,7 @@ public class ExecCmdUtil {
             }
             return sb.toString();
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("读取进程输出异常", e);
         }
         return null;
 

@@ -62,6 +62,8 @@ public class MqttShutdownHandler
             }
             // 给一点时间让连接正常关闭
             Thread.sleep(500);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         } catch (Exception ignored) {
         }
     }
