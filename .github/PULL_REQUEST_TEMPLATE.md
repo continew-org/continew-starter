@@ -1,6 +1,6 @@
 <!--
   非常感谢您的 PR！提交前请确保本地执行 ./mvnw verify 通过全部门禁（Enforcer / Spotless / Checkstyle / SpotBugs）。
-  贡献流程详见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+  贡献流程详见 CONTRIBUTING.md。
 -->
 
 ## 变更类型
@@ -46,5 +46,5 @@
 - [ ] 已完整填写 Changelog，并关联相关 Issue
 - [ ] commit message 符合 [Conventional Commits（约定式提交）](https://www.conventionalcommits.org/zh-hans/v1.0.0/)规范
 - [ ] 如包含 AI 生成的较大改动，相关 commit 已添加 `Assisted-by: <智能体>` 标记
-- [ ] 已签署 CLA（首次贡献可在 PR 创建后按机器人提示完成签署）
+- [ ] 已签署 [CLA](../blob/dev/CLA.md)（首次贡献可在 PR 创建后按机器人提示完成签署）
 - [ ] 目标分支正确：dev（新功能与优化）或 x.x.x 维护分支（仅 Bug 修复）

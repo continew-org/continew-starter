@@ -161,7 +161,7 @@ git push origin feat/your-feature
 
 ### 8. 签署 CLA
 
-提交 PR 后，系统会提示签署 CLA（贡献者许可协议）。请确保 commit 使用的邮箱与 GitHub 绑定邮箱一致后再签署（CI 会自动校验每个 commit 的作者邮箱是否绑定 GitHub 账号，未绑定的 PR 会被机器人评论提醒）。
+提交 PR 后，系统会提示签署 [CLA（贡献者许可协议）](CLA.md)。请确保 commit 使用的邮箱与 GitHub 绑定邮箱一致后再签署（CI 会自动校验每个 commit 的作者邮箱是否绑定 GitHub 账号，未绑定的 PR 会被机器人评论提醒）。
 
 如果不一致，最简单的方式是将该邮箱添加到 [GitHub 账号](https://github.com/settings/emails)，无需改写提交历史；也可以将本地 git 配置改为已绑定的邮箱后修订提交并强推，无需重新创建 PR：
 
