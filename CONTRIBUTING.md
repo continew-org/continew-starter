@@ -104,10 +104,10 @@ git checkout -b feat/your-feature upstream/dev
 开发完成后，推送前请在本地执行：
 
 ```bash
-./mvnw compile        # Windows 为 mvnw.cmd compile
+./mvnw verify         # Windows 为 mvnw.cmd verify
 ```
 
-该命令会在 validate 阶段依次通过三道门禁检查：**Enforcer**（依赖合规）→ **Spotless check**（代码格式）→ **Checkstyle**（代码规范），随后完成编译。构建过程不会修改任何源码。
+该命令会通过四道门禁：validate 阶段的 **Enforcer**（构建环境与依赖合规）、**Spotless check**（代码格式）、**Checkstyle**（代码规范），以及编译后 verify 阶段的 **SpotBugs**（字节码缺陷）。构建过程不会修改任何源码。
 
 - 如果 Spotless 检查报红，执行 `./mvnw compile -Pformat` 自动修复格式，修复后请再执行一次正常构建确认通过；
 - License Header 由 Spotless 在检查阶段自动校验，新建文件请从现有文件复制头部或让 `-Pformat` 自动补全；
@@ -125,8 +125,8 @@ git checkout -b feat/your-feature upstream/dev
 [可选的脚注]
 ```
 
-- **类型（type）**：说明变更性质。`feat` 表示新增功能（对应次版本），`fix` 表示 Bug 修复（对应修订版本）；其余常用类型：`docs`（文档）、`refactor`（重构）、`perf`（性能）、`test`（测试）、`style`（格式）、`chore`（构建或工具链）；
-- **作用域（scope）**：可选，表示变更影响的模块，如 `cache`、`web`；
+- **类型（type）**：说明变更性质。`feat` 表示新增功能，`fix` 表示 Bug 修复；其余常用类型：`docs`（文档）、`refactor`（重构）、`perf`（性能优化）、`test`（测试）、`style`（格式调整，不影响功能）、`build`（构建或依赖变更）、`ci`（CI 配置或脚本）、`chore`（其他杂项）、`revert`（回退提交）；
+- **作用域（scope）**：可选，表示变更影响的模块。可取值：`core` `json` `api-doc` `validation` `web` `cache` `auth` `data` `encrypt` `security` `ratelimiter` `idempotent` `trace` `captcha` `messaging` `log` `excel` `storage` `license` `extension` `dependencies` `bom`；
 - **描述（description）**：简短说明本次变更；
 - **破坏性变更（breaking change）**：在类型或作用域后追加 `!`（如 `feat!:`），或在脚注中以 `BREAKING CHANGE: <说明>` 标注（对应主版本）。
 
@@ -137,6 +137,10 @@ feat(cache): 支持多级缓存的事件监听配置
 fix(web): 修复跨域配置在部分场景下不生效的问题
 feat(api)!: 移除已废弃的 XXX 配置项
 ```
+
+> **PR 标题会被 CI 自动校验**：本项目采用 Squash and merge，PR 标题即最终提交信息，
+> 因此 PR 标题同样必须符合上述规范，否则 `PR Validation / Validate PR title` 检查会失败。
+> 标题写错时直接编辑标题即可重新触发校验。
 
 ### 6. 同步与变基
 
@@ -157,7 +161,16 @@ git push origin feat/your-feature
 
 ### 8. 签署 CLA
 
-提交 PR 后，系统会提示签署 CLA（贡献者许可协议）。请确保 commit 使用的邮箱与 GitHub 绑定邮箱一致后再签署（CI 会自动校验每个 commit 的作者邮箱是否绑定 GitHub 账号，未绑定的 PR 会被机器人评论提醒）。如果不一致，可以在本地通过 `git reset --soft HEAD~1` 回退，然后使用正确邮箱重新提交，最后 `git push -f` 即可，无需重新创建 PR。
+提交 PR 后，系统会提示签署 CLA（贡献者许可协议）。请确保 commit 使用的邮箱与 GitHub 绑定邮箱一致后再签署（CI 会自动校验每个 commit 的作者邮箱是否绑定 GitHub 账号，未绑定的 PR 会被机器人评论提醒）。
+
+如果不一致，最简单的方式是将该邮箱添加到 [GitHub 账号](https://github.com/settings/emails)，无需改写提交历史；也可以将本地 git 配置改为已绑定的邮箱后修订提交并强推，无需重新创建 PR：
+
+```bash
+git commit --amend --reset-author --no-edit   # 单提交：仅改作者，保留原提交信息
+git push --force-with-lease
+```
+
+多个提交需要修改时，使用 `git rebase -i` 将相应提交标记为 `edit`，逐个执行上述 `amend` 后 `git rebase --continue`。推送后，CI 会自动重新校验。
 
 ### 9. 代码审查与合并
 
@@ -169,7 +182,7 @@ git push origin feat/your-feature
 
 - [ ] 一个 PR 只解决一个 Issue（只做一件事），不夹带无关改动
 - [ ] 代码遵循已有风格，注释完善（含接口文档和参数示例），符合阿里巴巴《Java 开发手册(黄山版)》
-- [ ] 本地 `./mvnw compile` 三道门禁全部通过
+- [ ] 本地 `./mvnw verify` 四道门禁全部通过
 - [ ] 如有行为变更，已同步更新相关文档
 - [ ] 按 PR 模板完整填写 Changelog 表格，并关联相关 Issue（Closes/Fixes/Resolves #<issue号>）
 - [ ] commit message 符合 Conventional Commits（约定式提交）规范
@@ -178,7 +191,7 @@ git push origin feat/your-feature
 ## 让 PR 更快被合并
 
 - **尽早签署 CLA**：不少首次贡献者因忽略 CLA 机器人评论而卡住，未签署 CLA 的 PR 无法合并；
-- **保证本地检查通过**：CI 未通过的 PR 不会被审查，推送前先在本地完整执行一遍 `./mvnw compile`；
+- **保证本地检查通过**：CI 未通过的 PR 不会被审查，推送前先在本地完整执行一遍 `./mvnw verify`；
 - **保持改动聚焦且精简**：只做一件事的 PR 远比混杂无关改动的 PR 更容易审查，改动较大时请拆分为多个独立 PR；
 - **撰写清晰的描述**：说明改了*什么*以及*为什么*，描述务必与实际 diff 一致；如果开发过程中范围发生了变化，请在请求审查前更新描述；
 - **及时回应审查意见**：审查者提出修改意见后请尽快处理；如有不同意见，请说明理由而不是忽略评论。

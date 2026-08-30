@@ -2,16 +2,69 @@ name: PR Validation
 
 on:
   pull_request_target:
-    types: [opened, reopened, synchronize]
-
-permissions:
-  pull-requests: write
+    types: [opened, reopened, synchronize, edited]
 
 jobs:
+  validate-pr-title:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pull-requests: read
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          scopes: |
+            dependencies
+            bom
+            core
+            json
+            api-doc
+            validation
+            web
+            cache
+            auth
+            data
+            encrypt
+            security
+            ratelimiter
+            idempotent
+            trace
+            captcha
+            messaging
+            log
+            excel
+            storage
+            license
+            extension
+          requireScope: false
+          # if true, the PR title must match the commit message
+          validateSingleCommit: false
+          # if true, the PR title must match the single commit message
+          validateSingleCommitMatchesPrTitle: false
+
   check-commit-authors:
     name: Verify commit author emails
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    # 仅在提交变动时校验，标题/描述编辑（edited）无需重跑
+    if: github.event.action != 'edited'
+    permissions:
+      pull-requests: write
     steps:
       - name: Check commit authors linked to GitHub
         uses: actions/github-script@v7

@@ -47,7 +47,7 @@ Settings/Preferences → Editor → Code Style → 齿轮图标 → Import Schem
 Spotless 使用 Eclipse JDT 格式化引擎执行 `ocn-eclipse-formatter.xml`，绑定在 Maven `validate` 阶段作为门禁：
 
 ```bash
-./mvnw compile            # 门禁检查：格式不符合将直接编译失败
+./mvnw verify             # 门禁检查：格式不符合将直接构建失败（四道门禁）
 ./mvnw compile -Pformat   # 自动修复：格式化 + 清理 import + 补 License Header
 ```
 
@@ -65,4 +65,4 @@ Spotless 使用 Eclipse JDT 格式化引擎执行 `ocn-eclipse-formatter.xml`，
 
 ### 与 IDE 格式化的关系
 
-IDEA 原生格式化引擎与 Eclipse JDT 是两套实现，`ocn-idea-code-style.xml` 只能做到高度接近、无法字节级一致（枚举常量、注解声明等的"单行保留"语义在 IDEA 中没有对应配置项）。**Spotless 检查是唯一事实标准**：日常以 `./mvnw compile` 通过为准，IDE 内格式化仅用于编辑期舒适度。
+IDEA 原生格式化引擎与 Eclipse JDT 是两套实现，`ocn-idea-code-style.xml` 只能做到高度接近、无法字节级一致（枚举常量、注解声明等的"单行保留"语义在 IDEA 中没有对应配置项）。**Spotless 检查是唯一事实标准**：日常以 `./mvnw verify` 通过为准，IDE 内格式化仅用于编辑期舒适度。

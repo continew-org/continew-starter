@@ -61,7 +61,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 # 完整构建（全部门禁：validate 阶段 Enforcer -> Spotless -> Checkstyle，编译，verify 阶段 SpotBugs）
 ./mvnw verify
 
-# 编译整个项目（含 validate 阶段门禁）
+# 仅编译（含 validate 阶段三道门禁，不含 SpotBugs）——仅用于快速迭代，不可作为提交前自检
 ./mvnw compile
 
 # 编译单个模块（含依赖模块）
@@ -77,7 +77,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 ./mvnw clean
 ```
 
-本项目目前不包含单元测试模块。代码改动的验证方式是执行 `./mvnw compile` 确保编译通过。
+本项目目前不包含单元测试模块。代码改动的验证方式是执行 `./mvnw verify` 确保四道门禁全部通过。
 
 版本管理：`${revision}` 属性定义在 `continew-starter-dependencies` 与 `continew-starter-bom` 中，`flatten-maven-plugin` 在 `process-resources` 阶段将其解析为实际版本并生成用于发布的简化 `.flattened-pom.xml`——修改版本只需改一处。
 
@@ -85,9 +85,9 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 
 提交 Java 代码前，AI 智能体**必须**让门禁通过：
 
-1. 执行 `./mvnw compile`。validate 阶段依次运行三道门禁：**Enforcer**（构建环境）→ **Spotless check**（代码格式）→ **Checkstyle**（代码规范），任一不通过都会直接构建失败。
-2. 若被 Spotless 拦截，执行 `./mvnw compile -Pformat` 自动修复，然后再执行一次正常构建确认通过。
-3. 正常构建通过后才能提交。
+1. 执行 `./mvnw verify`。四道门禁依次为：validate 阶段的 **Enforcer**（构建环境与依赖合规）、**Spotless check**（代码格式）、**Checkstyle**（代码规范），以及编译后 verify 阶段的 **SpotBugs**（字节码缺陷），任一不通过都会直接构建失败。
+2. 若被 Spotless 拦截，执行 `./mvnw compile -Pformat` 自动修复，然后再执行一次 `./mvnw verify` 确认通过。
+3. 四道门禁全部通过后才能提交。
 
 构建过程**不会修改任何源码文件**；`-Pformat` 是唯一会修改源码的 profile。不要用 IDE 格式化或 `git diff --check` 替代 Spotless 门禁——IDE 格式化引擎是另一套实现，可能放行项目格式化器拒绝的代码。
 
@@ -105,7 +105,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 | 规则 | 值 |
 |------|-----|
 | 缩进 | **4 空格**（禁用 Tab），续行缩进 4 空格 |
-| 行宽 | 最多 **100 字符**（Spotless + Checkstyle 双重强制） |
+| 行宽 | 最多 **100 字符**（由 Spotless 的 Eclipse 格式化器 `lineSplit=100` 强制；Checkstyle `LineLength` 设为 150 仅作兜底） |
 | 星号导入 | **禁止**（`AvoidStarImport`） |
 | 无用 import | **禁止**（`-Pformat` 自动清理） |
 | 大括号 | `if/else/for/while/do-while` 必须加大括号（`NeedBraces`） |
@@ -197,7 +197,7 @@ public class XxxAutoConfiguration {
 **提交前检查**：
 
 ```bash
-./mvnw compile    # 三道 validate 门禁必须全部通过（被 Spotless 拦截时使用 -Pformat）
+./mvnw verify     # 四道门禁必须全部通过（被 Spotless 拦截时使用 -Pformat）
 ```
 
 ## 安全漏洞
