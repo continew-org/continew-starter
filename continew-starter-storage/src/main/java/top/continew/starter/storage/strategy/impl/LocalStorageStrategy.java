@@ -502,7 +502,12 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     /**
      * 计算文件MD5
+     *
+     * <p>
+     * 此处 MD5 仅用于生成对象存储 ETag 与分片完整性校验（与 S3 ETag 算法一致），<b>不用于密码学安全用途</b>（不做签名、不做防伪完整性保证），故可接受使用 MD5。
+     * </p>
      */
+    @SuppressWarnings("java:S4790")
     private String calculateMD5(Path path) throws IOException, NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         try (InputStream is = Files.newInputStream(path)) {

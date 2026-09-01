@@ -34,7 +34,6 @@ import java.net.URLEncoder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -118,27 +117,10 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
         try {
             if (this.cachedContent.size() == 0) {
                 Map<String, String[]> form = super.getParameterMap();
-                for (Iterator<String> nameIterator = form.keySet().iterator(); nameIterator
-                    .hasNext();) {
-                    String name = nameIterator.next();
-                    List<String> values = Arrays.asList(form.get(name));
-                    for (Iterator<String> valueIterator = values.iterator(); valueIterator
-                        .hasNext();) {
-                        String value = valueIterator.next();
-                        this.cachedContent.write(URLEncoder.encode(name, characterEncoding)
-                            .getBytes(StandardCharsets.UTF_8));
-                        if (value != null) {
-                            this.cachedContent.write(StringConstants.EQUAL_SIGN
-                                .getBytes(StandardCharsets.UTF_8));
-                            this.cachedContent.write(URLEncoder.encode(value, characterEncoding)
-                                .getBytes(StandardCharsets.UTF_8));
-                            if (valueIterator.hasNext()) {
-                                this.cachedContent.write(StringConstants.AMP
-                                    .getBytes(StandardCharsets.UTF_8));
-                            }
-                        }
-                    }
-                    if (nameIterator.hasNext()) {
+                int nameCount = 0;
+                for (Map.Entry<String, String[]> entry : form.entrySet()) {
+                    writeFormParameter(entry.getKey(), entry.getValue());
+                    if (++nameCount < form.size()) {
                         this.cachedContent.write(StringConstants.AMP
                             .getBytes(StandardCharsets.UTF_8));
                     }
@@ -147,6 +129,29 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
         } catch (IOException ex) {
             throw new IllegalStateException("Failed to write request parameters to cached content",
                 ex);
+        }
+    }
+
+    /**
+     * 将单个表单参数（name=value1&value2...）写入缓存
+     */
+    private void writeFormParameter(String name, String[] values) throws IOException {
+        this.cachedContent.write(URLEncoder.encode(name, characterEncoding)
+            .getBytes(StandardCharsets.UTF_8));
+        List<String> valueList = Arrays.asList(values);
+        for (int i = 0; i < valueList.size(); i++) {
+            String value = valueList.get(i);
+            if (value == null) {
+                continue;
+            }
+            this.cachedContent.write(StringConstants.EQUAL_SIGN
+                .getBytes(StandardCharsets.UTF_8));
+            this.cachedContent.write(URLEncoder.encode(value, characterEncoding)
+                .getBytes(StandardCharsets.UTF_8));
+            if (i < valueList.size() - 1) {
+                this.cachedContent.write(StringConstants.AMP
+                    .getBytes(StandardCharsets.UTF_8));
+            }
         }
     }
 
