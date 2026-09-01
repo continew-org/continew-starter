@@ -1,7 +1,7 @@
 # ContiNew Starter
 
 <a href="https://github.com/continew-org/continew-starter/blob/dev/continew-starter-dependencies/pom.xml" title="Current Version" target="_blank">
-<img src="https://img.shields.io/badge/dynamic/xml?url=https%3A%2F%2Fraw.githubusercontent.com%2Fcontinew-org%2Fcontinew-starter%2Fdev%2Fcontinew-starter-dependencies%2Fpom.xml&query=%2F%2A%5Blocal-name%28%29%3D%27project%27%5D%2F%2A%5Blocal-name%28%29%3D%27properties%27%5D%2F%2A%5Blocal-name%28%29%3D%27revision%27%5D&label=Current%20Version&color=blue" alt="Current Version" />
+<img src="https://img.shields.io/badge/SNAPSHOT-v2.17.0-%23ff3f59.svg" alt="Current Version" />
 </a>
 <a href="https://central.sonatype.com/search?namespace=top.continew.starter" title="Release" target="_blank">
 <img src="https://img.shields.io/maven-central/v/top.continew.starter/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
@@ -14,9 +14,6 @@
 </a>
 <a href="https://github.com/continew-org/continew-starter/actions/workflows/ci.yml" title="CI" target="_blank">
 <img src="https://github.com/continew-org/continew-starter/actions/workflows/ci.yml/badge.svg?branch=dev" alt="CI" />
-</a>
-<a href="https://app.codacy.com/gh/continew-org/continew-starter/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade" title="Codacy" target="_blank">
-<img src="https://app.codacy.com/project/badge/Grade/90ed633957a9410aa8745f0654827c01" alt="Codacy" />
 </a>
 <a href="https://sonarcloud.io/summary/new_code?id=continew-org_continew-starter" title="Sonar" target="_blank">
 <img src="https://sonarcloud.io/api/project_badges/measure?project=continew-org_continew-starter&metric=alert_status" alt="Sonar" />
