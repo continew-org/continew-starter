@@ -284,8 +284,8 @@ public class FileStorageService {
      * 设置文件读取阶段
      */
     private void setFileReadPhase(MultipartFile file, ProgressAwareMultipartFile.ReadPhase phase) {
-        if (file instanceof ProgressAwareMultipartFile) {
-            ((ProgressAwareMultipartFile) file).setReadPhase(phase);
+        if (file instanceof ProgressAwareMultipartFile awareMultipartFile) {
+            awareMultipartFile.setReadPhase(phase);
         }
     }
 
@@ -492,10 +492,10 @@ public class FileStorageService {
      * 清理文件缓存
      */
     private void cleanupFileCache(MultipartFile file) {
-        if (file instanceof ProgressAwareMultipartFile) {
-            ((ProgressAwareMultipartFile) file).clearCache();
-        } else if (file instanceof EnhancedMultipartFile) {
-            ((EnhancedMultipartFile) file).clearCache();
+        if (file instanceof ProgressAwareMultipartFile awareFile) {
+            awareFile.clearCache();
+        } else if (file instanceof EnhancedMultipartFile enhancedFile) {
+            enhancedFile.clearCache();
         }
     }
 
@@ -622,7 +622,7 @@ public class FileStorageService {
             resp.setPartSize(partInfo.getPartSize());
             resp.setSuccess("SUCCESS".equals(partInfo.getStatus()));
             return resp;
-        }).collect(Collectors.toList());
+        }).toList();
 
         // 如果没有记录，使用客户端传入的分片信息
         if (parts.isEmpty() && clientParts != null) {

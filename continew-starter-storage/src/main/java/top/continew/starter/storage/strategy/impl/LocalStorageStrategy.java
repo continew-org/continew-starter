@@ -54,7 +54,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -263,7 +262,7 @@ public class LocalStorageStrategy implements StorageStrategy {
             return stream.filter(Files::isRegularFile).limit(maxKeys).map(path -> {
                 String relativePath = basePath.relativize(path).toString();
                 return getFileInfo(bucket, relativePath);
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            }).filter(Objects::nonNull).toList();
 
         } catch (IOException e) {
             throw new StorageException("列出文件失败: " + e.getMessage(), e);

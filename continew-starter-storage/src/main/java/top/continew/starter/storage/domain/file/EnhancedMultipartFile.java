@@ -75,8 +75,8 @@ public class EnhancedMultipartFile implements MultipartFile {
      * 便捷的静态工厂方法 - 包装已有文件并启用缓存
      */
     public static EnhancedMultipartFile wrap(MultipartFile file, boolean enableCache) {
-        if (file instanceof EnhancedMultipartFile) {
-            return (EnhancedMultipartFile) file;
+        if (file instanceof EnhancedMultipartFile enhancedMultipartFile) {
+            return enhancedMultipartFile;
         }
         return new EnhancedMultipartFile(file, enableCache);
     }

@@ -67,11 +67,9 @@ public class FileTypeValidator implements FileValidator {
         if (filename != null) {
             String extension = FileUtil.extName(filename).toLowerCase();
             // 如果指定了允许的扩展名，则只允许这些扩展名
-            if (allowedExtensions != null) {
-                if (!allowedExtensions.contains(extension)) {
-                    throw new StorageException("不支持的文件类型: " + extension + "，仅支持: " + String
-                        .join(", ", allowedExtensions));
-                }
+            if (allowedExtensions != null && !allowedExtensions.contains(extension)) {
+                throw new StorageException("不支持的文件类型: " + extension + "，仅支持: " + String
+                    .join(", ", allowedExtensions));
             }
         }
     }

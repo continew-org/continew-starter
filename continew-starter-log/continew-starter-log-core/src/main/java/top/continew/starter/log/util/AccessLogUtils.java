@@ -26,7 +26,6 @@ import top.continew.starter.log.model.LogProperties;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 访问日志工具类
@@ -118,7 +117,7 @@ public class AccessLogUtils {
             return ((List<?>) params).stream()
                 .filter(Map.class::isInstance)
                 .map(item -> filterSensitiveParams((Map<String, Object>) item, sensitiveParams))
-                .collect(Collectors.toList());
+                .toList();
         }
         return params;
     }
@@ -164,7 +163,7 @@ public class AccessLogUtils {
                 .filter(Map.class::isInstance)
                 .map(item -> truncateLongParams((Map<String, Object>) item, threshold, maxLength,
                     suffix))
-                .collect(Collectors.toList());
+                .toList();
         }
         return params;
     }
@@ -189,11 +188,9 @@ public class AccessLogUtils {
         Map<String, Object> truncatedParams = new HashMap<>(params);
         for (Map.Entry<String, Object> entry : truncatedParams.entrySet()) {
             Object value = entry.getValue();
-            if (value instanceof String strValue) {
-                if (strValue.length() > threshold) {
-                    entry.setValue(
-                        strValue.substring(0, Math.min(strValue.length(), maxLength)) + suffix);
-                }
+            if (value instanceof String strValue && strValue.length() > threshold) {
+                entry.setValue(
+                    strValue.substring(0, Math.min(strValue.length(), maxLength)) + suffix);
             }
         }
         return truncatedParams;

@@ -89,16 +89,14 @@ public class ProgressTracker {
             shouldNotify = true;
         }
 
-        if (shouldNotify) {
-            // 使用CAS更新，避免并发问题
-            if (lastPercentage.compareAndSet(lastPct, currentPercentage)) {
-                lastNotifiedBytes.set(currentBytes);
-                listener.onProgress(currentBytes, totalBytes, currentPercentage);
+        // 使用CAS更新，避免并发问题
+        if (shouldNotify && lastPercentage.compareAndSet(lastPct, currentPercentage)) {
+            lastNotifiedBytes.set(currentBytes);
+            listener.onProgress(currentBytes, totalBytes, currentPercentage);
 
-                // 如果达到100%，标记完成
-                if (currentPercentage == 100) {
-                    complete();
-                }
+            // 如果达到100%，标记完成
+            if (currentPercentage == 100) {
+                complete();
             }
         }
     }

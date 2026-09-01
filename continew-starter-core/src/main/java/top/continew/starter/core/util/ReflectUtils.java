@@ -28,7 +28,6 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * 反射工具类
@@ -64,8 +63,7 @@ public class ReflectUtils {
      */
     public static List<Field> getNonStaticFields(Class<?> beanClass) throws SecurityException {
         Field[] fields = ReflectUtil.getFields(beanClass);
-        return Arrays.stream(fields).filter(f -> !Modifier.isStatic(f.getModifiers()))
-            .collect(Collectors.toList());
+        return Arrays.stream(fields).filter(f -> !Modifier.isStatic(f.getModifiers())).toList();
     }
 
     /**

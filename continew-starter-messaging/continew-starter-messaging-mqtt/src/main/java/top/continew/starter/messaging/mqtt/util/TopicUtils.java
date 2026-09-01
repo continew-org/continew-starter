@@ -69,12 +69,11 @@ public class TopicUtils {
                 if (i < topicFilterIdxEnd) {
                     throw new MqttException("Mqtt subscribe topicFilter illegal:" + topicFilter);
                 }
-            } else if (ch == TOPIC_WILDCARDS_ONE) {
+            } else if (ch == TOPIC_WILDCARDS_ONE
+                && ((i > 0 && topicFilterChars[i - 1] != '/')
+                    || (i < topicFilterIdxEnd && topicFilterChars[i + 1] != '/'))) {
                 // 校验: 单独 + 是允许的，判断 + 号前一位是否为 /，如果有后一位也必须为 /
-                if ((i > 0 && topicFilterChars[i - 1] != '/')
-                    || (i < topicFilterIdxEnd && topicFilterChars[i + 1] != '/')) {
-                    throw new MqttException("Mqtt subscribe topicFilter illegal:" + topicFilter);
-                }
+                throw new MqttException("Mqtt subscribe topicFilter illegal:" + topicFilter);
             }
         }
     }

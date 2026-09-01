@@ -111,18 +111,18 @@ public class FileWrapper {
         }
 
         // 如果是 MultipartFile，直接处理
-        if (obj instanceof MultipartFile) {
-            return of((MultipartFile) obj);
+        if (obj instanceof MultipartFile file) {
+            return of(file);
         }
 
         // 如果是 byte[]
-        if (obj instanceof byte[]) {
-            return of((byte[]) obj, filename, contentType);
+        if (obj instanceof byte[] bytes) {
+            return of(bytes, filename, contentType);
         }
 
         // 如果是 InputStream
-        if (obj instanceof InputStream) {
-            return of((InputStream) obj, filename, contentType);
+        if (obj instanceof InputStream inputStream) {
+            return of(inputStream, filename, contentType);
         }
 
         // 其他对象，转换为 JSON
@@ -171,9 +171,8 @@ public class FileWrapper {
     private static String tryGetFilenameFromRequest() {
         try {
             RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-            if (requestAttributes instanceof ServletRequestAttributes) {
-                HttpServletRequest request =
-                    ((ServletRequestAttributes) requestAttributes).getRequest();
+            if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
+                HttpServletRequest request = servletRequestAttributes.getRequest();
 
                 // 检查是否是 multipart 请求
                 String requestContentType = request.getContentType();
@@ -201,9 +200,8 @@ public class FileWrapper {
     private static String tryGetContentTypeFromRequest() {
         try {
             RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-            if (requestAttributes instanceof ServletRequestAttributes) {
-                HttpServletRequest request =
-                    ((ServletRequestAttributes) requestAttributes).getRequest();
+            if (requestAttributes instanceof ServletRequestAttributes servletRequestAttributes) {
+                HttpServletRequest request = servletRequestAttributes.getRequest();
 
                 // 检查是否是 multipart 请求
                 String requestContentType = request.getContentType();
