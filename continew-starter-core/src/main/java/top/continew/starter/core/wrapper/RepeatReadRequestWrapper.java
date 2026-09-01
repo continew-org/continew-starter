@@ -130,7 +130,7 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
                         this.cachedContent.write(URLEncoder.encode(name, characterEncoding)
                             .getBytes(StandardCharsets.UTF_8));
                         if (value != null) {
-                            this.cachedContent.write(StringConstants.EQUALS
+                            this.cachedContent.write(StringConstants.EQUAL_SIGN
                                 .getBytes(StandardCharsets.UTF_8));
                             this.cachedContent.write(URLEncoder.encode(value, characterEncoding)
                                 .getBytes(StandardCharsets.UTF_8));

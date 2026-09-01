@@ -34,7 +34,7 @@ import java.util.function.BooleanSupplier;
  */
 public class Validator {
 
-    private static final jakarta.validation.Validator VALIDATOR = SpringUtil
+    private static final jakarta.validation.Validator VALIDATOR_INSTANCE = SpringUtil
         .getBean(jakarta.validation.Validator.class);
 
     protected Validator() {
@@ -211,7 +211,7 @@ public class Validator {
      * @since 2.3.0
      */
     public static void validate(Object obj, Class<?>... groups) {
-        Set<ConstraintViolation<Object>> violations = VALIDATOR.validate(obj, groups);
+        Set<ConstraintViolation<Object>> violations = VALIDATOR_INSTANCE.validate(obj, groups);
         if (!violations.isEmpty()) {
             throw new ConstraintViolationException(violations);
         }

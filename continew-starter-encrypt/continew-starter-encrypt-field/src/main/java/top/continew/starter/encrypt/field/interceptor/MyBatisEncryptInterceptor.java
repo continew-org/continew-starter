@@ -172,7 +172,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
             String[] elArr = sqlSet.split(StringConstants.COMMA);
             Map<String, String> propMap = new HashMap<>(elArr.length);
             Arrays.stream(elArr).forEach(el -> {
-                String[] elPart = el.split(StringConstants.EQUALS);
+                String[] elPart = el.split(StringConstants.EQUAL_SIGN);
                 propMap.put(elPart[0], elPart[1]);
             });
             // 获取加密字段

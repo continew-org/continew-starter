@@ -84,8 +84,17 @@ public class CharConstants {
 
     /**
      * 等号 {@code '='}
+     *
+     * @deprecated 常量名与 {@link Object#equals(Object)} 拼写相近易引起误解，请改用 {@link #EQUAL_SIGN}
      */
+    @Deprecated
+    @SuppressWarnings("java:S1845")
     public static final char EQUALS = '=';
+
+    /**
+     * 等号 {@code '='}
+     */
+    public static final char EQUAL_SIGN = '=';
 
     /**
      * 星号 {@code '*'}
