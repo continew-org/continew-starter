@@ -16,7 +16,7 @@
 
 package top.continew.starter.excel.model;
 
-import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Excel 字段信息
@@ -39,7 +39,7 @@ public class ExcelClassField {
     /**
      * 映射关系
      */
-    private LinkedHashMap<String, String> kvMap;
+    private Map<String, String> kvMap;
 
     /**
      * 示例值
@@ -72,11 +72,11 @@ public class ExcelClassField {
         this.name = name;
     }
 
-    public LinkedHashMap<String, String> getKvMap() {
+    public Map<String, String> getKvMap() {
         return kvMap;
     }
 
-    public void setKvMap(LinkedHashMap<String, String> kvMap) {
+    public void setKvMap(Map<String, String> kvMap) {
         this.kvMap = kvMap;
     }
 
