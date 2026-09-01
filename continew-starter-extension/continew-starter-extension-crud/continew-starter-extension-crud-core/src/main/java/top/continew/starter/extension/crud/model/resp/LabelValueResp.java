@@ -30,6 +30,8 @@ import java.io.Serializable;
  * @since 2.1.0
  */
 @Schema(description = "键值对响应参数")
+// 响应体仅经 Jackson 序列化为 JSON，value/extra 不保证实现 Serializable 但不会走 Java 原生序列化
+@SuppressWarnings("java:S1948")
 public class LabelValueResp<T> implements Serializable {
 
     @Serial

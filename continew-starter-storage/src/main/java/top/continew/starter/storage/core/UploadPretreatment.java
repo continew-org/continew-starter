@@ -26,7 +26,7 @@ import top.continew.starter.storage.service.FileProcessor;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.IntConsumer;
 
 /**
  * 上传预处理器，支持链式调用
@@ -134,7 +134,7 @@ public class UploadPretreatment {
     /**
      * 设置简单的进度监听（只关心百分比）
      */
-    public UploadPretreatment onProgress(Consumer<Integer> progressConsumer) {
+    public UploadPretreatment onProgress(IntConsumer progressConsumer) {
         this.progressListener =
             (bytesRead, totalBytes, percentage) -> progressConsumer.accept(percentage);
         return this;

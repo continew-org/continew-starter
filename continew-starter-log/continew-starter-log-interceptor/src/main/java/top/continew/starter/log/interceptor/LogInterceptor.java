@@ -100,8 +100,8 @@ public class LogInterceptor implements HandlerInterceptor {
                     .getIncludes(), targetMethod, targetClass);
             logDao.add(logRecord);
         } catch (Exception ex) {
+            // 日志记录失败不应影响请求的正常完成
             LOGGER.error("Logging http log occurred an error: {}.", ex.getMessage(), ex);
-            throw ex;
         } finally {
             logTtl.remove();
         }

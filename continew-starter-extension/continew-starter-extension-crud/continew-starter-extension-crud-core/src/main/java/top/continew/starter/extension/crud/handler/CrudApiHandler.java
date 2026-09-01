@@ -35,8 +35,9 @@ public interface CrudApiHandler {
      * @param args         方法参数
      * @param targetMethod 目标方法
      * @param targetClass  目标类
-     * @throws Exception 处理异常
+     * @throws Exception 处理异常；该接口为扩展点，具体实现可能抛出任意受检异常，由 CRUD 切面统一捕获
      */
+    @SuppressWarnings("java:S112")
     void preHandle(CrudApi crudApi, Object[] args, Method targetMethod, Class<?> targetClass)
         throws Exception;
 }

@@ -129,10 +129,9 @@ public class QueryWrapperHelper {
      * @param query 查询条件
      * @param field 查询条件字段
      * @param <Q>   查询条件数据类型
-     * @param <R>   查询数据类型
      * @return QueryWrapper Consumer
      */
-    private static <Q, R> List<Consumer<QueryWrapper>> buildWrapperConsumer(Q query, Field field) {
+    private static <Q> List<Consumer<QueryWrapper>> buildWrapperConsumer(Q query, Field field) {
         try {
             // 如果字段值为空，直接返回
             Object fieldValue = ReflectUtil.getFieldValue(query, field);

@@ -32,7 +32,7 @@ public class TopicUtils {
 
     public static final char TOPIC_WILDCARDS_MORE = '#';
 
-    public TopicUtils() {
+    private TopicUtils() {
     }
 
     /**
@@ -126,7 +126,7 @@ public class TopicUtils {
         // 是否进入 + 号层级通配符
         boolean inLayerWildcard = false;
         int wildcardCharLen = 0;
-        topicFilterLoop: for (int i = 0; i < topicFilterLength; i++) {
+        for (int i = 0; i < topicFilterLength; i++) {
             ch = topicFilterChars[i];
             if (ch == TOPIC_WILDCARDS_MORE) {
                 // 校验: # 通配符只能在最后一位
@@ -169,13 +169,18 @@ public class TopicUtils {
             }
             // 进入通配符
             if (inLayerWildcard) {
+                boolean matchedLayer = false;
                 for (int j = i + wildcardCharLen; j < topicNameLength; j++) {
                     if (topicNameChars[j] == '/') {
                         wildcardCharLen--;
-                        continue topicFilterLoop;
+                        matchedLayer = true;
+                        break;
                     } else {
                         wildcardCharLen++;
                     }
+                }
+                if (matchedLayer) {
+                    continue;
                 }
             }
             // topicName index

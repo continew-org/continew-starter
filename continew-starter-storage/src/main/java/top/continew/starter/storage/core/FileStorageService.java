@@ -48,6 +48,7 @@ import top.continew.starter.storage.strategy.StorageStrategy;
 
 import java.io.InputStream;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -594,7 +595,7 @@ public class FileStorageService {
             partInfo.setPartETag(result.getPartETag());
             partInfo.setPartSize(result.getPartSize());
             partInfo.setStatus("SUCCESS");
-            partInfo.setUploadTime(LocalDateTime.now());
+            partInfo.setUploadTime(LocalDateTime.now(ZoneId.systemDefault()));
             fileRecorder.saveFilePart(partInfo);
         }
 

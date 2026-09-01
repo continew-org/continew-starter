@@ -37,6 +37,7 @@ import java.util.Objects;
 public class JsonBuilder {
 
     private static final ObjectMapper OBJECT_MAPPER = SpringUtil.getBean(ObjectMapper.class);
+    private static final String KEY_REQUIRED_MSG = "键不能为 null";
     private final ObjectNode rootNode;
 
     private JsonBuilder() {
@@ -60,7 +61,7 @@ public class JsonBuilder {
      * @return {@link JsonBuilder }
      */
     public JsonBuilder add(String key, String value) {
-        Objects.requireNonNull(key, "键不能为 null");
+        Objects.requireNonNull(key, KEY_REQUIRED_MSG);
         if (value != null) {
             rootNode.put(key, value);
         }
@@ -75,7 +76,7 @@ public class JsonBuilder {
      * @return {@link JsonBuilder }
      */
     public JsonBuilder add(String key, int value) {
-        Objects.requireNonNull(key, "键不能为 null");
+        Objects.requireNonNull(key, KEY_REQUIRED_MSG);
         rootNode.put(key, value);
         return this;
     }
@@ -88,7 +89,7 @@ public class JsonBuilder {
      * @return {@link JsonBuilder }
      */
     public JsonBuilder add(String key, long value) {
-        Objects.requireNonNull(key, "键不能为 null");
+        Objects.requireNonNull(key, KEY_REQUIRED_MSG);
         rootNode.put(key, value);
         return this;
     }
@@ -101,7 +102,7 @@ public class JsonBuilder {
      * @return {@link JsonBuilder }
      */
     public JsonBuilder add(String key, boolean value) {
-        Objects.requireNonNull(key, "键不能为 null");
+        Objects.requireNonNull(key, KEY_REQUIRED_MSG);
         rootNode.put(key, value);
         return this;
     }
@@ -114,7 +115,7 @@ public class JsonBuilder {
      * @return {@link JsonBuilder }
      */
     public JsonBuilder add(String key, double value) {
-        Objects.requireNonNull(key, "键不能为 null");
+        Objects.requireNonNull(key, KEY_REQUIRED_MSG);
         rootNode.put(key, value);
         return this;
     }
@@ -127,7 +128,7 @@ public class JsonBuilder {
      * @return {@link JsonBuilder }
      */
     public JsonBuilder add(String key, JsonNode value) {
-        Objects.requireNonNull(key, "键不能为 null");
+        Objects.requireNonNull(key, KEY_REQUIRED_MSG);
         if (value != null) {
             rootNode.set(key, value);
         }
@@ -142,7 +143,7 @@ public class JsonBuilder {
      * @return {@link JsonBuilder }
      */
     public JsonBuilder add(String key, Object value) {
-        Objects.requireNonNull(key, "键不能为 null");
+        Objects.requireNonNull(key, KEY_REQUIRED_MSG);
         if (value != null) {
             rootNode.set(key, OBJECT_MAPPER.valueToTree(value));
         }
@@ -157,7 +158,7 @@ public class JsonBuilder {
      * @return {@link JsonBuilder }
      */
     public JsonBuilder add(String key, List<?> list) {
-        Objects.requireNonNull(key, "键不能为 null");
+        Objects.requireNonNull(key, KEY_REQUIRED_MSG);
         if (list != null) {
             ArrayNode arrayNode = OBJECT_MAPPER.createArrayNode();
             for (Object item : list) {
@@ -176,7 +177,7 @@ public class JsonBuilder {
      * @return {@link JsonBuilder }
      */
     public JsonBuilder add(String key, Map<?, ?> map) {
-        Objects.requireNonNull(key, "键不能为 null");
+        Objects.requireNonNull(key, KEY_REQUIRED_MSG);
         if (map != null) {
             ObjectNode objectNode = OBJECT_MAPPER.valueToTree(map);
             rootNode.set(key, objectNode);

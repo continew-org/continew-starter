@@ -73,11 +73,12 @@ public class EncryptHelper {
      */
     public static IEncryptor registerAndGetEncryptor(CryptoContext cryptoContext) {
         int key = cryptoContext.hashCode();
+        Class<? extends IEncryptor> encryptorClass =
+            cryptoContext.getEncryptor().equals(IEncryptor.class)
+                ? cryptoContext.getAlgorithm().getEncryptor()
+                : cryptoContext.getEncryptor();
         return ENCRYPTOR_CACHE.computeIfAbsent(key,
-            k -> cryptoContext.getEncryptor().equals(IEncryptor.class)
-                ? ReflectUtil.newInstance(cryptoContext.getAlgorithm().getEncryptor(),
-                    cryptoContext)
-                : ReflectUtil.newInstance(cryptoContext.getEncryptor(), cryptoContext));
+            k -> ReflectUtil.newInstance(encryptorClass, cryptoContext));
     }
 
     /**

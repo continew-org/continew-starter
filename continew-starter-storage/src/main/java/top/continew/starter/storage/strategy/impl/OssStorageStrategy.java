@@ -810,18 +810,15 @@ public class OssStorageStrategy implements StorageStrategy {
                 totalRead += bytesRead;
                 if (fileOutput != null) {
                     fileOutput.write(buffer, 0, bytesRead);
-                    continue;
-                }
-                if (totalRead <= uploadPartInMemoryThreshold) {
+                } else if (totalRead <= uploadPartInMemoryThreshold) {
                     memoryBuffer.write(buffer, 0, bytesRead);
-                    continue;
+                } else {
+                    // 超过阈值后，切换到文件模式，先写入已缓存内存数据
+                    tempFile = createMultipartTempFile();
+                    fileOutput = Files.newOutputStream(tempFile);
+                    memoryBuffer.writeTo(fileOutput);
+                    fileOutput.write(buffer, 0, bytesRead);
                 }
-
-                // 超过阈值后，切换到文件模式，先写入已缓存内存数据
-                tempFile = createMultipartTempFile();
-                fileOutput = Files.newOutputStream(tempFile);
-                memoryBuffer.writeTo(fileOutput);
-                fileOutput.write(buffer, 0, bytesRead);
             }
         } finally {
             if (fileOutput != null) {

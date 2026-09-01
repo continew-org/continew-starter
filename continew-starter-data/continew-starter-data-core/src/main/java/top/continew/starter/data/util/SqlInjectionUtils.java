@@ -30,6 +30,9 @@ import java.util.regex.Pattern;
  * @author Charles7c
  * @since 2.5.2
  */
+// SQL 注入检测正则需尽可能全面覆盖各类攻击特征（源自 MyBatis-Plus/JeecgBoot），
+// 其复杂度与回溯是安全性与召回率的有意取舍，不可为简化规则而削弱检测能力
+@SuppressWarnings({"java:S5843", "java:S8786"})
 public class SqlInjectionUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SqlInjectionUtils.class);

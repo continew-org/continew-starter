@@ -126,7 +126,7 @@ public class ProcessorRegistry {
      */
     public <T extends FileProcessor> T getProcessor(Class<T> type, String platform,
         UploadContext context) {
-        List<T> processors = getProcessors(type, platform, context);
-        return processors.isEmpty() ? null : processors.get(0);
+        List<T> matchedProcessors = getProcessors(type, platform, context);
+        return matchedProcessors.isEmpty() ? null : matchedProcessors.get(0);
     }
 }

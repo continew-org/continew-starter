@@ -291,6 +291,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      * @param obj 待填充信息
      */
     protected void fill(Object obj) {
+        /* 数据填充后置处理，默认无操作，由子类按需重写 */
     }
 
     /**

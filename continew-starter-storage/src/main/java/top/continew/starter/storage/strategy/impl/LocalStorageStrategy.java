@@ -43,6 +43,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -481,13 +482,7 @@ public class LocalStorageStrategy implements StorageStrategy {
         Path tempUploadPath = resolveMultipartTempPath(bucket, uploadId);
         if (Files.exists(tempUploadPath)) {
             try (Stream<Path> paths = Files.walk(tempUploadPath)) {
-                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
-                    try {
-                        Files.deleteIfExists(path);
-                    } catch (IOException e) {
-                        LOGGER.error("删除分片临时文件失败: path={}", path, e);
-                    }
-                }
+                paths.sorted(Comparator.reverseOrder()).forEach(this::deleteIfExistsQuietly);
             } catch (IOException e) {
                 LOGGER.error("清理临时文件失败: uploadId={}", uploadId, e);
             }
@@ -495,9 +490,20 @@ public class LocalStorageStrategy implements StorageStrategy {
     }
 
     /**
+     * 删除单个文件，删除失败仅记录日志不中断清理流程
+     */
+    private void deleteIfExistsQuietly(Path path) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            LOGGER.error("删除分片临时文件失败: path={}", path, e);
+        }
+    }
+
+    /**
      * 计算文件MD5
      */
-    private String calculateMD5(Path path) throws Exception {
+    private String calculateMD5(Path path) throws IOException, NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         try (InputStream is = Files.newInputStream(path)) {
             byte[] buffer = new byte[8192];

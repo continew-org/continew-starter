@@ -120,15 +120,13 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
     private void encryptEntity(List<Field> fieldList, Object entity) {
         for (Field field : fieldList) {
             Object fieldValue = ReflectUtil.getFieldValue(entity, field);
-            if (fieldValue == null) {
-                continue;
+            if (fieldValue != null) {
+                String strValue = String.valueOf(fieldValue);
+                if (CharSequenceUtil.isNotBlank(strValue)) {
+                    ReflectUtil.setFieldValue(entity, field, EncryptHelper.encrypt(strValue, field
+                        .getAnnotation(FieldEncrypt.class)));
+                }
             }
-            String strValue = String.valueOf(fieldValue);
-            if (CharSequenceUtil.isBlank(strValue)) {
-                continue;
-            }
-            ReflectUtil.setFieldValue(entity, field, EncryptHelper.encrypt(strValue, field
-                .getAnnotation(FieldEncrypt.class)));
         }
     }
 

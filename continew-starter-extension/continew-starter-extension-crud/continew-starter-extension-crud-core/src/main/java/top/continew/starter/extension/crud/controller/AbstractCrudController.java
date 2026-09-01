@@ -60,6 +60,8 @@ import java.util.List;
 public abstract class AbstractCrudController<S extends CrudService<L, D, Q, C>, L, D, Q, C>
     implements CrudApiHandler {
 
+    // 抽象模板基类供下游控制器继承，泛型服务由具体子类决定；沿用字段注入避免强制所有子类声明构造器
+    @SuppressWarnings("java:S6813")
     @Autowired
     protected S baseService;
 

@@ -189,9 +189,8 @@ public class LicenseCreateService {
      * 校验JDK版本
      *
      * @return boole T 17 版本 F 非 17 版本
-     * @throws Exception 例外
      */
-    private boolean checkJavaVersion() throws Exception {
+    private boolean checkJavaVersion() {
         String version = System.getProperty("java.version");
         int currentVersion = 0;
         if (version.startsWith("1.")) {
@@ -204,7 +203,7 @@ public class LicenseCreateService {
 
     private ZipFile generateClientConfig(LicenseCreatorParam param,
         String currentCustomerDir,
-        String publicAlias) throws Exception {
+        String publicAlias) throws IOException {
         ZipFile clientLicense = new ZipFile(currentCustomerDir + "clientLicense.zip");
         File config = new File(currentCustomerDir + "clientConfig.json");
         ConfigParam configParam = new ConfigParam();

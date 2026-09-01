@@ -38,6 +38,8 @@ import top.continew.starter.data.idgenerator.MyBatisPlusCosIdIdentifierGenerator
  * @author Charles7c
  * @since 1.4.0
  */
+// 这是 Spring 配置类，需由容器实例化以处理嵌套条件配置，并非工具类，故保留隐式公有构造
+@SuppressWarnings("java:S1118")
 @Configuration(proxyBeanMethods = false)
 public class MyBatisPlusIdGeneratorConfiguration {
 

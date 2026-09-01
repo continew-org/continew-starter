@@ -67,6 +67,8 @@ import java.util.function.Function;
  */
 public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IService<T> {
 
+    // 沿用 MyBatis-Plus 官方 ServiceImpl 的字段注入模式，作为泛型基类供下游继承，改构造注入会波及所有子类
+    @SuppressWarnings("java:S6813")
     @Autowired
     protected M baseMapper;
     private Class<T> entityClass;

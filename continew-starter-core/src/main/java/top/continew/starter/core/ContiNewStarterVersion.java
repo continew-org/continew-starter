@@ -28,11 +28,7 @@ public final class ContiNewStarterVersion {
     }
 
     /**
-     * Return the full version string of the present ContiNew Starter codebase.
-     *
-     * @return the version of ContiNew Starter
+     * 当前 ContiNew Starter 版本号
      */
-    public static String getVersion() {
-        return "2.16.0";
-    }
+    public static final String VERSION = "2.16.0";
 }

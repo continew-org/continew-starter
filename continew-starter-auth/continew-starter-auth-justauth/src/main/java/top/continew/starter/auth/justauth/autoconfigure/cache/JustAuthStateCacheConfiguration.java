@@ -40,6 +40,8 @@ import top.continew.starter.core.constant.PropertiesConstants;
  * @author Charles7c
  * @since 2.15.0
  */
+// 这是 Spring 配置类，需由容器实例化以处理嵌套条件配置，并非工具类，故保留隐式公有构造
+@SuppressWarnings("java:S1118")
 @Configuration(proxyBeanMethods = false)
 public class JustAuthStateCacheConfiguration {
 

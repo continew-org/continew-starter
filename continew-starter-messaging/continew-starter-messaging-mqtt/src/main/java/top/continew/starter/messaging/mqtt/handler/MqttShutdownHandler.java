@@ -65,6 +65,7 @@ public class MqttShutdownHandler
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         } catch (Exception ignored) {
+            // 关闭阶段的其他异常无需处理，忽略以保证应用正常退出
         }
     }
 }

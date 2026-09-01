@@ -25,7 +25,7 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import java.lang.reflect.Method;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * Spring EL 表达式解析器
@@ -33,7 +33,7 @@ import java.util.function.Function;
  * @author Charles7c
  * @since 2.2.0
  */
-public class SpelEvaluator implements Function<Object, Object> {
+public class SpelEvaluator implements UnaryOperator<Object> {
 
     private static final ExpressionParser PARSER;
     private static final ParameterNameDiscoverer PARAMETER_NAME_DISCOVERER;

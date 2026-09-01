@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  * 文件工具类
@@ -65,7 +66,7 @@ public class FileUploadUtils {
         if (isKeepOriginalFilename) {
             fileName = "%s-%s.%s".formatted(FileNameUtil.getPrefix(originalFilename),
                 DateUtil.format(LocalDateTime
-                    .now(), DatePattern.PURE_DATETIME_MS_PATTERN),
+                    .now(ZoneId.systemDefault()), DatePattern.PURE_DATETIME_MS_PATTERN),
                 extensionName);
         } else {
             fileName = "%s.%s".formatted(IdUtil.fastSimpleUUID(), extensionName);

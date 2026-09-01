@@ -285,14 +285,14 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      * 获取当前类指定下标的泛型参数
      *
      * @param index 泛型参数下标
-     * @param <C>   泛型参数类型
+     * @param <X>   泛型参数类型
      * @return 泛型参数类型
      */
-    private <C> Class<C> getTypeArgument(int index) {
+    private <X> Class<X> getTypeArgument(int index) {
         Class<?>[] typeArguments = ClassUtils.getTypeArguments(this.getClass());
         CheckUtils.throwIf(typeArguments.length <= index, "无法解析类 [{}] 的第 [{}] 个泛型参数", this
             .getClass().getName(), index);
-        return (Class<C>) typeArguments[index];
+        return (Class<X>) typeArguments[index];
     }
 
     /**
@@ -355,6 +355,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      * @param obj 待填充信息
      */
     protected void fill(Object obj) {
+        /* 数据填充后置处理，默认无操作，由子类按需重写 */
     }
 
     /**
