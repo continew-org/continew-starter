@@ -175,7 +175,9 @@ public class EnhancedMultipartFile implements MultipartFile {
             originalFile.transferTo(dest);
         } else {
             // 创建模式但没有数据
-            dest.createNewFile();
+            if (!dest.createNewFile()) {
+                throw new IOException("目标文件已存在: " + dest.getAbsolutePath());
+            }
         }
     }
 

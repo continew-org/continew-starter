@@ -36,6 +36,8 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
@@ -111,6 +113,38 @@ public class ServerInfoUtils {
     }
 
     /**
+     * 在仅当前用户可访问的私有临时目录中创建脚本文件，避免共享临时目录下的脚本被其他用户篡改
+     *
+     * @param suffix  脚本文件后缀
+     * @param content 脚本内容
+     * @return 脚本文件
+     * @throws IOException 创建或写入文件失败
+     */
+    private static File createPrivateTempScript(String suffix, String content) throws IOException {
+        Path tempDir = Files.createTempDirectory("continew-license-");
+        tempDir.toFile().deleteOnExit();
+        File script = Files.createTempFile(tempDir, "hw-info", suffix).toFile();
+        script.deleteOnExit();
+        try (FileWriter fw = new FileWriter(script, StandardCharsets.UTF_8)) {
+            fw.write(content);
+        }
+        return script;
+    }
+
+    /**
+     * 获取 Windows 脚本宿主 cscript 的绝对路径，避免依赖可被篡改的 PATH 环境变量
+     *
+     * @return cscript 可执行文件路径
+     */
+    private static String getWindowsCscriptPath() {
+        String systemRoot = System.getenv("SystemRoot");
+        if (systemRoot == null || systemRoot.isBlank()) {
+            systemRoot = "C:\\Windows";
+        }
+        return systemRoot + "\\System32\\cscript.exe";
+    }
+
+    /**
      * 获取CPU序列号
      *
      * @return String CPU 序列号
@@ -138,8 +172,8 @@ public class ServerInfoUtils {
         String cpuIdCmd = "dmidecode";
         BufferedReader bufferedReader = null;
         try {
-            // 管道
-            Process p = Runtime.getRuntime().exec(new String[] {"sh", "-c", cpuIdCmd});
+            // 使用绝对路径调用 shell，避免依赖可被篡改的 PATH 环境变量
+            Process p = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cpuIdCmd});
             bufferedReader = new BufferedReader(
                 new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
             String line = null;
@@ -168,36 +202,30 @@ public class ServerInfoUtils {
      */
     private static String getWindowCpuSerial() {
         StringBuilder result = new StringBuilder(StringConstants.EMPTY);
-        File file = null;
-        BufferedReader input = null;
+        String vbs = """
+            Set objWMIService = GetObject("winmgmts:\\\\.\\root\\cimv2")
+            Set colItems = objWMIService.ExecQuery("Select * from Win32_Processor")
+
+            For Each objItem In colItems
+                WScript.Echo objItem.ProcessorId
+                Exit For ' do the first cpu only!
+            Next
+            """;
         try {
-            file = File.createTempFile("tmp", ".vbs");
-            file.deleteOnExit();
-            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
-            String vbs = """
-                Set objWMIService = GetObject("winmgmts:\\\\.\\root\\cimv2")
-                Set colItems = objWMIService.ExecQuery("Select * from Win32_Processor")
-
-                For Each objItem In colItems
-                    WScript.Echo objItem.ProcessorId
-                    Exit For ' do the first cpu only!
-                Next
-                """;
-            fw.write(vbs);
-            fw.close();
-
-            Process p = Runtime.getRuntime().exec("cscript //NoLogo " + file.getPath());
-            input = new BufferedReader(
-                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
-            String line;
-            while ((line = input.readLine()) != null) {
-                result.append(line);
+            File file = createPrivateTempScript(".vbs", vbs);
+            Process p = new ProcessBuilder(getWindowsCscriptPath(), "//NoLogo", file.getPath())
+                .start();
+            try (BufferedReader input = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = input.readLine()) != null) {
+                    result.append(line);
+                }
+            } finally {
+                FileUtil.del(file);
             }
         } catch (Exception e) {
             LOGGER.error("获取window cpu信息错误, {}", e.getMessage());
-        } finally {
-            IoUtil.close(input);
-            FileUtil.del(file);
         }
         return result.toString().trim();
     }
@@ -210,7 +238,8 @@ public class ServerInfoUtils {
     private static String getLinuxMainBoardSerial() {
         String command = "dmidecode | grep 'Serial Number' | awk '{print $3}' | tail -1";
         try {
-            Process process = new ProcessBuilder("sh", "-c", command).start();
+            // 使用绝对路径调用 shell，避免依赖可被篡改的 PATH 环境变量
+            Process process = new ProcessBuilder("/bin/sh", "-c", command).start();
             try (BufferedReader reader =
                 new BufferedReader(
                     new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
@@ -229,37 +258,30 @@ public class ServerInfoUtils {
      */
     private static String getWindowMainBoardSerial() {
         StringBuilder result = new StringBuilder(StringConstants.EMPTY);
-        File file = null;
-        BufferedReader input = null;
+        String vbs = """
+            Set objWMIService = GetObject("winmgmts:\\\\.\\root\\cimv2")
+            Set colItems = objWMIService.ExecQuery _
+               ("Select * from Win32_BaseBoard")
+            For Each objItem in colItems
+                Wscript.Echo objItem.SerialNumber
+                exit for  ' do the first cpu only!
+            Next
+            """;
         try {
-            file = File.createTempFile("realhowto", ".vbs");
-            file.deleteOnExit();
-            FileWriter fw = new FileWriter(file, StandardCharsets.UTF_8);
-
-            String vbs = """
-                Set objWMIService = GetObject("winmgmts:\\\\.\\root\\cimv2")
-                Set colItems = objWMIService.ExecQuery _
-                   ("Select * from Win32_BaseBoard")
-                For Each objItem in colItems
-                    Wscript.Echo objItem.SerialNumber
-                    exit for  ' do the first cpu only!
-                Next
-                """;
-
-            fw.write(vbs);
-            fw.close();
-            Process p = Runtime.getRuntime().exec("cscript //NoLogo " + file.getPath());
-            input = new BufferedReader(
-                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
-            String line;
-            while ((line = input.readLine()) != null) {
-                result.append(line);
+            File file = createPrivateTempScript(".vbs", vbs);
+            Process p = new ProcessBuilder(getWindowsCscriptPath(), "//NoLogo", file.getPath())
+                .start();
+            try (BufferedReader input = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = input.readLine()) != null) {
+                    result.append(line);
+                }
+            } finally {
+                FileUtil.del(file);
             }
         } catch (Exception e) {
             LOGGER.error("获取Window主板信息错误 {}", e.getMessage());
-        } finally {
-            IoUtil.close(input);
-            FileUtil.del(file);
         }
         return result.toString().trim();
     }

@@ -182,6 +182,10 @@ public class RedisLockUtils implements AutoCloseable {
             try {
                 lock.unlockAsync().get();
                 LOGGER.debug("释放锁成功，key: {}", lock.getName());
+            } catch (InterruptedException e) {
+                // 恢复中断标记，避免中断状态被吞掉
+                Thread.currentThread().interrupt();
+                LOGGER.error("释放锁被中断，key: {}", lock.getName(), e);
             } catch (Exception e) {
                 LOGGER.error("释放锁失败，key: {}", lock.getName(), e);
             }

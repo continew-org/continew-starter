@@ -51,8 +51,9 @@ public class WebSocketHandler extends TextWebSocketHandler {
     protected void handleTextMessage(WebSocketSession session, TextMessage message)
         throws Exception {
         String clientId = this.getClientId(session);
-        LOGGER.info("WebSocket receive message. clientId: {}, message: {}.", clientId,
-            message.getPayload());
+        // 不记录消息内容，避免将用户可控数据写入日志（敏感信息泄露风险）
+        LOGGER.info("WebSocket receive message. clientId: {}, payloadLength: {}.", clientId,
+            message.getPayloadLength());
         super.handleTextMessage(session, message);
     }
 

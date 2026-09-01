@@ -73,10 +73,12 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -840,5 +842,31 @@ public class OssStorageStrategy implements StorageStrategy {
     }
 
     private record PartPayload(byte[] bytes, Path tempFile, long size) {
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof PartPayload other)) {
+                return false;
+            }
+            return size == other.size && Objects.equals(tempFile, other.tempFile)
+                && Arrays.equals(bytes, other.bytes);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Arrays.hashCode(bytes);
+            result = 31 * result + Objects.hashCode(tempFile);
+            result = 31 * result + Long.hashCode(size);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "PartPayload{" + "bytes.length=" + (bytes == null ? 0 : bytes.length)
+                + ", tempFile=" + tempFile + ", size=" + size + '}';
+        }
     }
 }

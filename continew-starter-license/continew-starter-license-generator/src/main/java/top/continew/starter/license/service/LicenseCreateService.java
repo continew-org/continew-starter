@@ -213,21 +213,11 @@ public class LicenseCreateService {
         configParam.setSubject(param.getSubject());
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(configParam);
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(config);
+        try (FileOutputStream out = new FileOutputStream(config)) {
             out.write(json.getBytes(StandardCharsets.UTF_8));
             out.flush();
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new LicenseException("密钥文件生成失败", e);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    throw new LicenseException("文件流关闭失败", e);
-                }
-            }
         }
         List<File> files = new ArrayList<>();
         files.add(config);

@@ -38,7 +38,7 @@ public class ProgressTracker {
 
     // 通知阈值：至少变化1%或者达到 1MB 阈值
     private static final int PERCENTAGE_THRESHOLD = 1;
-    private static final long BYTES_THRESHOLD = 1024 * 1024;
+    private static final long BYTES_THRESHOLD = 1024L * 1024L;
 
     public ProgressTracker(long totalBytes, UploadProgressListener listener) {
         this.totalBytes = totalBytes;
