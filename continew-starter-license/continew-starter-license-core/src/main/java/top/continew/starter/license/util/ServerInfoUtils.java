@@ -19,7 +19,6 @@ package top.continew.starter.license.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.IoUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.core.constant.StringConstants;
@@ -38,7 +37,10 @@ import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Enumeration;
 import java.util.Set;
 
@@ -121,14 +123,35 @@ public class ServerInfoUtils {
      * @throws IOException 创建或写入文件失败
      */
     private static File createPrivateTempScript(String suffix, String content) throws IOException {
-        Path tempDir = Files.createTempDirectory("continew-license-");
+        Path tempDir = createPrivateTempDirectory();
         tempDir.toFile().deleteOnExit();
         File script = Files.createTempFile(tempDir, "hw-info", suffix).toFile();
+        script.setReadable(false, false);
+        script.setReadable(true, true);
+        script.setWritable(false, false);
+        script.setWritable(true, true);
+        script.setExecutable(false, false);
         script.deleteOnExit();
         try (FileWriter fw = new FileWriter(script, StandardCharsets.UTF_8)) {
             fw.write(content);
         }
         return script;
+    }
+
+    /**
+     * 创建仅当前用户可访问（rwx------）的私有临时目录，避免共享临时目录下的脚本被其他用户读写
+     */
+    private static Path createPrivateTempDirectory() throws IOException {
+        try {
+            // POSIX 系统（Linux/macOS）显式限制为属主独占权限
+            Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
+            return Files.createTempDirectory("continew-license-",
+                PosixFilePermissions.asFileAttribute(perms));
+        } catch (UnsupportedOperationException e) {
+            // Windows 等不支持 POSIX 权限的系统，退回默认临时目录并依赖用户目录隔离
+            return Files.createTempDirectory("continew-license-");
+        }
     }
 
     /**
@@ -170,27 +193,25 @@ public class ServerInfoUtils {
     private static String getLinuxCpuSerial() {
         String result = StringConstants.EMPTY;
         String cpuIdCmd = "dmidecode";
-        BufferedReader bufferedReader = null;
+        // 使用绝对路径调用 shell，避免依赖可被篡改的 PATH 环境变量
         try {
-            // 使用绝对路径调用 shell，避免依赖可被篡改的 PATH 环境变量
             Process p = Runtime.getRuntime().exec(new String[] {"/bin/sh", "-c", cpuIdCmd});
-            bufferedReader = new BufferedReader(
-                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8));
-            String line = null;
-            int index = -1;
-            while ((line = bufferedReader.readLine()) != null) {
-                // 寻找标示字符串[hwaddr]
-                index = line.toLowerCase().indexOf("uuid");
-                if (index >= 0) {
-                    // 取出mac地址并去除2边空格
-                    result = line.substring(index + "uuid".length() + 1).trim();
-                    break;
+            try (BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(p.getInputStream(), StandardCharsets.UTF_8))) {
+                String line;
+                int index;
+                while ((line = bufferedReader.readLine()) != null) {
+                    // 寻找标示字符串[uuid]
+                    index = line.toLowerCase().indexOf("uuid");
+                    if (index >= 0) {
+                        // 取出序列号并去除两边空格
+                        result = line.substring(index + "uuid".length() + 1).trim();
+                        break;
+                    }
                 }
             }
         } catch (IOException e) {
             LOGGER.error("获取Linux cpu信息错误 {}", e.getMessage());
-        } finally {
-            IoUtil.close(bufferedReader);
         }
         return result.trim();
     }

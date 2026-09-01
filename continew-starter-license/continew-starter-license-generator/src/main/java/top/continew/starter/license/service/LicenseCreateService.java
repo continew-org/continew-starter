@@ -101,8 +101,8 @@ public class LicenseCreateService {
     public void generateLicense(LicenseCreatorParamVO paramVO) throws Exception {
         BuildCreatorResp buildCreatorResp = buildCreator(paramVO);
         LicenseCreatorParam param = buildCreatorResp.getParam();
-        ZipFile clientZipFile = buildCreatorResp.getClientZipFile();
-        try {
+        // ZipFile 持有文件句柄，生成完成后随 try-with-resources 关闭
+        try (ZipFile clientZipFile = buildCreatorResp.getClientZipFile()) {
             LicenseParam licenseParam = initLicenseParam(param);
             LicenseManager licenseManager = new ServerLicenseManager(licenseParam);
             LicenseContent licenseContent = initLicenseContent(param);

@@ -802,6 +802,13 @@
                 <sonar.organization>continew-org</sonar.organization>
                 <sonar.projectKey>continew-org_continew-starter</sonar.projectKey>
                 <sonar.moduleKey>${project.groupId}:${project.artifactId}</sonar.moduleKey>
+                <!--
+                    S3252：项目统一使用 Hutool 门面类 StrUtil/ValidateUtil/URLEncodeUtil 等调用静态方法，
+                    其父类 CharSequenceUtil/Validator/URLEncodeUtil 属实现细节，经门面访问是 Hutool 官方推荐用法，故关闭该规则。
+                -->
+                <sonar.issue.ignore.multicriteria>S3252</sonar.issue.ignore.multicriteria>
+                <sonar.issue.ignore.multicriteria.S3252.ruleKey>java:S3252</sonar.issue.ignore.multicriteria.S3252.ruleKey>
+                <sonar.issue.ignore.multicriteria.S3252.resourceKey>**/*</sonar.issue.ignore.multicriteria.S3252.resourceKey>
             </properties>
             <activation>
                 <activeByDefault>false</activeByDefault>

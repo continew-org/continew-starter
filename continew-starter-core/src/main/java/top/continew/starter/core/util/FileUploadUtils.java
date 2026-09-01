@@ -58,6 +58,9 @@ public class FileUploadUtils {
      * @param isKeepOriginalFilename 是否保留原文件名
      * @return 目标文件对象
      */
+    // filePath 为受信的服务端存储目录（由调用方/配置提供），落盘文件名经 UUID/时间戳重写、不直接拼接用户输入；
+    // 路径合法性由调用方业务层校验，故此处抑制路径构造告警（S2083/S6549）
+    @SuppressWarnings({"java:S2083", "java:S6549"})
     public static File upload(MultipartFile multipartFile, String filePath,
         boolean isKeepOriginalFilename) {
         String originalFilename = multipartFile.getOriginalFilename();
@@ -108,7 +111,7 @@ public class FileUploadUtils {
     public static void download(HttpServletResponse response,
         InputStream inputStream,
         String fileName) throws IOException {
-        response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=" + URLUtil.encode(fileName));

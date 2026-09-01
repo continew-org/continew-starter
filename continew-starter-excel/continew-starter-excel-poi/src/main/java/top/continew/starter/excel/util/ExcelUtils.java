@@ -371,28 +371,19 @@ public class ExcelUtils {
             return null;
         }
         // 解析表格数据
-        InputStream in;
-        String fileName;
-        if (mFile != null) {
-            // 上传文件解析
-            in = mFile.getInputStream();
-            fileName = getString(mFile.getOriginalFilename()).toLowerCase();
-        } else {
-            // 本地文件解析
-            in = new FileInputStream(file);
-            fileName = file.getName().toLowerCase();
-        }
-        Workbook book;
-        if (fileName.endsWith(XLSX)) {
-            book = new XSSFWorkbook(in);
-        } else if (fileName.endsWith(XLS)) {
-            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(in);
-            book = new HSSFWorkbook(poifsFileSystem);
-        } else {
+        try (InputStream in = mFile != null ? mFile.getInputStream() : new FileInputStream(file)) {
+            String fileName = (mFile != null ? getString(mFile.getOriginalFilename())
+                : file.getName()).toLowerCase();
+            if (fileName.endsWith(XLSX)) {
+                return new XSSFWorkbook(in);
+            }
+            if (fileName.endsWith(XLS)) {
+                try (POIFSFileSystem poifsFileSystem = new POIFSFileSystem(in)) {
+                    return new HSSFWorkbook(poifsFileSystem);
+                }
+            }
             return null;
         }
-        in.close();
-        return book;
     }
 
     private static JSONArray readSheet(Sheet sheet) {

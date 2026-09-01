@@ -186,6 +186,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
     public void update(C req, Long id) {
         this.beforeUpdate(req, id);
         T entity = this.getById(id);
+        CheckUtils.throwIfNull(entity, "更新失败，数据不存在或已被删除：{}", id);
         BeanUtil.copyProperties(req, entity, CopyOptions.create().ignoreNullValue());
         baseMapper.updateById(entity);
         this.afterUpdate(req, entity);
@@ -290,8 +291,10 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     private <X> Class<X> getTypeArgument(int index) {
         Class<?>[] typeArguments = ClassUtils.getTypeArguments(this.getClass());
-        CheckUtils.throwIf(typeArguments.length <= index, "无法解析类 [{}] 的第 [{}] 个泛型参数", this
-            .getClass().getName(), index);
+        if (typeArguments == null || typeArguments.length <= index) {
+            throw new IllegalArgumentException("无法解析类 [" + this.getClass().getName() + "] 的第 ["
+                + index + "] 个泛型参数");
+        }
         return (Class<X>) typeArguments[index];
     }
 

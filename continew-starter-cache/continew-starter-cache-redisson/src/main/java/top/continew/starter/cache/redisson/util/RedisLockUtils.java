@@ -47,6 +47,8 @@ public class RedisLockUtils implements AutoCloseable {
     /**
      * Redisson 客户端
      */
+    // 双重检查锁定的单例引用，volatile 保证可见性与有序性；RedissonClient 自身线程安全（S3077 保守误报）
+    @SuppressWarnings("java:S3077")
     private static volatile RedissonClient client;
 
     /**
@@ -78,6 +80,8 @@ public class RedisLockUtils implements AutoCloseable {
     /**
      * 私有构造函数，防止外部实例化
      */
+    // 锁的释放由 close()/unlock() 在锁确实持有时负责；获取失败或中断时本就未加锁，不应在构造函数内释放（S2222 误报）
+    @SuppressWarnings("java:S2222")
     private RedisLockUtils(RLock lock, long expireTime, long timeout, TimeUnit unit) {
         this.lock = lock;
         try {
