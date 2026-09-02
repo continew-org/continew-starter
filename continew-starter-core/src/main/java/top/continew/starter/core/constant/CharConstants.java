@@ -85,7 +85,7 @@ public class CharConstants {
     /**
      * 等号 {@code '='}
      *
-     * @deprecated 常量名与 {@link Object#equals(Object)} 拼写相近易引起误解，请改用 {@link #EQUAL_SIGN}
+     * @deprecated 常量名与 {@link Object#equals(Object)} 拼写相近易引起误解，请改用 {@link #EQUAL_SIGN}；将于 3.0.0 移除（will be removed in version 3.0.0）
      */
     @Deprecated(since = "2.17.0", forRemoval = true)
     @SuppressWarnings("java:S1845")

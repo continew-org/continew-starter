@@ -322,9 +322,9 @@ public class ServerInfoUtils {
      * <p>获取Mac地址</p>
      *
      * @return List&lt;String&gt; Mac地址
-     * @throws Exception 默认异常
+     * @throws SocketException 获取网络接口信息失败
      */
-    public static Set<String> getMacAddress() throws Exception {
+    public static Set<String> getMacAddress() throws SocketException {
         // 获取所有网络接口
         Set<InetAddress> inetAddresses = getLocalAllInetAddress();
         if (CollectionUtil.isNotEmpty(inetAddresses)) {
@@ -337,9 +337,9 @@ public class ServerInfoUtils {
      * <p>获取IP地址</p>
      *
      * @return List&lt;String&gt; IP地址
-     * @throws Exception 默认异常
+     * @throws SocketException 获取网络接口信息失败
      */
-    public static Set<String> getIpAddress() throws Exception {
+    public static Set<String> getIpAddress() throws SocketException {
         // 获取所有网络接口
         Set<InetAddress> inetAddresses = getLocalAllInetAddress();
         if (CollectionUtil.isNotEmpty(inetAddresses)) {
