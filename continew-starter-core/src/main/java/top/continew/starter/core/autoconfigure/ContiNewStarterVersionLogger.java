@@ -43,7 +43,7 @@ public class ContiNewStarterVersionLogger implements ApplicationListener<Applica
         Class<?> mainApplicationClass = event.getSpringApplication().getMainApplicationClass();
         Logger log = LoggerFactory.getLogger(mainApplicationClass);
         if (log.isDebugEnabled()) {
-            log.debug("Running with ContiNew Starter v{}", ContiNewStarterVersion.getVersion());
+            log.debug("Running with ContiNew Starter v{}", ContiNewStarterVersion.VERSION);
         }
     }
 }

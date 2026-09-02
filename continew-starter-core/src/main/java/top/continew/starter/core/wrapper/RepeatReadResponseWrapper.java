@@ -66,6 +66,7 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
 
             @Override
             public void setWriteListener(WriteListener writeListener) {
+                // 同步缓存输出流不支持异步写监听，这里有意留空
             }
 
             @Override

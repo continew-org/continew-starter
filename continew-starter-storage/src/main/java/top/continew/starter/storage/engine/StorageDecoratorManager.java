@@ -27,7 +27,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 /**
  * 存储装饰器管理器
@@ -63,13 +62,10 @@ public class StorageDecoratorManager {
 
         for (Map.Entry<String, StorageStrategyDecorator> entry : decorators.entrySet()) {
             StorageStrategyDecorator<?> decorator = entry.getValue();
-            Class<?> targetClass = decorator.getTargetStrategyClass();
+            Class<? extends StorageStrategy> targetClass = decorator.getTargetStrategyClass();
 
             if (targetClass != null) {
-                decoratorMap
-                    .computeIfAbsent((Class<? extends StorageStrategy>) targetClass,
-                        k -> new ArrayList<>())
-                    .add(decorator);
+                decoratorMap.computeIfAbsent(targetClass, k -> new ArrayList<>()).add(decorator);
             }
         }
 
@@ -137,7 +133,7 @@ public class StorageDecoratorManager {
         return result.stream()
             .distinct()
             .sorted(Comparator.comparingInt(StorageStrategyDecorator::getOrder))
-            .collect(Collectors.toList());
+            .toList();
     }
 
     /**
@@ -146,14 +142,11 @@ public class StorageDecoratorManager {
      * @param decorator 装饰器
      */
     public void registerDecorator(StorageStrategyDecorator<?> decorator) {
-        Class<?> targetClass = decorator.getTargetStrategyClass();
+        Class<? extends StorageStrategy> targetClass = decorator.getTargetStrategyClass();
         if (targetClass != null) {
-            decoratorMap
-                .computeIfAbsent((Class<? extends StorageStrategy>) targetClass,
-                    k -> new ArrayList<>())
-                .add(decorator);
+            decoratorMap.computeIfAbsent(targetClass, k -> new ArrayList<>()).add(decorator);
             // 重新排序
-            decoratorMap.get((Class<? extends StorageStrategy>) targetClass)
+            decoratorMap.get(targetClass)
                 .sort(Comparator.comparingInt(StorageStrategyDecorator::getOrder));
         }
     }
@@ -164,10 +157,9 @@ public class StorageDecoratorManager {
      * @param decorator 装饰器
      */
     public void unregisterDecorator(StorageStrategyDecorator<?> decorator) {
-        Class<?> targetClass = decorator.getTargetStrategyClass();
+        Class<? extends StorageStrategy> targetClass = decorator.getTargetStrategyClass();
         if (targetClass != null) {
-            List<StorageStrategyDecorator<?>> decorators = decoratorMap
-                .get((Class<? extends StorageStrategy>) targetClass);
+            List<StorageStrategyDecorator<?>> decorators = decoratorMap.get(targetClass);
             if (decorators != null) {
                 decorators.remove(decorator);
             }

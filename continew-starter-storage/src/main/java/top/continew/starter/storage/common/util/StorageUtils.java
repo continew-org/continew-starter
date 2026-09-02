@@ -22,6 +22,7 @@ import cn.hutool.core.util.StrUtil;
 import software.amazon.awssdk.regions.Region;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 /**
  * 存储工具
@@ -30,6 +31,9 @@ import java.time.LocalDate;
  * @since 2.14.0
  */
 public class StorageUtils {
+
+    private StorageUtils() {
+    }
 
     /**
      * 获取区域
@@ -42,7 +46,7 @@ public class StorageUtils {
      * 生成默认路径：年/月/日/
      */
     public static String generatePath() {
-        LocalDate date = LocalDate.now();
+        LocalDate date = LocalDate.now(ZoneId.systemDefault());
         return String.format("%d/%d/%d/", date.getYear(), date.getMonthValue(),
             date.getDayOfMonth());
     }

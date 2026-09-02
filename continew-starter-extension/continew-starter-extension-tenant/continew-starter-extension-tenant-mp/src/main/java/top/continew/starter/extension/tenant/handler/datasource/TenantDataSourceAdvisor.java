@@ -31,10 +31,12 @@ import org.springframework.beans.factory.BeanFactoryAware;
  * @author Charles7c
  * @since 2.7.0
  */
+// Advisor 为 Spring 单例 Bean，按对象标识工作、不会真正序列化，故无需按字段重写 equals/hashCode
+@SuppressWarnings("java:S2160")
 public class TenantDataSourceAdvisor extends AbstractPointcutAdvisor implements BeanFactoryAware {
 
-    private final Advice advice;
-    private final Pointcut pointcut;
+    private final transient Advice advice;
+    private final transient Pointcut pointcut;
 
     public TenantDataSourceAdvisor(TenantDataSourceInterceptor interceptor) {
         this.advice = interceptor;

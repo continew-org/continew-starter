@@ -34,6 +34,7 @@ import top.continew.starter.encrypt.password.encoder.util.PasswordEncoderUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * 密码编码器自动配置
@@ -68,7 +69,9 @@ public class PasswordEncoderAutoConfiguration {
             .getEncoder(PasswordEncoderAlgorithm.PBKDF2));
         encoders.put(PasswordEncoderAlgorithm.ARGON2.name().toLowerCase(), PasswordEncoderUtil
             .getEncoder(PasswordEncoderAlgorithm.ARGON2));
-        PasswordEncoderAlgorithm algorithm = properties.getAlgorithm();
+        // 配置缺省时回退到默认算法（BCRYPT），避免 algorithm 为 null 导致 NPE
+        PasswordEncoderAlgorithm algorithm = Optional.ofNullable(properties.getAlgorithm())
+            .orElse(PasswordEncoderAlgorithm.BCRYPT);
         CheckUtils.throwIf(PasswordEncoderUtil.getEncoder(algorithm) == null, "不支持的加密算法: {}",
             algorithm);
         return new DelegatingPasswordEncoder(algorithm.name().toLowerCase(), encoders);

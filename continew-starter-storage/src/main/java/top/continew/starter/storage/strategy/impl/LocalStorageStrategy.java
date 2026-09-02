@@ -43,6 +43,7 @@ import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -260,6 +261,7 @@ public class LocalStorageStrategy implements StorageStrategy {
         Path searchPath = normalizedPrefix != null ? basePath.resolve(normalizedPrefix) : basePath;
 
         try (Stream<Path> stream = Files.walk(searchPath)) {
+            // 返回可变列表以保持 StorageStrategy 接口既有契约，允许调用方按需修改结果集
             return stream.filter(Files::isRegularFile).limit(maxKeys).map(path -> {
                 String relativePath = basePath.relativize(path).toString();
                 return getFileInfo(bucket, relativePath);
@@ -482,13 +484,7 @@ public class LocalStorageStrategy implements StorageStrategy {
         Path tempUploadPath = resolveMultipartTempPath(bucket, uploadId);
         if (Files.exists(tempUploadPath)) {
             try (Stream<Path> paths = Files.walk(tempUploadPath)) {
-                for (Path path : paths.sorted(Comparator.reverseOrder()).toList()) {
-                    try {
-                        Files.deleteIfExists(path);
-                    } catch (IOException e) {
-                        LOGGER.error("删除分片临时文件失败: path={}", path, e);
-                    }
-                }
+                paths.sorted(Comparator.reverseOrder()).forEach(this::deleteIfExistsQuietly);
             } catch (IOException e) {
                 LOGGER.error("清理临时文件失败: uploadId={}", uploadId, e);
             }
@@ -496,9 +492,25 @@ public class LocalStorageStrategy implements StorageStrategy {
     }
 
     /**
-     * 计算文件MD5
+     * 删除单个文件，删除失败仅记录日志不中断清理流程
      */
-    private String calculateMD5(Path path) throws Exception {
+    private void deleteIfExistsQuietly(Path path) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException e) {
+            LOGGER.error("删除分片临时文件失败: path={}", path, e);
+        }
+    }
+
+    /**
+     * 计算文件MD5
+     *
+     * <p>
+     * 此处 MD5 仅用于生成对象存储 ETag 与分片完整性校验（与 S3 ETag 算法一致），<b>不用于密码学安全用途</b>（不做签名、不做防伪完整性保证），故可接受使用 MD5。
+     * </p>
+     */
+    @SuppressWarnings("java:S4790")
+    private String calculateMD5(Path path) throws IOException, NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
         try (InputStream is = Files.newInputStream(path)) {
             byte[] buffer = new byte[8192];

@@ -64,7 +64,9 @@ public class ReflectUtils {
      */
     public static List<Field> getNonStaticFields(Class<?> beanClass) throws SecurityException {
         Field[] fields = ReflectUtil.getFields(beanClass);
-        return Arrays.stream(fields).filter(f -> !Modifier.isStatic(f.getModifiers()))
+        // 返回可变列表，保持工具方法既有契约，允许调用方按需增删排序
+        return Arrays.stream(fields)
+            .filter(f -> !Modifier.isStatic(f.getModifiers()))
             .collect(Collectors.toList());
     }
 
@@ -80,7 +82,8 @@ public class ReflectUtils {
      * @author lishuyan
      * @since 2.13.2
      */
-    @SuppressWarnings("unchecked")
+    // 方法引用需经 unreflect 绑定不可见的非 public 方法，setAccessible 为必要手段
+    @SuppressWarnings({"unchecked", "java:S3011"})
     public static <T, K> Function<T, K> createMethodReference(Class<T> clazz, String methodName) {
         try {
             Method method = ReflectUtil.getMethodByName(clazz, methodName);

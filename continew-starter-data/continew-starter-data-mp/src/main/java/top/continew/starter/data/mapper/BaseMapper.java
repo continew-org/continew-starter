@@ -33,6 +33,8 @@ import java.util.Collection;
  * @author Charles7c
  * @since 1.0.0
  */
+// 刻意与 MyBatis-Plus 的 BaseMapper 同名，作为其扩展基类；重命名会破坏下游所有 Mapper 的继承关系
+@SuppressWarnings("java:S2176")
 public interface BaseMapper<T> extends com.baomidou.mybatisplus.core.mapper.BaseMapper<T> {
 
     /**

@@ -120,15 +120,13 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
     private void encryptEntity(List<Field> fieldList, Object entity) {
         for (Field field : fieldList) {
             Object fieldValue = ReflectUtil.getFieldValue(entity, field);
-            if (fieldValue == null) {
-                continue;
+            if (fieldValue != null) {
+                String strValue = String.valueOf(fieldValue);
+                if (CharSequenceUtil.isNotBlank(strValue)) {
+                    ReflectUtil.setFieldValue(entity, field, EncryptHelper.encrypt(strValue, field
+                        .getAnnotation(FieldEncrypt.class)));
+                }
             }
-            String strValue = String.valueOf(fieldValue);
-            if (CharSequenceUtil.isBlank(strValue)) {
-                continue;
-            }
-            ReflectUtil.setFieldValue(entity, field, EncryptHelper.encrypt(strValue, field
-                .getAnnotation(FieldEncrypt.class)));
         }
     }
 
@@ -172,7 +170,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
             String[] elArr = sqlSet.split(StringConstants.COMMA);
             Map<String, String> propMap = new HashMap<>(elArr.length);
             Arrays.stream(elArr).forEach(el -> {
-                String[] elPart = el.split(StringConstants.EQUALS);
+                String[] elPart = el.split(StringConstants.EQUAL_SIGN);
                 propMap.put(elPart[0], elPart[1]);
             });
             // 获取加密字段

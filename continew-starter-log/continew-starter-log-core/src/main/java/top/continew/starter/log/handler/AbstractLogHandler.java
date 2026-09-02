@@ -211,10 +211,12 @@ public abstract class AbstractLogHandler implements LogHandler {
         logContextThread.set(context);
         RecordableHttpRequest request = context.getRequest();
         String param = AccessLogUtils.getParam(request, properties);
-        LOGGER.info(param != null ? "[Start] [{}] {} param: {}" : "[Start] [{}] {}",
-            request.getMethod(), request
-                .getPath(),
-            param);
+        if (param != null) {
+            LOGGER.info("[Start] [{}] {} param: {}", request.getMethod(), request.getPath(),
+                param);
+        } else {
+            LOGGER.info("[Start] [{}] {}", request.getMethod(), request.getPath());
+        }
     }
 
     @Override

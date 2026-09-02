@@ -24,6 +24,9 @@ package top.continew.starter.messaging.mqtt.constant;
  */
 public class MqttConstant {
 
+    private MqttConstant() {
+    }
+
     /**
      * MQTT 入站通道名称（消费者使用，接收消息的入口）
      */

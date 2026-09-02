@@ -118,15 +118,13 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
         // 解密处理
         for (Field field : fieldList) {
             Object fieldValue = ReflectUtil.getFieldValue(result, field);
-            if (fieldValue == null) {
-                continue;
+            if (fieldValue != null) {
+                String strValue = String.valueOf(fieldValue);
+                if (CharSequenceUtil.isNotBlank(strValue)) {
+                    ReflectUtil.setFieldValue(result, field, EncryptHelper.decrypt(strValue, field
+                        .getAnnotation(FieldEncrypt.class)));
+                }
             }
-            String strValue = String.valueOf(fieldValue);
-            if (CharSequenceUtil.isBlank(strValue)) {
-                continue;
-            }
-            ReflectUtil.setFieldValue(result, field, EncryptHelper.decrypt(strValue, field
-                .getAnnotation(FieldEncrypt.class)));
         }
     }
 }

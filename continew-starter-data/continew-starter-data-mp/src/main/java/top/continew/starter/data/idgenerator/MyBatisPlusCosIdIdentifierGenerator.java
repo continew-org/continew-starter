@@ -30,6 +30,9 @@ import org.springframework.context.annotation.Lazy;
  */
 public class MyBatisPlusCosIdIdentifierGenerator implements IdentifierGenerator {
 
+    // "__share__SnowflakeId" 为 CosId 框架内置的共享雪花算法 Bean 名称，无法修改其命名；
+    // 该类由 @Bean 方法创建并经 Spring 后置处理注入，沿用字段注入以保持 ID 生成器的轻量实例化方式
+    @SuppressWarnings({"java:S6830", "java:S6813"})
     @Qualifier("__share__SnowflakeId")
     @Lazy
     @Autowired

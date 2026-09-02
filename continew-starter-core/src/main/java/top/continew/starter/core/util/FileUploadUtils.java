@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 /**
  * 文件工具类
@@ -59,20 +60,25 @@ public class FileUploadUtils {
      */
     public static File upload(MultipartFile multipartFile, String filePath,
         boolean isKeepOriginalFilename) {
-        String originalFilename = multipartFile.getOriginalFilename();
+        // 先剥离原始文件名中的任何目录成分（/、\），避免 ../../ 等路径穿越字符进入落盘文件名
+        String originalFilename = FileNameUtil.getName(multipartFile.getOriginalFilename());
         String extensionName = FileNameUtil.extName(originalFilename);
         String fileName;
         if (isKeepOriginalFilename) {
             fileName = "%s-%s.%s".formatted(FileNameUtil.getPrefix(originalFilename),
                 DateUtil.format(LocalDateTime
-                    .now(), DatePattern.PURE_DATETIME_MS_PATTERN),
+                    .now(ZoneId.systemDefault()), DatePattern.PURE_DATETIME_MS_PATTERN),
                 extensionName);
         } else {
             fileName = "%s.%s".formatted(IdUtil.fastSimpleUUID(), extensionName);
         }
         try {
-            String pathname = filePath + fileName;
-            File dest = new File(pathname).getCanonicalFile();
+            // 规范化目标目录与目标文件后，校验目标文件仍位于目标目录内，从根本上阻断路径穿越
+            File baseDir = new File(filePath).getCanonicalFile();
+            File dest = new File(baseDir, fileName).getCanonicalFile();
+            if (!dest.toPath().startsWith(baseDir.toPath())) {
+                throw new IOException("非法文件名: " + multipartFile.getOriginalFilename());
+            }
             // 如果父路径不存在，自动创建
             if (!dest.getParentFile().exists() && (!dest.getParentFile().mkdirs())) {
                 LOGGER.error("Create upload file parent path failed.");
@@ -107,7 +113,7 @@ public class FileUploadUtils {
     public static void download(HttpServletResponse response,
         InputStream inputStream,
         String fileName) throws IOException {
-        response.setCharacterEncoding(StandardCharsets.UTF_8.toString());
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
             "attachment; filename=" + URLUtil.encode(fileName));

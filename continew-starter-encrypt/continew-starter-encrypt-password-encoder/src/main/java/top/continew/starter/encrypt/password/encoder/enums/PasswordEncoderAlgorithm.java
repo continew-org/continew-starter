@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 public enum PasswordEncoderAlgorithm {
 
     /** BCrypt加密算法 */
-    BCRYPT(Pattern.compile("\\A\\$2(a|y|b)?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}")),
+    BCRYPT(Pattern.compile("\\A\\$2[ayb]?\\$(\\d\\d)\\$[./0-9A-Za-z]{53}")),
 
     /** SCrypt加密算法 */
     SCRYPT(Pattern.compile("\\A\\$s0\\$[0-9a-f]+\\$[0-9a-f]+\\$[0-9a-f]+")),

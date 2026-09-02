@@ -17,7 +17,7 @@
 package top.continew.starter.core.util.expression;
 
 import java.lang.reflect.Method;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * 表达式解析器
@@ -25,9 +25,9 @@ import java.util.function.Function;
  * @author Charles7c
  * @since 2.2.0
  */
-public class ExpressionEvaluator implements Function<Object, Object> {
+public class ExpressionEvaluator implements UnaryOperator<Object> {
 
-    private final Function<Object, Object> evaluator;
+    private final UnaryOperator<Object> evaluator;
 
     public ExpressionEvaluator(String script, Method defineMethod) {
         this.evaluator = new SpelEvaluator(script, defineMethod);
@@ -38,7 +38,7 @@ public class ExpressionEvaluator implements Function<Object, Object> {
         return evaluator.apply(rootObject);
     }
 
-    Function<Object, Object> getEvaluator() {
+    UnaryOperator<Object> getEvaluator() {
         return evaluator;
     }
 }

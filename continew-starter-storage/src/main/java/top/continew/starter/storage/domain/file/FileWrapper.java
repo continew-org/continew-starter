@@ -31,7 +31,7 @@ import top.continew.starter.storage.common.exception.StorageException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collection;
+import java.util.function.Function;
 
 /**
  * 文件包装器，用于统一处理不同类型的输入
@@ -111,18 +111,18 @@ public class FileWrapper {
         }
 
         // 如果是 MultipartFile，直接处理
-        if (obj instanceof MultipartFile) {
-            return of((MultipartFile) obj);
+        if (obj instanceof MultipartFile file) {
+            return of(file);
         }
 
         // 如果是 byte[]
-        if (obj instanceof byte[]) {
-            return of((byte[]) obj, filename, contentType);
+        if (obj instanceof byte[] bytes) {
+            return of(bytes, filename, contentType);
         }
 
         // 如果是 InputStream
-        if (obj instanceof InputStream) {
-            return of((InputStream) obj, filename, contentType);
+        if (obj instanceof InputStream inputStream) {
+            return of(inputStream, filename, contentType);
         }
 
         // 其他对象，转换为 JSON
@@ -169,61 +169,55 @@ public class FileWrapper {
      * 尝试从当前 HTTP 请求中获取文件名
      */
     private static String tryGetFilenameFromRequest() {
-        try {
-            RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-            if (requestAttributes instanceof ServletRequestAttributes) {
-                HttpServletRequest request =
-                    ((ServletRequestAttributes) requestAttributes).getRequest();
-
-                // 检查是否是 multipart 请求
-                String requestContentType = request.getContentType();
-                if (requestContentType != null
-                    && requestContentType.toLowerCase().startsWith("multipart/")) {
-                    Collection<Part> parts = request.getParts();
-
-                    for (Part part : parts) {
-                        String submittedFilename = part.getSubmittedFileName();
-                        if (submittedFilename != null && !submittedFilename.trim().isEmpty()) {
-                            return submittedFilename;
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            LOGGER.debug("从请求中获取文件名时发生异常: {}", e.getMessage());
-        }
-        return null;
+        return findInMultipartParts(part -> {
+            String submittedFilename = part.getSubmittedFileName();
+            return (submittedFilename != null && !submittedFilename.trim().isEmpty())
+                ? submittedFilename
+                : null;
+        });
     }
 
     /**
      * 尝试从当前 HTTP 请求中获取 ContentType
      */
     private static String tryGetContentTypeFromRequest() {
+        return findInMultipartParts(part -> {
+            // 只处理文件部分
+            if (part.getSubmittedFileName() == null) {
+                return null;
+            }
+            String partContentType = part.getContentType();
+            return (partContentType != null && !partContentType.trim().isEmpty())
+                ? partContentType
+                : null;
+        });
+    }
+
+    /**
+     * 在当前请求的 multipart 文件分片里查找第一个匹配的字段值，非 multipart 请求或查找失败返回 {@code null}
+     *
+     * @param extractor 从 {@link Part} 中提取目标值的逻辑，返回 {@code null} 表示未匹配
+     */
+    private static String findInMultipartParts(Function<Part, String> extractor) {
         try {
             RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
-            if (requestAttributes instanceof ServletRequestAttributes) {
-                HttpServletRequest request =
-                    ((ServletRequestAttributes) requestAttributes).getRequest();
-
-                // 检查是否是 multipart 请求
-                String requestContentType = request.getContentType();
-                if (requestContentType != null
-                    && requestContentType.toLowerCase().startsWith("multipart/")) {
-                    Collection<Part> parts = request.getParts();
-
-                    for (Part part : parts) {
-                        // 只处理文件部分
-                        if (part.getSubmittedFileName() != null) {
-                            String partContentType = part.getContentType();
-                            if (partContentType != null && !partContentType.trim().isEmpty()) {
-                                return partContentType;
-                            }
-                        }
-                    }
+            if (!(requestAttributes instanceof ServletRequestAttributes servletRequestAttributes)) {
+                return null;
+            }
+            HttpServletRequest request = servletRequestAttributes.getRequest();
+            String requestContentType = request.getContentType();
+            if (requestContentType == null
+                || !requestContentType.toLowerCase().startsWith("multipart/")) {
+                return null;
+            }
+            for (Part part : request.getParts()) {
+                String value = extractor.apply(part);
+                if (value != null) {
+                    return value;
                 }
             }
         } catch (Exception e) {
-            LOGGER.debug("从请求中获取 ContentType 时发生异常: {}", e.getMessage());
+            LOGGER.debug("从 multipart 请求中获取文件信息时发生异常: {}", e.getMessage());
         }
         return null;
     }

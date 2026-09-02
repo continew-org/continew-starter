@@ -133,6 +133,8 @@ public class R<T> implements Response {
         status.setMsg(msg);
     }
 
+    // 与 getPayload() 实现相同，但 getData 供 Jackson 序列化 data 字段，getPayload 为 GracefulResponse 接口实现（已 @JsonIgnore）
+    @SuppressWarnings("java:S4144")
     public T getData() {
         return data;
     }

@@ -30,6 +30,8 @@ import java.util.Objects;
  * @author echo
  * @since 2.15.0
  */
+// 消息仅在 Spring Integration 管道内传递，payload 为任意业务对象，不会走 Java 原生序列化
+@SuppressWarnings("java:S1948")
 public class MqttMessage implements Serializable {
 
     /**

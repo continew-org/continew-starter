@@ -55,11 +55,10 @@ import java.util.prefs.Preferences;
  * @author loach
  * @since 2.12.0
  */
+// java.util.Date 为 truelicense LicenseContent API 与对外参数模型（签发/过期时间）的数据边界，无法整体迁移 java.time（S2143 已在 Sonar 分析配置中按文件排除）
 public class LicenseCreateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LicenseCreateService.class);
-
-    private static volatile LicenseCreateService instance;
 
     private static final X500Principal DEFAULT_HOLDER_ISSUER = new X500Principal(
         "CN=localhost, OU=localhost, O=localhost, L=SH, ST=SH, C=CN");
@@ -73,14 +72,15 @@ public class LicenseCreateService {
      * @return {@link LicenseCreateService }
      */
     public static LicenseCreateService getInstance() {
-        if (instance == null) {
-            synchronized (LicenseCreateService.class) {
-                if (instance == null) {
-                    instance = new LicenseCreateService();
-                }
-            }
-        }
-        return instance;
+        return Holder.INSTANCE;
+    }
+
+    /**
+     * 单例持有者：由 JVM 类加载机制保证线程安全与懒加载，无需 volatile 与同步
+     */
+    private static class Holder {
+
+        private static final LicenseCreateService INSTANCE = new LicenseCreateService();
     }
 
     /**
@@ -101,8 +101,8 @@ public class LicenseCreateService {
     public void generateLicense(LicenseCreatorParamVO paramVO) throws Exception {
         BuildCreatorResp buildCreatorResp = buildCreator(paramVO);
         LicenseCreatorParam param = buildCreatorResp.getParam();
-        ZipFile clientZipFile = buildCreatorResp.getClientZipFile();
-        try {
+        // ZipFile 持有文件句柄，生成完成后随 try-with-resources 关闭
+        try (ZipFile clientZipFile = buildCreatorResp.getClientZipFile()) {
             LicenseParam licenseParam = initLicenseParam(param);
             LicenseManager licenseManager = new ServerLicenseManager(licenseParam);
             LicenseContent licenseContent = initLicenseContent(param);
@@ -119,9 +119,9 @@ public class LicenseCreateService {
      *
      * @param paramVO 创建参数封装对象，包含客户名、密码、描述、扩展信息等。
      * @return Map 包含 LicenseCreatorParam（creator） 和 生成的客户端 Zip 文件（clientZipFile）
-     * @throws Exception 命令执行或文件操作过程中出现异常
+     * @throws IOException 命令执行或文件操作过程中出现异常
      */
-    private BuildCreatorResp buildCreator(LicenseCreatorParamVO paramVO) throws Exception {
+    private BuildCreatorResp buildCreator(LicenseCreatorParamVO paramVO) throws IOException {
         String customerName = paramVO.getCustomerName();
         String privateAlias = customerName + "-private-alias";
         String publicAlias = customerName + "-public-alias";
@@ -189,9 +189,8 @@ public class LicenseCreateService {
      * 校验JDK版本
      *
      * @return boole T 17 版本 F 非 17 版本
-     * @throws Exception 例外
      */
-    private boolean checkJavaVersion() throws Exception {
+    private boolean checkJavaVersion() {
         String version = System.getProperty("java.version");
         int currentVersion = 0;
         if (version.startsWith("1.")) {
@@ -204,8 +203,7 @@ public class LicenseCreateService {
 
     private ZipFile generateClientConfig(LicenseCreatorParam param,
         String currentCustomerDir,
-        String publicAlias) throws Exception {
-        ZipFile clientLicense = new ZipFile(currentCustomerDir + "clientLicense.zip");
+        String publicAlias) throws IOException {
         File config = new File(currentCustomerDir + "clientConfig.json");
         ConfigParam configParam = new ConfigParam();
         configParam.setPublicAlias(publicAlias);
@@ -213,27 +211,28 @@ public class LicenseCreateService {
         configParam.setSubject(param.getSubject());
         ObjectMapper mapper = new ObjectMapper();
         String json = mapper.writeValueAsString(configParam);
-        FileOutputStream out = null;
-        try {
-            out = new FileOutputStream(config);
+        try (FileOutputStream out = new FileOutputStream(config)) {
             out.write(json.getBytes(StandardCharsets.UTF_8));
             out.flush();
-        } catch (Exception e) {
+        } catch (IOException e) {
             throw new LicenseException("密钥文件生成失败", e);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    throw new LicenseException("文件流关闭失败", e);
-                }
-            }
         }
         List<File> files = new ArrayList<>();
         files.add(config);
         files.add(new File(currentCustomerDir + "publicCerts.keystore"));
-        clientLicense.addFiles(files);
-        return clientLicense;
+        // ZipFile 持有文件句柄：成功返回后交由调用方 try-with-resources 关闭；
+        // 若 addFiles 抛异常则在 finally 中就地关闭，避免句柄泄漏
+        ZipFile clientLicense = new ZipFile(currentCustomerDir + "clientLicense.zip");
+        boolean success = false;
+        try {
+            clientLicense.addFiles(files);
+            success = true;
+            return clientLicense;
+        } finally {
+            if (!success) {
+                clientLicense.close();
+            }
+        }
     }
 
     /**

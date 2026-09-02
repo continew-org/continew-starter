@@ -26,6 +26,9 @@ import top.continew.starter.core.constant.StringConstants;
  */
 public class StorageConstant {
 
+    private StorageConstant() {
+    }
+
     /**
      * 默认存储平台
      */

@@ -278,9 +278,9 @@ public class MqttAutoConfiguration {
      * 配置 MQTT 消息生产者网关
      */
     @Bean
-    public GatewayProxyFactoryBean<?> mqttMessageProducer(
+    public GatewayProxyFactoryBean<MqttMessageProducer> mqttMessageProducer(
         @Qualifier(MqttConstant.MQTT_OUT_BOUND_CHANNEL_NAME) MessageChannel outboundChannel) {
-        GatewayProxyFactoryBean<?> factoryBean =
+        GatewayProxyFactoryBean<MqttMessageProducer> factoryBean =
             new GatewayProxyFactoryBean<>(MqttMessageProducer.class);
         factoryBean.setDefaultRequestChannel(outboundChannel);
         return factoryBean;

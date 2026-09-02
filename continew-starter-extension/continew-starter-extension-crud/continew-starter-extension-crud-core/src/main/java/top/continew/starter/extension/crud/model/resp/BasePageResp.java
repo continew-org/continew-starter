@@ -30,6 +30,8 @@ import java.util.List;
  * @since 2.5.2
  */
 @Schema(description = "分页响应参数")
+// 分页响应仅经 Jackson 序列化为 JSON，泛型元素不保证实现 Serializable 但不会走 Java 原生序列化
+@SuppressWarnings("java:S1948")
 public class BasePageResp<T> implements Serializable {
 
     @Serial

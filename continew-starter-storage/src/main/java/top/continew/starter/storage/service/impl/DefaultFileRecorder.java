@@ -47,7 +47,7 @@ public class DefaultFileRecorder implements FileRecorder {
 
     @Override
     public void saveFilePart(FilePartInfo filePartInfo) {
-
+        // 默认文件记录器不持久化分片信息，这里有意留空
     }
 
     @Override
@@ -57,6 +57,6 @@ public class DefaultFileRecorder implements FileRecorder {
 
     @Override
     public void deleteFileParts(String fileId) {
-
+        // 默认文件记录器不持久化分片信息，这里有意留空
     }
 }

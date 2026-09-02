@@ -117,7 +117,7 @@ public class ResponseBodyEncryptWrapper extends HttpServletResponseWrapper {
 
             @Override
             public void setWriteListener(WriteListener writeListener) {
-
+                // 同步加密输出流不支持异步写监听，这里有意留空
             }
 
             @Override

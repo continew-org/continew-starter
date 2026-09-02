@@ -33,6 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 import top.continew.starter.core.constant.StringConstants;
+import top.continew.starter.core.exception.BusinessException;
 import top.continew.starter.core.util.ReflectUtils;
 import top.continew.starter.core.util.TreeUtils;
 import top.continew.starter.core.util.validation.CheckUtils;
@@ -183,7 +184,9 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
     public void update(C req, Long id) {
         this.beforeUpdate(req, id);
         T entity = this.getById(id);
-        CheckUtils.throwIfNull(entity, "更新数据不存在，请检查后重试");
+        if (entity == null) {
+            throw new BusinessException("更新数据不存在，请检查后重试");
+        }
         BeanUtil.copyProperties(req, entity, CopyOptions.create().ignoreNullValue());
         mapper.update(entity);
         this.afterUpdate(req, entity);
@@ -291,6 +294,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      * @param obj 待填充信息
      */
     protected void fill(Object obj) {
+        /* 数据填充后置处理，默认无操作，由子类按需重写 */
     }
 
     /**

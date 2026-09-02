@@ -25,6 +25,7 @@ import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -186,6 +187,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
     public void update(C req, Long id) {
         this.beforeUpdate(req, id);
         T entity = this.getById(id);
+        CheckUtils.throwIfNull(entity, "更新失败，数据不存在或已被删除：{}", id);
         BeanUtil.copyProperties(req, entity, CopyOptions.create().ignoreNullValue());
         baseMapper.updateById(entity);
         this.afterUpdate(req, entity);
@@ -285,14 +287,17 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      * 获取当前类指定下标的泛型参数
      *
      * @param index 泛型参数下标
-     * @param <C>   泛型参数类型
+     * @param <X>   泛型参数类型
      * @return 泛型参数类型
      */
-    private <C> Class<C> getTypeArgument(int index) {
+    private <X> Class<X> getTypeArgument(int index) {
         Class<?>[] typeArguments = ClassUtils.getTypeArguments(this.getClass());
-        CheckUtils.throwIf(typeArguments.length <= index, "无法解析类 [{}] 的第 [{}] 个泛型参数", this
-            .getClass().getName(), index);
-        return (Class<C>) typeArguments[index];
+        Class<?> typeArgument = ArrayUtil.get(typeArguments, index);
+        if (typeArgument == null) {
+            throw new IllegalArgumentException("无法解析类 [" + this.getClass().getName() + "] 的第 ["
+                + index + "] 个泛型参数");
+        }
+        return (Class<X>) typeArgument;
     }
 
     /**
@@ -355,6 +360,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      * @param obj 待填充信息
      */
     protected void fill(Object obj) {
+        /* 数据填充后置处理，默认无操作，由子类按需重写 */
     }
 
     /**

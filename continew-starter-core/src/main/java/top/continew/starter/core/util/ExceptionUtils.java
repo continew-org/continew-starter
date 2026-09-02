@@ -154,13 +154,14 @@ public class ExceptionUtils {
      *
      * @param <T> /
      */
+    @SuppressWarnings("java:S112")
     public interface ExSupplier<T> {
 
         /**
          * 获取返回值
          *
          * @return /
-         * @throws Exception /
+         * @throws Exception 执行任意业务逻辑可能抛出的异常，由 {@link ExceptionUtils} 统一捕获转换
          */
         T get() throws Exception;
 

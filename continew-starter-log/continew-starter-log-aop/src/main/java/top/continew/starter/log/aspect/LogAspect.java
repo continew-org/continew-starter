@@ -106,8 +106,8 @@ public class LogAspect {
                 }
                 logDao.add(logRecord);
             } catch (Exception e) {
+                // 日志记录失败不应影响业务方法的正常返回或异常传播
                 LOGGER.error("Logging http log occurred an error: {}.", e.getMessage(), e);
-                throw e;
             }
         }
     }

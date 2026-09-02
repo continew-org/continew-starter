@@ -45,7 +45,8 @@ import java.nio.file.Path;
  * @author Charles7c
  * @since 2.15.0
  */
-@SuppressWarnings("serial")
+// FileItem 实现类（DiskFileItem）本身可序列化，接口未声明 Serializable；该字段为核心引用不可置为 transient
+@SuppressWarnings({"serial", "java:S1948"})
 public class CommonsMultipartFile implements MultipartFile, Serializable {
 
     private static final Log LOGGER = LogFactory.getLog(CommonsMultipartFile.class);
@@ -160,9 +161,13 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
                 "File has already been moved - cannot be transferred again");
         }
 
-        if (dest.exists() && !dest.delete()) {
-            throw new IOException("Destination file [" + dest
-                .getAbsolutePath() + "] already exists and could not be deleted");
+        if (dest.exists()) {
+            try {
+                Files.delete(dest.toPath());
+            } catch (IOException e) {
+                throw new IOException("Destination file [" + dest
+                    .getAbsolutePath() + "] already exists and could not be deleted", e);
+            }
         }
 
         try {

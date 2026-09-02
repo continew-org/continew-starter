@@ -28,12 +28,10 @@ import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.AbortMultipartUploadRequest;
 import software.amazon.awssdk.services.s3.model.CompleteMultipartUploadRequest;
-import software.amazon.awssdk.services.s3.model.CompletedMultipartUpload;
 import software.amazon.awssdk.services.s3.model.CompletedPart;
 import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
 import software.amazon.awssdk.services.s3.model.CreateMultipartUploadRequest;
 import software.amazon.awssdk.services.s3.model.CreateMultipartUploadResponse;
-import software.amazon.awssdk.services.s3.model.Delete;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
@@ -73,10 +71,12 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -237,11 +237,11 @@ public class OssStorageStrategy implements StorageStrategy {
             for (List<String> batch : batches) {
                 List<ObjectIdentifier> objects = batch.stream()
                     .map(path -> ObjectIdentifier.builder().key(path).build())
-                    .collect(Collectors.toList());
+                    .toList();
 
                 DeleteObjectsRequest deleteRequest = DeleteObjectsRequest.builder()
                     .bucket(bucket)
-                    .delete(Delete.builder().objects(objects).build())
+                    .delete(delete -> delete.objects(objects))
                     .build();
 
                 s3Client.deleteObjects(deleteRequest);
@@ -318,6 +318,8 @@ public class OssStorageStrategy implements StorageStrategy {
     /**
      * 列出文件
      */
+    // 返回可变列表以保持 StorageStrategy 接口既有契约，允许调用方按需修改结果集（与 LocalStorageStrategy.list 一致）
+    @SuppressWarnings("java:S6204")
     @Override
     public List<FileInfo> list(String bucket, String prefix, int maxKeys) {
         try {
@@ -397,14 +399,9 @@ public class OssStorageStrategy implements StorageStrategy {
     @Override
     public String generatePresignedUrl(String bucket, String path, long expireSeconds) {
         try {
-            GetObjectRequest getObjectRequest = GetObjectRequest.builder()
-                .bucket(bucket)
-                .key(normalizeKey(path))
-                .build();
-
             GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
                 .signatureDuration(Duration.ofSeconds(expireSeconds))
-                .getObjectRequest(getObjectRequest)
+                .getObjectRequest(getObject -> getObject.bucket(bucket).key(normalizeKey(path)))
                 .build();
 
             PresignedGetObjectRequest presignedRequest =
@@ -420,14 +417,9 @@ public class OssStorageStrategy implements StorageStrategy {
     @Override
     public String generateUploadPresignedUrl(String bucket, String path, long expireSeconds) {
         try {
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                .bucket(bucket)
-                .key(normalizeKey(path))
-                .build();
-
             PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
                 .signatureDuration(Duration.ofSeconds(expireSeconds))
-                .putObjectRequest(putObjectRequest)
+                .putObjectRequest(putObject -> putObject.bucket(bucket).key(normalizeKey(path)))
                 .build();
 
             PresignedPutObjectRequest presignedRequest =
@@ -611,14 +603,14 @@ public class OssStorageStrategy implements StorageStrategy {
                 .map(part -> CompletedPart.builder().partNumber(part.getPartNumber())
                     .eTag(part.getPartETag()).build())
                 .sorted(Comparator.comparingInt(CompletedPart::partNumber))
-                .collect(Collectors.toList());
+                .toList();
 
             // 构建请求
             CompleteMultipartUploadRequest request = CompleteMultipartUploadRequest.builder()
                 .bucket(bucket)
                 .key(key)
                 .uploadId(uploadId)
-                .multipartUpload(CompletedMultipartUpload.builder().parts(completedParts).build())
+                .multipartUpload(multipartUpload -> multipartUpload.parts(completedParts))
                 .build();
 
             // 完成上传
@@ -662,6 +654,8 @@ public class OssStorageStrategy implements StorageStrategy {
     /**
      * 列出已上传的分片
      */
+    // 返回可变列表以保持 StorageStrategy 接口既有契约，允许调用方按需修改结果集（与 LocalStorageStrategy.listParts 一致）
+    @SuppressWarnings("java:S6204")
     @Override
     public List<MultipartUploadResp> listParts(String bucket, String path, String uploadId) {
         try {
@@ -808,18 +802,15 @@ public class OssStorageStrategy implements StorageStrategy {
                 totalRead += bytesRead;
                 if (fileOutput != null) {
                     fileOutput.write(buffer, 0, bytesRead);
-                    continue;
-                }
-                if (totalRead <= uploadPartInMemoryThreshold) {
+                } else if (totalRead <= uploadPartInMemoryThreshold) {
                     memoryBuffer.write(buffer, 0, bytesRead);
-                    continue;
+                } else {
+                    // 超过阈值后，切换到文件模式，先写入已缓存内存数据
+                    tempFile = createMultipartTempFile();
+                    fileOutput = Files.newOutputStream(tempFile);
+                    memoryBuffer.writeTo(fileOutput);
+                    fileOutput.write(buffer, 0, bytesRead);
                 }
-
-                // 超过阈值后，切换到文件模式，先写入已缓存内存数据
-                tempFile = createMultipartTempFile();
-                fileOutput = Files.newOutputStream(tempFile);
-                memoryBuffer.writeTo(fileOutput);
-                fileOutput.write(buffer, 0, bytesRead);
             }
         } finally {
             if (fileOutput != null) {
@@ -840,5 +831,31 @@ public class OssStorageStrategy implements StorageStrategy {
     }
 
     private record PartPayload(byte[] bytes, Path tempFile, long size) {
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof PartPayload other)) {
+                return false;
+            }
+            return size == other.size && Objects.equals(tempFile, other.tempFile)
+                && Arrays.equals(bytes, other.bytes);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Arrays.hashCode(bytes);
+            result = 31 * result + Objects.hashCode(tempFile);
+            result = 31 * result + Long.hashCode(size);
+            return result;
+        }
+
+        @Override
+        public String toString() {
+            return "PartPayload{" + "bytes.length=" + (bytes == null ? 0 : bytes.length)
+                + ", tempFile=" + tempFile + ", size=" + size + '}';
+        }
     }
 }

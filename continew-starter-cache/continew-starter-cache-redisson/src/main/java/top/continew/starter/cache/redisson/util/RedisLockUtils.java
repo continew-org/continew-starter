@@ -47,6 +47,8 @@ public class RedisLockUtils implements AutoCloseable {
     /**
      * Redisson 客户端
      */
+    // 双重检查锁定的单例引用，volatile 保证可见性与有序性；RedissonClient 自身线程安全（S3077 保守误报）
+    @SuppressWarnings("java:S3077")
     private static volatile RedissonClient client;
 
     /**
@@ -78,6 +80,8 @@ public class RedisLockUtils implements AutoCloseable {
     /**
      * 私有构造函数，防止外部实例化
      */
+    // 锁的释放由 close()/unlock() 在锁确实持有时负责；获取失败或中断时本就未加锁，不应在构造函数内释放（S2222 误报）
+    @SuppressWarnings("java:S2222")
     private RedisLockUtils(RLock lock, long expireTime, long timeout, TimeUnit unit) {
         this.lock = lock;
         try {
@@ -182,6 +186,10 @@ public class RedisLockUtils implements AutoCloseable {
             try {
                 lock.unlockAsync().get();
                 LOGGER.debug("释放锁成功，key: {}", lock.getName());
+            } catch (InterruptedException e) {
+                // 恢复中断标记，避免中断状态被吞掉
+                Thread.currentThread().interrupt();
+                LOGGER.error("释放锁被中断，key: {}", lock.getName(), e);
             } catch (Exception e) {
                 LOGGER.error("释放锁失败，key: {}", lock.getName(), e);
             }

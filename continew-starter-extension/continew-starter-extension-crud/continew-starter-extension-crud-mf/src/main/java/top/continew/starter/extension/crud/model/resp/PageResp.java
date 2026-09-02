@@ -52,10 +52,10 @@ public class PageResp<L> extends BasePageResp<L> {
      * @param page        MyBatis Plus 分页数据
      * @param targetClass 目标类型 Class 对象
      * @param <T>         源列表数据类型
-     * @param <L>         目标列表数据类型
+     * @param <E>         目标列表数据类型
      * @return 分页信息
      */
-    public static <T, L> PageResp<L> build(Page<T> page, Class<L> targetClass) {
+    public static <T, E> PageResp<E> build(Page<T> page, Class<E> targetClass) {
         if (page == null) {
             return empty();
         }
@@ -67,10 +67,10 @@ public class PageResp<L> extends BasePageResp<L> {
      * 基于 MyBatis Plus 分页数据构建分页信息
      *
      * @param page MyBatis Plus 分页数据
-     * @param <L>  列表数据类型
+     * @param <E>  列表数据类型
      * @return 分页信息
      */
-    public static <L> PageResp<L> build(Page<L> page) {
+    public static <E> PageResp<E> build(Page<E> page) {
         if (page == null) {
             return empty();
         }
@@ -83,14 +83,14 @@ public class PageResp<L> extends BasePageResp<L> {
      * @param page 页码
      * @param size 每页条数
      * @param list 列表数据
-     * @param <L>  列表数据类型
+     * @param <E>  列表数据类型
      * @return 分页信息
      */
-    public static <L> PageResp<L> build(int page, int size, List<L> list) {
+    public static <E> PageResp<E> build(int page, int size, List<E> list) {
         if (CollUtil.isEmpty(list)) {
             return empty();
         }
-        PageResp<L> pageResp = new PageResp<>();
+        PageResp<E> pageResp = new PageResp<>();
         pageResp.setTotal(list.size());
         // 对列表数据进行分页
         int fromIndex = (page - 1) * size;
@@ -106,10 +106,10 @@ public class PageResp<L> extends BasePageResp<L> {
     /**
      * 空分页信息
      *
-     * @param <L> 列表数据类型
+     * @param <E> 列表数据类型
      * @return 分页信息
      */
-    private static <L> PageResp<L> empty() {
+    private static <E> PageResp<E> empty() {
         return new PageResp<>(Collections.emptyList(), 0L);
     }
 }

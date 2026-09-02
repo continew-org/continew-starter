@@ -43,6 +43,8 @@ import org.apache.poi.ss.util.CellRangeAddressList;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.apache.poi.xssf.usermodel.XSSFClientAnchor;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import top.continew.excel.annotation.ExcelExport;
 import top.continew.excel.annotation.ExcelImport;
@@ -58,6 +60,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -78,8 +81,15 @@ import java.util.regex.Pattern;
  * @author jiang4yu
  * @since 2.13.0
  */
-@SuppressWarnings("unused")
+// Excel 导入导出基于注解反射为实体字段（含 private）赋值，setAccessible 为核心机制（S3011）；
+// java.util.Date 为兼容既有实体字段类型与单元格数据的数据边界，无法整体迁移 java.time（S2143 已在 Sonar 分析配置中按文件排除）
+@SuppressWarnings({"unused", "java:S3011"})
 public class ExcelUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExcelUtils.class);
+
+    private ExcelUtils() {
+    }
 
     public static final String ROW_MERGE = "row_merge";
     public static final String COLUMN_MERGE = "column_merge";
@@ -98,34 +108,36 @@ public class ExcelUtils {
     private static final int BYTES_DEFAULT_LENGTH = 10240;
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getNumberInstance();
 
-    public static JSONArray readFile(File file) throws Exception {
+    public static JSONArray readFile(File file) throws IOException {
         return readExcel(null, file);
     }
 
-    public static <T> List<T> readFile(File file, Class<T> clazz) throws Exception {
+    public static <T> List<T> readFile(File file, Class<T> clazz)
+        throws IOException, ReflectiveOperationException {
         JSONArray array = readFile(file);
         return getBeanList(array, clazz);
     }
 
-    public static JSONArray readMultipartFile(MultipartFile mFile) throws Exception {
+    public static JSONArray readMultipartFile(MultipartFile mFile) throws IOException {
         return readExcel(mFile, null);
     }
 
     public static <T> List<T> readMultipartFile(MultipartFile mFile, Class<T> clazz)
-        throws Exception {
+        throws IOException, ReflectiveOperationException {
         JSONArray array = readMultipartFile(mFile);
         return getBeanList(array, clazz);
     }
 
-    public static Map<String, JSONArray> readFileManySheet(File file) throws Exception {
+    public static Map<String, JSONArray> readFileManySheet(File file) throws IOException {
         return readExcelManySheet(null, file);
     }
 
-    public static Map<String, JSONArray> readFileManySheet(MultipartFile file) throws Exception {
+    public static Map<String, JSONArray> readFileManySheet(MultipartFile file) throws IOException {
         return readExcelManySheet(file, null);
     }
 
-    private static <T> List<T> getBeanList(JSONArray array, Class<T> clazz) throws Exception {
+    private static <T> List<T> getBeanList(JSONArray array, Class<T> clazz)
+        throws ReflectiveOperationException {
         List<T> list = new ArrayList<>();
         Map<Integer, String> uniqueMap = new HashMap<>(16);
         for (int i = 0; i < array.size(); i++) {
@@ -138,7 +150,7 @@ public class ExcelUtils {
      * 获取每个对象的数据
      */
     private static <T> T getBean(Class<T> c, JSONObject obj, Map<Integer, String> uniqueMap)
-        throws Exception {
+        throws ReflectiveOperationException {
         T t = c.newInstance();
         Field[] fields = c.getDeclaredFields();
         List<String> errMsgList = new ArrayList<>();
@@ -146,61 +158,62 @@ public class ExcelUtils {
         StringBuilder uniqueBuilder = new StringBuilder();
         int rowNum = 0;
         for (Field field : fields) {
-            // 行号
-            if (field.getName().equals(ROW_NUM)) {
+            String fieldName = field.getName();
+            if (fieldName.equals(ROW_NUM)) {
+                // 行号
                 rowNum = obj.getInt(ROW_NUM);
                 field.setAccessible(true);
                 field.set(t, rowNum);
-                continue;
-            }
-            // 是否需要设置异常信息
-            if (field.getName().equals(ROW_TIPS)) {
+            } else if (fieldName.equals(ROW_TIPS)) {
+                // 是否需要设置异常信息
                 hasRowTipsField = true;
-                continue;
-            }
-            // 原始数据
-            if (field.getName().equals(ROW_DATA)) {
+            } else if (fieldName.equals(ROW_DATA)) {
+                // 原始数据
                 field.setAccessible(true);
                 field.set(t, obj.toString());
-                continue;
+            } else {
+                // 设置对应属性值
+                setFieldValue(t, field, obj, uniqueBuilder, errMsgList);
             }
-            // 设置对应属性值
-            setFieldValue(t, field, obj, uniqueBuilder, errMsgList);
         }
         // 数据唯一性校验
-        if (!uniqueBuilder.isEmpty()) {
-            if (uniqueMap.containsValue(uniqueBuilder.toString())) {
-                Set<Integer> rowNumKeys = uniqueMap.keySet();
-                for (Integer num : rowNumKeys) {
-                    if (uniqueMap.get(num).contentEquals(uniqueBuilder)) {
-                        errMsgList.add(String.format("数据唯一性校验失败,(%s)与第%s行重复)", uniqueBuilder, num));
-                    }
-                }
-            } else {
-                uniqueMap.put(rowNum, uniqueBuilder.toString());
-            }
-        }
+        checkUniqueness(uniqueMap, uniqueBuilder, rowNum, errMsgList);
         // 失败处理
         if (errMsgList.isEmpty() && !hasRowTipsField) {
             return t;
         }
-        StringBuilder sb = new StringBuilder();
-        int size = errMsgList.size();
-        for (int i = 0; i < size; i++) {
-            if (i == size - 1) {
-                sb.append(errMsgList.get(i));
-            } else {
-                sb.append(errMsgList.get(i)).append(";");
-            }
-        }
         // 设置错误信息
+        String errMsg = String.join(";", errMsgList);
         for (Field field : fields) {
             if (field.getName().equals(ROW_TIPS)) {
                 field.setAccessible(true);
-                field.set(t, sb.toString());
+                field.set(t, errMsg);
             }
         }
         return t;
+    }
+
+    /**
+     * 校验当前行唯一键是否与历史行重复，重复则记录错误信息，否则登记到唯一性映射
+     */
+    private static void checkUniqueness(Map<Integer, String> uniqueMap,
+        StringBuilder uniqueBuilder,
+        int rowNum,
+        List<String> errMsgList) {
+        if (uniqueBuilder.isEmpty()) {
+            return;
+        }
+        String uniqueKey = uniqueBuilder.toString();
+        if (!uniqueMap.containsValue(uniqueKey)) {
+            uniqueMap.put(rowNum, uniqueKey);
+            return;
+        }
+        for (Entry<Integer, String> entry : uniqueMap.entrySet()) {
+            if (entry.getValue().contentEquals(uniqueBuilder)) {
+                errMsgList.add(String.format("数据唯一性校验失败,(%s)与第%s行重复)", uniqueKey,
+                    entry.getKey()));
+            }
+        }
     }
 
     private static <T> void setFieldValue(T t,
@@ -267,9 +280,9 @@ public class ExcelUtils {
         if (kvMap.isEmpty()) {
             return val;
         }
-        for (String key : kvMap.keySet()) {
-            if (kvMap.get(key).equals(val)) {
-                return key;
+        for (Entry<String, String> kvEntry : kvMap.entrySet()) {
+            if (kvEntry.getValue().equals(val)) {
+                return kvEntry.getKey();
             }
         }
         errMsgList.add(String.format("[%s]的值不正确(当前值为%s)", cname, val));
@@ -291,11 +304,7 @@ public class ExcelUtils {
             } else if ("boolean".equalsIgnoreCase(fieldClassName)) {
                 field.set(t, Boolean.valueOf(val));
             } else if ("int".equalsIgnoreCase(fieldClassName) || "Integer".equals(fieldClassName)) {
-                try {
-                    field.set(t, Integer.valueOf(val));
-                } catch (NumberFormatException e) {
-                    errMsgList.add(String.format("[%s]的值格式不正确(当前值为%s)", cname, val));
-                }
+                field.set(t, parseInteger(val, cname, errMsgList));
             } else if ("double".equalsIgnoreCase(fieldClassName)) {
                 field.set(t, Double.valueOf(val));
             } else if ("long".equalsIgnoreCase(fieldClassName)) {
@@ -303,14 +312,33 @@ public class ExcelUtils {
             } else if ("BigDecimal".equalsIgnoreCase(fieldClassName)) {
                 field.set(t, new BigDecimal(val));
             } else if ("Date".equalsIgnoreCase(fieldClassName)) {
-                try {
-                    field.set(t, new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(val));
-                } catch (Exception e) {
-                    field.set(t, new SimpleDateFormat("yyyy-MM-dd").parse(val));
-                }
+                field.set(t, parseDate(val));
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("Excel 字段赋值失败: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 解析整数字段值，格式不正确时记录错误信息并返回 {@code null}
+     */
+    private static Integer parseInteger(String val, String cname, List<String> errMsgList) {
+        try {
+            return Integer.valueOf(val);
+        } catch (NumberFormatException e) {
+            errMsgList.add(String.format("[%s]的值格式不正确(当前值为%s)", cname, val));
+            return null;
+        }
+    }
+
+    /**
+     * 按日期时间格式解析，失败时回退到日期格式
+     */
+    private static Date parseDate(String val) throws java.text.ParseException {
+        try {
+            return new SimpleDateFormat(DATE_FORMAT).parse(val);
+        } catch (java.text.ParseException e) {
+            return new SimpleDateFormat("yyyy-MM-dd").parse(val);
         }
     }
 
@@ -346,28 +374,19 @@ public class ExcelUtils {
             return null;
         }
         // 解析表格数据
-        InputStream in;
-        String fileName;
-        if (mFile != null) {
-            // 上传文件解析
-            in = mFile.getInputStream();
-            fileName = getString(mFile.getOriginalFilename()).toLowerCase();
-        } else {
-            // 本地文件解析
-            in = new FileInputStream(file);
-            fileName = file.getName().toLowerCase();
-        }
-        Workbook book;
-        if (fileName.endsWith(XLSX)) {
-            book = new XSSFWorkbook(in);
-        } else if (fileName.endsWith(XLS)) {
-            POIFSFileSystem poifsFileSystem = new POIFSFileSystem(in);
-            book = new HSSFWorkbook(poifsFileSystem);
-        } else {
+        try (InputStream in = mFile != null ? mFile.getInputStream() : new FileInputStream(file)) {
+            String fileName = (mFile != null ? getString(mFile.getOriginalFilename())
+                : file.getName()).toLowerCase();
+            if (fileName.endsWith(XLSX)) {
+                return new XSSFWorkbook(in);
+            }
+            if (fileName.endsWith(XLS)) {
+                try (POIFSFileSystem poifsFileSystem = new POIFSFileSystem(in)) {
+                    return new HSSFWorkbook(poifsFileSystem);
+                }
+            }
             return null;
         }
-        in.close();
-        return book;
     }
 
     private static JSONArray readSheet(Sheet sheet) {
@@ -375,57 +394,80 @@ public class ExcelUtils {
         int rowStart = sheet.getFirstRowNum();
         // 尾行下标
         int rowEnd = sheet.getLastRowNum();
-        // 获取表头行
-        Row headRow = sheet.getRow(rowStart);
-        if (headRow == null) {
+        // 获取表头字段映射
+        Map<Integer, String> keyMap = resolveHeadKeyMap(sheet.getRow(rowStart));
+        // 如果表头没有数据则不进行解析
+        if (keyMap.isEmpty()) {
             return new JSONArray();
         }
-        int cellStart = headRow.getFirstCellNum();
-        int cellEnd = headRow.getLastCellNum();
+        // 如果首行与尾行相同，表明只有一行，返回表头数据
+        if (rowStart == rowEnd) {
+            return buildSingleHeaderRow(keyMap);
+        }
+        // 获取每行JSON对象的值
+        JSONArray array = new JSONArray();
+        for (int i = rowStart + 1; i <= rowEnd; i++) {
+            Row eachRow = sheet.getRow(i);
+            if (eachRow == null) {
+                continue;
+            }
+            JSONObject obj = buildRowData(eachRow, i, keyMap);
+            if (obj != null) {
+                array.add(obj);
+            }
+        }
+        return array;
+    }
+
+    /**
+     * 解析表头行，返回单元格下标到字段名的映射；表头行不存在时返回空映射
+     */
+    private static Map<Integer, String> resolveHeadKeyMap(Row headRow) {
         Map<Integer, String> keyMap = new HashMap<>();
-        for (int j = cellStart; j < cellEnd; j++) {
-            // 获取表头数据
+        if (headRow == null) {
+            return keyMap;
+        }
+        for (int j = headRow.getFirstCellNum(); j < headRow.getLastCellNum(); j++) {
             String val = getCellValue(headRow.getCell(j));
             if (val != null && !val.trim().isEmpty()) {
                 keyMap.put(j, val);
             }
         }
-        // 如果表头没有数据则不进行解析
-        if (keyMap.isEmpty()) {
-            return (JSONArray) Collections.emptyList();
-        }
-        // 获取每行JSON对象的值
+        return keyMap;
+    }
+
+    /**
+     * 构建仅有表头时的单行数据（字段值均为空串）
+     */
+    private static JSONArray buildSingleHeaderRow(Map<Integer, String> keyMap) {
         JSONArray array = new JSONArray();
-        // 如果首行与尾行相同，表明只有一行，返回表头数据
-        if (rowStart == rowEnd) {
-            JSONObject obj = new JSONObject();
-            // 添加行号
-            obj.putOnce(ROW_NUM, 1);
-            for (int i : keyMap.keySet()) {
-                obj.set(keyMap.get(i), "");
-            }
-            array.add(obj);
-            return array;
+        JSONObject obj = new JSONObject();
+        // 添加行号
+        obj.putOnce(ROW_NUM, 1);
+        for (Entry<Integer, String> keyEntry : keyMap.entrySet()) {
+            obj.set(keyEntry.getValue(), "");
         }
-        for (int i = rowStart + 1; i <= rowEnd; i++) {
-            Row eachRow = sheet.getRow(i);
-            JSONObject obj = new JSONObject();
-            // 添加行号
-            obj.set(ROW_NUM, i + 1);
-            StringBuilder sb = new StringBuilder();
-            for (int k = cellStart; k < cellEnd; k++) {
-                if (eachRow != null) {
-                    String val = getCellValue(eachRow.getCell(k));
-                    // 所有数据添加到里面，用于判断该行是否为空
-                    sb.append(val);
-                    obj.set(keyMap.get(k), val);
-                }
-            }
-            if (!sb.isEmpty()) {
-                array.add(obj);
-            }
-        }
+        array.add(obj);
         return array;
+    }
+
+    /**
+     * 构建一行数据；该行为空（无任何非空单元格）时返回 {@code null}
+     */
+    private static JSONObject buildRowData(Row eachRow, int rowIndex, Map<Integer, String> keyMap) {
+        JSONObject obj = new JSONObject();
+        // 添加行号
+        obj.set(ROW_NUM, rowIndex + 1);
+        boolean rowHasData = false;
+        for (Entry<Integer, String> keyEntry : keyMap.entrySet()) {
+            String val = getCellValue(eachRow.getCell(keyEntry.getKey()));
+            // 存在非空数据时，表明该行非空行
+            if (val != null && !val.isEmpty()) {
+                rowHasData = true;
+            }
+            obj.set(keyEntry.getValue(), val);
+        }
+        return rowHasData ? obj : null;
     }
 
     private static String getCellValue(Cell cell) {
@@ -497,7 +539,7 @@ public class ExcelUtils {
             ExcelClassField each = headFieldList.get(i);
             headList.add(each.getName());
             exampleList.add(each.getExample());
-            LinkedHashMap<String, String> kvMap = each.getKvMap();
+            Map<String, String> kvMap = each.getKvMap();
             if (kvMap != null && !kvMap.isEmpty()) {
                 selectMap.put(i, new ArrayList<>(kvMap.values()));
             }
@@ -511,39 +553,48 @@ public class ExcelUtils {
     }
 
     private static <T> List<ExcelClassField> getExcelClassFieldList(Class<T> clazz) {
-        // 解析所有字段
+        // 解析所有字段，按排序号分组
         Field[] fields = clazz.getDeclaredFields();
+        Map<Integer, List<ExcelClassField>> groupedBySort = new LinkedHashMap<>();
+        boolean hasExportAnnotation = collectClassFields(fields, groupedBySort);
+        // 无导出注解时，直接返回未注解字段（sort 为 0）
+        if (!hasExportAnnotation) {
+            return new ArrayList<>(groupedBySort.get(0));
+        }
+        // 按排序号升序组装带注解的表头字段
+        return assembleHeadFields(groupedBySort);
+    }
+
+    /**
+     * 解析所有字段并按排序号分组，返回是否存在带有 {@code @ExcelExport} 注解的字段
+     */
+    private static boolean collectClassFields(Field[] fields,
+        Map<Integer, List<ExcelClassField>> groupedBySort) {
         boolean hasExportAnnotation = false;
-        Map<Integer, List<ExcelClassField>> map = new LinkedHashMap<>();
-        List<Integer> sortList = new ArrayList<>();
         for (Field field : fields) {
             ExcelClassField cf = getExcelClassField(field);
             if (cf.getHasAnnotation() == 1) {
                 hasExportAnnotation = true;
             }
-            int sort = cf.getSort();
-            if (map.containsKey(sort)) {
-                map.get(sort).add(cf);
-            } else {
-                List<ExcelClassField> list = new ArrayList<>();
-                list.add(cf);
-                sortList.add(sort);
-                map.put(sort, list);
-            }
+            groupedBySort.computeIfAbsent(cf.getSort(), k -> new ArrayList<>()).add(cf);
         }
+        return hasExportAnnotation;
+    }
+
+    /**
+     * 按排序号升序组装带有 {@code @ExcelExport} 注解的表头字段
+     */
+    private static List<ExcelClassField> assembleHeadFields(
+        Map<Integer, List<ExcelClassField>> groupedBySort) {
+        List<Integer> sortList = new ArrayList<>(groupedBySort.keySet());
         Collections.sort(sortList);
-        // 获取表头
         List<ExcelClassField> headFieldList = new ArrayList<>();
-        if (hasExportAnnotation) {
-            for (Integer sort : sortList) {
-                for (ExcelClassField cf : map.get(sort)) {
-                    if (cf.getHasAnnotation() == 1) {
-                        headFieldList.add(cf);
-                    }
+        for (Integer sort : sortList) {
+            for (ExcelClassField cf : groupedBySort.get(sort)) {
+                if (cf.getHasAnnotation() == 1) {
+                    headFieldList.add(cf);
                 }
             }
-        } else {
-            headFieldList.addAll(map.get(0));
         }
         return headFieldList;
     }
@@ -588,15 +639,13 @@ public class ExcelUtils {
         String[] kvs = kv.split(";");
         for (String each : kvs) {
             String[] eachKv = getString(each).split("-");
-            if (eachKv.length != 2) {
-                continue;
+            if (eachKv.length == 2) {
+                String k = eachKv[0];
+                String v = eachKv[1];
+                if (!k.isEmpty() && !v.isEmpty()) {
+                    kvMap.put(k, v);
+                }
             }
-            String k = eachKv[0];
-            String v = eachKv[1];
-            if (k.isEmpty() || v.isEmpty()) {
-                continue;
-            }
-            kvMap.put(k, v);
         }
         return kvMap;
     }
@@ -609,7 +658,7 @@ public class ExcelUtils {
      */
     public static void exportFile(File file, List<List<Object>> sheetData) {
         if (file == null) {
-            System.out.println("文件创建失败");
+            LOGGER.warn("Excel 文件创建失败，跳过导出");
             return;
         }
         if (sheetData == null) {
@@ -665,7 +714,6 @@ public class ExcelUtils {
                 fileFullPath = dirPath + LEAN_LINE + fileName + XLSX;
             }
         }
-        System.out.println(fileFullPath);
         File file = new File(fileFullPath);
         if (!file.exists()) {
             boolean result = file.createNewFile();
@@ -697,31 +745,36 @@ public class ExcelUtils {
             Set<String> fieldDataKeys = fieldDataMap.keySet();
             List<Object> rowList = new ArrayList<>();
             for (String headField : headFieldList) {
-                if (!fieldDataKeys.contains(headField)) {
-                    continue;
-                }
-                Object data = fieldDataMap.get(headField);
-                if (data == null) {
-                    rowList.add("");
-                    continue;
-                }
-                ExcelClassField cf = headFieldMap.get(headField);
-                // 判断是否有映射关系
-                LinkedHashMap<String, String> kvMap = cf.getKvMap();
-                if (kvMap == null || kvMap.isEmpty()) {
-                    rowList.add(data);
-                    continue;
-                }
-                String val = kvMap.get(data.toString());
-                if (isNumeric(val)) {
-                    rowList.add(Double.valueOf(val));
-                } else {
-                    rowList.add(val);
+                if (fieldDataKeys.contains(headField)) {
+                    Object data = fieldDataMap.get(headField);
+                    if (data == null) {
+                        rowList.add("");
+                    } else {
+                        addCellValue(rowList, headFieldMap.get(headField), data);
+                    }
                 }
             }
             sheetDataList.add(rowList);
         }
         return sheetDataList;
+    }
+
+    /**
+     * 根据字段映射关系将数据转换为单元格值并追加到当前行
+     */
+    private static void addCellValue(List<Object> rowList, ExcelClassField cf, Object data) {
+        // 判断是否有映射关系
+        Map<String, String> kvMap = cf.getKvMap();
+        if (kvMap == null || kvMap.isEmpty()) {
+            rowList.add(data);
+            return;
+        }
+        String val = kvMap.get(data.toString());
+        if (isNumeric(val)) {
+            rowList.add(Double.valueOf(val));
+        } else {
+            rowList.add(val);
+        }
     }
 
     private static <T> Map<String, Object> getFieldDataMap(T t) {
@@ -735,7 +788,7 @@ public class ExcelUtils {
                 map.put(fieldName, object);
             }
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            e.printStackTrace();
+            LOGGER.error("读取实体字段值失败: {}", e.getMessage(), e);
         }
         return map;
     }
@@ -820,76 +873,112 @@ public class ExcelUtils {
         // 整个 Excel 表格 book 对象
         SXSSFWorkbook book = new SXSSFWorkbook();
         // 每个 Sheet 页
-        Set<Entry<String, List<List<Object>>>> entries = sheetMap.entrySet();
-        for (Entry<String, List<List<Object>>> entry : entries) {
-            List<List<Object>> sheetDataList = entry.getValue();
-            Sheet sheet = book.createSheet(entry.getKey());
-            Drawing<?> patriarch = sheet.createDrawingPatriarch();
-            // 设置表头背景色（灰色）
-            CellStyle headStyle = book.createCellStyle();
-            headStyle.setFillForegroundColor(IndexedColors.GREY_80_PERCENT.index);
-            headStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            headStyle.setAlignment(HorizontalAlignment.CENTER);
-            headStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
-            // 设置表身背景色（默认色）
-            CellStyle rowStyle = book.createCellStyle();
-            rowStyle.setAlignment(HorizontalAlignment.CENTER);
-            rowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
-            // 设置表格列宽度（默认为15个字节）
-            sheet.setDefaultColumnWidth(15);
-            // 创建合并算法数组
-            int rowLength = sheetDataList.size();
-            int columnLength = sheetDataList.get(0).size();
-            int[][] mergeArray = new int[rowLength][columnLength];
-            for (int i = 0; i < sheetDataList.size(); i++) {
-                // 每个 Sheet 页中的行数据
-                Row row = sheet.createRow(i);
-                List<Object> rowList = sheetDataList.get(i);
-                for (int j = 0; j < rowList.size(); j++) {
-                    // 每个行数据中的单元格数据
-                    Object o = rowList.get(j);
-                    int v = 0;
-                    if (o instanceof URL) {
-                        // 如果要导出图片的话, 链接需要传递 URL 对象
-                        setCellPicture(book, row, patriarch, i, j, (URL) o);
-                    } else {
-                        Cell cell = row.createCell(j);
-                        if (i == 0) {
-                            // 第一行为表头行，采用灰色底背景
-                            v = setCellValue(cell, o, headStyle);
-                        } else {
-                            // 其他行为数据行，默认白底色
-                            v = setCellValue(cell, o, rowStyle);
-                        }
-                    }
-                    mergeArray[i][j] = v;
-                }
-            }
-            // 合并单元格
-            mergeCells(sheet, mergeArray);
-            // 设置下拉列表
-            setSelect(sheet, selectMap);
+        for (Entry<String, List<List<Object>>> entry : sheetMap.entrySet()) {
+            renderSheet(book, entry.getKey(), entry.getValue(), selectMap);
         }
         // 写数据
+        writeWorkbook(response, file, fileName, book);
+    }
+
+    /**
+     * 渲染单个 Sheet：创建表头/数据行单元格、合并单元格并设置下拉列表
+     */
+    private static void renderSheet(SXSSFWorkbook book,
+        String sheetName,
+        List<List<Object>> sheetDataList,
+        Map<Integer, List<String>> selectMap) {
+        Sheet sheet = book.createSheet(sheetName);
+        Drawing<?> patriarch = sheet.createDrawingPatriarch();
+        CellStyle headStyle = createHeadStyle(book);
+        CellStyle rowStyle = createRowStyle(book);
+        // 设置表格列宽度（默认为15个字节）
+        sheet.setDefaultColumnWidth(15);
+        int[][] mergeArray = buildMergeArray(book, sheet, patriarch, sheetDataList, headStyle,
+            rowStyle);
+        // 合并单元格
+        mergeCells(sheet, mergeArray);
+        // 设置下拉列表
+        setSelect(sheet, selectMap);
+    }
+
+    /**
+     * 创建表头单元格样式（灰色底、居中）
+     */
+    private static CellStyle createHeadStyle(SXSSFWorkbook book) {
+        CellStyle headStyle = book.createCellStyle();
+        headStyle.setFillForegroundColor(IndexedColors.GREY_80_PERCENT.index);
+        headStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        headStyle.setAlignment(HorizontalAlignment.CENTER);
+        headStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.index);
+        return headStyle;
+    }
+
+    /**
+     * 创建表身单元格样式（居中）
+     */
+    private static CellStyle createRowStyle(SXSSFWorkbook book) {
+        CellStyle rowStyle = book.createCellStyle();
+        rowStyle.setAlignment(HorizontalAlignment.CENTER);
+        rowStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        return rowStyle;
+    }
+
+    /**
+     * 逐行逐单元格写入数据，并返回单元格合并算法数组
+     */
+    private static int[][] buildMergeArray(SXSSFWorkbook book,
+        Sheet sheet,
+        Drawing<?> patriarch,
+        List<List<Object>> sheetDataList,
+        CellStyle headStyle,
+        CellStyle rowStyle) {
+        int rowLength = sheetDataList.size();
+        int columnLength = sheetDataList.get(0).size();
+        int[][] mergeArray = new int[rowLength][columnLength];
+        for (int i = 0; i < rowLength; i++) {
+            Row row = sheet.createRow(i);
+            List<Object> rowList = sheetDataList.get(i);
+            for (int j = 0; j < rowList.size(); j++) {
+                Object o = rowList.get(j);
+                int v = 0;
+                if (o instanceof URL url) {
+                    // 如果要导出图片的话, 链接需要传递 URL 对象
+                    setCellPicture(book, row, patriarch, i, j, url);
+                } else {
+                    Cell cell = row.createCell(j);
+                    // 第一行为表头行，采用灰色底背景；其他行为数据行，默认白底色
+                    CellStyle style = (i == 0) ? headStyle : rowStyle;
+                    v = setCellValue(cell, o, style);
+                }
+                mergeArray[i][j] = v;
+            }
+        }
+        return mergeArray;
+    }
+
+    /**
+     * 将工作簿写入 HTTP 响应（前端导出）或本地文件
+     */
+    private static void writeWorkbook(HttpServletResponse response,
+        File file,
+        String fileName,
+        SXSSFWorkbook book) {
         if (response != null) {
             // 前端导出
             try {
                 write(response, book, fileName);
             } catch (IOException e) {
-                e.printStackTrace();
+                LOGGER.error("导出 Excel 写入响应失败: {}", e.getMessage(), e);
             }
-        } else {
-            // 本地导出
-            FileOutputStream fos;
-            try {
-                fos = new FileOutputStream(file);
-                ByteArrayOutputStream ops = new ByteArrayOutputStream();
-                book.write(ops);
-                fos.write(ops.toByteArray());
-                fos.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            return;
+        }
+        // 本地导出
+        try (FileOutputStream fos = new FileOutputStream(file);
+            ByteArrayOutputStream ops = new ByteArrayOutputStream()) {
+            book.write(ops);
+            fos.write(ops.toByteArray());
+        } catch (Exception e) {
+            LOGGER.error("导出 Excel 写入本地文件失败: {}", e.getMessage(), e);
         }
     }
 
@@ -902,58 +991,58 @@ public class ExcelUtils {
     private static void mergeCells(Sheet sheet, int[][] mergeArray) {
         // 横向合并
         for (int x = 0; x < mergeArray.length; x++) {
-            int[] arr = mergeArray[x];
-            boolean merge = false;
-            int y1 = 0;
-            int y2 = 0;
-            for (int y = 0; y < arr.length; y++) {
-                int value = arr[y];
-                if (value == CELL_COLUMN_MERGE) {
-                    if (!merge) {
-                        y1 = y;
-                    }
-                    y2 = y;
-                    merge = true;
-                } else {
-                    merge = false;
-                    if (y1 > 0) {
-                        sheet.addMergedRegion(new CellRangeAddress(x, x, (y1 - 1), y2));
-                    }
-                    y1 = 0;
-                    y2 = 0;
-                }
-            }
-            if (y1 > 0) {
-                sheet.addMergedRegion(new CellRangeAddress(x, x, (y1 - 1), y2));
-            }
+            mergeColumnsInRow(sheet, x, mergeArray[x]);
         }
         // 纵向合并
-        int xLen = mergeArray.length;
-        int yLen = mergeArray[0].length;
-        for (int y = 0; y < yLen; y++) {
-            boolean merge = false;
-            int x1 = 0;
-            int x2 = 0;
-            for (int x = 0; x < xLen; x++) {
-                int value = mergeArray[x][y];
-                if (value == CELL_ROW_MERGE) {
-                    if (!merge) {
-                        x1 = x;
-                    }
-                    x2 = x;
-                    merge = true;
-                } else {
-                    merge = false;
-                    if (x1 > 0) {
-                        sheet.addMergedRegion(new CellRangeAddress((x1 - 1), x2, y, y));
-                    }
-                    x1 = 0;
-                    x2 = 0;
+        for (int y = 0; y < mergeArray[0].length; y++) {
+            mergeRowsInColumn(sheet, y, mergeArray);
+        }
+    }
+
+    /**
+     * 合并指定行中连续的列合并标记单元格
+     */
+    private static void mergeColumnsInRow(Sheet sheet, int rowIndex, int[] rowMergeFlags) {
+        int start = 0;
+        int end = 0;
+        for (int y = 0; y < rowMergeFlags.length; y++) {
+            if (rowMergeFlags[y] == CELL_COLUMN_MERGE) {
+                if (start == 0) {
+                    start = y;
                 }
+                end = y;
+            } else if (start > 0) {
+                sheet.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex, (start - 1), end));
+                start = 0;
+                end = 0;
             }
-            if (x1 > 0) {
-                sheet.addMergedRegion(new CellRangeAddress((x1 - 1), x2, y, y));
+        }
+        if (start > 0) {
+            sheet.addMergedRegion(new CellRangeAddress(rowIndex, rowIndex, (start - 1), end));
+        }
+    }
+
+    /**
+     * 合并指定列中连续的行合并标记单元格
+     */
+    private static void mergeRowsInColumn(Sheet sheet, int columnIndex, int[][] mergeArray) {
+        int start = 0;
+        int end = 0;
+        for (int x = 0; x < mergeArray.length; x++) {
+            if (mergeArray[x][columnIndex] == CELL_ROW_MERGE) {
+                if (start == 0) {
+                    start = x;
+                }
+                end = x;
+            } else if (start > 0) {
+                sheet.addMergedRegion(new CellRangeAddress((start - 1), end, columnIndex,
+                    columnIndex));
+                start = 0;
+                end = 0;
             }
+        }
+        if (start > 0) {
+            sheet.addMergedRegion(new CellRangeAddress((start - 1), end, columnIndex, columnIndex));
         }
     }
 
@@ -962,7 +1051,7 @@ public class ExcelUtils {
         response
             .setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
-        String name = new String(fileName.getBytes("GBK"), "ISO8859_1") + XLSX;
+        String name = new String(fileName.getBytes("GBK"), StandardCharsets.ISO_8859_1) + XLSX;
         response.addHeader("Content-Disposition", "attachment;filename=" + name);
         ServletOutputStream out = response.getOutputStream();
         book.write(out);
@@ -1007,21 +1096,21 @@ public class ExcelUtils {
             return CELL_OTHER;
         }
         // 是否为Boolean
-        if (o instanceof Boolean) {
+        if (o instanceof Boolean booleanValue) {
             cell.setCellType(CellType.BOOLEAN);
-            cell.setCellValue((Boolean) o);
+            cell.setCellValue(booleanValue);
             return CELL_OTHER;
         }
         // 如果是BigDecimal，则默认3位小数
-        if (o instanceof BigDecimal) {
+        if (o instanceof BigDecimal bigDecimal) {
             cell.setCellType(CellType.NUMERIC);
-            cell.setCellValue(((BigDecimal) o).setScale(3, RoundingMode.HALF_UP).doubleValue());
+            cell.setCellValue(bigDecimal.setScale(3, RoundingMode.HALF_UP).doubleValue());
             return CELL_OTHER;
         }
         // 如果是Date数据，则显示格式化数据
-        if (o instanceof Date) {
+        if (o instanceof Date date) {
             cell.setCellType(CellType.STRING);
-            cell.setCellValue(formatDate((Date) o));
+            cell.setCellValue(formatDate(date));
             return CELL_OTHER;
         }
         // 如果是其他，则默认字符串类型
@@ -1047,9 +1136,9 @@ public class ExcelUtils {
             // 设置这个，图片会自动填满单元格的长宽
             anchor.setAnchorType(AnchorType.MOVE_AND_RESIZE);
             patriarch.createPicture(anchor,
-                wb.addPicture(outputStream.toByteArray(), HSSFWorkbook.PICTURE_TYPE_JPEG));
+                wb.addPicture(outputStream.toByteArray(), Workbook.PICTURE_TYPE_JPEG));
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.error("写入 Excel 单元格图片失败: {}", e.getMessage(), e);
         }
     }
 

@@ -52,12 +52,4 @@ public class WebSocketInterceptor extends HttpSessionHandshakeInterceptor {
         attributes.put(webSocketProperties.getClientIdKey(), clientId);
         return true;
     }
-
-    @Override
-    public void afterHandshake(ServerHttpRequest request,
-        ServerHttpResponse response,
-        WebSocketHandler wsHandler,
-        Exception exception) {
-        super.afterHandshake(request, response, wsHandler, exception);
-    }
 }

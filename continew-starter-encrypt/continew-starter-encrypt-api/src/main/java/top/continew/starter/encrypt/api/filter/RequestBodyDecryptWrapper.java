@@ -121,7 +121,7 @@ public class RequestBodyDecryptWrapper extends HttpServletRequestWrapper {
 
             @Override
             public void setReadListener(ReadListener readListener) {
-
+                // 同步解密输入流不支持异步读监听，这里有意留空
             }
         };
     }
