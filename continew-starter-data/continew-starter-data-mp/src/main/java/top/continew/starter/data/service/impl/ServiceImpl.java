@@ -74,6 +74,9 @@ public abstract class ServiceImpl<M extends BaseMapper<T>, T> implements IServic
     private Class<T> entityClass;
     private Class<M> mapperClass;
     private List<Field> entityFields;
+    // 沿用 MyBatis-Plus 官方懒加载缓存 SqlSessionFactory 的模式：volatile 保证可见性；
+    // SqlSessionFactory 由 MyBatis 配置单例返回，重复初始化幂等无副作用，无需额外加锁
+    @SuppressWarnings("java:S3077")
     private volatile SqlSessionFactory sqlSessionFactory;
     private final Log innerLog = LogFactory.getLog(getClass());
 

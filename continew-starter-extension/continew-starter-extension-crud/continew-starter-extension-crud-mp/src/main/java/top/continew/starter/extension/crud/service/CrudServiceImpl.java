@@ -25,6 +25,7 @@ import cn.hutool.core.lang.tree.TreeNodeConfig;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ReflectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -291,11 +292,12 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     private <X> Class<X> getTypeArgument(int index) {
         Class<?>[] typeArguments = ClassUtils.getTypeArguments(this.getClass());
-        if (typeArguments == null || typeArguments.length <= index) {
+        Class<?> typeArgument = ArrayUtil.get(typeArguments, index);
+        if (typeArgument == null) {
             throw new IllegalArgumentException("无法解析类 [" + this.getClass().getName() + "] 的第 ["
                 + index + "] 个泛型参数");
         }
-        return (Class<X>) typeArguments[index];
+        return (Class<X>) typeArgument;
     }
 
     /**

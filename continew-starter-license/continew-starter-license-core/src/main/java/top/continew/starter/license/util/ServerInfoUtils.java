@@ -125,12 +125,7 @@ public class ServerInfoUtils {
     private static File createPrivateTempScript(String suffix, String content) throws IOException {
         Path tempDir = createPrivateTempDirectory();
         tempDir.toFile().deleteOnExit();
-        File script = Files.createTempFile(tempDir, "hw-info", suffix).toFile();
-        script.setReadable(false, false);
-        script.setReadable(true, true);
-        script.setWritable(false, false);
-        script.setWritable(true, true);
-        script.setExecutable(false, false);
+        File script = createPrivateTempFile(tempDir, suffix).toFile();
         script.deleteOnExit();
         try (FileWriter fw = new FileWriter(script, StandardCharsets.UTF_8)) {
             fw.write(content);
@@ -139,17 +134,33 @@ public class ServerInfoUtils {
     }
 
     /**
+     * 在给定目录中创建临时脚本文件：POSIX 系统在创建时即限定属主可读写（rw-------），
+     * 非 POSIX 系统退回默认权限（文件位于属主独占目录内，同样受保护）
+     */
+    private static Path createPrivateTempFile(Path dir, String suffix) throws IOException {
+        try {
+            Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ,
+                PosixFilePermission.OWNER_WRITE);
+            return Files.createTempFile(dir, "hw-info", suffix,
+                PosixFilePermissions.asFileAttribute(perms));
+        } catch (UnsupportedOperationException e) {
+            return Files.createTempFile(dir, "hw-info", suffix);
+        }
+    }
+
+    /**
      * 创建仅当前用户可访问（rwx------）的私有临时目录，避免共享临时目录下的脚本被其他用户读写
      */
+    // S5443 针对 POSIX 世界可写临时目录：POSIX 分支已显式限定 rwx------；
+    // Windows 回退分支使用 %USERPROFILE%\AppData\Local\Temp，按用户 ACL 隔离、不存在世界可写问题
+    @SuppressWarnings("java:S5443")
     private static Path createPrivateTempDirectory() throws IOException {
         try {
-            // POSIX 系统（Linux/macOS）显式限制为属主独占权限
             Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ,
                 PosixFilePermission.OWNER_WRITE, PosixFilePermission.OWNER_EXECUTE);
             return Files.createTempDirectory("continew-license-",
                 PosixFilePermissions.asFileAttribute(perms));
         } catch (UnsupportedOperationException e) {
-            // Windows 等不支持 POSIX 权限的系统，退回默认临时目录并依赖用户目录隔离
             return Files.createTempDirectory("continew-license-");
         }
     }

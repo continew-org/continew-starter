@@ -59,8 +59,6 @@ public class LicenseCreateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LicenseCreateService.class);
 
-    private static volatile LicenseCreateService instance;
-
     private static final X500Principal DEFAULT_HOLDER_ISSUER = new X500Principal(
         "CN=localhost, OU=localhost, O=localhost, L=SH, ST=SH, C=CN");
 
@@ -73,14 +71,15 @@ public class LicenseCreateService {
      * @return {@link LicenseCreateService }
      */
     public static LicenseCreateService getInstance() {
-        if (instance == null) {
-            synchronized (LicenseCreateService.class) {
-                if (instance == null) {
-                    instance = new LicenseCreateService();
-                }
-            }
-        }
-        return instance;
+        return Holder.INSTANCE;
+    }
+
+    /**
+     * 单例持有者：由 JVM 类加载机制保证线程安全与懒加载，无需 volatile 与同步
+     */
+    private static class Holder {
+
+        private static final LicenseCreateService INSTANCE = new LicenseCreateService();
     }
 
     /**
@@ -204,7 +203,6 @@ public class LicenseCreateService {
     private ZipFile generateClientConfig(LicenseCreatorParam param,
         String currentCustomerDir,
         String publicAlias) throws IOException {
-        ZipFile clientLicense = new ZipFile(currentCustomerDir + "clientLicense.zip");
         File config = new File(currentCustomerDir + "clientConfig.json");
         ConfigParam configParam = new ConfigParam();
         configParam.setPublicAlias(publicAlias);
@@ -221,8 +219,19 @@ public class LicenseCreateService {
         List<File> files = new ArrayList<>();
         files.add(config);
         files.add(new File(currentCustomerDir + "publicCerts.keystore"));
-        clientLicense.addFiles(files);
-        return clientLicense;
+        // ZipFile 持有文件句柄：成功返回后交由调用方 try-with-resources 关闭；
+        // 若 addFiles 抛异常则在 finally 中就地关闭，避免句柄泄漏
+        ZipFile clientLicense = new ZipFile(currentCustomerDir + "clientLicense.zip");
+        boolean success = false;
+        try {
+            clientLicense.addFiles(files);
+            success = true;
+            return clientLicense;
+        } finally {
+            if (!success) {
+                clientLicense.close();
+            }
+        }
     }
 
     /**

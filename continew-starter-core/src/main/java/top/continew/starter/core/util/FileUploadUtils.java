@@ -58,12 +58,10 @@ public class FileUploadUtils {
      * @param isKeepOriginalFilename 是否保留原文件名
      * @return 目标文件对象
      */
-    // filePath 为受信的服务端存储目录（由调用方/配置提供），落盘文件名经 UUID/时间戳重写、不直接拼接用户输入；
-    // 路径合法性由调用方业务层校验，故此处抑制路径构造告警（S2083/S6549）
-    @SuppressWarnings({"java:S2083", "java:S6549"})
     public static File upload(MultipartFile multipartFile, String filePath,
         boolean isKeepOriginalFilename) {
-        String originalFilename = multipartFile.getOriginalFilename();
+        // 先剥离原始文件名中的任何目录成分（/、\），避免 ../../ 等路径穿越字符进入落盘文件名
+        String originalFilename = FileNameUtil.getName(multipartFile.getOriginalFilename());
         String extensionName = FileNameUtil.extName(originalFilename);
         String fileName;
         if (isKeepOriginalFilename) {
@@ -75,8 +73,12 @@ public class FileUploadUtils {
             fileName = "%s.%s".formatted(IdUtil.fastSimpleUUID(), extensionName);
         }
         try {
-            String pathname = filePath + fileName;
-            File dest = new File(pathname).getCanonicalFile();
+            // 规范化目标目录与目标文件后，校验目标文件仍位于目标目录内，从根本上阻断路径穿越
+            File baseDir = new File(filePath).getCanonicalFile();
+            File dest = new File(baseDir, fileName).getCanonicalFile();
+            if (!dest.toPath().startsWith(baseDir.toPath())) {
+                throw new IOException("非法文件名: " + multipartFile.getOriginalFilename());
+            }
             // 如果父路径不存在，自动创建
             if (!dest.getParentFile().exists() && (!dest.getParentFile().mkdirs())) {
                 LOGGER.error("Create upload file parent path failed.");

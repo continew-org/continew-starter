@@ -136,10 +136,10 @@ public class TopicUtils {
             }
             if (ch == TOPIC_WILDCARDS_ONE) {
                 validateSingleLevelPlacement(i, topicFilterChars, topicFilterIdxEnd, topicFilter);
-                Boolean decided = decideTerminalSingleLevel(i, wildcardCharLen, topicFilterIdxEnd,
-                    topicNameChars, topicNameLength);
-                if (decided != null) {
-                    return decided;
+                // 末层 + 通配符：剩余 topicName 中不能再出现层级分隔符 /
+                if (isTerminalSingleLevel(i, wildcardCharLen, topicFilterIdxEnd, topicNameLength)) {
+                    return matchTerminalSingleLevel(i, wildcardCharLen, topicNameChars,
+                        topicNameLength);
                 }
                 inLayerWildcard = true;
             } else if (ch == '/') {
@@ -192,16 +192,20 @@ public class TopicUtils {
     }
 
     /**
-     * 处理末层 + 通配符：当 + 位于 filter 最后一位时，剩余 topicName 中不能出现层级分隔符 /
-     *
-     * @return 已确定匹配结果（true/false）；若 + 不在末层则返回 {@code null} 交由后续通配逻辑处理
+     * 判断 + 是否位于 filter 末层且 topicName 仍有剩余字符可匹配
      */
-    private static Boolean decideTerminalSingleLevel(int i, int wildcardCharLen,
-        int topicFilterIdxEnd, char[] topicNameChars, int topicNameLength) {
+    private static boolean isTerminalSingleLevel(int i, int wildcardCharLen,
+        int topicFilterIdxEnd, int topicNameLength) {
         int topicNameIdx = i + wildcardCharLen;
-        if (i != topicFilterIdxEnd || topicNameLength <= topicNameIdx) {
-            return null;
-        }
+        return i == topicFilterIdxEnd && topicNameLength > topicNameIdx;
+    }
+
+    /**
+     * 处理末层 + 通配符：剩余 topicName 中不能再出现层级分隔符 /
+     */
+    private static boolean matchTerminalSingleLevel(int i, int wildcardCharLen,
+        char[] topicNameChars, int topicNameLength) {
+        int topicNameIdx = i + wildcardCharLen;
         for (int j = topicNameIdx; j < topicNameLength; j++) {
             if (topicNameChars[j] == '/') {
                 return false;
