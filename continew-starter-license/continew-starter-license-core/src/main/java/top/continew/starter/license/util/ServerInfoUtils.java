@@ -88,9 +88,9 @@ public class ServerInfoUtils {
     /**
      * 初始化服务器硬件信息，并将信息缓存到内存
      *
-     * @throws Exception 例外
+     * @throws SocketException 获取网络接口信息失败
      */
-    private static void initServerInfos() throws Exception {
+    private static void initServerInfos() throws SocketException {
         if (ServerInfosContainer.ipAddress == null) {
             ServerInfosContainer.ipAddress = getIpAddress();
         }
