@@ -105,7 +105,7 @@ public class StringConstants {
      *
      * @deprecated 常量名与 {@link Object#equals(Object)} 拼写相近易引起误解，请改用 {@link #EQUAL_SIGN}
      */
-    @Deprecated
+    @Deprecated(since = "2.17.0", forRemoval = true)
     @SuppressWarnings("java:S1845")
     public static final String EQUALS = "=";
 

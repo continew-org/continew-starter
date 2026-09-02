@@ -138,9 +138,7 @@ public class AccessLogUtils {
 
         Map<String, Object> filteredParams = new HashMap<>(params);
         for (String sensitiveKey : sensitiveParams) {
-            if (filteredParams.containsKey(sensitiveKey)) {
-                filteredParams.put(sensitiveKey, "***");
-            }
+            filteredParams.computeIfPresent(sensitiveKey, (key, value) -> "***");
         }
         return filteredParams;
     }

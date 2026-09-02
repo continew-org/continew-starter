@@ -55,6 +55,8 @@ import java.util.prefs.Preferences;
  * @author loach
  * @since 2.12.0
  */
+// java.util.Date 为 truelicense LicenseContent API 与对外参数模型（签发/过期时间）的数据边界，无法整体迁移 java.time
+@SuppressWarnings("java:S2143")
 public class LicenseCreateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LicenseCreateService.class);
@@ -118,9 +120,9 @@ public class LicenseCreateService {
      *
      * @param paramVO 创建参数封装对象，包含客户名、密码、描述、扩展信息等。
      * @return Map 包含 LicenseCreatorParam（creator） 和 生成的客户端 Zip 文件（clientZipFile）
-     * @throws Exception 命令执行或文件操作过程中出现异常
+     * @throws IOException 命令执行或文件操作过程中出现异常
      */
-    private BuildCreatorResp buildCreator(LicenseCreatorParamVO paramVO) throws Exception {
+    private BuildCreatorResp buildCreator(LicenseCreatorParamVO paramVO) throws IOException {
         String customerName = paramVO.getCustomerName();
         String privateAlias = customerName + "-private-alias";
         String publicAlias = customerName + "-public-alias";

@@ -161,9 +161,13 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
                 "File has already been moved - cannot be transferred again");
         }
 
-        if (dest.exists() && !dest.delete()) {
-            throw new IOException("Destination file [" + dest
-                .getAbsolutePath() + "] already exists and could not be deleted");
+        if (dest.exists()) {
+            try {
+                Files.delete(dest.toPath());
+            } catch (IOException e) {
+                throw new IOException("Destination file [" + dest
+                    .getAbsolutePath() + "] already exists and could not be deleted", e);
+            }
         }
 
         try {

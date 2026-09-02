@@ -60,6 +60,7 @@ import java.lang.reflect.Field;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -80,7 +81,9 @@ import java.util.regex.Pattern;
  * @author jiang4yu
  * @since 2.13.0
  */
-@SuppressWarnings("unused")
+// Excel 导入导出基于注解反射为实体字段（含 private）赋值，setAccessible 为核心机制（S3011）；
+// java.util.Date 为兼容既有实体字段类型与单元格数据的数据边界，无法整体迁移 java.time（S2143）
+@SuppressWarnings({"unused", "java:S3011", "java:S2143"})
 public class ExcelUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelUtils.class);
@@ -393,12 +396,9 @@ public class ExcelUtils {
         int rowEnd = sheet.getLastRowNum();
         // 获取表头字段映射
         Map<Integer, String> keyMap = resolveHeadKeyMap(sheet.getRow(rowStart));
-        if (keyMap == null) {
-            return new JSONArray();
-        }
         // 如果表头没有数据则不进行解析
         if (keyMap.isEmpty()) {
-            return (JSONArray) Collections.emptyList();
+            return new JSONArray();
         }
         // 如果首行与尾行相同，表明只有一行，返回表头数据
         if (rowStart == rowEnd) {
@@ -407,7 +407,11 @@ public class ExcelUtils {
         // 获取每行JSON对象的值
         JSONArray array = new JSONArray();
         for (int i = rowStart + 1; i <= rowEnd; i++) {
-            JSONObject obj = buildRowData(sheet.getRow(i), i, keyMap);
+            Row eachRow = sheet.getRow(i);
+            if (eachRow == null) {
+                continue;
+            }
+            JSONObject obj = buildRowData(eachRow, i, keyMap);
             if (obj != null) {
                 array.add(obj);
             }
@@ -416,13 +420,13 @@ public class ExcelUtils {
     }
 
     /**
-     * 解析表头行，返回单元格下标到字段名的映射；表头行不存在时返回 {@code null}
+     * 解析表头行，返回单元格下标到字段名的映射；表头行不存在时返回空映射
      */
     private static Map<Integer, String> resolveHeadKeyMap(Row headRow) {
-        if (headRow == null) {
-            return null;
-        }
         Map<Integer, String> keyMap = new HashMap<>();
+        if (headRow == null) {
+            return keyMap;
+        }
         for (int j = headRow.getFirstCellNum(); j < headRow.getLastCellNum(); j++) {
             String val = getCellValue(headRow.getCell(j));
             if (val != null && !val.trim().isEmpty()) {
@@ -451,9 +455,6 @@ public class ExcelUtils {
      * 构建一行数据；该行为空（无任何非空单元格）时返回 {@code null}
      */
     private static JSONObject buildRowData(Row eachRow, int rowIndex, Map<Integer, String> keyMap) {
-        if (eachRow == null) {
-            return null;
-        }
         JSONObject obj = new JSONObject();
         // 添加行号
         obj.set(ROW_NUM, rowIndex + 1);
@@ -1050,7 +1051,7 @@ public class ExcelUtils {
         response
             .setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
-        String name = new String(fileName.getBytes("GBK"), "ISO8859_1") + XLSX;
+        String name = new String(fileName.getBytes("GBK"), StandardCharsets.ISO_8859_1) + XLSX;
         response.addHeader("Content-Disposition", "attachment;filename=" + name);
         ServletOutputStream out = response.getOutputStream();
         book.write(out);

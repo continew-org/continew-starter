@@ -82,7 +82,8 @@ public class ReflectUtils {
      * @author lishuyan
      * @since 2.13.2
      */
-    @SuppressWarnings("unchecked")
+    // 方法引用需经 unreflect 绑定不可见的非 public 方法，setAccessible 为必要手段
+    @SuppressWarnings({"unchecked", "java:S3011"})
     public static <T, K> Function<T, K> createMethodReference(Class<T> clazz, String methodName) {
         try {
             Method method = ReflectUtil.getMethodByName(clazz, methodName);

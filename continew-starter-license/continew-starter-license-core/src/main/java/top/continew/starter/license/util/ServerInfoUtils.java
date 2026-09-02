@@ -381,9 +381,9 @@ public class ServerInfoUtils {
      * <p>获取当前服务器所有符合条件的网络地址</p>
      *
      * @return List&lt;InetAddress&gt; 网络地址列表
-     * @throws Exception 默认异常
+     * @throws SocketException 获取网络接口信息失败
      */
-    private static Set<InetAddress> getLocalAllInetAddress() throws Exception {
+    private static Set<InetAddress> getLocalAllInetAddress() throws SocketException {
         Set<InetAddress> result = CollUtil.newHashSet();
         // 遍历所有的网络接口
         for (Enumeration<NetworkInterface> networkInterfaces =
