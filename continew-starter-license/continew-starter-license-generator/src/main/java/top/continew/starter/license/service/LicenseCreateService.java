@@ -55,8 +55,7 @@ import java.util.prefs.Preferences;
  * @author loach
  * @since 2.12.0
  */
-// java.util.Date 为 truelicense LicenseContent API 与对外参数模型（签发/过期时间）的数据边界，无法整体迁移 java.time
-@SuppressWarnings("java:S2143")
+// java.util.Date 为 truelicense LicenseContent API 与对外参数模型（签发/过期时间）的数据边界，无法整体迁移 java.time（S2143 已在 Sonar 分析配置中按文件排除）
 public class LicenseCreateService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LicenseCreateService.class);

@@ -82,8 +82,8 @@ import java.util.regex.Pattern;
  * @since 2.13.0
  */
 // Excel 导入导出基于注解反射为实体字段（含 private）赋值，setAccessible 为核心机制（S3011）；
-// java.util.Date 为兼容既有实体字段类型与单元格数据的数据边界，无法整体迁移 java.time（S2143）
-@SuppressWarnings({"unused", "java:S3011", "java:S2143"})
+// java.util.Date 为兼容既有实体字段类型与单元格数据的数据边界，无法整体迁移 java.time（S2143 已在 Sonar 分析配置中按文件排除）
+@SuppressWarnings({"unused", "java:S3011"})
 public class ExcelUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExcelUtils.class);

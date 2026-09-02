@@ -806,9 +806,18 @@
                     S3252：项目统一使用 Hutool 门面类 StrUtil/ValidateUtil/URLEncodeUtil 等调用静态方法，
                     其父类 CharSequenceUtil/Validator/URLEncodeUtil 属实现细节，经门面访问是 Hutool 官方推荐用法，故关闭该规则。
                 -->
-                <sonar.issue.ignore.multicriteria>S3252</sonar.issue.ignore.multicriteria>
+                <sonar.issue.ignore.multicriteria>S3252,S2143-excel,S2143-license</sonar.issue.ignore.multicriteria>
                 <sonar.issue.ignore.multicriteria.S3252.ruleKey>java:S3252</sonar.issue.ignore.multicriteria.S3252.ruleKey>
                 <sonar.issue.ignore.multicriteria.S3252.resourceKey>**/*</sonar.issue.ignore.multicriteria.S3252.resourceKey>
+                <!--
+                    S2143：ExcelUtils/LicenseCreateService 中的 java.util.Date 为外部 API 强制的边界类型，
+                    无法整体迁移 java.time（前者兼容 Excel 实体字段类型与单元格数据，后者由 truelicense
+                    LicenseContent API 定义签发/过期时间）；该规则上报文件级 issue，@SuppressWarnings 不生效，故按文件排除。
+                -->
+                <sonar.issue.ignore.multicriteria.S2143-excel.ruleKey>java:S2143</sonar.issue.ignore.multicriteria.S2143-excel.ruleKey>
+                <sonar.issue.ignore.multicriteria.S2143-excel.resourceKey>**/excel/util/ExcelUtils.java</sonar.issue.ignore.multicriteria.S2143-excel.resourceKey>
+                <sonar.issue.ignore.multicriteria.S2143-license.ruleKey>java:S2143</sonar.issue.ignore.multicriteria.S2143-license.ruleKey>
+                <sonar.issue.ignore.multicriteria.S2143-license.resourceKey>**/license/service/LicenseCreateService.java</sonar.issue.ignore.multicriteria.S2143-license.resourceKey>
             </properties>
             <activation>
                 <activeByDefault>false</activeByDefault>
