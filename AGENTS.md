@@ -89,6 +89,8 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 2. 若被 Spotless 拦截，执行 `./mvnw compile -Pformat` 自动修复，然后再执行一次 `./mvnw verify` 确认通过。
 3. 四道门禁全部通过后才能提交。
 
+> **无需跑门禁**：四道门禁只作用于 Java 源码与 POM。仅改文档（`*.md`）、运行时配置（各模块 `src/main/resources/` 下的 `*.yml`、`*.properties`）、CI workflow 或脚本时，不触发任何门禁，可直接提交，无需执行 `./mvnw verify`。
+
 构建过程**不会修改任何源码文件**；`-Pformat` 是唯一会修改源码的 profile。不要用 IDE 格式化或 `git diff --check` 替代 Spotless 门禁——IDE 格式化引擎是另一套实现，可能放行项目格式化器拒绝的代码。
 
 ## 代码风格
@@ -111,6 +113,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 | 大括号 | `if/else/for/while/do-while` 必须加大括号（`NeedBraces`） |
 | 空行 | 连续空行最多保留 1 行（`EmptyLineSeparator`） |
 | 类注释 | 必须包含 `@author` 与 `@since` 标签 |
+| 内联全限定名 | **禁止**（`InlineFullyQualifiedName`：与依赖库同名时应调整类名，而非内联全限定名绕过） |
 | 格式化豁免 | `// @formatter:off` 与 `// @formatter:on` 之间的代码不参与格式化 |
 | 命名 | `style/` 配置文件与 agent 技能统一使用 `ocn-` 前缀（OCN = OpenContiNew） |
 

@@ -30,6 +30,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import top.continew.starter.core.constant.PropertiesConstants;
+import top.continew.starter.messaging.websocket.core.DefaultWebSocketHandler;
 import top.continew.starter.messaging.websocket.core.WebSocketClientService;
 import top.continew.starter.messaging.websocket.core.WebSocketInterceptor;
 import top.continew.starter.messaging.websocket.dao.DefaultWebSocketSessionDao;
@@ -66,9 +67,8 @@ public class WebSocketAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public WebSocketHandler webSocketHandler(WebSocketSessionDao webSocketSessionDao) {
-        return new top.continew.starter.messaging.websocket.core.WebSocketHandler(properties,
-            webSocketSessionDao);
+    public DefaultWebSocketHandler webSocketHandler(WebSocketSessionDao webSocketSessionDao) {
+        return new DefaultWebSocketHandler(properties, webSocketSessionDao);
     }
 
     @Bean

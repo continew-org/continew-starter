@@ -31,17 +31,22 @@ import java.io.IOException;
 /**
  * WebSocket 处理器
  *
+ * <p>
+ * 命名为 DefaultWebSocketHandler 以避免与 Spring 的
+ * {@link org.springframework.web.socket.WebSocketHandler} 接口同名遮蔽。
+ * </p>
+ *
  * @author WeiRan
  * @author Charles7c
  * @since 2.1.0
  */
-public class WebSocketHandler extends TextWebSocketHandler {
+public class DefaultWebSocketHandler extends TextWebSocketHandler {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultWebSocketHandler.class);
     private final WebSocketProperties webSocketProperties;
     private final WebSocketSessionDao webSocketSessionDao;
 
-    public WebSocketHandler(WebSocketProperties webSocketProperties,
+    public DefaultWebSocketHandler(WebSocketProperties webSocketProperties,
         WebSocketSessionDao webSocketSessionDao) {
         this.webSocketProperties = webSocketProperties;
         this.webSocketSessionDao = webSocketSessionDao;
