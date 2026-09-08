@@ -24,13 +24,18 @@ import top.continew.starter.core.util.ServletUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
  * 可重复读取响应内容的包装器
- * 支持缓存响应内容，便于日志记录和后续处理 (不缓存SSE)
+ * <p>
+ * 写入时会同时镜像到缓存和原始响应流：缓存用于日志记录等后续读取，原始流保证数据实时推送给客户端，
+ * 避免网关（如 Spring Cloud Gateway 代理 Servlet 服务）在响应体较大时因通道提前关闭而截断响应。
+ * 流式响应（SSE）不做缓存处理。
  *
  * @author echo
  * @author Charles7c
@@ -39,8 +44,18 @@ import java.nio.charset.StandardCharsets;
 public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
 
     private final ByteArrayOutputStream cachedOutputStream = new ByteArrayOutputStream();
-    private final PrintWriter writer = new PrintWriter(new OutputStreamWriter(cachedOutputStream,
-        StandardCharsets.UTF_8), true);
+    /**
+     * 原始响应输出流（记忆化，避免重复调用 {@code super.getOutputStream()} 触发 IllegalStateException）
+     */
+    private ServletOutputStream originalOutputStream;
+    /**
+     * 同时写入缓存与原始响应流的输出流（记忆化）
+     */
+    private ServletOutputStream cachingOutputStream;
+    /**
+     * 同时写入缓存与原始响应流的字符写入器（记忆化）
+     */
+    private PrintWriter cachedWriter;
     /**
      * 是否为流式响应
      */
@@ -57,33 +72,45 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
         if (isStreamingResponse) {
             return super.getOutputStream();
         }
-        return new ServletOutputStream() {
+        if (cachingOutputStream == null) {
+            final ServletOutputStream original = this.getOriginalOutputStream();
+            cachingOutputStream = new ServletOutputStream() {
 
-            @Override
-            public boolean isReady() {
-                return true;
-            }
+                @Override
+                public boolean isReady() {
+                    return original.isReady();
+                }
 
-            @Override
-            public void setWriteListener(WriteListener writeListener) {
-                // 同步缓存输出流不支持异步写监听，这里有意留空
-            }
+                @Override
+                public void setWriteListener(WriteListener writeListener) {
+                    original.setWriteListener(writeListener);
+                }
 
-            @Override
-            public void write(int b) throws IOException {
-                cachedOutputStream.write(b);
-            }
+                @Override
+                public void write(int b) throws IOException {
+                    cachedOutputStream.write(b);
+                    original.write(b);
+                }
 
-            @Override
-            public void write(byte[] b) throws IOException {
-                cachedOutputStream.write(b);
-            }
+                @Override
+                public void write(byte[] b) throws IOException {
+                    cachedOutputStream.write(b);
+                    original.write(b);
+                }
 
-            @Override
-            public void write(byte[] b, int off, int len) throws IOException {
-                cachedOutputStream.write(b, off, len);
-            }
-        };
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    cachedOutputStream.write(b, off, len);
+                    original.write(b, off, len);
+                }
+
+                @Override
+                public void flush() throws IOException {
+                    original.flush();
+                }
+            };
+        }
+        return cachingOutputStream;
     }
 
     @Override
@@ -92,7 +119,43 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
             // 对于 SSE 流式响应，直接返回原始响应写入器，不做额外处理
             return super.getWriter();
         }
-        return writer;
+        if (cachedWriter == null) {
+            final ServletOutputStream original = this.getOriginalOutputStream();
+            // 字符按响应编码编码为字节后，直接写入原始字节流，避免 byte -> String -> byte 往返导致的乱码
+            OutputStream teeOutputStream = new OutputStream() {
+
+                @Override
+                public void write(int b) throws IOException {
+                    cachedOutputStream.write(b);
+                    original.write(b);
+                }
+
+                @Override
+                public void write(byte[] b, int off, int len) throws IOException {
+                    cachedOutputStream.write(b, off, len);
+                    original.write(b, off, len);
+                }
+
+                @Override
+                public void flush() throws IOException {
+                    original.flush();
+                }
+            };
+            cachedWriter =
+                new PrintWriter(new OutputStreamWriter(teeOutputStream, this.getCharset()), true);
+        }
+        return cachedWriter;
+    }
+
+    @Override
+    public void flushBuffer() throws IOException {
+        if (cachedWriter != null) {
+            cachedWriter.flush();
+        }
+        if (cachingOutputStream != null) {
+            cachingOutputStream.flush();
+        }
+        super.flushBuffer();
     }
 
     /**
@@ -102,21 +165,12 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
      */
     public String getResponseContent() {
         if (!isStreamingResponse) {
-            writer.flush();
-            return cachedOutputStream.toString(StandardCharsets.UTF_8);
+            if (cachedWriter != null) {
+                cachedWriter.flush();
+            }
+            return cachedOutputStream.toString(this.getCharset());
         }
         return null;
-    }
-
-    /**
-     * 将缓存的响应内容复制到原始响应中
-     *
-     * @throws IOException IO 异常
-     */
-    public void copyBodyToResponse() throws IOException {
-        if (!isStreamingResponse && cachedOutputStream.size() > 0) {
-            getResponse().getOutputStream().write(cachedOutputStream.toByteArray());
-        }
     }
 
     /**
@@ -126,5 +180,29 @@ public class RepeatReadResponseWrapper extends HttpServletResponseWrapper {
      */
     public boolean isStreamingResponse() {
         return isStreamingResponse;
+    }
+
+    /**
+     * 获取原始响应输出流（记忆化）
+     *
+     * @return 原始响应输出流
+     * @throws IOException IO 异常
+     */
+    private ServletOutputStream getOriginalOutputStream() throws IOException {
+        if (originalOutputStream == null) {
+            originalOutputStream = super.getOutputStream();
+        }
+        return originalOutputStream;
+    }
+
+    /**
+     * 获取响应字符集（未指定时回退到 UTF-8）
+     *
+     * @return 字符集
+     */
+    private Charset getCharset() {
+        String encoding = this.getCharacterEncoding();
+        return (encoding == null || encoding.isEmpty()) ? StandardCharsets.UTF_8
+            : Charset.forName(encoding);
     }
 }

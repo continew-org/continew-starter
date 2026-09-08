@@ -67,8 +67,8 @@ public class LogFilter extends OncePerRequestFilter {
                 : new RepeatReadResponseWrapper(response);
         filterChain.doFilter(wrappedRequest, wrappedResponse);
 
-        // 复制缓存数据到原始响应
-        wrappedResponse.copyBodyToResponse();
+        // 响应内容已在写入时同步推送到原始响应流，这里仅刷新缓冲确保数据（尤其 PrintWriter 缓冲）全部写出
+        wrappedResponse.flushBuffer();
     }
 
     /**
