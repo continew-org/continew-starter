@@ -42,6 +42,7 @@ import top.continew.starter.core.util.validation.ValidationUtils;
 import top.continew.starter.data.mapper.BaseMapper;
 import top.continew.starter.data.service.impl.ServiceImpl;
 import top.continew.starter.data.util.QueryWrapperHelper;
+import top.continew.starter.data.util.SortUtils;
 import top.continew.starter.excel.util.ExcelUtils;
 import top.continew.starter.extension.crud.annotation.DictModel;
 import top.continew.starter.extension.crud.annotation.TreeField;
@@ -293,6 +294,8 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
         Sort sort = sortQuery.getSort();
         for (Sort.Order order : sort) {
             String property = order.getProperty();
+            // 排序字段会被拼接进 ORDER BY，先按标识符白名单校验整个字段（含表别名前缀）
+            SortUtils.validateProperty(property);
             String checkProperty;
             // 携带表别名则获取 . 后面的字段名
             if (property.contains(StringConstants.DOT)) {

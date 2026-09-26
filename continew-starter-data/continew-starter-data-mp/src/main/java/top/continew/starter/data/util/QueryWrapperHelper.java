@@ -67,6 +67,8 @@ public class QueryWrapperHelper {
         }
         for (Sort.Order order : sort) {
             String property = order.getProperty();
+            // 排序字段会被拼接进 ORDER BY，先按标识符白名单校验整个字段（含表别名前缀）
+            SortUtils.validateProperty(property);
             queryWrapper.orderBy(true, order.isAscending(), CharSequenceUtil.toUnderlineCase(property));
         }
     }
@@ -102,9 +104,11 @@ public class QueryWrapperHelper {
         // 设置排序条件
         if (sort != null && sort.isSorted()) {
             for (Sort.Order order : sort) {
-                String field = CharSequenceUtil.toUnderlineCase(order.getProperty());
-                ValidationUtils.throwIf(SqlInjectionUtils.check(field), "排序字段包含无效字符");
-                queryWrapper.orderBy(true, order.isAscending(), field);
+                String property = order.getProperty();
+                // 先按原始值校验，再转换为数据库列名，避免转换后才合法的输入被放过
+                ValidationUtils.throwIf(SqlInjectionUtils.check(property), "排序字段包含无效字符");
+                SortUtils.validateProperty(property);
+                queryWrapper.orderBy(true, order.isAscending(), CharSequenceUtil.toUnderlineCase(property));
             }
         }
         // 获取查询条件中所有的字段
