@@ -89,9 +89,12 @@ public class QueryWrapperHelper {
         // 设置排序条件
         if (sort != null && sort.isSorted()) {
             for (Sort.Order order : sort) {
-                String field = CharSequenceUtil.toUnderlineCase(order.getProperty());
-                ValidationUtils.throwIf(SqlInjectionUtils.check(field), "排序字段包含无效字符");
-                queryWrapper.orderBy(field, order.isAscending());
+                String property = order.getProperty();
+                // 先按原始值校验，再转换为数据库列名，避免转换后才合法的输入被放过
+                ValidationUtils.throwIf(SqlInjectionUtils.check(property), "排序字段包含无效字符");
+                SortUtils.validateProperty(property);
+                queryWrapper.orderBy(CharSequenceUtil.toUnderlineCase(property),
+                    order.isAscending());
             }
         }
         // 获取查询条件中所有的字段
