@@ -1,3 +1,9 @@
+## [v2.16.1](https://github.com/continew-org/continew-starter/compare/v2.16.0...v2.16.1) (2026-09-27)
+
+### 🐛 问题修复
+
+- 【data,crud】修复排序字段 ORDER BY SQL 注入漏洞 ([4cd39db8](https://github.com/continew-org/continew-starter/commit/4cd39db8be70d408d87a88f28c469c654c2ccabd)) (GHSA-g8qc-r85v-gqpp) @Charles7c
+
 ## [v2.16.0](https://github.com/continew-org/continew-starter/compare/v2.15.1...v2.16.0) (2026-08-20)
 
 ### ✨ 新特性
