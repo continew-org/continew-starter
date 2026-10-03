@@ -173,7 +173,8 @@ continew-starter
 │  └─ continew-starter-cache-springcache（Spring 缓存）
 ├─ continew-starter-auth（认证模块）
 │  ├─ continew-starter-auth-satoken（国产轻量认证鉴权）
-│  └─ continew-starter-auth-justauth（第三方登录）
+│  ├─ continew-starter-auth-justauth（第三方登录）
+│  └─ continew-starter-auth-refresh-token（可轮换的 Refresh Token 登录会话，依赖 sa-token-jwt 并需开启 JWT 模式）
 ├─ continew-starter-data（数据访问模块）
 │  ├─ continew-starter-data-core（核心模块）
 │  ├─ continew-starter-data-mp（MyBatis Plus）

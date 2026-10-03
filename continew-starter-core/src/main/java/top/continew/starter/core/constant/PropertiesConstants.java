@@ -55,6 +55,12 @@ public class PropertiesConstants {
     public static final String AUTH_JUSTAUTH = CONTINEW_STARTER + StringConstants.DOT + "justauth";
 
     /**
+     * 认证-Refresh Token 配置
+     */
+    public static final String AUTH_REFRESH_TOKEN = CONTINEW_STARTER + StringConstants.DOT
+        + "refresh-token";
+
+    /**
      * 加密配置
      */
     public static final String ENCRYPT = CONTINEW_STARTER + StringConstants.DOT + "encrypt";
