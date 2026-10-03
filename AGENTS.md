@@ -36,7 +36,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 - **validation**：参数校验——Hibernate Validator
 - **web**：Web 开发——跨域、全局异常 + 响应、链路追踪等自动配置
 - **cache**：缓存——redisson / jetcache（多级缓存）/ springcache 三种实现
-- **auth**：认证——satoken（国产轻量认证鉴权）/ justauth（第三方登录）
+- **auth**：认证——satoken（国产轻量认证鉴权）/ justauth（第三方登录）/ refresh-token（可轮换的 Refresh Token 登录会话：轮换、重放保护、统一撤销与 WebSocket 联动）
 - **data**：数据访问——core + mp（MyBatis Plus）/ mf（MyBatis Flex）双 ORM 实现
 - **encrypt**：加密——core / field（字段加密）/ api（API 加密）/ password-encoder（密码编码器）
 - **security**：安全——mask（JSON 数据脱敏）/ xss（XSS 过滤）/ sensitivewords（敏感词）
@@ -77,7 +77,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 ./mvnw clean
 ```
 
-本项目目前不包含单元测试模块。代码改动的验证方式是执行 `./mvnw verify` 确保四道门禁全部通过。
+单元测试随模块维护（如 `continew-starter-auth-refresh-token` 内置 67 个用例，无外部依赖，本地与 CI 自动执行）。代码改动的验证方式是执行 `./mvnw verify` 确保四道门禁与全部单元测试通过。
 
 版本管理：`${revision}` 属性定义在 `continew-starter-dependencies` 与 `continew-starter-bom` 中，`flatten-maven-plugin` 在 `process-resources` 阶段将其解析为实际版本并生成用于发布的简化 `.flattened-pom.xml`——修改版本只需改一处。
 
@@ -113,6 +113,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 | 大括号 | `if/else/for/while/do-while` 必须加大括号（`NeedBraces`） |
 | 空行 | 连续空行最多保留 1 行（`EmptyLineSeparator`） |
 | 类注释 | 必须包含 `@author` 与 `@since` 标签 |
+| Javadoc | **禁止单行 Javadoc**：注释一律展开为多行（`RegexpSingleline` 强制）；方法注释需写全 `@param`（含类型参数）/`@return`，接口方法按 P3C【强制】必须写全 |
 | 内联全限定名 | **禁止**（`InlineFullyQualifiedName`：与依赖库同名时应调整类名，而非内联全限定名绕过） |
 | 格式化豁免 | `// @formatter:off` 与 `// @formatter:on` 之间的代码不参与格式化 |
 | 命名 | `style/` 配置文件与 agent 技能统一使用 `ocn-` 前缀（OCN = OpenContiNew） |

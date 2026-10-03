@@ -98,6 +98,7 @@
         <spotbugs.version>4.9.4.0</spotbugs.version>
         <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
         <extra-enforcer-rules.version>1.9.0</extra-enforcer-rules.version>
+        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -734,6 +735,12 @@
                     <groupId>com.github.spotbugs</groupId>
                     <artifactId>spotbugs-maven-plugin</artifactId>
                     <version>${spotbugs.version}</version>
+                </plugin>
+                <!-- 单元测试执行插件（显式固定版本，避免随 Maven 默认绑定漂移导致测试静默不执行） -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
