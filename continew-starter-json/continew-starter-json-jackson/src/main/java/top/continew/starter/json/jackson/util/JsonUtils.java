@@ -105,6 +105,7 @@ public class JsonUtils {
     /**
      * 将JSON字符串转换为Bean的List，默认为ArrayList
      *
+     * @param <T>         列表元素类型
      * @param jsonStr     需要转换的JSON字符串
      * @param elementType 列表元素类型
      * @return 转换后的 List
@@ -125,6 +126,7 @@ public class JsonUtils {
     /**
      * 将JSONArray转换为Bean的List，默认为ArrayList
      *
+     * @param <T>         列表元素类型
      * @param jsonNode    需要转换的 JsonNode
      * @param elementType 列表元素类型
      * @return 转换后的 List

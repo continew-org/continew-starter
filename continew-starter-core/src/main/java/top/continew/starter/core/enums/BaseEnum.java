@@ -54,6 +54,8 @@ public interface BaseEnum<T extends Serializable> {
     /**
      * 根据枚举值获取
      *
+     * @param <E>   枚举类型
+     * @param <T>   枚举值类型
      * @param value 枚举值
      * @param clazz 枚举类
      * @return 枚举对象
@@ -71,6 +73,7 @@ public interface BaseEnum<T extends Serializable> {
     /**
      * 根据枚举描述获取
      *
+     * @param <E>         枚举类型
      * @param description 枚举描述
      * @param clazz       枚举类
      * @return 枚举对象
@@ -89,6 +92,8 @@ public interface BaseEnum<T extends Serializable> {
     /**
      * 判断枚举值是否有效
      *
+     * @param <E>   枚举类型
+     * @param <T>   枚举值类型
      * @param value 枚举值
      * @param clazz 枚举类
      * @return 是否有效
