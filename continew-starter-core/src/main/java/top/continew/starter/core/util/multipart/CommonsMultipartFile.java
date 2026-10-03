@@ -70,6 +70,8 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
     /**
      * Return the underlying {@code org.apache.commons.fileupload.FileItem}
      * instance. There is hardly any need to access this.
+     *
+     * @return the underlying {@code FileItem} instance
      */
     public final FileItem getFileItem() {
         return this.fileItem;
@@ -82,6 +84,7 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
      * actual filename e.g. from Opera. Switch this to "true" for preserving the
      * client-specified filename as-is, including potential path separators.
      *
+     * @param preserveFilename whether to preserve the filename as sent by the client
      * @since 4.3.5
      * @see #getOriginalFilename()
      */
@@ -208,6 +211,8 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
     /**
      * Determine whether the multipart content is still available.
      * If a temporary file has been moved, the content is no longer available.
+     *
+     * @return whether the multipart content is still available
      */
     protected boolean isAvailable() {
         // If in memory, it's available.
@@ -226,6 +231,8 @@ public class CommonsMultipartFile implements MultipartFile, Serializable {
      * Return a description for the storage location of the multipart content.
      * Tries to be as specific as possible: mentions the file location in case
      * of a temporary file.
+     *
+     * @return a description for the storage location
      */
     public String getStorageDescription() {
         if (this.fileItem.isInMemory()) {

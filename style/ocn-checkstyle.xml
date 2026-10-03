@@ -16,6 +16,13 @@
         <property name="ignorePattern"
             value="^implements.*|^extends.*|^package.*|^import.*|a href|href|http://|https://|ftp://"/>
     </module>
+    <!-- 禁止单行 Javadoc：注释一律展开为多行，方法需补全 @param/@return -->
+    <module name="RegexpSingleline">
+        <property name="fileExtensions" value="java"/>
+        <property name="format" value="^\s*/\*\* .+ \*/\s*$"/>
+        <property name="message"
+            value="禁止单行 Javadoc，请展开为多行并为方法补充 @param/@return"/>
+    </module>
     <module name="SuppressWarningsFilter"/>
     
     <module name="TreeWalker">
@@ -68,6 +75,7 @@
         
         <!-- Javadoc Checker -->
         <module name="JavadocMethod">
+            <!-- allowMissingParamTags/ReturnTag 暂为 true：存量约 457 处待专项补齐后再收紧 -->
             <property name="allowMissingParamTags" value="true"/>
             <property name="allowMissingReturnTag" value="true"/>
             <property name="allowedAnnotations"

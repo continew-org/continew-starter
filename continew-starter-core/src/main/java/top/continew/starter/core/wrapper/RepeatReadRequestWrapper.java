@@ -134,6 +134,9 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
 
     /**
      * 将单个表单参数（name=value1&value2...）写入缓存
+     *
+     * @param name   参数名
+     * @param values 参数值数组
      */
     private void writeFormParameter(String name, String[] values) throws IOException {
         this.cachedContent.write(URLEncoder.encode(name, characterEncoding)

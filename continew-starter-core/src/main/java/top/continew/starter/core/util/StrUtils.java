@@ -34,6 +34,7 @@ public class StrUtils {
     /**
      * 如果字符串是{@code null}或者&quot;&quot;或者空白，则返回指定默认字符串，否则针对字符串处理后返回
      *
+     * @param <T>          返回值类型
      * @param str          要转换的字符串
      * @param defaultValue 默认值
      * @param mapper       针对字符串的转换方法
