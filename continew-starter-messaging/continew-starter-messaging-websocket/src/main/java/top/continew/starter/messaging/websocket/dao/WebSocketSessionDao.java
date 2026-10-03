@@ -19,6 +19,7 @@ package top.continew.starter.messaging.websocket.dao;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -67,4 +68,20 @@ public interface WebSocketSessionDao {
      * @since 2.12.1
      */
     Set<String> listAllSessionIds();
+
+    /**
+     * 获取指定 Key 下的全部会话。
+     *
+     * <p>单连接实现返回该 Key 下至多一条会话；支持多标签页的实现（如
+     * auth-refresh-token 模块的 {@code ConcurrentWebSocketSessionDao}）返回该 Key 下的
+     * 全部存活连接，供撤销与全量推送使用。</p>
+     *
+     * @param key 会话 Key
+     * @return 该 Key 下的全部会话；不存在时返回空集合
+     * @since 2.17.0
+     */
+    default Collection<WebSocketSession> listByKey(String key) {
+        WebSocketSession session = this.get(key);
+        return session == null ? List.of() : List.of(session);
+    }
 }

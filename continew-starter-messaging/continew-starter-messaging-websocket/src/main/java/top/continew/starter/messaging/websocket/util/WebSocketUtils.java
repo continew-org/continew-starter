@@ -106,4 +106,21 @@ public class WebSocketUtils {
             LOGGER.error("WebSocket send message failed. sessionId: {}.", session.getId(), e);
         }
     }
+
+    /**
+     * 发送消息给指定客户端的全部连接（多标签页语义）。
+     *
+     * <p>当 {@code WebSocketSessionDao} 支持同一客户端 ID 登记多条连接（如
+     * auth-refresh-token 模块的多标签页 DAO）时，{@link #sendMessage(String, String)}
+     * 只会投递到其中一条；本方法按 {@link WebSocketSessionDao#listByKey(String)}
+     * 对该客户端的全部存活连接逐一投递。</p>
+     *
+     * @param clientId 客户端 ID
+     * @param message  消息内容
+     * @since 2.17.0
+     */
+    public static void sendMessageToAll(String clientId, String message) {
+        SESSION_DAO.listByKey(clientId)
+            .forEach(session -> sendMessage(session, message));
+    }
 }
