@@ -30,20 +30,24 @@ import java.util.regex.Pattern;
 public class SortUtils {
 
     /**
-     * 合法排序字段正则：仅允许字母、数字、下划线，可携带表别名（如 u.create_time）
+     * 合法排序字段的单个标识符片段：字母、数字或下划线。
+     *
+     * <p>刻意不采用「标识符 + 分隔符」形式的整体正则（如 {@code \w+(\.\w+)*}）：
+     * 该形式在 Java 正则引擎中每次分组迭代都会递归消耗栈，点分段输入达到约 2000 段
+     * 即可触发 StackOverflowError，而排序字段是请求参数可直接控制的，存在可用性风险。
+     * 改为按 {@code '.'} 线性切分后逐段匹配单量词正则，彻底消除递归。</p>
      */
-    private static final Pattern SORT_PROPERTY_PATTERN = Pattern
-        .compile("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)*");
+    private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("\\w+");
 
     private SortUtils() {
     }
 
     /**
-     * 校验排序字段是否为合法标识符
+     * 校验排序字段是否为合法标识符。
      *
      * <p>
      * 排序字段会被直接拼接进 ORDER BY，仅靠 SQL 注入关键字黑名单无法穷举所有
-     * 攻击特征（如 {@code case when} 表达式配合无单引号的注释符），因此必须按
+     * 攻击特征（如 {@code case when} 表达式配合无引号的注释符），因此必须按
      * 标识符白名单校验整个字段（含表别名前缀），而非只校验部分片段。
      * </p>
      *
@@ -52,8 +56,16 @@ public class SortUtils {
      * @since 2.16.1
      */
     public static void validateProperty(String property) {
-        boolean isInvalid =
-            property == null || !SORT_PROPERTY_PATTERN.matcher(property).matches();
+        boolean isInvalid = property == null || property.isEmpty();
+        if (!isInvalid) {
+            // 线性切分 + 逐段单量词匹配：不存在嵌套量词，输入长度与耗时均呈线性
+            for (String segment : property.split("\\.", -1)) {
+                if (!IDENTIFIER_PATTERN.matcher(segment).matches()) {
+                    isInvalid = true;
+                    break;
+                }
+            }
+        }
         ValidationUtils.throwIf(isInvalid, "无效的排序字段 [{}]", property);
     }
 }
