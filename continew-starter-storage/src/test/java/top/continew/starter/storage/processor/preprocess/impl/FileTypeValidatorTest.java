@@ -43,7 +43,8 @@ class FileTypeValidatorTest {
     void shouldRejectDisallowedExtensionWhenWhitelistConfigured() {
         FileTypeValidator validator = new FileTypeValidator("jpg", "png", "pdf");
         for (String filename : new String[] {"shell.jsp", "page.html", "run.sh", "payload.exe"}) {
-            assertThrows(StorageException.class, () -> validator.validate(this.contextOf(filename)),
+            UploadContext context = this.contextOf(filename);
+            assertThrows(StorageException.class, () -> validator.validate(context),
                 "未在白名单内的扩展名应被拒绝: " + filename);
         }
     }
@@ -60,8 +61,10 @@ class FileTypeValidatorTest {
     void shouldMatchExtensionCaseInsensitively() {
         FileTypeValidator validator = new FileTypeValidator("jpg", "png");
         // 文件名侧统一转小写后比对，因此大写扩展名的可执行文件仍会被拒绝
-        assertThrows(StorageException.class, () -> validator.validate(this.contextOf("shell.JSP")));
-        assertThrows(StorageException.class, () -> validator.validate(this.contextOf("run.Sh")));
+        UploadContext jspContext = this.contextOf("shell.JSP");
+        assertThrows(StorageException.class, () -> validator.validate(jspContext));
+        UploadContext shContext = this.contextOf("run.Sh");
+        assertThrows(StorageException.class, () -> validator.validate(shContext));
         // 白名单内的扩展名不区分大小写，应放行
         assertDoesNotThrow(() -> validator.validate(this.contextOf("photo.JPG")));
         assertDoesNotThrow(() -> validator.validate(this.contextOf("photo.PNG")));

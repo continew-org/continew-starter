@@ -105,10 +105,10 @@ class SortQueryTest {
      */
     @Test
     void shouldRejectExpressionWithHashCommentSuffix() {
-        assertThrows(BadRequestException.class,
-            () -> new SortQuery("(select 1 from dual)#x.id,desc", "id,asc").getSort());
-        assertThrows(BadRequestException.class, () -> new SortQuery("id)#,desc", "id,asc")
-            .getSort());
+        SortQuery query = new SortQuery("(select 1 from dual)#x.id,desc", "id,asc");
+        assertThrows(BadRequestException.class, query::getSort);
+        query = new SortQuery("id)#,desc", "id,asc");
+        assertThrows(BadRequestException.class, query::getSort);
     }
 
     /**
@@ -116,12 +116,12 @@ class SortQueryTest {
      */
     @Test
     void shouldRejectTreeEndpointInjection() {
-        assertThrows(BadRequestException.class, () -> new SortQuery("id;drop table sys_user,asc",
-            "id,asc").getSort());
-        assertThrows(BadRequestException.class, () -> new SortQuery("id --,asc", "id,asc")
-            .getSort());
-        assertThrows(BadRequestException.class, () -> new SortQuery("id/*x*/,asc", "id,asc")
-            .getSort());
+        SortQuery query = new SortQuery("id;drop table sys_user,asc", "id,asc");
+        assertThrows(BadRequestException.class, query::getSort);
+        query = new SortQuery("id --,asc", "id,asc");
+        assertThrows(BadRequestException.class, query::getSort);
+        query = new SortQuery("id/*x*/,asc", "id,asc");
+        assertThrows(BadRequestException.class, query::getSort);
     }
 
     /**
@@ -130,10 +130,10 @@ class SortQueryTest {
      */
     @Test
     void shouldRejectPaginationEndpointInjection() {
-        assertThrows(BadRequestException.class, () -> new SortQuery("(select 1)#t1.id,desc",
-            "id,asc").getSort());
-        assertThrows(BadRequestException.class, () -> new SortQuery("if(1=1,id,name),asc",
-            "id,asc").getSort());
+        SortQuery query = new SortQuery("(select 1)#t1.id,desc", "id,asc");
+        assertThrows(BadRequestException.class, query::getSort);
+        query = new SortQuery("if(1=1,id,name),asc", "id,asc");
+        assertThrows(BadRequestException.class, query::getSort);
     }
 
     /**
@@ -141,9 +141,9 @@ class SortQueryTest {
      */
     @Test
     void shouldRejectQuotesAndWhitespace() {
-        assertThrows(BadRequestException.class, () -> new SortQuery("id' ,asc", "id,asc")
-            .getSort());
-        assertThrows(BadRequestException.class, () -> new SortQuery("id asc,desc", "id,asc")
-            .getSort());
+        SortQuery query = new SortQuery("id' ,asc", "id,asc");
+        assertThrows(BadRequestException.class, query::getSort);
+        query = new SortQuery("id asc,desc", "id,asc");
+        assertThrows(BadRequestException.class, query::getSort);
     }
 }
