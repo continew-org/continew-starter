@@ -18,6 +18,8 @@ package top.continew.starter.extension.crud.model.query;
 
 import cn.hutool.extra.spring.SpringUtil;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -100,50 +102,29 @@ class SortQueryTest {
     }
 
     /**
-     * GHSA-g8qc-r85v-gqpp 的核心 payload：表达式与 {@code #} 注释组合后可同时骗过关键字
-     * 黑名单与「只校验最后一段字段名」的旧实现，整串被原样拼入 ORDER BY。
+     * 三个公开安全公告报告的注入 payload 必须在入口 {@code getSort()} 即被拒绝，固化
+     * 「入口即拒绝」这一不变量：GHSA-g8qc-r85v-gqpp 的表达式 + {@code #} 注释组合可同时
+     * 骗过关键字黑名单与「只校验最后一段字段名」的旧实现；GHSA-jfcv-24mv-r9c3 与
+     * GHSA-3r3w-5g4r-3xph 的 tree / 分页端点会把整串原样拼入 {@code ORDER BY} 与
+     * {@code OrderItem.setColumn}。
      */
-    @Test
-    void shouldRejectExpressionWithHashCommentSuffix() {
-        SortQuery query = new SortQuery("(select 1 from dual)#x.id,desc", "id,asc");
-        assertThrows(BadRequestException.class, query::getSort);
-        query = new SortQuery("id)#,desc", "id,asc");
-        assertThrows(BadRequestException.class, query::getSort);
-    }
-
-    /**
-     * GHSA-jfcv-24mv-r9c3 报告的 tree 端点注入形态必须被拒绝。
-     */
-    @Test
-    void shouldRejectTreeEndpointInjection() {
-        SortQuery query = new SortQuery("id;drop table sys_user,asc", "id,asc");
-        assertThrows(BadRequestException.class, query::getSort);
-        query = new SortQuery("id --,asc", "id,asc");
-        assertThrows(BadRequestException.class, query::getSort);
-        query = new SortQuery("id/*x*/,asc", "id,asc");
-        assertThrows(BadRequestException.class, query::getSort);
-    }
-
-    /**
-     * GHSA-3r3w-5g4r-3xph 报告的分页端点 payload（{@code toPage} 会把字段转成
-     * {@code OrderItem.setColumn}）必须在入口就被拒绝。
-     */
-    @Test
-    void shouldRejectPaginationEndpointInjection() {
-        SortQuery query = new SortQuery("(select 1)#t1.id,desc", "id,asc");
-        assertThrows(BadRequestException.class, query::getSort);
-        query = new SortQuery("if(1=1,id,name),asc", "id,asc");
-        assertThrows(BadRequestException.class, query::getSort);
-    }
-
-    /**
-     * 含引号与空白字符的字段名必须被拒绝。
-     */
-    @Test
-    void shouldRejectQuotesAndWhitespace() {
-        SortQuery query = new SortQuery("id' ,asc", "id,asc");
-        assertThrows(BadRequestException.class, query::getSort);
-        query = new SortQuery("id asc,desc", "id,asc");
+    @ParameterizedTest
+    @ValueSource(strings = {
+        // GHSA-g8qc-r85v-gqpp：表达式 + # 注释组合
+        "(select 1 from dual)#x.id,desc",
+        "id)#,desc",
+        // GHSA-jfcv-24mv-r9c3：tree 端点注入形态
+        "id;drop table sys_user,asc",
+        "id --,asc",
+        "id/*x*/,asc",
+        // GHSA-3r3w-5g4r-3xph：分页端点注入形态（toPage 会把字段转成 OrderItem.setColumn）
+        "(select 1)#t1.id,desc",
+        "if(1=1,id,name),asc",
+        // 含引号与空白字符的字段名
+        "id' ,asc",
+        "id asc,desc"})
+    void shouldRejectInjectionPayloads(String payload) {
+        SortQuery query = new SortQuery(payload, "id,asc");
         assertThrows(BadRequestException.class, query::getSort);
     }
 }
