@@ -36,11 +36,15 @@ public @interface CrudRequestMapping {
 
     /**
      * 路径映射 URI（等同于：@RequestMapping("/foo1")）
+     *
+     * @return 路径映射 URI
      */
     String value() default "";
 
     /**
      * API 列表
+     *
+     * @return API 列表
      */
     Api[] api() default {Api.PAGE, Api.GET, Api.CREATE, Api.UPDATE, Api.BATCH_DELETE, Api.EXPORT,
         Api.DICT};

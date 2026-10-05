@@ -266,6 +266,9 @@ public class RefreshTokenServiceImpl implements RefreshTokenService, AccessSessi
      * <p>宽限期内整个 Session 只允许前进一代：后续请求统一返回最新结果，避免
      * R0→R1→R2 后迟到的 R0 响应把客户端 Cookie 回退到已经失效的 R1。</p>
      *
+     * @param session  当前会话
+     * @param cached   已缓存的轮换快照
+     * @param response 当前响应
      * @return 可重放的轮换结果；无法重放返回 {@code null}
      */
     private RefreshIssueResult tryReplayRotation(RefreshSession session,
@@ -289,6 +292,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService, AccessSessi
 
     /**
      * 执行令牌代际切换（或从中断的轮换中恢复），返回可用于完成签发的新 Refresh Token。
+     *
+     * @param presentedToken 客户端出示的 Refresh Token
+     * @param session        当前会话
+     * @param current        是否命中当前代
+     * @param previous       是否命中上一代
+     * @param cached         已缓存的轮换快照
+     * @return 新 Refresh Token
      */
     private String advanceTokenGeneration(ParsedToken presentedToken, RefreshSession session,
         boolean current, boolean previous, RefreshRotationResult cached) {
@@ -321,6 +331,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService, AccessSessi
     /**
      * 通过回调重新签发 Access Token 并完成轮换；对业务校验失败与基础设施故障分别
      * 执行撤销与会话保留两种降级策略。
+     *
+     * @param presentedToken    客户端出示的 Refresh Token
+     * @param session           当前会话
+     * @param newRefreshToken   新 Refresh Token
+     * @param accessTokenIssuer Access Token 签发回调
+     * @param response          当前响应
+     * @return 签发结果
      */
     private RefreshIssueResult issueAndCompleteRotation(ParsedToken presentedToken,
         RefreshSession session, String newRefreshToken,
@@ -607,6 +624,11 @@ public class RefreshTokenServiceImpl implements RefreshTokenService, AccessSessi
     /**
      * 获取一组固定顺序的分布式锁。若处于数据库事务中，锁延迟到事务完成后释放，保证
      * 其他登录只能看到事务提交前的旧状态或提交后的新状态，不能落入中间窗口。
+     *
+     * @param <T>           返回结果类型
+     * @param lockSuppliers 锁获取回调列表
+     * @param action        锁内执行的动作
+     * @return 动作执行结果
      */
     private <T> T executeWithLocks(List<Supplier<AuthPolicyLock>> lockSuppliers,
         Supplier<T> action) {
@@ -702,6 +724,10 @@ public class RefreshTokenServiceImpl implements RefreshTokenService, AccessSessi
      *
      * <p>被淘汰会话看到的提示由客户端配置的注销模式决定：Sa-Token 不再参与并发控制，
      * 这里必须自行把 {@code overflowLogoutMode} 落成失效原因。</p>
+     *
+     * @param activeSessions     当前活跃会话列表
+     * @param maxLoginCount      最大登录数
+     * @param overflowLogoutMode 超出登录数限制时的注销方式
      */
     private void evictOverflowSessions(List<RefreshSession> activeSessions, int maxLoginCount,
         LogoutReasonEnum overflowLogoutMode) {

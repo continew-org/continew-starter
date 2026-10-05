@@ -93,6 +93,10 @@ public class UploadPretreatment {
 
     /**
      * 添加元数据
+     *
+     * @param key   元数据键
+     * @param value 元数据值
+     * @return {@link UploadPretreatment }
      */
     public UploadPretreatment metadata(String key, String value) {
         context.getMetadata().put(key, value);
@@ -125,6 +129,9 @@ public class UploadPretreatment {
 
     /**
      * 设置进度监听器
+     *
+     * @param listener 进度监听器
+     * @return {@link UploadPretreatment }
      */
     public UploadPretreatment onProgress(UploadProgressListener listener) {
         this.progressListener = listener;
@@ -133,6 +140,9 @@ public class UploadPretreatment {
 
     /**
      * 设置简单的进度监听（只关心百分比）
+     *
+     * @param progressConsumer 百分比回调（0-100）
+     * @return {@link UploadPretreatment }
      */
     public UploadPretreatment onProgress(IntConsumer progressConsumer) {
         this.progressListener =

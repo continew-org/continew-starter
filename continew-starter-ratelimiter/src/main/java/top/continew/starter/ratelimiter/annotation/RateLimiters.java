@@ -35,6 +35,8 @@ public @interface RateLimiters {
 
     /**
      * 限流组
+     *
+     * @return 限流组
      */
     RateLimiter[] value();
 }

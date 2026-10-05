@@ -37,6 +37,8 @@ public @interface FieldEncrypt {
 
     /**
      * 加密算法
+     *
+     * @return 加密算法
      */
     Algorithm value() default Algorithm.DEFAULT;
 
@@ -45,21 +47,29 @@ public @interface FieldEncrypt {
      * <p>
      * 优先级高于加密算法
      * </p>
+     *
+     * @return 加密处理器
      */
     Class<? extends IEncryptor> encryptor() default IEncryptor.class;
 
     /**
      * 对称加密算法密钥
+     *
+     * @return 对称加密算法密钥
      */
     String password() default "";
 
     /**
      * 非对称加密算法公钥：RSA需要
+     *
+     * @return 非对称加密算法公钥：RSA需要
      */
     String publicKey() default "";
 
     /**
      * 非对称加密算法私钥：RSA需要
+     *
+     * @return 非对称加密算法私钥：RSA需要
      */
     String privateKey() default "";
 }

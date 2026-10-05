@@ -88,6 +88,9 @@ public class ExecCmdUtil {
 
     /**
      * 执行linux命令(shell脚本)生成3rd_session随机数
+     *
+     * @return 随机数
+     * @throws IOException 执行失败时抛出
      */
     public static String create3rdSessionToken() throws IOException {
         return exec(CREATE_3RDSESSION_SHELL_SCRIPT);

@@ -34,7 +34,8 @@ public class TenantIgnoreAspect {
     /**
      * 忽略租户
      *
-     * @param joinPoint 切点
+     * @param joinPoint    切点
+     * @param tenantIgnore 忽略租户注解
      * @return 返回结果
      * @throws Throwable 异常
      */

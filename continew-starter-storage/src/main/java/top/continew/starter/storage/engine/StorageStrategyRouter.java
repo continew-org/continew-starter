@@ -79,6 +79,9 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 存储选择（支持装饰器）
+     *
+     * @param platform 平台编码
+     * @return 存储策略（已应用装饰器）
      */
     public StorageStrategy route(String platform) {
         // 1. 先检查缓存的装饰后策略
@@ -97,6 +100,9 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 获取原始策略
+     *
+     * @param platform 平台编码
+     * @return 原始存储策略
      */
     private StorageStrategy getOriginalStrategy(String platform) {
         return Optional.ofNullable(dynamicStrategies.get(platform))
@@ -106,6 +112,9 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 应用装饰器
+     *
+     * @param strategy 原始存储策略
+     * @return 应用装饰器后的存储策略
      */
     private StorageStrategy applyDecoratorsIfAvailable(StorageStrategy strategy) {
         return ObjectUtil.isNotEmpty(decoratorManager) ? decoratorManager.applyDecorators(strategy)
@@ -114,6 +123,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 动态注册策略 - 支持装饰器注册
+     *
+     * @param strategy 存储策略
      */
     public void registerDynamic(StorageStrategy strategy) {
         String platform = strategy.getPlatform();
@@ -127,6 +138,9 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 卸载动态策略
+     *
+     * @param platform 平台编码
+     * @return 是否卸载成功
      */
     public boolean unloadDynamic(String platform) {
         StorageStrategy strategy = dynamicStrategies.remove(platform);
@@ -155,6 +169,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 注册动态默认存储
+     *
+     * @param platform 平台编码
      */
     public void registerDynamicDefaultStorage(String platform) {
         this.dynamicDefaultPlatform = StrUtil.isBlank(platform) ? null : platform.trim();
@@ -162,6 +178,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 获取默认存储平台
+     *
+     * @return 默认存储平台编码
      */
     public String getDefaultStorage() {
         DefaultStorageSource defaultStorageSource = ObjectUtil.defaultIfNull(storageProperties
@@ -203,7 +221,7 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
      * 添加候选人
      *
      * @param candidates 候选人
-     * @param platform   站台
+     * @param platform   平台编码
      */
     private void addCandidate(Set<String> candidates, String platform) {
         String normalizedPlatform = StrUtil.trim(platform);
@@ -215,7 +233,7 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
     /**
      * 有策略
      *
-     * @param platform 站台
+     * @param platform 平台编码
      * @return boolean
      */
     private boolean hasStrategy(String platform) {
@@ -224,6 +242,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 获取所有可用平台
+     *
+     * @return 平台编码集合
      */
     public Set<String> getAllPlatform() {
         Set<String> allPlatform = new HashSet<>(configStrategies.keySet());
@@ -233,6 +253,9 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 检查是否为动态注册的策略
+     *
+     * @param platform 平台编码
+     * @return 是否动态注册
      */
     public boolean isDynamic(String platform) {
         return dynamicStrategies.containsKey(platform);
@@ -240,6 +263,9 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 检查是否为配置文件策略
+     *
+     * @param platform 平台编码
+     * @return 是否来自配置文件
      */
     public boolean isFromConfig(String platform) {
         return configStrategies.containsKey(platform);
@@ -247,6 +273,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 获取简化的策略信息
+     *
+     * @return 策略信息（平台编码 -> 来源：config/dynamic）
      */
     public Map<String, String> getActiveStrategyInfo() {
         Map<String, String> info = new HashMap<>();
@@ -259,6 +287,8 @@ public class StorageStrategyRouter implements ApplicationListener<ApplicationEve
 
     /**
      * 获取完整的策略状态
+     *
+     * @return 各策略的状态信息（平台编码 -> 状态）
      */
     public Map<String, StrategyStatusResp> getFullStrategyStatus() {
         Map<String, StrategyStatusResp> status = new HashMap<>();

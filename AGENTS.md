@@ -112,7 +112,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 | 无用 import | **禁止**（`-Pformat` 自动清理） |
 | 大括号 | `if/else/for/while/do-while` 必须加大括号（`NeedBraces`） |
 | 空行 | 连续空行最多保留 1 行（`EmptyLineSeparator`） |
-| 类注释 | 必须包含 `@author` 与 `@since` 标签 |
+| 类注释 | 必须包含 `@author` 与 `@since` 标签（`@author` 由 `JavadocType(authorFormat=\S)` 门禁强制；`@since` 保持约定。嵌套类型按行业惯例不强制 `@author`/`@since`） |
 | Javadoc | **禁止单行 Javadoc**：注释一律展开为多行（`RegexpSingleline` 强制）；方法注释需写全 `@param`（含类型参数）/`@return`，接口方法按 P3C【强制】必须写全 |
 | 内联全限定名 | **禁止**（`InlineFullyQualifiedName`：与依赖库同名时应调整类名，而非内联全限定名绕过） |
 | 格式化豁免 | `// @formatter:off` 与 `// @formatter:on` 之间的代码不参与格式化 |

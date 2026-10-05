@@ -45,6 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * 枚举类型处理器（扩展 BaseEnum 支持）
  *
+ * @param <E> 枚举类型
  * @see com.baomidou.mybatisplus.core.handlers.MybatisEnumTypeHandler
  *
  * @author hubin（<a href="https://gitee.com/baomidou/mybatis-plus">MyBatis Plus</a>）

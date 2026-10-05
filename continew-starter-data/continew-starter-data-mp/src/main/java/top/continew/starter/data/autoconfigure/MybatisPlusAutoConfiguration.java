@@ -104,6 +104,9 @@ public class MybatisPlusAutoConfiguration {
 
     /**
      * 分页插件配置（<a href="https://baomidou.com/pages/97710a/#paginationinnerinterceptor">PaginationInnerInterceptor</a>）
+     *
+     * @param paginationProperties 分页配置属性
+     * @return 分页插件
      */
     private PaginationInnerInterceptor paginationInnerInterceptor(
         MyBatisPlusExtensionProperties.PaginationProperties paginationProperties) {

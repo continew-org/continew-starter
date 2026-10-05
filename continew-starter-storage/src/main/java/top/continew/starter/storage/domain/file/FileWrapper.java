@@ -55,6 +55,9 @@ public class FileWrapper {
 
     /**
      * 从 MultipartFile 创建
+     *
+     * @param file 文件
+     * @return 文件包装器
      */
     public static FileWrapper of(MultipartFile file) {
         FileWrapper wrapper = new FileWrapper();
@@ -97,6 +100,9 @@ public class FileWrapper {
 
     /**
      * 从 Object 创建（智能识别）
+     *
+     * @param obj 文件来源对象
+     * @return 文件包装器
      */
     public static FileWrapper of(Object obj) {
         return of(obj, null, null);
@@ -104,6 +110,11 @@ public class FileWrapper {
 
     /**
      * 从 Object 创建，可指定文件名和类型
+     *
+     * @param obj         文件来源对象
+     * @param filename    文件名
+     * @param contentType 内容类型
+     * @return 文件包装器
      */
     public static FileWrapper of(Object obj, String filename, String contentType) {
         if (obj == null) {
@@ -167,6 +178,8 @@ public class FileWrapper {
 
     /**
      * 尝试从当前 HTTP 请求中获取文件名
+     *
+     * @return 文件名，非 multipart 请求或未找到返回 null
      */
     private static String tryGetFilenameFromRequest() {
         return findInMultipartParts(part -> {
@@ -179,6 +192,8 @@ public class FileWrapper {
 
     /**
      * 尝试从当前 HTTP 请求中获取 ContentType
+     *
+     * @return 内容类型，非 multipart 请求或未找到返回 null
      */
     private static String tryGetContentTypeFromRequest() {
         return findInMultipartParts(part -> {
@@ -197,6 +212,7 @@ public class FileWrapper {
      * 在当前请求的 multipart 文件分片里查找第一个匹配的字段值，非 multipart 请求或查找失败返回 {@code null}
      *
      * @param extractor 从 {@link Part} 中提取目标值的逻辑，返回 {@code null} 表示未匹配
+     * @return 第一个匹配的字段值，未找到返回 {@code null}
      */
     private static String findInMultipartParts(Function<Part, String> extractor) {
         try {
@@ -224,6 +240,8 @@ public class FileWrapper {
 
     /**
      * 转换为 MultipartFile
+     *
+     * @return MultipartFile
      */
     public MultipartFile toMultipartFile() {
         if (multipartFile != null) {

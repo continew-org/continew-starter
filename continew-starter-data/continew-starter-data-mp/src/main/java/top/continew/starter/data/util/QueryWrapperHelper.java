@@ -57,6 +57,7 @@ public class QueryWrapperHelper {
     /**
      * 设置排序
      *
+     * @param <T>         查询数据类型
      * @param queryWrapper 查询条件封装对象
      * @param sort         排序条件
      * @since 2.9.0
@@ -210,6 +211,7 @@ public class QueryWrapperHelper {
      * @param queryType  查询类型
      * @param columnName 列名
      * @param fieldValue 字段值
+     * @param consumers  查询条件消费者列表
      * @param <R>        查询数据类型
      */
     private static <R> void parse(QueryType queryType,

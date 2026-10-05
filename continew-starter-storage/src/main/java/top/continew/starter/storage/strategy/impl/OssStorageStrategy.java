@@ -432,6 +432,9 @@ public class OssStorageStrategy implements StorageStrategy {
 
     /**
      * 获取文件URL
+     *
+     * @param path 文件路径
+     * @return 文件访问 URL
      */
     private String getFileUrl(String path) {
         String baseUrl =
@@ -448,6 +451,9 @@ public class OssStorageStrategy implements StorageStrategy {
 
     /**
      * 获取文件名
+     *
+     * @param path 文件路径
+     * @return 文件名
      */
     private String getFileName(String path) {
         int lastSlashIndex = path.lastIndexOf(StringConstants.SLASH);
@@ -456,6 +462,11 @@ public class OssStorageStrategy implements StorageStrategy {
 
     /**
      * 分割列表
+     *
+     * @param <T>  元素类型
+     * @param list 列表
+     * @param size 每组大小
+     * @return 分组后的列表
      */
     private <T> List<List<T>> partition(List<T> list, int size) {
         List<List<T>> partitions = new ArrayList<>();
@@ -830,6 +841,13 @@ public class OssStorageStrategy implements StorageStrategy {
         return Files.createTempFile(tempDir, "storage-part-", ".tmp");
     }
 
+    /**
+     * 分片数据载体（内存缓冲或临时文件）
+     *
+     * @param bytes    内存数据（使用临时文件时为 null）
+     * @param tempFile 临时文件（内存存储时为 null）
+     * @param size     分片大小（字节）
+     */
     private record PartPayload(byte[] bytes, Path tempFile, long size) {
 
         @Override

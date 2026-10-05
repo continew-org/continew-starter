@@ -74,10 +74,12 @@
         <module name="NeedBraces"/>
         
         <!-- Javadoc Checker -->
+        <module name="JavadocType">
+            <property name="authorFormat" value="\S"/>
+        </module>
         <module name="JavadocMethod">
-            <!-- allowMissingParamTags/ReturnTag 暂为 true：存量约 457 处待专项补齐后再收紧 -->
-            <property name="allowMissingParamTags" value="true"/>
-            <property name="allowMissingReturnTag" value="true"/>
+            <property name="allowMissingParamTags" value="false"/>
+            <property name="allowMissingReturnTag" value="false"/>
             <property name="allowedAnnotations"
                 value="Override, Test, Before, After, BeforeClass, AfterClass, Parameterized, Parameters, Bean, PostConstruct"/>
             <property name="tokens" value="METHOD_DEF, CTOR_DEF, ANNOTATION_FIELD_DEF"/>

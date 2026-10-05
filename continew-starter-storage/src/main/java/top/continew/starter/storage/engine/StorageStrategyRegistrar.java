@@ -33,6 +33,8 @@ public interface StorageStrategyRegistrar {
 
     /**
      * 注册策略到列表
+     *
+     * @param strategies 策略列表
      */
     void register(List<StorageStrategy> strategies);
 

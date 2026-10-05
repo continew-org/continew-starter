@@ -282,6 +282,9 @@ public class LicenseCreateService {
 
     /**
      * 设置证书生成参数
+     *
+     * @param param 证书创建参数
+     * @return 证书生成参数
      */
     private LicenseParam initLicenseParam(LicenseCreatorParam param) {
         Preferences preferences = Preferences.userNodeForPackage(LicenseCreateService.class);

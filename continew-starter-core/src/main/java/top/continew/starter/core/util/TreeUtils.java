@@ -40,6 +40,7 @@ import java.util.stream.Stream;
  *
  * @author Lion Li（<a href="https://gitee.com/dromara/RuoYi-Vue-Plus">RuoYi-Vue-Plus</a>）
  * @author lishuyan
+ * @since 2.13.3
  */
 public class TreeUtils extends TreeUtil {
 

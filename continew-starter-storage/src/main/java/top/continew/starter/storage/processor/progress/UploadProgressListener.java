@@ -47,6 +47,8 @@ public interface UploadProgressListener {
 
     /**
      * 上传失败
+     *
+     * @param e 异常
      */
     default void onError(Exception e) {
     }

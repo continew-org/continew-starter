@@ -25,6 +25,7 @@ import java.util.Map;
 /**
  * BaseEnum 参数转换器
  *
+ * @param <T> 枚举类型（BaseEnum 实现类）
  * @author Charles7c
  * @since 2.4.0
  */

@@ -95,6 +95,8 @@ public class MqttMessageInboundHandler
     /**
      * 处理通过@MqttListener注解订阅的监听器
      *
+     * @param topic        消息主题
+     * @param mqttMessage  消息
      * @return true if message was handled by annotated listener
      */
     private boolean handleAnnotatedListeners(String topic, MqttMessage mqttMessage) {
@@ -117,6 +119,8 @@ public class MqttMessageInboundHandler
 
     /**
      * 广播消息给所有监听器（用于动态订阅的场景）
+     *
+     * @param mqttMessage 消息
      */
     private void broadcastToAllListeners(MqttMessage mqttMessage) {
         // 获取当前订阅的所有topics
@@ -146,6 +150,9 @@ public class MqttMessageInboundHandler
 
     /**
      * 检查是否是注解监听器
+     *
+     * @param listener 监听器
+     * @return 是否为注解监听器
      */
     private boolean isAnnotatedListener(MqttMessageConsumer listener) {
         return annotatedListenerMap.containsValue(listener);
@@ -153,6 +160,10 @@ public class MqttMessageInboundHandler
 
     /**
      * 判断topic是否匹配
+     *
+     * @param topicFilter  主题过滤器
+     * @param actualTopic  实际主题
+     * @return 是否匹配
      */
     private boolean isTopicMatch(String topicFilter, String actualTopic) {
         // 精确匹配
@@ -200,6 +211,9 @@ public class MqttMessageInboundHandler
 
     /**
      * 解析占位符，支持 ${} 和直接字符串
+     *
+     * @param value 待解析的值
+     * @return 解析后的值
      */
     private String resolvePlaceholder(String value) {
         if (StringUtils.hasText(value)) {

@@ -38,36 +38,50 @@ public @interface RateLimiter {
 
     /**
      * 类型
+     *
+     * @return 类型
      */
     LimitType type() default LimitType.DEFAULT;
 
     /**
      * 名称
+     *
+     * @return 名称
      */
     String name() default "";
 
     /**
      * 键（支持 Spring EL 表达式）
+     *
+     * @return 键
      */
     String key() default "";
 
     /**
      * 速率（指定时间间隔产生的令牌数）
+     *
+     * @return 速率
      */
     int rate() default Integer.MAX_VALUE;
 
     /**
      * 速率间隔（时间间隔）
+     *
+     * @return 速率间隔
      */
     int interval() default 0;
 
     /**
      * 速率间隔时间单位（默认：毫秒）
+     *
+     * @return 速率间隔时间单位
      */
     TimeUnit unit() default TimeUnit.MILLISECONDS;
 
     /**
      * 提示信息
+     *
+     * @return 提示信息
      */
     String message() default "操作过于频繁，请稍后再试";
 }

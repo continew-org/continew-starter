@@ -148,6 +148,13 @@ public class ExcelUtils {
 
     /**
      * 获取每个对象的数据
+     *
+     * @param <T>        目标类型
+     * @param c          目标类
+     * @param obj        行数据
+     * @param uniqueMap  唯一性映射（行号 -> 唯一键）
+     * @return 填充后的对象
+     * @throws ReflectiveOperationException 反射实例化失败时抛出
      */
     private static <T> T getBean(Class<T> c, JSONObject obj, Map<Integer, String> uniqueMap)
         throws ReflectiveOperationException {
@@ -195,6 +202,11 @@ public class ExcelUtils {
 
     /**
      * 校验当前行唯一键是否与历史行重复，重复则记录错误信息，否则登记到唯一性映射
+     *
+     * @param uniqueMap     唯一性映射（行号 -> 唯一键）
+     * @param uniqueBuilder 当前行唯一键构建器
+     * @param rowNum        当前行号
+     * @param errMsgList    错误信息列表
      */
     private static void checkUniqueness(Map<Integer, String> uniqueMap,
         StringBuilder uniqueBuilder,
@@ -271,6 +283,12 @@ public class ExcelUtils {
 
     /**
      * 匹配 kv 映射关系，不匹配时记录错误信息并返回 {@code null}
+     *
+     * @param annotation 字段上的 ExcelImport 注解
+     * @param val        单元格值
+     * @param cname      列名
+     * @param errMsgList 错误信息列表
+     * @return 映射后的值，不匹配返回 {@code null}
      */
     private static String matchKvValue(ExcelImport annotation,
         String val,
@@ -291,6 +309,13 @@ public class ExcelUtils {
 
     /**
      * 根据字段类型进行赋值
+     *
+     * @param <T>       目标类型
+     * @param t         目标对象
+     * @param field     字段
+     * @param val       单元格值
+     * @param cname     列名
+     * @param errMsgList 错误信息列表
      */
     private static <T> void assignValueByType(T t,
         Field field,
@@ -321,6 +346,11 @@ public class ExcelUtils {
 
     /**
      * 解析整数字段值，格式不正确时记录错误信息并返回 {@code null}
+     *
+     * @param val        单元格值
+     * @param cname      列名
+     * @param errMsgList 错误信息列表
+     * @return 解析后的整数，格式错误返回 {@code null}
      */
     private static Integer parseInteger(String val, String cname, List<String> errMsgList) {
         try {
@@ -333,6 +363,10 @@ public class ExcelUtils {
 
     /**
      * 按日期时间格式解析，失败时回退到日期格式
+     *
+     * @param val 单元格值
+     * @return 解析后的日期
+     * @throws java.text.ParseException 解析失败时抛出
      */
     private static Date parseDate(String val) throws java.text.ParseException {
         try {
@@ -421,6 +455,9 @@ public class ExcelUtils {
 
     /**
      * 解析表头行，返回单元格下标到字段名的映射；表头行不存在时返回空映射
+     *
+     * @param headRow 表头行
+     * @return 单元格下标到字段名的映射
      */
     private static Map<Integer, String> resolveHeadKeyMap(Row headRow) {
         Map<Integer, String> keyMap = new HashMap<>();
@@ -438,6 +475,9 @@ public class ExcelUtils {
 
     /**
      * 构建仅有表头时的单行数据（字段值均为空串）
+     *
+     * @param keyMap 单元格下标到字段名的映射
+     * @return 单行数据
      */
     private static JSONArray buildSingleHeaderRow(Map<Integer, String> keyMap) {
         JSONArray array = new JSONArray();
@@ -453,6 +493,11 @@ public class ExcelUtils {
 
     /**
      * 构建一行数据；该行为空（无任何非空单元格）时返回 {@code null}
+     *
+     * @param eachRow  当前行
+     * @param rowIndex 行下标
+     * @param keyMap   单元格下标到字段名的映射
+     * @return 行数据，空行返回 {@code null}
      */
     private static JSONObject buildRowData(Row eachRow, int rowIndex, Map<Integer, String> keyMap) {
         JSONObject obj = new JSONObject();
@@ -522,6 +567,13 @@ public class ExcelUtils {
 
     /**
      * 导出模板（自定义 sheet 名）
+     *
+     * @param <T>             模板数据类型
+     * @param response        HTTP 响应
+     * @param fileName        文件名
+     * @param sheetName       sheet 名
+     * @param clazz           模板类
+     * @param isContainExample 是否包含示例行
      */
     public static <T> void exportTemplate(HttpServletResponse response,
         String fileName,
@@ -567,6 +619,10 @@ public class ExcelUtils {
 
     /**
      * 解析所有字段并按排序号分组，返回是否存在带有 {@code @ExcelExport} 注解的字段
+     *
+     * @param fields        字段数组
+     * @param groupedBySort 按排序号分组的字段映射
+     * @return 是否存在带注解的字段
      */
     private static boolean collectClassFields(Field[] fields,
         Map<Integer, List<ExcelClassField>> groupedBySort) {
@@ -583,6 +639,9 @@ public class ExcelUtils {
 
     /**
      * 按排序号升序组装带有 {@code @ExcelExport} 注解的表头字段
+     *
+     * @param groupedBySort 按排序号分组的字段映射
+     * @return 表头字段列表
      */
     private static List<ExcelClassField> assembleHeadFields(
         Map<Integer, List<ExcelClassField>> groupedBySort) {
@@ -672,10 +731,11 @@ public class ExcelUtils {
     /**
      * 导出表格到本地
      *
-     * @param <T>      导出数据类似，和K类型保持一致
+     * @param <T>      导出数据类型
      * @param filePath 文件父路径（如：D:/doc/excel/）
      * @param fileName 文件名称（不带尾缀，如：学生表）
      * @param list     导出数据
+     * @return 本地文件对象
      * @throws IOException IO异常
      */
     public static <T> File exportFile(String filePath, String fileName, List<T> list)
@@ -761,6 +821,10 @@ public class ExcelUtils {
 
     /**
      * 根据字段映射关系将数据转换为单元格值并追加到当前行
+     *
+     * @param rowList 当前行数据
+     * @param cf      表头字段映射配置
+     * @param data    字段值
      */
     private static void addCellValue(List<Object> rowList, ExcelClassField cf, Object data) {
         // 判断是否有映射关系
@@ -795,6 +859,9 @@ public class ExcelUtils {
 
     /**
      * 导出空文件
+     *
+     * @param response HTTP 响应
+     * @param fileName 文件名
      */
     public static void exportEmpty(HttpServletResponse response, String fileName) {
         List<List<Object>> sheetDataList = new ArrayList<>();
@@ -824,6 +891,12 @@ public class ExcelUtils {
 
     /**
      * 导出（自定义 sheet 名与下拉列表数据）
+     *
+     * @param response      HTTP 响应
+     * @param fileName      文件名
+     * @param sheetName     sheet 名
+     * @param sheetDataList 导出数据
+     * @param selectMap     下拉列表数据（列下标 -> 选项）
      */
     public static void export(HttpServletResponse response,
         String fileName,
@@ -838,6 +911,13 @@ public class ExcelUtils {
 
     /**
      * 按模板导出列表数据
+     *
+     * @param <T>      导出数据类型
+     * @param <K>      模板类型
+     * @param response HTTP 响应
+     * @param fileName 文件名
+     * @param list     导出数据
+     * @param template 模板类
      */
     public static <T, K> void export(HttpServletResponse response, String fileName, List<T> list,
         Class<K> template) {
@@ -882,6 +962,11 @@ public class ExcelUtils {
 
     /**
      * 渲染单个 Sheet：创建表头/数据行单元格、合并单元格并设置下拉列表
+     *
+     * @param book          工作簿
+     * @param sheetName     sheet 名
+     * @param sheetDataList 导出数据
+     * @param selectMap     下拉列表数据（列下标 -> 选项）
      */
     private static void renderSheet(SXSSFWorkbook book,
         String sheetName,
@@ -903,6 +988,9 @@ public class ExcelUtils {
 
     /**
      * 创建表头单元格样式（灰色底、居中）
+     *
+     * @param book 工作簿
+     * @return 单元格样式
      */
     private static CellStyle createHeadStyle(SXSSFWorkbook book) {
         CellStyle headStyle = book.createCellStyle();
@@ -915,6 +1003,9 @@ public class ExcelUtils {
 
     /**
      * 创建表身单元格样式（居中）
+     *
+     * @param book 工作簿
+     * @return 单元格样式
      */
     private static CellStyle createRowStyle(SXSSFWorkbook book) {
         CellStyle rowStyle = book.createCellStyle();
@@ -925,6 +1016,14 @@ public class ExcelUtils {
 
     /**
      * 逐行逐单元格写入数据，并返回单元格合并算法数组
+     *
+     * @param book          工作簿
+     * @param sheet         当前 sheet 页
+     * @param patriarch     绘图容器
+     * @param sheetDataList 导出数据
+     * @param headStyle     表头样式
+     * @param rowStyle      表身样式
+     * @return 单元格合并算法数组
      */
     private static int[][] buildMergeArray(SXSSFWorkbook book,
         Sheet sheet,
@@ -958,6 +1057,11 @@ public class ExcelUtils {
 
     /**
      * 将工作簿写入 HTTP 响应（前端导出）或本地文件
+     *
+     * @param response HTTP 响应（为空时写入本地文件）
+     * @param file     本地文件
+     * @param fileName 文件名
+     * @param book     工作簿
      */
     private static void writeWorkbook(HttpServletResponse response,
         File file,
@@ -1001,6 +1105,10 @@ public class ExcelUtils {
 
     /**
      * 合并指定行中连续的列合并标记单元格
+     *
+     * @param sheet         当前 sheet 页
+     * @param rowIndex      行下标
+     * @param rowMergeFlags 行内合并标记数组
      */
     private static void mergeColumnsInRow(Sheet sheet, int rowIndex, int[] rowMergeFlags) {
         int start = 0;
@@ -1024,6 +1132,10 @@ public class ExcelUtils {
 
     /**
      * 合并指定列中连续的行合并标记单元格
+     *
+     * @param sheet       当前 sheet 页
+     * @param columnIndex 列下标
+     * @param mergeArray  合并单元格算法数组
      */
     private static void mergeRowsInColumn(Sheet sheet, int columnIndex, int[][] mergeArray) {
         int start = 0;

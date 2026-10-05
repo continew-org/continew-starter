@@ -36,6 +36,8 @@ public interface IBaseEnum<T extends Serializable> {
 
     /**
      * 枚举数据库存储值
+     *
+     * @return 存储值
      */
     T getValue();
 

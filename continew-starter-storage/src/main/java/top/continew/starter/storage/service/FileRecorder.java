@@ -90,6 +90,9 @@ public interface FileRecorder {
 
     /**
      * 根据文件 MD5 获取 uploadId（可选实现）
+     *
+     * @param md5 文件 MD5
+     * @return 分片上传 ID，未命中返回 null
      */
     default String getUploadIdByMd5(String md5) {
         return null;
@@ -97,18 +100,27 @@ public interface FileRecorder {
 
     /**
      * 缓存 MD5 到 uploadId 映射（可选实现）
+     *
+     * @param md5      文件 MD5
+     * @param uploadId 分片上传 ID
      */
     default void setMd5Mapping(String md5, String uploadId) {
     }
 
     /**
      * 删除 MD5 映射（可选实现）
+     *
+     * @param md5 文件 MD5
      */
     default void deleteMd5Mapping(String md5) {
     }
 
     /**
      * 保存分片上传会话（可选实现）
+     *
+     * @param uploadId 分片上传 ID
+     * @param initResp 分片上传初始化结果
+     * @param metadata 元数据
      */
     default void saveMultipartSession(String uploadId, MultipartInitResp initResp,
         Map<String, String> metadata) {
@@ -116,6 +128,9 @@ public interface FileRecorder {
 
     /**
      * 获取分片上传会话（可选实现）
+     *
+     * @param uploadId 分片上传 ID
+     * @return 分片上传初始化信息，不存在返回 null
      */
     default MultipartInitResp getMultipartSession(String uploadId) {
         return null;
@@ -123,6 +138,8 @@ public interface FileRecorder {
 
     /**
      * 删除分片上传会话（可选实现）
+     *
+     * @param uploadId 分片上传 ID
      */
     default void deleteMultipartSession(String uploadId) {
     }

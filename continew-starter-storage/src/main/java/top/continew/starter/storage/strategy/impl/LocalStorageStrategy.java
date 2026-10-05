@@ -118,6 +118,8 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     /**
      * 初始化临时目录
+     *
+     * @param bucket 存储桶
      */
     private void initTempDir(String bucket) {
         Path tempPath = resolveMultipartTempPath(bucket, null);
@@ -325,6 +327,8 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     /**
      * 删除空的父目录
+     *
+     * @param dir 目录
      */
     private void deleteEmptyParentDirectories(Path dir) {
         if (dir == null || !dir.startsWith(config.getBucketName())) {
@@ -343,6 +347,10 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     /**
      * 检查目录是否为空
+     *
+     * @param dir 目录
+     * @return 目录是否为空
+     * @throws IOException 读取目录失败时抛出
      */
     private boolean isDirectoryEmpty(Path dir) throws IOException {
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
@@ -479,6 +487,9 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     /**
      * 清理临时文件
+     *
+     * @param bucket   存储桶
+     * @param uploadId 分片上传 ID
      */
     private void cleanupTempFiles(String bucket, String uploadId) {
         Path tempUploadPath = resolveMultipartTempPath(bucket, uploadId);
@@ -493,6 +504,8 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     /**
      * 删除单个文件，删除失败仅记录日志不中断清理流程
+     *
+     * @param path 文件路径
      */
     private void deleteIfExistsQuietly(Path path) {
         try {
@@ -508,6 +521,11 @@ public class LocalStorageStrategy implements StorageStrategy {
      * <p>
      * 此处 MD5 仅用于生成对象存储 ETag 与分片完整性校验（与 S3 ETag 算法一致），<b>不用于密码学安全用途</b>（不做签名、不做防伪完整性保证），故可接受使用 MD5。
      * </p>
+     *
+     * @param path 文件路径
+     * @return 32 位 MD5 字符串
+     * @throws IOException              读取文件失败时抛出
+     * @throws NoSuchAlgorithmException MD5 算法不可用时抛出
      */
     @SuppressWarnings("java:S4790")
     private String calculateMD5(Path path) throws IOException, NoSuchAlgorithmException {

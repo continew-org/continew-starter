@@ -66,6 +66,8 @@ public class FileSizeValidator implements FileValidator {
 
     /**
      * 创建默认的文件大小验证器（10MB）
+     *
+     * @return 文件大小验证器
      */
     public FileSizeValidator create() {
         return new FileSizeValidator(maxSize);
@@ -73,6 +75,9 @@ public class FileSizeValidator implements FileValidator {
 
     /**
      * 创建指定大小的验证器
+     *
+     * @param bytes 最大文件大小（字节）
+     * @return 文件大小验证器
      */
     public static FileSizeValidator maxSize(long bytes) {
         return new FileSizeValidator(bytes);
@@ -80,6 +85,9 @@ public class FileSizeValidator implements FileValidator {
 
     /**
      * 创建指定KB大小的验证器
+     *
+     * @param kb 最大文件大小（KB）
+     * @return 文件大小验证器
      */
     public static FileSizeValidator maxKB(long kb) {
         return new FileSizeValidator(kb * 1024);
@@ -87,6 +95,9 @@ public class FileSizeValidator implements FileValidator {
 
     /**
      * 创建指定MB大小的验证器
+     *
+     * @param mb 最大文件大小（MB）
+     * @return 文件大小验证器
      */
     public static FileSizeValidator maxMB(long mb) {
         return new FileSizeValidator(mb * 1024 * 1024);
@@ -94,6 +105,9 @@ public class FileSizeValidator implements FileValidator {
 
     /**
      * 创建指定GB大小的验证器
+     *
+     * @param gb 最大文件大小（GB）
+     * @return 文件大小验证器
      */
     public static FileSizeValidator maxGB(long gb) {
         return new FileSizeValidator(gb * 1024L * 1024 * 1024);

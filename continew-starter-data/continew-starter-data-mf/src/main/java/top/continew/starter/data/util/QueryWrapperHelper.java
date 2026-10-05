@@ -179,6 +179,7 @@ public class QueryWrapperHelper {
      * @param queryType  查询类型
      * @param columnName 列名
      * @param fieldValue 字段值
+     * @param consumers  查询条件消费者列表
      */
     private static void parse(QueryType queryType,
         String columnName,

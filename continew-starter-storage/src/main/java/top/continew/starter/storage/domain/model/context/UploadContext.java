@@ -84,6 +84,8 @@ public class UploadContext {
 
     /**
      * 获取完整路径
+     *
+     * @return 完整路径（路径 + 文件名）
      */
     public String getFullPath() {
         String safePath = path == null ? "" : path.trim();

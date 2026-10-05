@@ -60,6 +60,7 @@ public enum DatabaseType implements ISqlFunction {
      * 获取数据库类型
      *
      * @param database 数据库
+     * @return 数据库类型枚举，未匹配返回 null
      */
     public static DatabaseType get(String database) {
         for (DatabaseType databaseType : DatabaseType.values()) {

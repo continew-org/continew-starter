@@ -66,6 +66,7 @@ public interface RefreshTokenService {
      * @param userId         初步认证得到的用户 ID，仅用于确定锁范围
      * @param clientId       初步认证得到的客户端 ID，仅用于确定锁范围
      * @param tenantId       租户 ID
+     * @param <T>            登录结果类型
      * @param attemptFactory 锁内最终状态复查函数；接收需要固化到新 Session 的安全版本
      * @return 签发结果
      */
@@ -217,6 +218,7 @@ public interface RefreshTokenService {
     /**
      * 已在策略锁内完成最终状态复查的一次登录尝试。
      *
+     * @param <T>                 登录结果类型
      * @param userId              最终确认的用户 ID
      * @param clientPolicy        最终确认的客户端配置
      * @param currentAccessToken  当前请求携带的 Access Token

@@ -63,6 +63,7 @@ public class RedisUtils {
     /**
      * 设置缓存
      *
+     * @param <T> 缓存值类型
      * @param key   键
      * @param value 值
      */
@@ -73,6 +74,7 @@ public class RedisUtils {
     /**
      * 设置缓存
      *
+     * @param <T> 缓存值类型
      * @param key      键
      * @param value    值
      * @param duration 过期时间
@@ -86,6 +88,7 @@ public class RedisUtils {
      *
      * <p>如果键已存在，则不设置</p>
      *
+     * @param <T> 缓存值类型
      * @param key   键
      * @param value 值
      * @return true：设置成功；false：设置失败
@@ -100,6 +103,7 @@ public class RedisUtils {
      *
      * <p>如果键已存在，则不设置</p>
      *
+     * @param <T> 缓存值类型
      * @param key      键
      * @param value    值
      * @param duration 过期时间
@@ -114,6 +118,7 @@ public class RedisUtils {
      * 设置缓存
      * <p>如果键不存在，则不设置</p>
      *
+     * @param <T> 缓存值类型
      * @param key   键
      * @param value 值
      * @return true：设置成功；false：设置失败
@@ -127,6 +132,7 @@ public class RedisUtils {
      * 设置缓存
      * <p>如果键不存在，则不设置</p>
      *
+     * @param <T> 缓存值类型
      * @param key      键
      * @param value    值
      * @param duration 过期时间
@@ -140,6 +146,7 @@ public class RedisUtils {
     /**
      * 查询指定缓存
      *
+     * @param <T> 缓存值类型
      * @param key 键
      * @return 值
      */
@@ -151,6 +158,7 @@ public class RedisUtils {
     /**
      * 查询指定缓存，若不存在则返回默认值
      *
+     * @param <T> 缓存值类型
      * @param key          键
      * @param defaultValue 默认值
      * @return 值
@@ -163,6 +171,7 @@ public class RedisUtils {
     /**
      * 设置缓存（List 集合）
      *
+     * @param <T> 缓存值类型
      * @param key   键
      * @param value 值
      * @since 2.1.1
@@ -175,6 +184,7 @@ public class RedisUtils {
     /**
      * 设置缓存（List 集合）
      *
+     * @param <T> 缓存值类型
      * @param key      键
      * @param value    值
      * @param duration 过期时间
@@ -191,6 +201,7 @@ public class RedisUtils {
     /**
      * 查询指定缓存（List 集合）
      *
+     * @param <T> 缓存值类型
      * @param key 键
      * @return 值
      * @since 2.1.1
@@ -287,6 +298,7 @@ public class RedisUtils {
     /**
      * 设置 Hash 中指定字段的值
      *
+     * @param <T> 缓存值类型
      * @param key   Hash 键
      * @param field 字段
      * @param value 值
@@ -301,6 +313,7 @@ public class RedisUtils {
     /**
      * 获取 Hash 中指定字段的值
      *
+     * @param <T> 缓存值类型
      * @param key   Hash 键
      * @param field 字段
      * @return 值
@@ -315,6 +328,7 @@ public class RedisUtils {
     /**
      * 获取整个 Hash 的所有字段值
      *
+     * @param <T> 缓存值类型
      * @param key Hash 键
      * @return Map
      * @author KAI
@@ -356,6 +370,7 @@ public class RedisUtils {
     /**
      * 添加元素到 ZSet 中
      *
+     * @param <T> 缓存值类型
      * @param key   键
      * @param value 值
      * @param score 分数
@@ -370,6 +385,7 @@ public class RedisUtils {
     /**
      * 查询 ZSet 中指定元素的分数
      *
+     * @param <T> 缓存值类型
      * @param key   键
      * @param value 值
      * @return 分数（null 表示元素不存在）
@@ -383,6 +399,7 @@ public class RedisUtils {
     /**
      * 查询 ZSet 中指定元素的排名
      *
+     * @param <T> 缓存值类型
      * @param key   键
      * @param value 值
      * @return 排名（从 0 开始，null 表示元素不存在）
@@ -396,6 +413,7 @@ public class RedisUtils {
     /**
      * 查询 ZSet 中的元素个数
      *
+     * @param <T> 缓存值类型
      * @param key 键
      * @return 元素个数
      * @since 2.7.3
@@ -408,6 +426,7 @@ public class RedisUtils {
     /**
      * 从 ZSet 中删除指定元素
      *
+     * @param <T> 缓存值类型
      * @param key   键
      * @param value 值
      * @return true：删除成功；false：删除失败
@@ -421,6 +440,7 @@ public class RedisUtils {
     /**
      * 删除 ZSet 中指定分数范围内的元素
      *
+     * @param <T> 缓存值类型
      * @param key 键
      * @param min 最小分数（包含）
      * @param max 最大分数（包含）
@@ -439,6 +459,7 @@ public class RedisUtils {
      * 索引从 0 开始。<code>-1</code> 表示最高分，<code>-2</code> 表示第二高分。
      * </p>
      *
+     * @param <T> 缓存值类型
      * @param key        键
      * @param startIndex 起始索引
      * @param endIndex   结束索引
@@ -453,6 +474,7 @@ public class RedisUtils {
     /**
      * 根据分数范围查询 ZSet 中的元素列表
      *
+     * @param <T> 缓存值类型
      * @param key 键
      * @param min 最小分数（包含）
      * @param max 最大分数（包含）
@@ -467,6 +489,7 @@ public class RedisUtils {
     /**
      * 根据分数范围查询 ZSet 中的元素列表
      *
+     * @param <T> 缓存值类型
      * @param key    键
      * @param min    最小分数（包含）
      * @param max    最大分数（包含）
@@ -484,6 +507,7 @@ public class RedisUtils {
     /**
      * 根据分数范围查询 ZSet 中的元素个数
      *
+     * @param <T> 缓存值类型
      * @param key 键
      * @param min 最小分数（包含）
      * @param max 最大分数（包含）
@@ -498,6 +522,7 @@ public class RedisUtils {
     /**
      * 计算 ZSet 中多个元素的分数之和
      *
+     * @param <T> 缓存值类型
      * @param key    键
      * @param values 值列表
      * @return 分数之和
@@ -547,6 +572,7 @@ public class RedisUtils {
     /**
      * 发布消息
      *
+     * @param <T> 缓存值类型
      * @param name     主题名称
      * @param msg      发送数据
      * @param consumer 自定义处理
@@ -562,6 +588,7 @@ public class RedisUtils {
     /**
      * 发布消息
      *
+     * @param <T> 缓存值类型
      * @param name 主题名称
      * @param msg  发送数据
      * @author lishuyan
@@ -575,6 +602,7 @@ public class RedisUtils {
     /**
      * 订阅消息
      *
+     * @param <T> 缓存值类型
      * @param name     主题名称
      * @param clazz    消息类型
      * @param consumer 自定义处理

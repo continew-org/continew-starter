@@ -198,6 +198,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
      *
      * @param parameterValue 参数值
      * @param fieldEncrypt   字段加密注解
+     * @return 加密后的值
      */
     private Object doEncrypt(Object parameterValue, FieldEncrypt fieldEncrypt) {
         if (ObjectUtil.isNull(parameterValue)) {

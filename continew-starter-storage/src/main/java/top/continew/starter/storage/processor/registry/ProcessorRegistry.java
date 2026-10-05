@@ -45,6 +45,8 @@ public class ProcessorRegistry {
 
     /**
      * 注册处理器（自动识别类型）
+     *
+     * @param processor 处理器
      */
     public void register(FileProcessor processor) {
         register(processor, null);
@@ -52,6 +54,9 @@ public class ProcessorRegistry {
 
     /**
      * 注册平台特定处理器
+     *
+     * @param processor 处理器
+     * @param platform  平台编码，null 表示全局
      */
     public void register(FileProcessor processor, String platform) {
         Class<?> type = getProcessorType(processor);
@@ -69,6 +74,9 @@ public class ProcessorRegistry {
 
     /**
      * 获取处理器类型
+     *
+     * @param processor 处理器
+     * @return 处理器类型
      */
     private Class<?> getProcessorType(FileProcessor processor) {
         if (processor instanceof ThumbnailProcessor) {
@@ -91,6 +99,12 @@ public class ProcessorRegistry {
 
     /**
      * 获取指定类型的处理器（支持优先级排序）
+     *
+     * @param <T>      处理器类型
+     * @param type     处理器类
+     * @param platform 平台编码
+     * @param context  上传上下文
+     * @return 匹配的处理器列表（按优先级降序）
      */
     @SuppressWarnings("unchecked")
     public <T extends FileProcessor> List<T> getProcessors(Class<T> type, String platform,
@@ -123,6 +137,12 @@ public class ProcessorRegistry {
 
     /**
      * 获取最高优先级的处理器
+     *
+     * @param <T>      处理器类型
+     * @param type     处理器类
+     * @param platform 平台编码
+     * @param context  上传上下文
+     * @return 最高优先级的处理器，未找到返回 null
      */
     public <T extends FileProcessor> T getProcessor(Class<T> type, String platform,
         UploadContext context) {

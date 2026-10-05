@@ -36,6 +36,8 @@ public @interface AuthPolicyWriteLocked {
 
     /**
      * 由业务模块实现的锁目标解析器
+     *
+     * @return 锁目标解析器类型
      */
     Class<? extends AuthPolicyLockTargetResolver> value();
 }

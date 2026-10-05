@@ -30,6 +30,7 @@ import java.util.Map;
  * 存储策略装饰器基类
  * 支持对特定存储策略进行选择性重写
  *
+ * @param <T> 被装饰的存储策略类型
  * @author echo
  * @since 2.14.0
  */
@@ -40,11 +41,15 @@ public abstract class StorageStrategyDecorator<T extends StorageStrategy>
 
     /**
      * 获取被装饰的策略类型
+     *
+     * @return 策略类型
      */
     public abstract Class<T> getTargetStrategyClass();
 
     /**
      * 设置被装饰的策略实例
+     *
+     * @param delegate 策略实例
      */
     public void setDelegate(T delegate) {
         this.delegate = delegate;
@@ -52,6 +57,8 @@ public abstract class StorageStrategyDecorator<T extends StorageStrategy>
 
     /**
      * 获取被装饰的策略实例
+     *
+     * @return 策略实例
      */
     protected T getDelegate() {
         if (delegate == null) {
@@ -62,6 +69,8 @@ public abstract class StorageStrategyDecorator<T extends StorageStrategy>
 
     /**
      * 获取装饰器优先级（数值越小优先级越高）
+     *
+     * @return 优先级
      */
     public int getOrder() {
         return 0;

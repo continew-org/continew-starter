@@ -35,6 +35,8 @@ public @interface ApiEncrypt {
 
     /**
      * 是否加密响应
+     *
+     * @return 是否加密响应
      */
     boolean response() default true;
 }

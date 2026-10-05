@@ -52,6 +52,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringJUnitConfig(SortQueryTest.ValidatorConfig.class)
 class SortQueryTest {
 
+    /**
+     * 校验器测试上下文配置
+     */
     @Configuration(proxyBeanMethods = false)
     @Import(SpringUtil.class)
     static class ValidatorConfig {
@@ -107,6 +110,8 @@ class SortQueryTest {
      * 骗过关键字黑名单与「只校验最后一段字段名」的旧实现；GHSA-jfcv-24mv-r9c3 与
      * GHSA-3r3w-5g4r-3xph 的 tree / 分页端点会把整串原样拼入 {@code ORDER BY} 与
      * {@code OrderItem.setColumn}。
+     *
+     * @param payload 排序字段注入载荷
      */
     @ParameterizedTest
     @ValueSource(strings = {

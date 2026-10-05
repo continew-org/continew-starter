@@ -54,6 +54,9 @@ public class ServerInfoUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerInfoUtils.class);
 
+    /**
+     * 服务器信息容器
+     */
     private static class ServerInfosContainer {
 
         private static Set<String> ipAddress = null;
@@ -136,6 +139,11 @@ public class ServerInfoUtils {
     /**
      * 在给定目录中创建临时脚本文件：POSIX 系统在创建时即限定属主可读写（rw-------），
      * 非 POSIX 系统退回默认权限（文件位于属主独占目录内，同样受保护）
+     *
+     * @param dir    目录
+     * @param suffix 文件后缀
+     * @return 临时文件路径
+     * @throws IOException 创建失败时抛出
      */
     private static Path createPrivateTempFile(Path dir, String suffix) throws IOException {
         try {
@@ -150,6 +158,9 @@ public class ServerInfoUtils {
 
     /**
      * 创建仅当前用户可访问（rwx------）的私有临时目录，避免共享临时目录下的脚本被其他用户读写
+     *
+     * @return 私有临时目录
+     * @throws IOException 创建失败时抛出
      */
     // S5443 针对 POSIX 世界可写临时目录：POSIX 分支已显式限定 rwx------；
     // Windows 回退分支使用 %USERPROFILE%\AppData\Local\Temp，按用户 ACL 隔离、不存在世界可写问题

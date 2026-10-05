@@ -40,6 +40,8 @@ public @interface Log {
      * <p>
      * 优先级：@Log("描述") > @Operation(summary="描述")
      * </p>
+     *
+     * @return 日志描述
      */
     String value() default "";
 
@@ -48,21 +50,29 @@ public @interface Log {
      * <p>
      * 优先级： 接口方法上的 @Log(module = "模块") > 接口类上的 @Log(module = "模块") > @Tag(name = "模块") 内容
      * </p>
+     *
+     * @return 所属模块
      */
     String module() default "";
 
     /**
      * 包含信息（在全局配置基础上扩展包含信息）
+     *
+     * @return 包含信息
      */
     Include[] includes() default {};
 
     /**
      * 排除信息（在全局配置基础上减少包含信息）
+     *
+     * @return 排除信息
      */
     Include[] excludes() default {};
 
     /**
      * 是否忽略日志记录（用于接口方法或类上）
+     *
+     * @return 是否忽略日志记录
      */
     boolean ignore() default false;
 }

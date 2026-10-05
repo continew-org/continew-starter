@@ -46,6 +46,9 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 包装模式构造器 - 包装现有的 MultipartFile
+     *
+     * @param originalFile 原始文件
+     * @param enableCache  是否启用缓存
      */
     public EnhancedMultipartFile(MultipartFile originalFile, boolean enableCache) {
         this.originalFile = originalFile;
@@ -59,6 +62,11 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 创建模式构造器 - 直接从字节数组创建
+     *
+     * @param name             参数名
+     * @param originalFilename 原始文件名
+     * @param contentType      内容类型
+     * @param content          文件内容
      */
     public EnhancedMultipartFile(String name, String originalFilename, String contentType,
         byte[] content) {
@@ -73,6 +81,10 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 便捷的静态工厂方法 - 包装已有文件并启用缓存
+     *
+     * @param file        文件
+     * @param enableCache 是否启用缓存
+     * @return 增强版文件
      */
     public static EnhancedMultipartFile wrap(MultipartFile file, boolean enableCache) {
         if (file instanceof EnhancedMultipartFile enhancedMultipartFile) {
@@ -83,6 +95,9 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 便捷的静态工厂方法 - 包装已有文件（不启用缓存）
+     *
+     * @param file 文件
+     * @return 增强版文件
      */
     public static EnhancedMultipartFile wrap(MultipartFile file) {
         return wrap(file, false);
@@ -90,6 +105,12 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 便捷的静态工厂方法 - 创建新文件
+     *
+     * @param name             参数名
+     * @param originalFilename 原始文件名
+     * @param contentType      内容类型
+     * @param content          文件内容
+     * @return 增强版文件
      */
     public static EnhancedMultipartFile create(String name,
         String originalFilename,
@@ -192,6 +213,8 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 判断是否已缓存
+     *
+     * @return 是否已缓存
      */
     public boolean isCached() {
         return cachedBytes != null;
@@ -199,6 +222,8 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 获取缓存的字节数组（不触发加载）
+     *
+     * @return 缓存的字节数组，未缓存返回 null
      */
     public byte[] getCachedBytes() {
         return cachedBytes;
@@ -206,6 +231,8 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 判断是否为包装模式
+     *
+     * @return 是否为包装模式
      */
     public boolean isWrapped() {
         return isWrapped;
@@ -213,6 +240,8 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 判断是否启用缓存
+     *
+     * @return 是否启用缓存
      */
     public boolean isCacheEnabled() {
         return cacheEnabled;
@@ -220,6 +249,9 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 获取字节数组 - 带缓存
+     *
+     * @return 字节数组
+     * @throws IOException 读取失败时抛出
      */
     private byte[] getBytesWithCache() throws IOException {
         if (cachedBytes == null && isWrapped) {
@@ -230,6 +262,9 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 获取字节数组 - 不带缓存
+     *
+     * @return 字节数组
+     * @throws IOException 读取失败时抛出
      */
     private byte[] getBytesWithoutCache() throws IOException {
         if (isWrapped) {
@@ -241,6 +276,8 @@ public class EnhancedMultipartFile implements MultipartFile {
 
     /**
      * 加载文件内容到缓存
+     *
+     * @throws IOException 读取失败时抛出
      */
     private void loadToCache() throws IOException {
         if (isWrapped && originalFile != null) {

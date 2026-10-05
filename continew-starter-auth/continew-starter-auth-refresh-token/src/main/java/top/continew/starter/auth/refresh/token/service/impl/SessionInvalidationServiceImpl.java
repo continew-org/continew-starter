@@ -61,6 +61,8 @@ public class SessionInvalidationServiceImpl implements SessionInvalidationServic
      * lockTenantPolicyWrite / lockUserPolicy / lockClientPolicyWrite，依赖 Redisson
      * 同线程写锁可重入。该不变量保证“数据库已提交而新登录会话穿过旧策略”的窗口不会
      * 出现；改动本方法时不得把撤销时机移出写锁持有区间。
+     *
+     * @param action 事务提交后执行的动作
      */
     private void afterCommit(Runnable action) {
         if (!TransactionSynchronizationManager.isSynchronizationActive()) {

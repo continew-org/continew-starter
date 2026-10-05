@@ -48,6 +48,7 @@ public class ExcelUtils {
     /**
      * 导出
      *
+     * @param <T>      导出数据类型
      * @param list     导出数据集合
      * @param fileName 文件名
      * @param clazz    导出数据类型
@@ -61,6 +62,7 @@ public class ExcelUtils {
     /**
      * 导出
      *
+     * @param <T>                     导出数据类型
      * @param list                    导出数据集合
      * @param fileName                文件名
      * @param sheetName               工作表名称

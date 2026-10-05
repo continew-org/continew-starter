@@ -469,6 +469,10 @@ public class RefreshSessionStore {
      * <p>{@code (double)} 显式转换满足 S9395（long→double 需显式记录精度语义），S1905
      * 则认定该拓宽转换冗余——两条规则对同一处代码互相矛盾，故在方法级抑制 S1905。
      * 毫秒时间戳远小于 {@code 2^53}，转换本身无实际精度损失。</p>
+     *
+     * @param key       索引键
+     * @param sessionId 会话 ID
+     * @param expiresAt 过期时间戳（毫秒）
      */
     @SuppressWarnings("java:S1905")
     private void addToIndex(String key, String sessionId, long expiresAt) {
@@ -489,6 +493,9 @@ public class RefreshSessionStore {
      * 与成员真实有效期保持一致。该写副作用是刻意的自愈设计，避免单独维护清理任务。
      * 分数比较处的 {@code (double)} 显式转换与 {@link #addToIndex} 同理：满足 S9395 并
      * 抑制与其矛盾的 S1905。</p>
+     *
+     * @param key 索引键
+     * @return 未过期的会话 ID 集合
      */
     @SuppressWarnings("java:S1905")
     private Set<String> findByIndex(String key) {

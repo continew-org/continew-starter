@@ -86,6 +86,8 @@ public class FileStorageService {
 
     /**
      * 获取默认存储平台
+     *
+     * @return 默认存储平台编码
      */
     public String getDefaultPlatform() {
         return router.getDefaultStorage();
@@ -93,6 +95,8 @@ public class FileStorageService {
 
     /**
      * 获取处理器注册表
+     *
+     * @return 处理器注册表
      */
     public ProcessorRegistry getProcessorRegistry() {
         return processorRegistry;
@@ -100,6 +104,9 @@ public class FileStorageService {
 
     /**
      * MultipartFile 直接上传
+     *
+     * @param file 文件
+     * @return 上传预处理
      */
     public UploadPretreatment of(MultipartFile file) {
         return createPretreatment(file, null);
@@ -107,6 +114,10 @@ public class FileStorageService {
 
     /**
      * MultipartFile 指定平台
+     *
+     * @param file     文件
+     * @param platform 平台编码
+     * @return 上传预处理
      */
     public UploadPretreatment of(MultipartFile file, String platform) {
         return createPretreatment(file, platform);
@@ -114,6 +125,11 @@ public class FileStorageService {
 
     /**
      * byte[] 上传
+     *
+     * @param bytes       文件字节
+     * @param filename    文件名
+     * @param contentType 内容类型
+     * @return 上传预处理
      */
     public UploadPretreatment of(byte[] bytes, String filename, String contentType) {
         return createPretreatment(bytes, filename, contentType);
@@ -121,6 +137,11 @@ public class FileStorageService {
 
     /**
      * InputStream 上传
+     *
+     * @param inputStream 输入流
+     * @param filename    文件名
+     * @param contentType 内容类型
+     * @return 上传预处理
      */
     public UploadPretreatment of(InputStream inputStream, String filename, String contentType) {
         return createPretreatment(inputStream, filename, contentType);
@@ -128,6 +149,11 @@ public class FileStorageService {
 
     /**
      * 任意对象上传
+     *
+     * @param obj         文件来源对象
+     * @param filename    文件名
+     * @param contentType 内容类型
+     * @return 上传预处理
      */
     public UploadPretreatment of(Object obj, String filename, String contentType) {
         return createPretreatment(obj, filename, contentType);
@@ -135,6 +161,9 @@ public class FileStorageService {
 
     /**
      * 任意对象智能识别
+     *
+     * @param obj 文件来源对象
+     * @return 上传预处理
      */
     public UploadPretreatment of(Object obj) {
         return createPretreatment(obj, null, null);
@@ -171,6 +200,8 @@ public class FileStorageService {
 
     /**
      * 添加处理器
+     *
+     * @param processor 文件处理器
      */
     public void addProcessor(FileProcessor processor) {
         tempProcessors.get().add(processor);
@@ -178,6 +209,8 @@ public class FileStorageService {
 
     /**
      * 设置进度监听器
+     *
+     * @param listener 进度监听器
      */
     public void onProgress(UploadProgressListener listener) {
         progressListener.set(listener);
@@ -185,6 +218,9 @@ public class FileStorageService {
 
     /**
      * 执行上传
+     *
+     * @param context 上传上下文
+     * @return 文件信息
      */
     public FileInfo upload(UploadContext context) {
         String platform = context.getPlatform();
@@ -249,8 +285,8 @@ public class FileStorageService {
     /**
      * 上传
      *
-     * @param platform 平台
-     * @param bucket   铲斗
+     * @param platform 平台编码
+     * @param bucket   存储桶
      * @param path     路径
      * @param file     文件
      */
@@ -260,6 +296,9 @@ public class FileStorageService {
 
     /**
      * 准备文件
+     *
+     * @param context  上传上下文
+     * @param listener 进度监听器
      */
     private void prepareFile(UploadContext context, UploadProgressListener listener) {
         MultipartFile file = context.getFile();
@@ -283,6 +322,9 @@ public class FileStorageService {
 
     /**
      * 设置文件读取阶段
+     *
+     * @param file  文件
+     * @param phase 读取阶段
      */
     private void setFileReadPhase(MultipartFile file, ProgressAwareMultipartFile.ReadPhase phase) {
         if (file instanceof ProgressAwareMultipartFile awareMultipartFile) {
@@ -292,6 +334,10 @@ public class FileStorageService {
 
     /**
      * 执行文件验证
+     *
+     * @param context          上传上下文
+     * @param platform         平台编码
+     * @param customProcessors 自定义处理器
      */
     private void executeValidation(UploadContext context, String platform,
         List<FileProcessor> customProcessors) {
@@ -307,6 +353,10 @@ public class FileStorageService {
 
     /**
      * 仅在文件名为空时生成文件名
+     *
+     * @param context          上传上下文
+     * @param platform         平台编码
+     * @param customProcessors 自定义处理器
      */
     private void generateFileNameIfEmpty(UploadContext context, String platform,
         List<FileProcessor> customProcessors) {
@@ -326,6 +376,10 @@ public class FileStorageService {
 
     /**
      * 仅在路径为空时生成路径
+     *
+     * @param context          上传上下文
+     * @param platform         平台编码
+     * @param customProcessors 自定义处理器
      */
     private void generateFilePathIfEmpty(UploadContext context, String platform,
         List<FileProcessor> customProcessors) {
@@ -345,6 +399,11 @@ public class FileStorageService {
 
     /**
      * 准备缩略图处理
+     *
+     * @param context          上传上下文
+     * @param platform         平台编码
+     * @param customProcessors 自定义处理器
+     * @return 缩略图处理器
      */
     private ThumbnailProcessor prepareThumbnail(UploadContext context,
         String platform,
@@ -361,6 +420,10 @@ public class FileStorageService {
 
     /**
      * 构建文件信息
+     *
+     * @param platform 平台编码
+     * @param context  上传上下文
+     * @return 文件信息
      */
     private FileInfo buildFileInfo(String platform, UploadContext context) {
         FileInfo fileInfo = getFileInfo(platform, context.getBucket(), context.getFullPath());
@@ -375,6 +438,11 @@ public class FileStorageService {
 
     /**
      * 触发上传完成事件
+     *
+     * @param fileInfo         文件信息
+     * @param context          上传上下文
+     * @param platform         平台编码
+     * @param customProcessors 自定义处理器
      */
     private void triggerCompleteEvent(FileInfo fileInfo,
         UploadContext context,
@@ -392,6 +460,13 @@ public class FileStorageService {
 
     /**
      * 收集指定类型的处理器
+     *
+     * @param <T>              处理器类型
+     * @param customProcessors 自定义处理器
+     * @param processorClass   处理器类
+     * @param platform         平台编码
+     * @param context          上传上下文
+     * @return 匹配的处理器列表
      */
     private <T extends FileProcessor> List<T> collectProcessors(
         List<FileProcessor> customProcessors,
@@ -417,6 +492,13 @@ public class FileStorageService {
 
     /**
      * 查找第一个匹配的处理器
+     *
+     * @param <T>              处理器类型
+     * @param customProcessors 自定义处理器
+     * @param processorClass   处理器类
+     * @param platform         平台编码
+     * @param context          上传上下文
+     * @return 第一个匹配的处理器，未找到返回 null
      */
     private <T extends FileProcessor> T findFirstProcessor(List<FileProcessor> customProcessors,
         Class<T> processorClass,
@@ -441,6 +523,10 @@ public class FileStorageService {
 
     /**
      * 处理缩略图
+     *
+     * @param fileInfo  文件信息
+     * @param processor 缩略图处理器
+     * @param context   上传上下文
      */
     private void processThumbnail(FileInfo fileInfo, ThumbnailProcessor processor,
         UploadContext context) {
@@ -479,6 +565,8 @@ public class FileStorageService {
 
     /**
      * 清理资源
+     *
+     * @param context 上传上下文
      */
     private void cleanup(UploadContext context) {
         // 清理临时处理器和监听器
@@ -491,6 +579,8 @@ public class FileStorageService {
 
     /**
      * 清理文件缓存
+     *
+     * @param file 文件
      */
     private void cleanupFileCache(MultipartFile file) {
         if (file instanceof ProgressAwareMultipartFile awareFile) {
@@ -502,6 +592,13 @@ public class FileStorageService {
 
     /**
      * 初始化分片上传
+     *
+     * @param bucket      存储桶
+     * @param platform    平台编码
+     * @param path        路径
+     * @param contentType 内容类型
+     * @param metadata    元数据
+     * @return 分片上传初始化结果
      */
     public MultipartInitResp initMultipartUpload(String bucket,
         String platform,
@@ -530,6 +627,9 @@ public class FileStorageService {
 
     /**
      * 初始化分片上传（包含断点续传会话恢复）
+     *
+     * @param req 分片上传初始化请求
+     * @return 分片上传初始化结果
      */
     public MultipartInitResp initMultipartUpload(MultipartUploadInitReq req) {
         String platform = StrUtil.blankToDefault(req.getPlatform(), getDefaultPlatform());
@@ -575,6 +675,14 @@ public class FileStorageService {
 
     /**
      * 上传分片
+     *
+     * @param platform   平台编码
+     * @param bucket     存储桶
+     * @param path       路径
+     * @param uploadId   分片上传 ID
+     * @param partNumber 分片编号
+     * @param data       分片数据流
+     * @return 分片上传结果
      */
     public MultipartUploadResp uploadPart(String platform,
         String bucket,
@@ -604,6 +712,13 @@ public class FileStorageService {
 
     /**
      * 完成分片上传
+     *
+     * @param platform    平台编码
+     * @param bucket      存储桶
+     * @param path        路径
+     * @param uploadId    分片上传 ID
+     * @param clientParts 客户端上报的分片列表（无记录时兜底）
+     * @return 文件信息
      */
     public FileInfo completeMultipartUpload(String platform,
         String bucket,
@@ -664,6 +779,10 @@ public class FileStorageService {
 
     /**
      * 根据 uploadId 完成分片上传
+     *
+     * @param uploadId    分片上传 ID
+     * @param clientParts 客户端上报的分片列表（无记录时兜底）
+     * @return 文件信息
      */
     public FileInfo completeMultipartUpload(String uploadId,
         List<MultipartUploadResp> clientParts) {
@@ -677,6 +796,11 @@ public class FileStorageService {
 
     /**
      * 取消分片上传
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param path     路径
+     * @param uploadId 分片上传 ID
      */
     public void abortMultipartUpload(String platform, String bucket, String path, String uploadId) {
         router.route(platform).abortMultipartUpload(bucket, path, uploadId);
@@ -689,6 +813,8 @@ public class FileStorageService {
 
     /**
      * 根据 uploadId 取消分片上传
+     *
+     * @param uploadId 分片上传 ID
      */
     public void abortMultipartUpload(String uploadId) {
         MultipartInitResp session = getMultipartSession(uploadId);
@@ -704,6 +830,8 @@ public class FileStorageService {
 
     /**
      * 验证分片完整性
+     *
+     * @param parts 分片列表
      */
     private void validatePartsCompleteness(List<MultipartUploadResp> parts) {
         if (parts.isEmpty()) {
@@ -733,6 +861,12 @@ public class FileStorageService {
 
     /**
      * 列出已上传的分片
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param path     路径
+     * @param uploadId 分片上传 ID
+     * @return 已上传的分片列表
      */
     public List<MultipartUploadResp> listParts(String platform, String bucket, String path,
         String uploadId) {
@@ -741,6 +875,9 @@ public class FileStorageService {
 
     /**
      * 获取分片会话
+     *
+     * @param uploadId 分片上传 ID
+     * @return 分片上传初始化信息，不存在返回 null
      */
     public MultipartInitResp getMultipartSession(String uploadId) {
         return fileRecorder == null ? null : fileRecorder.getMultipartSession(uploadId);
@@ -749,7 +886,7 @@ public class FileStorageService {
     /**
      * 获取默认存储桶
      *
-     * @param platform 站台
+     * @param platform 平台编码
      * @return {@link String }
      */
     public String getDefaultBucket(String platform) {
@@ -758,6 +895,11 @@ public class FileStorageService {
 
     /**
      * 下载文件
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param path     路径
+     * @return 文件输入流
      */
     public InputStream download(String platform, String bucket, String path) {
         return router.route(platform).download(bucket, path);
@@ -765,6 +907,10 @@ public class FileStorageService {
 
     /**
      * 使用默认存储下载
+     *
+     * @param bucket 存储桶
+     * @param path   路径
+     * @return 文件输入流
      */
     public InputStream download(String bucket, String path) {
         return download(getDefaultPlatform(), bucket, path);
@@ -772,6 +918,11 @@ public class FileStorageService {
 
     /**
      * 批量下载
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param paths    路径列表
+     * @return 打包后的输入流
      */
     public InputStream batchDownload(String platform, String bucket, List<String> paths) {
         return router.route(platform).batchDownload(bucket, paths);
@@ -779,6 +930,10 @@ public class FileStorageService {
 
     /**
      * 删除文件
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param path     路径
      */
     public void delete(String platform, String bucket, String path) {
         router.route(platform).delete(bucket, path);
@@ -802,6 +957,8 @@ public class FileStorageService {
 
     /**
      * 根据 URL 删除文件（依赖 FileRecorder 实现 URL 映射）
+     *
+     * @param url 文件 URL
      */
     public void delete(String url) {
         if (fileRecorder == null) {
@@ -816,6 +973,10 @@ public class FileStorageService {
 
     /**
      * 批量删除
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param paths    路径列表
      */
     public void batchDelete(String platform, String bucket, List<String> paths) {
         router.route(platform).batchDelete(bucket, paths);
@@ -823,6 +984,11 @@ public class FileStorageService {
 
     /**
      * 检查文件是否存在
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param path     路径
+     * @return 是否存在
      */
     public boolean exists(String platform, String bucket, String path) {
         return router.route(platform).exists(bucket, path);
@@ -830,6 +996,9 @@ public class FileStorageService {
 
     /**
      * 检查策略是否存在
+     *
+     * @param platform 平台编码
+     * @return 是否存在
      */
     public boolean exists(String platform) {
         return router.getAllPlatform().contains(platform);
@@ -837,6 +1006,11 @@ public class FileStorageService {
 
     /**
      * 获取文件信息
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param path     路径
+     * @return 文件信息
      */
     public FileInfo getFileInfo(String platform, String bucket, String path) {
         return router.route(platform).getFileInfo(bucket, path);
@@ -844,6 +1018,12 @@ public class FileStorageService {
 
     /**
      * 列出文件
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param prefix   路径前缀
+     * @param maxKeys  最大返回条数
+     * @return 文件信息列表
      */
     public List<FileInfo> list(String platform, String bucket, String prefix, int maxKeys) {
         return router.route(platform).list(bucket, prefix, maxKeys);
@@ -851,6 +1031,12 @@ public class FileStorageService {
 
     /**
      * 复制文件
+     *
+     * @param platform     平台编码
+     * @param sourceBucket 源存储桶
+     * @param targetBucket 目标存储桶
+     * @param sourcePath   源路径
+     * @param targetPath   目标路径
      */
     public void copy(String platform, String sourceBucket, String targetBucket, String sourcePath,
         String targetPath) {
@@ -859,6 +1045,12 @@ public class FileStorageService {
 
     /**
      * 移动文件
+     *
+     * @param platform     平台编码
+     * @param sourceBucket 源存储桶
+     * @param targetBucket 目标存储桶
+     * @param sourcePath   源路径
+     * @param targetPath   目标路径
      */
     public void move(String platform, String sourceBucket, String targetBucket, String sourcePath,
         String targetPath) {
@@ -867,6 +1059,11 @@ public class FileStorageService {
 
     /**
      * 生成预签名URL
+     *
+     * @param bucket        存储桶
+     * @param path          路径
+     * @param expireSeconds 过期时间（秒）
+     * @return 预签名 URL
      */
     public String generatePresignedUrl(String bucket, String path, long expireSeconds) {
         return generatePresignedUrl(getDefaultPlatform(), bucket, path, expireSeconds);
@@ -874,6 +1071,12 @@ public class FileStorageService {
 
     /**
      * 生成预签名URL
+     *
+     * @param platform      平台编码
+     * @param bucket        存储桶
+     * @param path          路径
+     * @param expireSeconds 过期时间（秒）
+     * @return 预签名 URL
      */
     public String generatePresignedUrl(String platform, String bucket, String path,
         long expireSeconds) {
@@ -882,6 +1085,11 @@ public class FileStorageService {
 
     /**
      * 生成上传预签名URL
+     *
+     * @param bucket        存储桶
+     * @param path          路径
+     * @param expireSeconds 过期时间（秒）
+     * @return 上传预签名 URL
      */
     public String generateUploadPresignedUrl(String bucket, String path, long expireSeconds) {
         return generateUploadPresignedUrl(getDefaultPlatform(), bucket, path, expireSeconds);
@@ -889,6 +1097,12 @@ public class FileStorageService {
 
     /**
      * 生成上传预签名URL
+     *
+     * @param platform      平台编码
+     * @param bucket        存储桶
+     * @param path          路径
+     * @param expireSeconds 过期时间（秒）
+     * @return 上传预签名 URL
      */
     public String generateUploadPresignedUrl(String platform, String bucket, String path,
         long expireSeconds) {
@@ -897,6 +1111,9 @@ public class FileStorageService {
 
     /**
      * 动态注册存储策略
+     *
+     * @param <T>      策略类型
+     * @param strategy 存储策略实例
      */
     public <T extends StorageStrategy> void register(T strategy) {
         router.registerDynamic(strategy);
@@ -905,7 +1122,7 @@ public class FileStorageService {
     /**
      * 加载动态默认存储
      *
-     * @param platform 站台
+     * @param platform 平台编码
      */
     public void defaultStorage(String platform) {
         router.registerDynamicDefaultStorage(platform);
@@ -913,6 +1130,9 @@ public class FileStorageService {
 
     /**
      * 卸载动态注册的策略
+     *
+     * @param platform 平台编码
+     * @return 是否卸载成功
      */
     public boolean unload(String platform) {
         if (!router.isDynamic(platform)) {
@@ -923,6 +1143,8 @@ public class FileStorageService {
 
     /**
      * 获取所有可用策略代码
+     *
+     * @return 策略编码集合
      */
     public Set<String> getAvailablePlatform() {
         return router.getAllPlatform();
@@ -930,6 +1152,9 @@ public class FileStorageService {
 
     /**
      * 检查是否为动态注册的策略
+     *
+     * @param platform 平台编码
+     * @return 是否动态注册
      */
     public boolean isDynamic(String platform) {
         return router.isDynamic(platform);
@@ -937,6 +1162,9 @@ public class FileStorageService {
 
     /**
      * 检查是否为配置文件策略
+     *
+     * @param platform 平台编码
+     * @return 是否来自配置文件
      */
     public boolean isFromConfig(String platform) {
         return router.isFromConfig(platform);
@@ -944,6 +1172,8 @@ public class FileStorageService {
 
     /**
      * 获取策略详细信息
+     *
+     * @return 各策略的状态信息（平台编码 -> 状态）
      */
     public Map<String, StrategyStatusResp> getStrategyStatus() {
         return router.getFullStrategyStatus();
@@ -951,6 +1181,8 @@ public class FileStorageService {
 
     /**
      * 获取当前生效的策略信息
+     *
+     * @return 生效策略信息
      */
     public Map<String, String> getActiveStrategyInfo() {
         return router.getActiveStrategyInfo();

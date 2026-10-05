@@ -42,6 +42,8 @@ public @interface JsonMask {
 
     /**
      * 脱敏类型
+     *
+     * @return 脱敏类型
      */
     MaskType value() default MaskType.CUSTOM;
 
@@ -50,6 +52,8 @@ public @interface JsonMask {
      * <p>
      * 优先级高于脱敏类型
      * </p>
+     *
+     * @return 脱敏策略
      */
     Class<? extends IMaskStrategy> strategy() default IMaskStrategy.class;
 
@@ -58,6 +62,8 @@ public @interface JsonMask {
      * <p>
      * 仅在脱敏类型为 {@code MaskType.CUSTOM } 时使用
      * </p>
+     *
+     * @return 左侧保留位数
      */
     int left() default 0;
 
@@ -66,11 +72,15 @@ public @interface JsonMask {
      * <p>
      * 仅在脱敏类型为 {@code MaskType.CUSTOM } 时使用
      * </p>
+     *
+     * @return 右侧保留位数
      */
     int right() default 0;
 
     /**
      * 脱敏符号（默认：*）
+     *
+     * @return 脱敏符号
      */
     char character() default CharConstants.ASTERISK;
 }

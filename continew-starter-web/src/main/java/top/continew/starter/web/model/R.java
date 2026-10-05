@@ -29,6 +29,7 @@ import java.util.Objects;
 /**
  * 响应信息
  *
+ * @param <T> 响应数据类型
  * @author Charles7c
  * @since 1.0.0
  */

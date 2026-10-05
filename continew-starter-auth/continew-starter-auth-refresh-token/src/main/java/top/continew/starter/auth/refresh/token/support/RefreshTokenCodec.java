@@ -117,6 +117,9 @@ public class RefreshTokenCodec {
      * <p>Refresh Token 的指纹输入是完整令牌（{@code sessionId.secret}）而非单独的
      * secret：指纹与所属会话绑定后，拼接他人 sessionId 与自己的 secret 无法命中任何
      * 会话指纹或轮换快照键，跨会话凭证混淆在第一道门禁即被拒绝。</p>
+     *
+     * @param credential bearer 凭证
+     * @return 不可逆指纹
      */
     public String fingerprint(String credential) {
         if (credential == null || credential.isBlank()) {
@@ -246,12 +249,20 @@ public class RefreshTokenCodec {
 
     /**
      * 新签发的 Refresh Token
+     *
+     * @param rawToken    完整令牌文本（sessionId.secret）
+     * @param sessionId   会话 ID
+     * @param fingerprint secret 的 HMAC-SHA256 指纹
      */
     public record IssuedToken(String rawToken, String sessionId, String fingerprint) {
     }
 
     /**
      * 已解析的 Refresh Token；不向调用方暴露 secret
+     *
+     * @param rawToken    完整令牌文本（sessionId.secret）
+     * @param sessionId   会话 ID
+     * @param fingerprint secret 的 HMAC-SHA256 指纹
      */
     public record ParsedToken(String rawToken, String sessionId, String fingerprint) {
     }

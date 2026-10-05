@@ -37,6 +37,9 @@ public class StorageUtils {
 
     /**
      * 获取区域
+     *
+     * @param region 区域编码，为空时默认 us-east-1
+     * @return S3 区域
      */
     public static Region getRegion(String region) {
         return StrUtil.isEmpty(region) ? Region.US_EAST_1 : Region.of(region);
@@ -44,6 +47,8 @@ public class StorageUtils {
 
     /**
      * 生成默认路径：年/月/日/
+     *
+     * @return 按日期生成的路径
      */
     public static String generatePath() {
         LocalDate date = LocalDate.now(ZoneId.systemDefault());
@@ -53,6 +58,9 @@ public class StorageUtils {
 
     /**
      * 生成文件名：时间戳.扩展名
+     *
+     * @param originalFilename 原始文件名
+     * @return 生成的文件名
      */
     public static String generateFileName(String originalFilename) {
         return generateFileName(originalFilename, null, false);
@@ -60,6 +68,10 @@ public class StorageUtils {
 
     /**
      * 生成文件名：前缀_时间戳.扩展名
+     *
+     * @param originalFilename 原始文件名
+     * @param prefix           前缀（可为 null）
+     * @return 生成的文件名
      */
     public static String generateFileName(String originalFilename, String prefix) {
         return generateFileName(originalFilename, prefix, false);
@@ -71,6 +83,7 @@ public class StorageUtils {
      * @param originalFilename 原始文件名
      * @param prefix           前缀（可为null）
      * @param useMillis        是否使用毫秒时间戳，false则使用格式化时间戳
+     * @return 生成的文件名
      */
     public static String generateFileName(String originalFilename, String prefix,
         boolean useMillis) {

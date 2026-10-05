@@ -53,46 +53,81 @@ public interface StorageStrategy {
 
     /**
      * 批量下载到zip
+     *
+     * @param bucket 存储桶
+     * @param paths  路径列表
+     * @return 打包后的输入流
      */
     InputStream batchDownload(String bucket, List<String> paths);
 
     /**
      * 删除
+     *
+     * @param bucket 存储桶
+     * @param path   路径
      */
     void delete(String bucket, String path);
 
     /**
      * 批量删除
+     *
+     * @param bucket 存储桶
+     * @param paths  路径列表
      */
     void batchDelete(String bucket, List<String> paths);
 
     /**
      * 是否存在
+     *
+     * @param bucket 存储桶
+     * @param path   路径
+     * @return 是否存在
      */
     boolean exists(String bucket, String path);
 
     /**
      * 获取文件信息
+     *
+     * @param bucket 存储桶
+     * @param path   路径
+     * @return 文件信息
      */
     FileInfo getFileInfo(String bucket, String path);
 
     /**
      * 列出文件
+     *
+     * @param bucket  存储桶
+     * @param prefix  路径前缀
+     * @param maxKeys 最大返回条数
+     * @return 文件信息列表
      */
     List<FileInfo> list(String bucket, String prefix, int maxKeys);
 
     /**
      * 复制文件
+     *
+     * @param sourceBucket 源存储桶
+     * @param targetBucket 目标存储桶
+     * @param sourcePath   源路径
+     * @param targetPath   目标路径
      */
     void copy(String sourceBucket, String targetBucket, String sourcePath, String targetPath);
 
     /**
      * 移动文件
+     *
+     * @param sourceBucket 源存储桶
+     * @param targetBucket 目标存储桶
+     * @param sourcePath   源路径
+     * @param targetPath   目标路径
      */
     void move(String sourceBucket, String targetBucket, String sourcePath, String targetPath);
 
     /**
      * 获取平台
+     *
+     * @return 平台编码
      */
     String getPlatform();
 
@@ -105,11 +140,21 @@ public interface StorageStrategy {
 
     /**
      * 生成预签名URL
+     *
+     * @param bucket        存储桶
+     * @param path          路径
+     * @param expireSeconds 过期时间（秒）
+     * @return 预签名 URL
      */
     String generatePresignedUrl(String bucket, String path, long expireSeconds);
 
     /**
      * 生成上传预签名URL
+     *
+     * @param bucket        存储桶
+     * @param path          路径
+     * @param expireSeconds 过期时间（秒）
+     * @return 上传预签名 URL
      */
     String generateUploadPresignedUrl(String bucket, String path, long expireSeconds);
 
@@ -128,6 +173,8 @@ public interface StorageStrategy {
     /**
      * 上传分片
      *
+     * @param bucket     存储桶
+     * @param path       文件路径
      * @param uploadId   上传ID
      * @param partNumber 分片编号
      * @param data       分片数据
@@ -163,6 +210,8 @@ public interface StorageStrategy {
     /**
      * 取消分片上传
      *
+     * @param bucket   存储桶
+     * @param path     文件路径
      * @param uploadId 上传ID
      */
     void abortMultipartUpload(String bucket, String path, String uploadId);
@@ -170,6 +219,8 @@ public interface StorageStrategy {
     /**
      * 列出已上传的分片
      *
+     * @param bucket   存储桶
+     * @param path     文件路径
      * @param uploadId 上传ID
      * @return 分片列表
      */

@@ -33,26 +33,36 @@ public @interface ExcelImport {
 
     /**
      * 字段名称
+     *
+     * @return 字段名称
      */
     String value();
 
     /**
      * 导出映射，格式如：0-未知;1-男;2-女
+     *
+     * @return 映射配置
      */
     String kv() default "";
 
     /**
      * 是否为必填字段（默认为非必填）
+     *
+     * @return 是否必填
      */
     boolean required() default false;
 
     /**
      * 最大长度（默认255）
+     *
+     * @return 最大长度
      */
     int maxLength() default 255;
 
     /**
      * 导入唯一性验证（多个字段则取联合验证）
+     *
+     * @return 是否唯一性验证
      */
     boolean unique() default false;
 

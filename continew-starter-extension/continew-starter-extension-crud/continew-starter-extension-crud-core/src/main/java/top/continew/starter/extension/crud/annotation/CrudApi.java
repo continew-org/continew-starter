@@ -36,6 +36,8 @@ public @interface CrudApi {
 
     /**
      * API 类型
+     *
+     * @return API 类型
      */
     Api value() default Api.LIST;
 }

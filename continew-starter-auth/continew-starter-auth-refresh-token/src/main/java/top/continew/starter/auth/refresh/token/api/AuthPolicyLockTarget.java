@@ -19,6 +19,8 @@ package top.continew.starter.auth.refresh.token.api;
 /**
  * 认证会话安全策略锁的目标。
  *
+ * @param type 锁目标类型
+ * @param key  锁目标标识
  * @author luoqiz
  * @since 2.17.0
  */
@@ -36,6 +38,9 @@ public record AuthPolicyLockTarget(Type type, String key) {
         return new AuthPolicyLockTarget(Type.USER, String.valueOf(userId));
     }
 
+    /**
+     * 锁目标类型
+     */
     public enum Type {
         USER,
         TENANT,

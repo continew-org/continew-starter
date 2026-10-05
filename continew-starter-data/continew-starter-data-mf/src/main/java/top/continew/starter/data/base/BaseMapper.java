@@ -55,6 +55,7 @@ public interface BaseMapper<T> extends com.mybatisflex.core.BaseMapper<T> {
     /**
      * 链式查询
      *
+     * @param entity 实体
      * @return QueryWrapper 的包装类
      */
     default QueryWrapper query(T entity) {

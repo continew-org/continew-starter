@@ -49,9 +49,10 @@ public interface MqttMessageProducer {
     /**
      * 指定topic进行消息发送
      *
-     * @param topic   topic
-     * @param qos     qos
-     * @param payload 消息体
+     * @param topic    topic
+     * @param qos      qos
+     * @param retained 是否保留消息
+     * @param payload  消息体
      */
     void sendToMqtt(@Header(MqttHeaders.TOPIC) String topic,
         @Header(MqttHeaders.QOS) int qos,
@@ -61,9 +62,10 @@ public interface MqttMessageProducer {
     /**
      * 指定topic进行消息发送
      *
-     * @param topic   topic
-     * @param qos     qos
-     * @param payload 消息体
+     * @param topic    topic
+     * @param qos      qos
+     * @param retained 是否保留消息
+     * @param payload  消息体
      */
     void sendToMqtt(@Header(MqttHeaders.TOPIC) String topic,
         @Header(MqttHeaders.QOS) int qos,

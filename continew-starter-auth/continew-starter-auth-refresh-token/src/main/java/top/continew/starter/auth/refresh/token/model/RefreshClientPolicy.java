@@ -26,6 +26,14 @@ import top.continew.starter.auth.refresh.token.enums.SessionReplacementScope;
  * <p>该模型刻意不复用系统管理模块的 {@code ClientResp}，避免认证会话模块反向依赖
  * 用户、客户端等业务实体。</p>
  *
+ * @param clientId            客户端 ID
+ * @param clientType          客户端类型
+ * @param refreshTokenTimeout Refresh Token 有效期（秒）
+ * @param refreshTokenMode    Refresh Token 模式（固定/轮换）
+ * @param concurrent          是否允许多端同时在线
+ * @param replacementScope    会话顶替范围
+ * @param maxLoginCount       最大登录数
+ * @param overflowLogoutMode  超出登录数限制时的注销方式
  * @author luoqiz
  * @since 2.17.0
  */

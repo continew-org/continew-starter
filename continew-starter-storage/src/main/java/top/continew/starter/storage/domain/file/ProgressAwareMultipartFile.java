@@ -60,6 +60,8 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
 
     /**
      * 设置当前读取阶段
+     *
+     * @param phase 读取阶段
      */
     public void setReadPhase(ReadPhase phase) {
         synchronized (progressLock) {
@@ -106,6 +108,9 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
 
     /**
      * 获取不带进度监听的输入流（向后兼容）
+     *
+     * @return 原始输入流
+     * @throws IOException 读取失败时抛出
      */
     public InputStream getInputStreamWithoutProgress() throws IOException {
         return super.getInputStream();

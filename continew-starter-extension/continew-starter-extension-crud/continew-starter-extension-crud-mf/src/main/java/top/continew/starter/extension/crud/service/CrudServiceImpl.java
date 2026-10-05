@@ -105,6 +105,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      * @param query       查询条件
      * @param sortQuery   排序查询条件
      * @param targetClass 指定类型
+     * @param <E> 目标类型
      * @return 列表信息
      */
     protected <E> List<E> list(Q query, SortQuery sortQuery, Class<E> targetClass) {

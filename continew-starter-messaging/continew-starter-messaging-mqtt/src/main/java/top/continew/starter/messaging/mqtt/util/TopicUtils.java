@@ -181,6 +181,11 @@ public class TopicUtils {
 
     /**
      * 校验 + 通配符的位置：必须单独成层（前一位为 / 开头，后一位为 / 或在末尾）
+     *
+     * @param i                通配符下标
+     * @param topicFilterChars topic 过滤器字符数组
+     * @param topicFilterIdxEnd topic 过滤器末尾下标
+     * @param topicFilter      topic 过滤器
      */
     private static void validateSingleLevelPlacement(int i, char[] topicFilterChars,
         int topicFilterIdxEnd, String topicFilter) {
@@ -193,6 +198,12 @@ public class TopicUtils {
 
     /**
      * 判断 + 是否位于 filter 末层且 topicName 仍有剩余字符可匹配
+     *
+     * @param i                通配符下标
+     * @param wildcardCharLen  通配符偏移量
+     * @param topicFilterIdxEnd topic 过滤器末尾下标
+     * @param topicNameLength  topic 名称长度
+     * @return 是否为末层 + 且仍有剩余字符
      */
     private static boolean isTerminalSingleLevel(int i, int wildcardCharLen,
         int topicFilterIdxEnd, int topicNameLength) {
@@ -202,6 +213,12 @@ public class TopicUtils {
 
     /**
      * 处理末层 + 通配符：剩余 topicName 中不能再出现层级分隔符 /
+     *
+     * @param i               通配符下标
+     * @param wildcardCharLen 通配符偏移量
+     * @param topicNameChars  topic 名称字符数组
+     * @param topicNameLength topic 名称长度
+     * @return 是否匹配成功
      */
     private static boolean matchTerminalSingleLevel(int i, int wildcardCharLen,
         char[] topicNameChars, int topicNameLength) {
@@ -216,6 +233,12 @@ public class TopicUtils {
 
     /**
      * 判断 / 后紧跟 # 且 topicName 位数已不足的快捷匹配场景
+     *
+     * @param slashIndex       层级分隔符下标
+     * @param topicFilterChars topic 过滤器字符数组
+     * @param topicFilterLength topic 过滤器长度
+     * @param topicNameLength  topic 名称长度
+     * @return 是否命中快捷匹配
      */
     private static boolean isMultiLevelShortcut(int slashIndex, char[] topicFilterChars,
         int topicFilterLength, int topicNameLength) {
@@ -227,6 +250,9 @@ public class TopicUtils {
     /**
      * 在 topicName 中从指定位置开始查找层级分隔符 /
      *
+     * @param start           起始下标
+     * @param topicNameChars  topic 名称字符数组
+     * @param topicNameLength topic 名称长度
      * @return 分隔符下标；未找到返回 -1
      */
     private static int findLayerSeparator(int start, char[] topicNameChars, int topicNameLength) {

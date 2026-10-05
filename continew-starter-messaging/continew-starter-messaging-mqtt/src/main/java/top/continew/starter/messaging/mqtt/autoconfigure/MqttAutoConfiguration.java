@@ -288,6 +288,8 @@ public class MqttAutoConfiguration {
 
     /**
      * 消费者异步线程池
+     *
+     * @return 消费者线程池
      */
     public ThreadPoolTaskExecutor mqttConsumerExecutor() {
         MqttExecutorProperties executorProperties = mqttProperties.getConsumer().getExecutor();
@@ -322,6 +324,9 @@ public class MqttAutoConfiguration {
 
     /**
      * 自动生成客户端 ID，避免冲突。
+     *
+     * @param environment 环境配置
+     * @return 客户端 ID
      */
     private String getClientId(Environment environment) {
         String applicationName = environment.getProperty("spring.application.name", "mqtt");

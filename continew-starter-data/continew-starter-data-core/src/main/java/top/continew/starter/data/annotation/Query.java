@@ -44,16 +44,22 @@ public @interface Query {
      * columns 为空时，默认取值字段名（自动转换为下划线命名）；<br>
      * columns 不为空且 columns 长度大于 1，多个列查询条件之间为或关系（OR）。
      * </p>
+     *
+     * @return 列名
      */
     String[] columns() default {};
 
     /**
      * 查询类型（等值查询、模糊查询、范围查询等）
+     *
+     * @return 查询类型
      */
     QueryType type() default QueryType.EQ;
 
     /**
      * 多列查询时的逻辑关系（仅当 columns 长度大于 1 时生效）
+     *
+     * @return 多列查询时的逻辑关系
      */
     LogicalRelation logicalRelation() default LogicalRelation.OR;
 }

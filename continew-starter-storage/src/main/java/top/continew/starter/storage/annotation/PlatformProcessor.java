@@ -39,6 +39,8 @@ public @interface PlatformProcessor {
 
     /**
      * 适用的平台列表
+     *
+     * @return 平台编码数组
      */
     String[] platforms();
 }

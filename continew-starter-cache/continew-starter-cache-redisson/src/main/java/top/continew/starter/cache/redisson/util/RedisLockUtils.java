@@ -79,6 +79,11 @@ public class RedisLockUtils implements AutoCloseable {
 
     /**
      * 私有构造函数，防止外部实例化
+     *
+     * @param lock       锁实例
+     * @param expireTime 锁过期时间
+     * @param timeout    获取锁超时时间
+     * @param unit       时间单位
      */
     // 锁的释放由 close()/unlock() 在锁确实持有时负责；获取失败或中断时本就未加锁，不应在构造函数内释放（S2222 误报）
     @SuppressWarnings("java:S2222")

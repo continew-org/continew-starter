@@ -37,26 +37,36 @@ public @interface Idempotent {
 
     /**
      * 名称
+     *
+     * @return 名称
      */
     String name() default "";
 
     /**
      * 键（支持 Spring EL 表达式）
+     *
+     * @return 键
      */
     String key() default "";
 
     /**
      * 超时时间
+     *
+     * @return 超时时间
      */
     int timeout() default 1000;
 
     /**
      * 时间单位（默认：毫秒）
+     *
+     * @return 时间单位
      */
     TimeUnit unit() default TimeUnit.MILLISECONDS;
 
     /**
      * 提示信息
+     *
+     * @return 提示信息
      */
     String message() default "请勿重复操作";
 }
