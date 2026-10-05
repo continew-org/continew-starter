@@ -18,6 +18,7 @@ package top.continew.starter.auth.refresh.token.service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
 import top.continew.starter.auth.refresh.token.model.AuthSecurityVersion;
 import top.continew.starter.auth.refresh.token.model.IssuedAccessToken;
 import top.continew.starter.auth.refresh.token.model.RefreshClientPolicy;
@@ -42,11 +43,15 @@ import java.util.function.Supplier;
  * {@link #rotate(String, HttpServletResponse, Function)} 原子轮换。前三步是独立方法，
  * 任意一步漏调用都会敞开对应攻击面（限流绕过 / 跨站伪造刷新），请务必完整调用。</p>
  *
+ * <p>本接口继承 {@link AccessSessionValidator}：会话服务自身即其会话的校验者，
+ * 消费方可按任一接口注入同一 bean（安全拦截器、WebSocket 握手等窄场景建议
+ * 面向 {@code AccessSessionValidator} 编程）。</p>
+ *
  * @author luoqiz
  * @author Charles7c
  * @since 2.17.0
  */
-public interface RefreshTokenService {
+public interface RefreshTokenService extends AccessSessionValidator {
 
     /**
      * 为一次新登录生成 Session ID，供 Access Token 和 Refresh Token 共同绑定。

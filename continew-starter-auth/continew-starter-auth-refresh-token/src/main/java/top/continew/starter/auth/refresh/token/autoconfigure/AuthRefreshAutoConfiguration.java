@@ -162,6 +162,10 @@ public class AuthRefreshAutoConfiguration {
 
     /**
      * Refresh Token 会话服务。
+     *
+     * <p>返回类型声明为 {@link RefreshTokenService} 即可覆盖全部注入场景：该接口
+     * 继承 {@link AccessSessionValidator}，安全拦截器与 WebSocket 握手可按窄接口
+     * 注入同一 bean。</p>
      */
     @Bean
     @ConditionalOnMissingBean(RefreshTokenService.class)
@@ -247,8 +251,9 @@ public class AuthRefreshAutoConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(WebSocketSessionDao.class)
-    public ConcurrentWebSocketSessionDao webSocketSessionDao() {
-        return new ConcurrentWebSocketSessionDao();
+    public ConcurrentWebSocketSessionDao webSocketSessionDao(
+        WebSocketCredentialRegistry credentialRegistry) {
+        return new ConcurrentWebSocketSessionDao(credentialRegistry);
     }
 
     /**

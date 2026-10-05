@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
 import top.continew.starter.auth.refresh.token.api.AuthSessionRevocationNotifier;
 import top.continew.starter.auth.refresh.token.autoconfigure.RefreshTokenProperties;
 import top.continew.starter.auth.refresh.token.enums.LogoutReasonEnum;
@@ -72,7 +71,7 @@ import java.util.function.Supplier;
  * @author Charles7c
  * @since 2.17.0
  */
-public class RefreshTokenServiceImpl implements RefreshTokenService, AccessSessionValidator {
+public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RefreshTokenServiceImpl.class);
 
