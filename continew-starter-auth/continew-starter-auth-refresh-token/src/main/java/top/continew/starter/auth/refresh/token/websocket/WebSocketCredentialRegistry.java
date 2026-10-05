@@ -16,6 +16,8 @@
 
 package top.continew.starter.auth.refresh.token.websocket;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -35,6 +37,11 @@ public class WebSocketCredentialRegistry {
     private final Map<String, String> rawTokens = new ConcurrentHashMap<>();
 
     /**
+     * 原始凭证到客户端标识的反向索引，反查降为 O(1)。
+     */
+    private final Map<String, String> tokenToClientId = new ConcurrentHashMap<>();
+
+    /**
      * 登记握手建立的客户端标识与原始凭证映射。
      *
      * @param clientId 客户端标识（Access Token 指纹）
@@ -42,6 +49,7 @@ public class WebSocketCredentialRegistry {
      */
     public void register(String clientId, String rawToken) {
         rawTokens.put(clientId, rawToken);
+        tokenToClientId.put(rawToken, clientId);
     }
 
     /**
@@ -55,11 +63,35 @@ public class WebSocketCredentialRegistry {
     }
 
     /**
+     * 由原始 Access Token 反查客户端标识。
+     *
+     * <p>供业务侧仍以原始令牌调用 {@code WebSocketUtils.sendMessage} 的既有调用点
+     * 兼容使用：DAO 以客户端标识（指纹）为索引，需要先翻译回指纹才能命中连接。</p>
+     *
+     * @param rawToken 原始 Access Token
+     * @return 客户端标识（Access Token 指纹）；未登记返回 {@code null}
+     */
+    public String findClientIdByToken(String rawToken) {
+        return rawToken == null ? null : tokenToClientId.get(rawToken);
+    }
+
+    /**
      * 仅保留仍在线的客户端标识，清理已断开连接的登记。
      *
      * @param onlineClientIds 当前仍登记在 DAO 索引中的客户端标识
      */
     public void retainAll(Set<String> onlineClientIds) {
-        rawTokens.keySet().removeIf(clientId -> !onlineClientIds.contains(clientId));
+        List<String> staleClientIds = new ArrayList<>();
+        for (String clientId : rawTokens.keySet()) {
+            if (!onlineClientIds.contains(clientId)) {
+                staleClientIds.add(clientId);
+            }
+        }
+        for (String clientId : staleClientIds) {
+            String rawToken = rawTokens.remove(clientId);
+            if (rawToken != null) {
+                tokenToClientId.remove(rawToken);
+            }
+        }
     }
 }

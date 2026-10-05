@@ -16,6 +16,8 @@
 
 package top.continew.starter.auth.refresh.token.websocket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.WebSocketSession;
 
 import java.util.Collection;
@@ -32,12 +34,26 @@ import java.util.concurrent.ConcurrentHashMap;
  * 关闭回调只携带 Key，因此 {@link #delete(String)} 采用「只移除已关闭连接」的语义，
  * 保留同一 Key 下仍存活的其它标签页连接。</p>
  *
+ * <p>DAO 索引键为客户端标识（Access Token 指纹）。{@link #get(String)} 额外兼容
+ * 直接传入原始 Access Token：查不到索引时经凭证登记反查指纹再取，业务侧既有
+ * 「以 {@code StpUtil} 取令牌即推送」的调用无需改造。反查仅在登记所在进程内有效，
+ * 多副本部署下跨实例推送不在覆盖范围。</p>
+ *
  * @author luoqiz
  * @since 2.17.0
  */
 public class ConcurrentWebSocketSessionDao implements MultiWebSocketSessionDao {
 
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(ConcurrentWebSocketSessionDao.class);
+
     private final Map<String, Map<String, WebSocketSession>> sessions = new ConcurrentHashMap<>();
+
+    private final WebSocketCredentialRegistry credentialRegistry;
+
+    public ConcurrentWebSocketSessionDao(WebSocketCredentialRegistry credentialRegistry) {
+        this.credentialRegistry = credentialRegistry;
+    }
 
     @Override
     public void add(String key, WebSocketSession session) {
@@ -65,7 +81,7 @@ public class ConcurrentWebSocketSessionDao implements MultiWebSocketSessionDao {
 
     @Override
     public WebSocketSession get(String key) {
-        Map<String, WebSocketSession> byId = sessions.get(key);
+        Map<String, WebSocketSession> byId = sessions.get(this.resolveKey(key));
         if (byId == null || byId.isEmpty()) {
             return null;
         }
@@ -92,7 +108,7 @@ public class ConcurrentWebSocketSessionDao implements MultiWebSocketSessionDao {
 
     @Override
     public Collection<WebSocketSession> listByKey(String key) {
-        Map<String, WebSocketSession> byId = sessions.get(key);
+        Map<String, WebSocketSession> byId = sessions.get(this.resolveKey(key));
         return byId == null ? List.of() : List.copyOf(byId.values());
     }
 
@@ -101,5 +117,25 @@ public class ConcurrentWebSocketSessionDao implements MultiWebSocketSessionDao {
         // 整组原子摘取：返回摘取时刻的连接集合，摘取后新增的连接进入全新登记。
         Map<String, WebSocketSession> removed = sessions.remove(key);
         return removed == null ? List.of() : List.copyOf(removed.values());
+    }
+
+    /**
+     * 把调用方传入的键翻译为 DAO 实际索引键：索引键为客户端标识（Access Token 指纹），
+     * 兼容直接传入原始 Access Token 时经凭证登记反查指纹。
+     *
+     * @param key 客户端标识（指纹）或原始 Access Token
+     * @return DAO 索引键
+     */
+    private String resolveKey(String key) {
+        if (credentialRegistry == null || sessions.containsKey(key)) {
+            return key;
+        }
+        String clientId = credentialRegistry.findClientIdByToken(key);
+        if (clientId == null) {
+            LOGGER.debug(
+                "WebSocket 连接查找：入参既非已登记指纹，反查原始令牌亦未命中登记（可能令牌已轮换、连接已断开或推送发往了其它实例）");
+            return key;
+        }
+        return clientId;
     }
 }

@@ -43,7 +43,8 @@ class ConcurrentWebSocketSessionDaoTest {
 
     @Test
     void shouldKeepOtherTabsWhenOneConnectionCloses() {
-        ConcurrentWebSocketSessionDao dao = new ConcurrentWebSocketSessionDao();
+        ConcurrentWebSocketSessionDao dao =
+            new ConcurrentWebSocketSessionDao(new WebSocketCredentialRegistry());
         WebSocketSession closed = this.session("conn-1", false);
         WebSocketSession alive = this.session("conn-2", true);
 
@@ -62,7 +63,8 @@ class ConcurrentWebSocketSessionDaoTest {
 
     @Test
     void shouldExtractAllSessionsAndKeepLaterAdditionsDiscoverable() {
-        ConcurrentWebSocketSessionDao dao = new ConcurrentWebSocketSessionDao();
+        ConcurrentWebSocketSessionDao dao =
+            new ConcurrentWebSocketSessionDao(new WebSocketCredentialRegistry());
         WebSocketSession first = this.session("conn-1", true);
         WebSocketSession second = this.session("conn-2", true);
         dao.add("client-id", first);
@@ -82,7 +84,8 @@ class ConcurrentWebSocketSessionDaoTest {
 
     @Test
     void shouldKeepOpenConnectionDiscoverableWhenAddRacesDelete() throws Exception {
-        ConcurrentWebSocketSessionDao dao = new ConcurrentWebSocketSessionDao();
+        ConcurrentWebSocketSessionDao dao =
+            new ConcurrentWebSocketSessionDao(new WebSocketCredentialRegistry());
         ExecutorService executor = Executors.newFixedThreadPool(2);
         try {
             for (int round = 0; round < 300; round++) {
@@ -116,6 +119,41 @@ class ConcurrentWebSocketSessionDaoTest {
         } finally {
             executor.shutdownNow();
         }
+    }
+
+    @Test
+    void shouldResolveRawTokenToClientIdOnGet() {
+        WebSocketCredentialRegistry registry = new WebSocketCredentialRegistry();
+        ConcurrentWebSocketSessionDao dao = new ConcurrentWebSocketSessionDao(registry);
+        WebSocketSession alive = this.session("conn-1", true);
+
+        dao.add("token-fingerprint", alive);
+        registry.register("token-fingerprint", "raw-access-token");
+
+        // 业务侧以原始令牌推送（WebSocketUtils.sendMessage(rawToken, ...)）：经登记反查指纹命中连接
+        assertEquals(alive, dao.get("raw-access-token"));
+        // 指纹直查与未登记令牌的原有语义不变
+        assertEquals(alive, dao.get("token-fingerprint"));
+        assertNull(dao.get("unknown-token"));
+    }
+
+    @Test
+    void shouldResolveRawTokenToClientIdOnListByKey() {
+        WebSocketCredentialRegistry registry = new WebSocketCredentialRegistry();
+        ConcurrentWebSocketSessionDao dao = new ConcurrentWebSocketSessionDao(registry);
+        WebSocketSession tab1 = this.session("conn-1", true);
+        WebSocketSession tab2 = this.session("conn-2", true);
+
+        dao.add("token-fingerprint", tab1);
+        dao.add("token-fingerprint", tab2);
+        registry.register("token-fingerprint", "raw-access-token");
+
+        // sendMessageToAll 走 listByKey：原始令牌反查后须返回同一指纹下的全部标签页连接
+        List<WebSocketSession> all = List.copyOf(dao.listByKey("raw-access-token"));
+        assertEquals(2, all.size());
+        assertTrue(all.containsAll(List.of(tab1, tab2)));
+        // 指纹直查语义不变
+        assertEquals(2, dao.listByKey("token-fingerprint").size());
     }
 
     private WebSocketSession session(String id, boolean open) {
