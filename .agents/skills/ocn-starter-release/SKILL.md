@@ -76,8 +76,14 @@ git log ${PREV_TAG}..HEAD --format='%h %aI %an %s'
 行格式：`- 【scope】subject ([短哈希](commit_url)) (#PR) @作者`。
 🆕 新贡献者：本区间 commit 的 author email 不在 `${PREV_TAG}` 之前历史里（`git log ${PREV_TAG} --format=%ae` 比对）。
 
+**写入前硬性校验（2.17.0 教训）**：每个写进 CHANGELOG 的提交 hash 必须真实存在于当前 dev——
+逐条 `git cat-file -t <hash>` 或 `git merge-base --is-ancestor <hash> HEAD` 验证；用户校对时删掉的条目，
+发版全程不得再补回（release notes、Gitee/GitHub release body 同步以用户校对版为唯一事实源）。
+
 组装成段 prepend 到 `CHANGELOG.md` 顶部（不动 `CHANGELOG_1.x.x.md` / `CHANGELOG_2.0.0-2.12.2.md` 老归档），
 `git diff CHANGELOG.md` 给用户校对。
+
+README 徽章随发版切换：`badge/SNAPSHOT-vX.Y.Z` → `badge/RELEASE-v${NEW_VERSION}`（dev 进入下周期时再改回 SNAPSHOT）。
 
 ### 3. release commit
 
@@ -108,8 +114,28 @@ git push origin ${NEW_TAG}
   再 `gh release edit ${NEW_TAG} --notes-file <CHANGELOG 段>`——必须两步，把完整 CHANGELOG 盖上去才跟 Gitee 一致。
 - **Gitee**（MCP）：`mcp__gitee__create_release(owner="continew", tag_name="${NEW_TAG}", name="v${NEW_VERSION}", body=<同一段>, target_commitish="dev")`。
   **注意 owner 是 `continew` 不是 `continew-org`。**
-- **AtomGit**：无 MCP，需手动——先确保代码/tag 同步（无自动 mirror，网页点"同步"或配 PAT 后 `git push`），
-  再在网页上新建 release，body 粘同一段。**告诉用户步骤，不要假装自动完成。**
+- **AtomGit**（REST API + curl，MCP 无 release 工具但 token 已配置）：
+  仓库已关镜像（2026-10-06 起为普通仓库），无自动同步，需先手动推代码：
+  `git remote add atomgit https://gitcode.com/continew/continew-starter.git`（首次），
+  `git push atomgit dev && git push atomgit ${NEW_TAG} && git push atomgit ${MAINT_BRANCH}`，然后：
+  （dev 是保护分支：强推类操作前需先 `mcp__atomgit__remove_branch_protection`，完成后用
+  `PUT /api/v5/repos/{owner}/{repo}/branches/setting/new` body `{"wildcard":"dev","pushers":"owner","mergers":"owner"}`
+  恢复保护——MCP 的 protect_branch 工具走旧路径已 405，不可用。）
+  ```bash
+  curl -X POST "https://api.atomgit.com/api/v5/repos/continew/continew-starter/releases?access_token=${ATOMGIT_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -d '{"tag_name":"'${NEW_TAG}'","name":"v'${NEW_VERSION}'","body":"<同一段>","target_commitish":"dev"}'
+  ```
+  创建后必须再 PATCH 一次标记"最新版本"（POST 不带 release_status 字段；PATCH body 缺任何必填字段都 400）：
+  ```bash
+  curl -X PATCH "https://api.atomgit.com/api/v5/repos/continew/continew-starter/releases/${NEW_TAG}?access_token=${ATOMGIT_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -d '{"tag_name":"'${NEW_TAG}'","name":"v'${NEW_VERSION}'","body":"<同一段>","release_status":"latest"}'
+  ```
+  验证：`GET .../releases/latest` 应返回 ${NEW_TAG}。
+  token 从 `~/.zcode/cli/config.json` 的 `mcp.servers.atomgit.headers.Authorization`（去 `Bearer ` 前缀）取，
+  不得硬编码进任何提交；接口文档：docs.atomgit.com/docs/apis/post-api-v-5-repos-owner-repo-releases。
+  （历史备注：镜像仓库期间 REST 建 release 会 400 "image repository"，必须先同步出 tag——2.17.0 发版时遇到，随后关闭镜像解决。）
 
 ### 7. 维护分支
 

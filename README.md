@@ -1,7 +1,7 @@
 # ContiNew Starter
 
 <a href="https://github.com/continew-org/continew-starter/blob/dev/continew-starter-dependencies/pom.xml" title="Current Version" target="_blank">
-<img src="https://img.shields.io/badge/SNAPSHOT-v2.17.0-%23ff3f59.svg" alt="Current Version" />
+<img src="https://img.shields.io/badge/RELEASE-v2.17.0-%23ff3f59.svg" alt="Current Version" />
 </a>
 <a href="https://central.sonatype.com/search?namespace=top.continew.starter" title="Release" target="_blank">
 <img src="https://img.shields.io/maven-central/v/top.continew.starter/continew-starter.svg?label=Maven%20Central&logo=sonatype&logoColor=FFF" alt="Release" />
