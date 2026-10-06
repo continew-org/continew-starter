@@ -1,3 +1,28 @@
+## [v2.17.0](https://github.com/continew-org/continew-starter/compare/v2.16.1...v2.17.0) (2026-10-06)
+
+### ✨ 新特性
+
+- 【auth/refresh-token】新增 auth-refresh-token 模块：可轮换的 Refresh Token 登录会话，支持双令牌（Access/Refresh）分离、原子轮换、重放保护、会话级统一撤销与 WebSocket 实时联动 ([ac5a7522](https://github.com/continew-org/continew-starter/commit/ac5a75220a433bff4bfd2136a532e21dd30dfdbb)) ([9cae5026](https://github.com/continew-org/continew-starter/commit/9cae5026c31f29f7a604df45d00dc623e9d4c0d7)) @Charles7c
+- 【messaging/websocket】WebSocket 会话 DAO 支持多标签页推送，同一 Access Token 的多个连接互不覆盖 ([7fb43014](https://github.com/continew-org/continew-starter/commit/7fb43014c9fb13b2a4c594019ba79e33818187c8)) @Charles7c
+
+### 💎 功能优化
+
+- 【checkstyle】新增禁止单行 Javadoc 规则并补齐存量注释 ([8f4e4ef7](https://github.com/continew-org/continew-starter/commit/8f4e4ef7baa1e035768a970568f92e3be4fcd89a)) @Charles7c
+- 【style】IDEA 代码风格与 Eclipse Formatter 同源对齐并清除模板死重 ([933e59b5](https://github.com/continew-org/continew-starter/commit/933e59b5f73c739199e66ea6a487cc22db31c1e2)) @Charles7c
+
+### 🐛 问题修复
+
+- 【data】修复排序字段白名单校验的栈溢出风险并补充安全回归测试 ([20666778](https://github.com/continew-org/continew-starter/commit/2066677859bb7997e190079ba55943cbb074420b)) @Charles7c
+- SonarCloud 存量问题集中治理（Bug/漏洞修复、代码异味清理） ([66fb9ca4](https://github.com/continew-org/continew-starter/commit/66fb9ca47a26e97daf7cbefa44aed98038201d4d)) @Charles7c
+- 修复 Sonar 扫描暴露的可靠性缺陷 ([4e952270](https://github.com/continew-org/continew-starter/commit/4e952270a6f56c5d7a7a7aaf9c1edc47029a3635)) @Charles7c
+- 【log】修复网关代理大响应体时响应被截断问题 ([1aa968d3](https://github.com/continew-org/continew-starter/commit/1aa968d3024d0afadb06a694f0567991ff33e71b)) @Charles7c
+
+## [v2.16.1](https://github.com/continew-org/continew-starter/compare/v2.16.0...v2.16.1) (2026-09-27)
+
+### 🐛 问题修复
+
+- 【data,crud】修复排序字段 ORDER BY SQL 注入漏洞 ([4cd39db8](https://github.com/continew-org/continew-starter/commit/4cd39db8be70d408d87a88f28c469c654c2ccabd)) (GHSA-g8qc-r85v-gqpp) @Charles7c
+
 ## [v2.16.0](https://github.com/continew-org/continew-starter/compare/v2.15.1...v2.16.0) (2026-08-20)
 
 ### ✨ 新特性

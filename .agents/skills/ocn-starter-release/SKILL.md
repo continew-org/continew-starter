@@ -20,7 +20,7 @@ description: >
   | 变量 | 含义 | 推导 |
   |:--|:--|:--|
   | `${NEW_VERSION}` | 发版号 | `<revision>` 去掉 `-SNAPSHOT`（如 `X.Y.Z-SNAPSHOT` → `X.Y.Z`） |
-  | `${PREV_TAG}` | 上一个 tag | `git describe --tags --abbrev=0`（如 `vX.Y.Z`） |
+  | `${PREV_TAG}` | 上一个 tag | 本地无新增 tag 时取本地最新；否则比对 `git ls-remote --tags origin` 取远端最新发布 tag（维护分支 tag 不在 dev 上） |
   | `${NEW_TAG}` | 本次 tag | `v${NEW_VERSION}` |
   | `${MAINT_BRANCH}` | 维护分支 | `${NEW_VERSION}` 的 `major.minor` + `.x` |
   | `${TODAY}` | 发版日期 | 当天 `YYYY-MM-DD` |
@@ -28,6 +28,10 @@ description: >
 - **三平台 release 内容一致**：GitHub / Gitee / AtomGit 都放同一份 CHANGELOG 段。
 - 发版后 dev 保持 `<revision>=${NEW_VERSION}`（不回 SNAPSHOT）；下个开发周期开始时由用户手动
   `build: 更新项目版本号至<major>.<minor+1>.0-SNAPSHOT`。
+- **维护分支修复必须即时合回 dev**：维护分支（x.y.x）上合入的每个 fix，合并时立即 cherry-pick
+  （或按 dev 现状重写）到 dev，不要攒到发版前。2.16.x 的教训：SQL 注入修复（4cd39db8）只留在
+  2.16.x，dev 靠手工重写（8cf81964）补回但 release commit（0681dc6f）的 CHANGELOG 段丢失，
+  导致 2.17.0 发版时 CHANGELOG 断档、依赖升级清单以错误基准（2.16.0 而非 2.16.1）生成。
 
 ## 流程
 
@@ -38,7 +42,8 @@ description: >
 | 在 dev 分支 | `git branch --show-current` | `git checkout dev` |
 | 工作区只有发版文件 | `git status --short` | 多余改动先 commit / stash |
 | `<revision>` 是 SNAPSHOT | `grep '<revision>[0-9.]*-SNAPSHOT' continew-starter-dependencies/pom.xml` | 手动改 pom |
-| 上一个 tag 存在且有提交 | `git describe --tags --abbrev=0` + `git log ${PREV_TAG}..HEAD --oneline` | `git fetch origin --tags`；区间空则停 |
+| bom/dependencies 两处 revision 一致 | `grep '<revision>' continew-starter-bom/pom.xml continew-starter-dependencies/pom.xml` | 不一致会导致反应堆解析错位（2.17.0 发版教训：bom 残留 2.16.0，全反应堆按旧版本编译） |
+| 上一个发布 tag 已 fetch 且有提交 | `git fetch origin --tags`，比对本地与远端 tag 取最新为 ${PREV_TAG}，`git log ${PREV_TAG}..HEAD --oneline` | 区间空则停 |
 | 编译通过 | `mvn compile -Dspotless.apply.skip=true` | 先修编译 |
 
 > 发版文件只有 6 类：`CHANGELOG.md` / `README.md` / `continew-starter-*/pom.xml` /

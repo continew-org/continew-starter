@@ -30,5 +30,5 @@ public final class ContiNewStarterVersion {
     /**
      * 当前 ContiNew Starter 版本号
      */
-    public static final String VERSION = "2.16.0";
+    public static final String VERSION = "2.17.0";
 }
