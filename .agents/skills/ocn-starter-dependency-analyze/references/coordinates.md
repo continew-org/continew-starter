@@ -18,7 +18,7 @@
 - **约束**：与 `spring-cloud.version` 强联动（见 special-cases.md）。升 Boot 必须确认 Cloud release train 兼容该
   Boot 版本区间，否则禁止单独升 Boot。
 - **迁移到 4.x 要点**：Jakarta EE 基线、`@ConfigurationProperties` 绑定变更、移除的废弃 API、Spring Security 7 联动
-  （若用到）。4.0 起多个 starter 的 auto-config 类路径/条件有变，必须全 reactor `mvn compile` + 人工跑 demo 验证。
+  （若用到）。4.0 起多个 starter 的 auto-config 类路径/条件有变，必须全 reactor `./mvnw verify` + 人工跑 demo 验证。
   这是本仓库最高风险升级，逐 starter 核验。
 
 ### spring-cloud
@@ -262,8 +262,9 @@
 
 ### spotless
 - property: `spotless.version` · 坐标: `com.diffplug.spotless:spotless-maven-plugin`
-- **约束**：绑定 `compile` 阶段，**会改写源码**（P3C 格式化 + license header + 去无用 import）。升级后跑
-  `mvn spotless:check`，确认格式化结果没有大面积漂移，否则会污染 diff。
+- **约束**：`validate` 阶段绑定 `check`（只检查、不改写源码，不合规即构建失败）；只有 `-Pformat` profile 的
+  `process-sources` 阶段才绑定 `apply`（P3C 格式化 + license header + 去无用 import）。升级后跑
+  `./mvnw verify` 确认格式门禁结果一致，否则会污染 diff。
 
 ### sonar
 - property: `sonar.version` · 坐标: `org.sonarsource.scanner.maven:sonar-maven-plugin`

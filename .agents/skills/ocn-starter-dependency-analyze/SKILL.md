@@ -32,9 +32,10 @@ Maven Central，生成交互式依赖升级分析报告，并提供「应用升�
   `5.0.5-boot3` 误杀出假降级告警。
 - **构建插件（flatten/spotless/sonar）与普通构件走完全相同的检测、分级、应用流程**，property 在同一个
   `<properties>` 块里。
-- **写操作在当前分支直接改 POM，默认不跑 mvn**：「应用升级」直接改 property，不建分支、不提交、不推送、不开 PR，
+- **写操作在当前分支直接改 POM，默认不跑构建**：「应用升级」直接改 property，不建分支、不提交、不推送、不开 PR，
   不要求工作区干净；🟢/🟡 各有一键批量按钮，🔴 故意不给按钮（无论单项还是批量）。改完用户自行跑一次
-  `mvn compile` 验证，回退只需 `git checkout` 该 POM。仅当请求带 `{"compile":true}` 才跑 mvn。
+  `./mvnw verify` 验收（四道静态门禁 + 单元测试），回退只需 `git checkout` 该 POM。
+  仅当请求带 `{"compile":true}` 才跑一次 compile 做快速反馈。
 - **路径、命令、版本号保留原文不翻译。**
 
 分级算法、版本解析、预发布过滤、tab 切分、排序、陈旧度等详细规则以 [references/tiers.md](references/tiers.md)
@@ -63,14 +64,17 @@ merge 坐标目录的升级要点 → 输出 JSON（schema 见脚本顶部注释
 
 ```bash
 # 1) 官方过时依赖 + 插件审计（覆盖 scan.py 的插件盲区）
-mvn -B -q versions:display-dependency-updates versions:display-plugin-updates 2>&1 | Out-File -Encoding utf8 .tmp_versions.txt
+./mvnw -B -q versions:display-dependency-updates versions:display-plugin-updates > .tmp_versions.txt 2>&1
 
-# 2) 依赖分析：找「已声明未使用 / 未声明已使用」依赖（升级后 spotless 漂移、缺传递依赖的先兆）
-mvn -B -q dependency:analyze 2>&1 | Out-File -Encoding utf8 .tmp_depanalyze.txt
+# 2) 依赖分析：找「已声明未使用 / 未声明已使用」依赖（升级后格式漂移、缺传递依赖的先兆）
+./mvnw -B -q dependency:analyze > .tmp_depanalyze.txt 2>&1
 
 # 3) 依赖树冲突快照（供升级技能 Step 1.5 比对升级前后差异）
-mvn -B -q dependency:tree 2>&1 | Out-File -Encoding utf8 .tmp_deptree.txt
+./mvnw -B -q dependency:tree > .tmp_deptree.txt 2>&1
 ```
+（Windows PowerShell：`>` 默认写 UTF-16，改用
+`./mvnw.cmd -B -q dependency:tree 2>&1 | Out-File -Encoding utf8 .tmp_deptree.txt`；
+Windows 一律用 `./mvnw.cmd`，POSIX 用 `./mvnw`。）
 
 - 读 `.tmp_versions.txt`：与 `dep_scan.json` 的目标版本**交叉核对**——官方报有更新但 scan 没列的，补进报告；
   插件更新单独成节（scan.py 不覆盖插件）。
@@ -83,10 +87,10 @@ mvn -B -q dependency:tree 2>&1 | Out-File -Encoding utf8 .tmp_deptree.txt
 `scan.py` 不含安全信息。对下列库，在报告里**显式标注安全维度**并给可选验证命令：
 - 跨 major（🔴）或已知历史 CVE 的库（如 Log4j、commons-text、SnakeYAML、Spring 系列），注明
   「升级到目标版本可修复已知 CVE，建议优先」。
-- 需要精确 CVE 列表时，可选跑 OWASP Dependency-Check（本仓库无 test，属重操作，默认不跑，仅给出命令）：
+- 需要精确 CVE 列表时，可选跑 OWASP Dependency-Check（需下载 NVD 漏洞库，属重操作，默认不跑，仅给出命令）：
 
 ```bash
-mvn -B org.owasp:dependency-check-maven:check -DfailOnError=false 2>&1 | Out-File -Encoding utf8 .tmp_depcheck.txt
+./mvnw -B org.owasp:dependency-check-maven:check -DfailOnError=false > .tmp_depcheck.txt 2>&1
 ```
 
 报告「安全建议」栏放置上述结论；CVE 详情以 `dependency-check` 输出为准，不臆测。
@@ -127,8 +131,8 @@ python .agents/skills/ocn-starter-dependency-analyze/scripts/server.py dep_scan.
 （`APPLY=null`，无应用按钮，可单独打开/分享）。也可用静态模式生成文件：
 
 ```bash
-python .agents/skills/ocn-starter-dependency-analyze/scripts/build_report.py dep_scan.json ~/Desktop/dep-report.html \
-  && start ~/Desktop/dep-report.html   # Windows；macOS 用 open
+python .agents/skills/ocn-starter-dependency-analyze/scripts/build_report.py dep_scan.json ~/Desktop/dep-report.html
+# 打开：Windows 用 start、macOS 用 open、Linux 用 xdg-open
 ```
 
 **排障：网页没有「应用升级」按钮** = 要么开了静态报告（改用 `server.py`），要么该项/该档是 🔴（红灯故意不给）。
@@ -144,17 +148,19 @@ Spring Boot 跨大版本）。若跑了 Step 1.5/1.6，额外点出：①官方 
 
 ### Step 5 后续真实升级闭环（移交 upgrade 技能）
 
-应用升级、POM 改完后，**编译验证与破坏性变更修复不属于本技能**（见 ADR 0003 compile 改为 opt-in）。
+应用升级、POM 改完后，**编译验证与破坏性变更修复不属于本技能**（本技能只做分析与改 POM）。
 明确告知用户：改完 POM 后请调用 **`ocn-starter-dependency-upgrade`** 技能承接后续——
-它会 `mvn compile`，若报错则抓对应库官网 changelog 并修源码，再跑 `mvn install` + `spotless:check`
-+ `-Psonar` 全链路验证。两技能共享 `references/coordinates.md` 的迁移要点与 `special-cases.md` 的
+它会 `./mvnw compile` 快速反馈，若报错则抓对应库官网 changelog 并修源码，再跑 `./mvnw verify`
+（validate 阶段 Enforcer → Spotless check → Checkstyle，test 阶段单元测试，verify 阶段 SpotBugs）
++ 可选的 `-Psonar` 全链路验证。两技能共享 `references/coordinates.md` 的迁移要点与 `special-cases.md` 的
 Spring Boot↔Cloud 兼容矩阵，无需重复提供上下文。
 
 ## 运行前提
 
 - **Python 3 标准库**，零第三方依赖（仅 `urllib`/`xml.etree`/`re`/`json`）。
 - **联网**：Step 1 需访问 `repo1.maven.org:443`；离线时 `scan.py` 用内置坐标目录生成「无最新版」快照并标注离线。
-- **git + mvn**：默认写操作只改文件，不调 git/mvn；仅 `{"compile":true}` 路径需本机 `mvn`。纯读报告不需要。
+- **git + JDK 17 + Maven Wrapper**：默认写操作只改文件，不调 git/构建；仅 `{"compile":true}` 路径需要构建，
+  统一用仓库自带的 `./mvnw`（Windows `./mvnw.cmd`），不要裸调 `mvn`。纯读报告不需要。
 - **Windows**：命令用 `python`（不是 `python3`），macOS/Linux 自行改 `python3`。
 
 ## 何时读哪个 reference
@@ -171,6 +177,4 @@ Spring Boot↔Cloud 兼容矩阵，无需重复提供上下文。
   [references/coordinates.md](references/coordinates.md) 加一小节，并在 `scan.py` 的 `COORDINATES` 字典补映射。
   漏了仍能分级，只是报告里该坐标「升级要点」为空。
 - **上游发大版本**：在 coordinates.md 对应小节补「迁移到 X.Y 的要点」，这是本 skill 唯一需要人工跟进的维护面。
-- **ADR**：架构决策在仓库根 `docs/adr/`（0001 数据源、0002/0003 写模式），改动铁律前先看 ADR。
-- **单源维护**：`.agents/skills/` 是技能的唯一事实源，`.claude/skills` 是指向它的符号链接（见根目录
-  `AGENTS.md`）。只编辑 `.agents/skills/` 下的文件，无需同步其它目录。
+- **单源维护**：`.agents/skills/` 是本仓库项目技能的唯一位置，只编辑此目录下的文件，无需同步其它目录。

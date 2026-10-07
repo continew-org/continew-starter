@@ -1,12 +1,12 @@
 ---
 name: ocn-starter-release
 description: >
-  continew-starter 仓库发版技能：预检 → CHANGELOG → release commit → mvn deploy 推 Maven Central →
+  continew-starter 仓库发版技能：预检 → CHANGELOG → release commit → ./mvnw deploy 推 Maven Central →
   打 tag+push → GitHub/Gitee/AtomGit 三平台 release → 切维护分支。版本号不手动传：从
   continew-starter-dependencies/pom.xml 的 <revision> 自动推导发版号（去掉 -SNAPSHOT）。
   用户说"发版"、"发布新版"、"release"、"准备发版"、"tag"、"deploy 到 Central"、"新建 GitHub Release"、
   "打 tag"、"切维护分支"，或想看发版流程清单时使用。
-  专用于 continew-starter 仓库，不适用其它 Maven 项目。发版前自验（mvn install + continew-admin
+  专用于 continew-starter 仓库，不适用其它 Maven 项目。发版前自验（./mvnw install + continew-admin
   业务侧验证）由用户自行完成，skill 不做。
 ---
 
@@ -14,7 +14,7 @@ description: >
 
 ## 铁律
 
-- **不可逆操作（mvn deploy / git push / 建 release）执行前必须展示命令，等用户确认。**
+- **不可逆操作（./mvnw deploy / git push / 建 release）执行前必须展示命令，等用户确认。**
 - 版本号不传参，全部由 LLM 从 `<revision>` 推导并代入（后面所有命令都用这些变量）：
 
   | 变量 | 含义 | 推导 |
@@ -44,11 +44,11 @@ description: >
 | `<revision>` 是 SNAPSHOT | `grep '<revision>[0-9.]*-SNAPSHOT' continew-starter-dependencies/pom.xml` | 手动改 pom |
 | bom/dependencies 两处 revision 一致 | `grep '<revision>' continew-starter-bom/pom.xml continew-starter-dependencies/pom.xml` | 不一致会导致反应堆解析错位（2.17.0 发版教训：bom 残留 2.16.0，全反应堆按旧版本编译） |
 | 上一个发布 tag 已 fetch 且有提交 | `git fetch origin --tags`，比对本地与远端 tag 取最新为 ${PREV_TAG}，`git log ${PREV_TAG}..HEAD --oneline` | 区间空则停 |
-| 编译通过 | `mvn compile -Dspotless.apply.skip=true` | 先修编译 |
+| 四道静态门禁与单元测试全过 | `./mvnw verify` | 先修到全过（Enforcer → Spotless → Checkstyle → 单测 → SpotBugs，见 AGENTS.md） |
 
 > 发版文件只有 6 类：`CHANGELOG.md` / `README.md` / `continew-starter-*/pom.xml` /
 > `ContiNewStarterVersion.java` / `.gitignore` / `.github/ISSUE_TEMPLATE/*.yml`。
-> 不检查：origin/dev 领先落后、GPG 私钥、Central 凭证（mvn 自己会报）。
+> 不检查：origin/dev 领先落后、GPG 私钥、Central 凭证（deploy 时构建工具自己会报）。
 
 通过后展示并确认：
 
@@ -89,7 +89,7 @@ README 徽章随发版切换：`badge/SNAPSHOT-vX.Y.Z` → `badge/RELEASE-v${NEW
 
 - `git add` 上述 6 类发版文件（README 有改动才加）→ `git commit -m "release: v${NEW_VERSION}"`。
 
-### 4. mvn clean deploy -Prelease,gpg（最危险，单独确认）
+### 4. ./mvnw clean deploy -Prelease,gpg（最危险，单独确认）
 
 推全部模块的 jar + sources + javadoc + .asc 签名到 Maven Central，**无法撤回**。
 
@@ -110,17 +110,29 @@ git push origin ${NEW_TAG}
 
 ### 6. 三平台 release（GitHub 确认一次，Gitee+AtomGit 合并确认一次）
 
-- **GitHub**（gh CLI，MCP 不可用）：`gh release create ${NEW_TAG} --title "v${NEW_VERSION}" --generate-notes --target dev`，
+> 凭证一律从本机环境变量取，不写入仓库任何文件；工具名随宿主而异，**不要假定某个 MCP 工具一定存在**，
+> 有对应工具就用，没有就走下面的等价命令。
+
+- **GitHub**（优先 `gh` CLI）：`gh release create ${NEW_TAG} --title "v${NEW_VERSION}" --generate-notes --target dev`，
   再 `gh release edit ${NEW_TAG} --notes-file <CHANGELOG 段>`——必须两步，把完整 CHANGELOG 盖上去才跟 Gitee 一致。
-- **Gitee**（MCP）：`mcp__gitee__create_release(owner="continew", tag_name="${NEW_TAG}", name="v${NEW_VERSION}", body=<同一段>, target_commitish="dev")`。
+- **Gitee**：若宿主提供 Gitee MCP 建 release 工具（如 `mcp__gitee__create_release`），传
+  `owner="continew"`、`tag_name=${NEW_TAG}`、`name="v${NEW_VERSION}"`、`body=<同一段>`、`target_commitish="dev"`；
+  否则走 REST：
+  ```bash
+  curl -X POST "https://gitee.com/api/v5/repos/continew/continew-starter/releases?access_token=${GITEE_TOKEN}" \
+    -H "Content-Type: application/json" \
+    -d '{"tag_name":"'${NEW_TAG}'","name":"v'${NEW_VERSION}'","body":"<同一段>","target_commitish":"dev"}'
+  ```
   **注意 owner 是 `continew` 不是 `continew-org`。**
-- **AtomGit**（REST API + curl，MCP 无 release 工具但 token 已配置）：
-  仓库已关镜像（2026-10-06 起为普通仓库），无自动同步，需先手动推代码：
+- **AtomGit**（REST API + curl）：
+  仓库已关镜像（2026-10-06 起为普通仓库），无自动同步，需先手动推代码。
+  域名不是笔误：git 远端与网页用 `gitcode.com`，REST API 用 `api.atomgit.com`，同一平台两个入口。
   `git remote add atomgit https://gitcode.com/continew/continew-starter.git`（首次），
   `git push atomgit dev && git push atomgit ${NEW_TAG} && git push atomgit ${MAINT_BRANCH}`，然后：
-  （dev 是保护分支：强推类操作前需先 `mcp__atomgit__remove_branch_protection`，完成后用
+  （dev 是保护分支：若宿主提供 AtomGit MCP 的分支保护工具（如 `mcp__atomgit__remove_branch_protection`），
+  强推类操作前先解除保护，完成后用
   `PUT /api/v5/repos/{owner}/{repo}/branches/setting/new` body `{"wildcard":"dev","pushers":"owner","mergers":"owner"}`
-  恢复保护——MCP 的 protect_branch 工具走旧路径已 405，不可用。）
+  恢复——MCP 的 protect_branch 工具走旧路径已 405，不可用；无 MCP 时在网页端改分支保护设置。）
   ```bash
   curl -X POST "https://api.atomgit.com/api/v5/repos/continew/continew-starter/releases?access_token=${ATOMGIT_TOKEN}" \
     -H "Content-Type: application/json" \
@@ -133,8 +145,8 @@ git push origin ${NEW_TAG}
     -d '{"tag_name":"'${NEW_TAG}'","name":"v'${NEW_VERSION}'","body":"<同一段>","release_status":"latest"}'
   ```
   验证：`GET .../releases/latest` 应返回 ${NEW_TAG}。
-  token 从 `~/.zcode/cli/config.json` 的 `mcp.servers.atomgit.headers.Authorization`（去 `Bearer ` 前缀）取，
-  不得硬编码进任何提交；接口文档：docs.atomgit.com/docs/apis/post-api-v-5-repos-owner-repo-releases。
+  `${ATOMGIT_TOKEN}` / `${GITEE_TOKEN}` 由使用者自行配置到本机环境变量，不得硬编码进任何提交，
+  也不要把本机凭证的存放路径写进仓库文件；接口文档：docs.atomgit.com/docs/apis/post-api-v-5-repos-owner-repo-releases。
   （历史备注：镜像仓库期间 REST 建 release 会 400 "image repository"，必须先同步出 tag——2.17.0 发版时遇到，随后关闭镜像解决。）
 
 ### 7. 维护分支

@@ -26,8 +26,9 @@ Security model (mirrors storage-analyzer/server.py, ported to source writes):
 Note: there is NO clean-working-tree precondition and, by default, no build
 signal. Undoing an apply is an ordinary `git checkout` of the one edited POM.
 
-See docs/adr/0002-write-mode-git-scoped-and-compile-gated.md and
-docs/adr/0003-batch-apply-and-compile-opt-in.md for the rationale.
+Write mode is git-scoped (edit in place on the current branch, no commit/push/PR) and
+build signal is opt-in: the client asks for a compile explicitly via {"compile":true},
+because running a full reactor build on every click was too slow and too noisy.
 
 Usage:
   python server.py <scan.json> [--open]
@@ -55,7 +56,9 @@ IS_WIN = sys.platform == 'win32'
 # On Windows, git/mvn are .exe / .cmd. shutil.which resolves them across PATH.
 # shell=True is needed for .cmd/.bat (mvn.cmd) — without it WinError 2.
 GIT = shutil.which('git') or 'git'
-MVN = shutil.which('mvn') or 'mvn'
+# Prefer the repo's own Maven Wrapper (same version as CI); fall back to mvn on PATH.
+_WRAPPER = os.path.join(REPO_ROOT, 'mvnw.cmd' if IS_WIN else 'mvnw')
+MVN = _WRAPPER if os.path.exists(_WRAPPER) else (shutil.which('mvn') or 'mvn')
 _SHELL = IS_WIN  # only shell=True on Windows (for .cmd resolution); off elsewhere for safety
 
 # Reuse the coordinate registry so the server only edits known properties.
@@ -320,7 +323,7 @@ def main():
     url = 'http://127.0.0.1:{}/{}'.format(port, token)
     httpd = http.server.HTTPServer(('127.0.0.1', port), Handler)
     sys.stderr.write('依赖升级分析服务已启动: {}\n'.format(url))
-    sys.stderr.write('Ctrl+C 停止。应用升级只改 POM，不跑 mvn；改完请自行 mvn compile 验证。\n')
+    sys.stderr.write('Ctrl+C 停止。应用升级只改 POM，不跑构建；改完请自行 ./mvnw verify 验证。\n')
     if args.open or '--no-open' not in sys.argv:
         try:
             webbrowser.open(url)

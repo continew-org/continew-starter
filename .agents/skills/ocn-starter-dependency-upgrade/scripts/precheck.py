@@ -20,7 +20,7 @@ Usage:
     python precheck.py --group top.nextdoc4j --artifact nextdoc4j-bom \
         --old 1.2.0 --new 1.4.1
 
-Step A 依赖树对比：跑 `mvn dependency:tree` 拿 new 与（假定已改的）现状；若 old
+Step A 依赖树对比：跑 `./mvnw dependency:tree` 拿 new 与（假定已改的）现状；若 old
         树可用，对比传递依赖增删。这一步主要在 SKILL 流程里由 agent 触发，脚本
         聚焦 Step B 的"符号 jar 反查"。
 
@@ -136,7 +136,7 @@ def check_symbol_against(group, artifact, old, new, imports):
                 'removed_symbols': [],
                 'note': '本地仓库缺 jar，无法反查。若为 BOM 坐标，请改用真实构件坐标'
                         '（如 mybatis-plus 用 com.baomidou:mybatis-plus-extension）；'
-                        '否则先 `mvn dependency:get -Dartifact=G:A:V` 拉取新旧 jar 再跑'}
+                        '否则先 `./mvnw dependency:get -Dartifact=G:A:V` 拉取新旧 jar 再跑'}
     old_classes = classes_in_jar(old_jar)
     new_classes = classes_in_jar(new_jar)
     # Only care about imports that belong to this artifact's package.

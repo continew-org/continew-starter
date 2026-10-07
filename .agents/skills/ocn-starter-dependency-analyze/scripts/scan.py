@@ -26,7 +26,8 @@ Output shape:
   "unreachable": [property, ...]
 }
 
-Why maven-metadata.xml and not search.maven.org: see docs/adr/0001.
+Why maven-metadata.xml and not search.maven.org: the solrsearch endpoint times out
+on target networks; maven-metadata is also the same source Maven itself resolves from.
 """
 import json
 import os
@@ -147,7 +148,8 @@ COORDINATES = {
         constraints='绑定 process-resources 生成发布用 POM，升级后须确认 flattened POM 内容不变'),
     'spotless.version': dict(group_id='com.diffplug.spotless', artifact_id='spotless-maven-plugin',
         family='构建插件', plugin=True,
-        constraints='绑定 compile 阶段会改写源码，升级后跑 spotless:check 确认格式结果一致'),
+        constraints='validate 阶段绑定 check（只检查不改写）；仅 -Pformat 的 process-sources 绑定 apply。'
+                    '升级后跑 ./mvnw verify 确认格式门禁结果一致'),
     'sonar.version': dict(group_id='org.sonarsource.scanner.maven', artifact_id='sonar-maven-plugin',
         family='构建插件', plugin=True,
         constraints='仅 -Psonar 使用，四段版本号（如 5.2.0.4988），不影响主构建'),

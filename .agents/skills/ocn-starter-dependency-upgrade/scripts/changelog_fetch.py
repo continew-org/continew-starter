@@ -15,7 +15,7 @@ For github-releases sources, when --from/--to are both given the script first
 calls the GitHub compare API (via `gh api` if installed, else unauthenticated
 curl/urllib) and surfaces removed/renamed .java files — the strongest breaking
 signals. It then appends the release notes text. If the API yields nothing
-useful, pass --class to get a ready-to-run `mvn dependency:get` + `javap`
+useful, pass --class to get a ready-to-run `./mvnw dependency:get` + `javap`
 reverse-lookup recipe (jar never lies about real class signatures).
 
 This is a READ-ONLY network helper. It does NOT edit anything. Output is plain
@@ -246,7 +246,7 @@ def jar_reverse_lookup_hint(group, artifact, version, classname=None):
     lines = [
         '### jar 反查兜底（API 拉不到或想核对真实签名时）',
         'release notes 可能漏写破坏性变更；jar 不会骗人。步骤：',
-        f'1) mvn dependency:get -Dartifact={group}:{artifact}:{version}',
+        f'1) ./mvnw dependency:get -Dartifact={group}:{artifact}:{version}',
         f'2) 找到 ~/.m2/repository/{g}/{artifact}/{version}/*.jar，解压到临时目录',
         f'3) javap -classpath <解压目录> <全限定类名>   # 例如 top.continew... 或上游类',
     ]

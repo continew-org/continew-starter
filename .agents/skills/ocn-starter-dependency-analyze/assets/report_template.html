@@ -408,7 +408,7 @@
   <div class="modal">
     <div class="modal-icon">✓</div>
     <h2>依赖升级成功</h2>
-    <p class="modal-sub">以下坐标已在当前 git 分支的 POM 中更新（未提交、未编译，请自行执行 <code>mvn compile</code> 验证）：</p>
+    <p class="modal-sub">以下坐标已在当前 git 分支的 POM 中更新（未提交、未验证，请自行执行 <code>./mvnw verify</code> 验证）：</p>
     <ul class="modal-summary"></ul>
     <div class="modal-actions">
       <button class="modal-copy" type="button">复制全部</button>
@@ -563,7 +563,7 @@ function applyBlock(it, target, allowApply){
       <span class="apply-status"></span>
     </div>
     <div class="apply-note"><b>⚠️ 直接在当前分支操作</b>：只改 POM property，<b>不跑 mvn、不提交、不推送</b>。
-      改完请自行执行 <code>mvn compile</code> 验证；回退直接 git checkout 该 POM。</div>
+      改完请自行执行 <code>./mvnw verify</code> 验证；回退直接 git checkout 该 POM。</div>
   </div>`;
 }
 
@@ -757,7 +757,7 @@ function renderLongTerm(){
 function doApply(btn){
   const wrap = btn.closest('.apply-actions');
   const payload = JSON.parse(decodeURIComponent(escape(atob(wrap.dataset.apply))));
-  if(!confirm(`⚠️ 将在【当前 git 分支】直接把 ${payload.property} 从当前值改为 ${payload.target}。\n只改 POM，不跑 mvn、不提交、不推送；改完请自行 mvn compile 验证。\n确认继续？`)) return;
+  if(!confirm(`⚠️ 将在【当前 git 分支】直接把 ${payload.property} 从当前值改为 ${payload.target}。\n只改 POM，不跑 mvn、不提交、不推送；改完请自行 ./mvnw verify 验证。\n确认继续？`)) return;
   const status = wrap.querySelector('.apply-status');
   const applyBtns = wrap.querySelectorAll('.apply-btn');
   status.textContent='应用中…'; status.className='apply-status';
@@ -767,7 +767,7 @@ function doApply(btn){
     .then(r=>r.json()).then(res=>{
       applyBtns.forEach(b=>b.disabled=false);
       if(res.ok){
-        status.textContent='✓ 已改 POM（当前分支，未提交、未编译）。请自行 mvn compile 验证后决定 commit 或 git checkout 回退。';
+        status.textContent='✓ 已改 POM（当前分支，未提交、未验证）。请自行 ./mvnw verify 验证后决定 commit 或 git checkout 回退。';
         status.className='apply-status ok';
         const item=wrap.closest('.item'); if(item){ item.classList.add('applied'); }
         applyBtns.forEach(b=>b.remove());
@@ -994,7 +994,7 @@ function doCartApply(btn){
   if(!items.length) return;
   const pairs = items.map(i=>({property:i.property, target:i.target}));
   const list = items.map(i=>`  · ${i.name}(${i.property}) ${i.old||''} ⇒ ${i.target}`).join('\n');
-  if(!confirm(`⚠️ 将在【当前 git 分支】一次性把待升级清单中的 ${items.length} 项写入 POM：\n\n${list}\n\n只改 POM，不跑 mvn、不提交、不推送；改完请自行 mvn compile 验证。\n确认继续？`)) return;
+  if(!confirm(`⚠️ 将在【当前 git 分支】一次性把待升级清单中的 ${items.length} 项写入 POM：\n\n${list}\n\n只改 POM，不跑 mvn、不提交、不推送；改完请自行 ./mvnw verify 验证。\n确认继续？`)) return;
   const statusEl = btn.closest('.cart-foot').querySelector('.apply-status');
   btn.disabled = true; statusEl.textContent='统一升级中…'; statusEl.className='apply-status';
   fetch(APPLY.endpoint, {method:'POST', headers:{'Content-Type':'application/json'},
@@ -1011,7 +1011,7 @@ function doCartApply(btn){
           + failed.map(f=>`${f.property}(${f.error})`).join('；');
       } else {
         statusEl.className='apply-status ok';
-        statusEl.textContent=`✓ 已写入 ${res.applied} 项（当前分支，未提交、未编译）。`;
+        statusEl.textContent=`✓ 已写入 ${res.applied} 项（当前分支，未提交、未验证）。`;
         showUpgradeSuccess((res.results||[]).filter(r=>r.ok)
           .map(r=>({name:r.name, property:r.property, from:r.old, to:r.target})));
       }

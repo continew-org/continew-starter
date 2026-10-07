@@ -157,7 +157,7 @@ def build_analysis(scan):
         'priority': priority,
         'long_term': [
             '定期巡检：每月跑一次 scan.py，趁补丁阶段（🟢）升级，避免积压成大版本（🔴）。',
-            '大版本升级单独开分支，逐 starter 核验 auto-config 条件变化，跑全 reactor mvn verify。',
+            '大版本升级单独开分支，逐 starter 核验 auto-config 条件变化，跑全 reactor ./mvnw verify。',
             '新增依赖时同步更新 references/coordinates.md 与 scan.py 的 COORDINATES，保持目录完整。',
             'Spring Boot 主版本升级前先看官方 Migration Guide，并确认 Spring Cloud 兼容 train。',
         ],

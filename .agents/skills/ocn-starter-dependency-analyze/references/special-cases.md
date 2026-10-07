@@ -66,7 +66,8 @@ metadata 路径里 artifactId **大小写敏感、点号原样**：`me.zhyd.oaut
 插件与普通构件**一样检测、一样分级、一样可用「应用升级」按钮**，property 在同一个 `<properties>` 块里。升级
 副作用已写进各自 `constraints`：
 
-- **spotless** 绑定 `compile` 会改写源码 → 升级后跑 `mvn spotless:check` 确认格式没漂移。
+- **spotless** `validate` 阶段绑定 `check`（只检查、不改写源码）；只有 `-Pformat` 才改写
+  → 升级后跑 `./mvnw verify` 确认格式门禁没漂移。
 - **flatten** 生成发布用 POM → 升级后确认 flattened POM 内容不变。
 - **sonar** 仅 `-Psonar` 使用，不影响主构建。
 
