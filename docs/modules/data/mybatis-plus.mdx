@@ -1,0 +1,204 @@
+---
+title: MyBatis Plus
+description: continew-starter-data-mp：基于 MyBatis Plus 的数据访问增强，含扩展配置、@Query 通用查询、通用 Mapper/Service 与拦截器、P6Spy、ID 生成器等插件能力。
+---
+
+`continew-starter-data-mp` 是数据访问模块针对 MyBatis Plus 框架的增强实现。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-data-mp</artifactId>
+</dependency>
+```
+
+模块会传递引入 `com.baomidou:mybatis-plus-spring-boot3-starter`、`com.baomidou:mybatis-plus-jsqlparser` 与 `p6spy:p6spy`；`me.ahoo.cosid:cosid-spring-boot-starter` 为 `optional`，仅当 ID 生成器类型选择 `COSID` 时需要自行引入（见 `continew-starter-data-mp/pom.xml`）。
+
+## 配置
+
+扩展配置项前缀为 `mybatis-plus.extension`，属性类为 `top.continew.starter.data.autoconfigure.MyBatisPlusExtensionProperties`：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `mybatis-plus.extension.enabled` | 是否启用本模块扩展（自动配置生效条件，见 `MybatisPlusAutoConfiguration.java:53`） | `false` |
+| `mybatis-plus.extension.id-generator.type` | ID 生成器类型：`DEFAULT`（雪花算法，基于网卡信息绑定防止集群重复）、`COSID`、`CUSTOM` | `DEFAULT` |
+| `mybatis-plus.extension.pagination.enabled` | 是否启用分页插件 | `true` |
+| `mybatis-plus.extension.pagination.db-type` | 分页数据库类型（`com.baomidou.mybatisplus.annotation.DbType`，如 `MYSQL`） | 未设置 |
+| `mybatis-plus.extension.pagination.overflow` | 分页溢出处理（页码超出总页数时回到第一页） | `false` |
+| `mybatis-plus.extension.pagination.max-limit` | 单页分页条数限制，`-1` 表示无限制 | `-1` |
+| `mybatis-plus.extension.optimistic-locker-enabled` | 是否启用乐观锁插件（`OptimisticLockerInnerInterceptor`） | `false` |
+| `mybatis-plus.extension.block-attack-plugin-enabled` | 是否启用防全表更新与删除插件（`BlockAttackInnerInterceptor`） | `true` |
+
+```yaml
+# MyBatis Plus 扩展配置
+mybatis-plus:
+  extension:
+    enabled: true
+    # ID 生成器配置
+    id-generator:
+      type: COSID
+    # 分页插件配置
+    pagination:
+      enabled: true
+      db-type: MYSQL
+    # 乐观锁插件
+    optimistic-locker-enabled: true
+  # Mapper XML 文件目录配置
+  mapper-locations: classpath*:/mapper/**/*Mapper.xml
+  # 类型别名扫描包配置
+  type-aliases-package: ${application.base-package}.**.model
+```
+
+启用扩展时，模块还会通过 `default-data-mybatis-plus.yml` 提供一组样板化默认配置（如需修改，在 `application.yml` 中同名覆盖即可）：
+
+```yaml
+mybatis-plus:
+  # 启动时是否检查 MyBatis XML 文件的存在（默认 false 不检查）
+  check-config-location: true
+  configuration:
+    # 开启自动驼峰命名规则映射
+    map-underscore-to-camel-case: true
+    # 自动映射时未知列/属性处理策略：NONE 不处理；WARNING 打印警告；FAILING 抛出异常
+    auto-mapping-unknown-column-behavior: NONE
+    # 关闭 MyBatis 自带日志，统一使用 P6Spy 输出 SQL
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+```
+
+## 通用查询注解
+
+在查询条件类的字段上标注 `@Query` 注解，即可通过 `QueryWrapperHelper.build(query)` 构建查询条件，免去手写 `QueryWrapper` 拼接：
+
+<Tabs items={['使用前', '使用后']}>
+<Tab value="使用前">
+
+```java
+@Data
+public class DeptQuery implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 部门名称
+     */
+    private String name;
+
+    /**
+     * 状态
+     */
+    private Integer status;
+}
+
+// 手动拼接查询条件
+LambdaQueryWrapper<DeptDO> queryWrapper = new LambdaQueryWrapper<>();
+queryWrapper.like(StrUtil.isNotBlank(query.getName()), DeptDO::getName, query.getName());
+queryWrapper.eq(null != query.getStatus(), DeptDO::getStatus, query.getStatus());
+```
+
+</Tab>
+<Tab value="使用后">
+
+```java
+@Data
+public class DeptQuery implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 部门名称
+     */
+    @Query(type = QueryType.LIKE)
+    private String name;
+
+    /**
+     * 状态（默认 QueryType.EQ，可省略 type）
+     */
+    @Query
+    private Integer status;
+}
+
+// 一行构建查询条件（同时支持传入 Spring Data Sort 排序对象）
+QueryWrapper<DeptDO> queryWrapper = QueryWrapperHelper.build(query);
+```
+
+</Tab>
+</Tabs>
+
+`@Query` 注解属性（`top.continew.starter.data.annotation.Query`）：
+
+| 属性 | 说明 | 默认值 |
+|:-----|:-----|:-------|
+| `columns` | 数据库列名（非实体字段名，关键字需用转义符包裹）。为空时取字段名并自动转下划线命名；配置多列时多列条件间为或关系 | `{}` |
+| `type` | 查询类型 | `QueryType.EQ` |
+| `logicalRelation` | 多列查询时的逻辑关系（仅 `columns` 长度大于 1 时生效），可选 `AND` / `OR` | `OR` |
+
+查询类型枚举 `top.continew.starter.data.enums.QueryType`：
+
+| 类型 | 描述 | SQL 示例 |
+|:-----|:-----|:---------|
+| `EQ` | 等于 | `WHERE age = 18` |
+| `NE` | 不等于 | `WHERE age != 18` |
+| `GT` | 大于 | `WHERE age > 18` |
+| `GE` | 大于等于 | `WHERE age >= 18` |
+| `LT` | 小于 | `WHERE age < 18` |
+| `LE` | 小于等于 | `WHERE age <= 18` |
+| `BETWEEN` | 范围查询 | `WHERE age BETWEEN 10 AND 18` |
+| `LIKE` | 模糊查询 | `WHERE nickname LIKE '%s%'` |
+| `LIKE_LEFT` | 左模糊查询 | `WHERE nickname LIKE '%s'` |
+| `LIKE_RIGHT` | 右模糊查询 | `WHERE nickname LIKE 's%'` |
+| `IN` | 包含查询 | `WHERE age IN (10, 20, 30)` |
+| `NOT_IN` | 不包含查询 | `WHERE age NOT IN (20, 30)` |
+| `IS_NULL` | 空值查询 | `WHERE email IS NULL` |
+| `IS_NOT_NULL` | 非空查询 | `WHERE email IS NOT NULL` |
+
+## 通用 Mapper 与 Service
+
+继承模块提供的 `BaseMapper`（`top.continew.starter.data.mapper.BaseMapper`）与 `IService` / `ServiceImpl`，在 MyBatis Plus 默认能力之上额外获得批量与链式方法：
+
+```java
+public interface DemoMapper extends BaseMapper<DemoDO> {
+}
+
+public interface DemoService extends IService<DemoDO> {
+}
+
+@Service
+public class DemoServiceImpl extends ServiceImpl<DemoMapper, DemoDO> implements DemoService {
+}
+```
+
+`BaseMapper` 扩展方法（`BaseMapper.java:46-113`）：`insertBatch`（批量插入）、`updateBatchById`（批量更新）、`query` / `lambdaQuery`（链式查询）、`update` / `lambdaUpdate`（链式更新）、`currentEntityClass`（获取实体类 Class）。
+
+## 插件与扩展能力
+
+- **拦截器自动注入**：Spring 容器中所有 `InnerInterceptor` Bean 会自动注入 `MybatisPlusInterceptor`，再依次追加分页、乐观锁、防全表更新删除插件（见 `MybatisPlusAutoConfiguration.java:79-103`）。
+- **`BaseEnum` 枚举支持**：通过 `MybatisPlusPropertiesCustomizer` 将默认枚举 TypeHandler 设置为 `CompositeBaseEnumTypeHandler`，实现 `BaseEnum` 接口的枚举按 `getValue()` 值入库，无需逐个标注（`MybatisPlusAutoConfiguration.java:68-72`）。
+- **P6Spy SQL 分析**：内置 `spy.properties`，默认输出 SQL 到控制台、记录超过 2 秒的慢 SQL（`outagedetectioninterval=2`），并排除 `SELECT 1` 等心跳语句；配合 `log-impl: NoLoggingImpl` 可避免 MyBatis 日志与 P6Spy 重复输出。
+- **ID 生成器**：`type` 为 `COSID` 时需自行引入 `cosid-spring-boot-starter`；为 `CUSTOM` 时必须自行提供 `IdentifierGenerator` Bean，否则启动时报 `NoSuchBeanDefinitionException`（`MyBatisPlusIdGeneratorConfiguration.java:84-109`）。
+
+<Callout type="warn">
+请通过 `@MapperScan` 注解在启动类（或配置类）上显式指定 Mapper 接口扫描包路径：
+
+```java
+@MapperScan("top.continew.admin.**.mapper")
+@SpringBootApplication
+public class ExampleApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ExampleApplication.class, args);
+    }
+}
+```
+</Callout>
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-data-core` | 数据访问模块 - 核心模块（`@Query` 查询注解体系） |
+| `com.baomidou:mybatis-plus-spring-boot3-starter` | MyBatis Plus 框架本体 |
+| `com.baomidou:mybatis-plus-jsqlparser` | MyBatis Plus jsqlparser 适配（分页等插件依赖） |
+| `p6spy:p6spy` | P6Spy SQL 性能分析组件 |
+| `me.ahoo.cosid:cosid-spring-boot-starter` | CosId 分布式 ID 生成器（`optional`，按需引入） |

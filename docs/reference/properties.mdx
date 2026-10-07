@@ -1,0 +1,437 @@
+---
+title: 配置参考
+description: ContiNew Starter 全部模块配置项一览表：逐项列出配置前缀、配置项名、类型、默认值与说明，内容均与各模块源码中的 Properties 类保持一致。
+---
+
+本页汇总 ContiNew Starter 各模块的自动配置项，所有配置项名、默认值均与源码中的 `*Properties` 类（`@ConfigurationProperties`）逐一核对。
+
+<Callout type="info">
+阅读说明：
+
+- 「—」表示源码中未设置默认值（即 `null` / 空集合，由底层框架自行兜底）；
+- 部分配置项直接扩展自 Spring Boot 或第三方框架的命名空间（如 `application`、`spring.task`、`spring.data.redisson`、`spring.jackson`、`mybatis-plus.extension`、`mybatis-flex.extension`、`server.extension`、`sa-token.extension`），可与框架原生配置混写；
+- 各模块的完整用法说明见 [功能模块](/docs/starter/modules) 下的对应页面。
+</Callout>
+
+## 核心模块（Core）
+
+### `application`（应用信息，`ApplicationProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `application.id` | `String` | — | 应用 ID |
+| `application.name` | `String` | — | 应用名称 |
+| `application.description` | `String` | — | 应用描述 |
+| `application.version` | `String` | — | 应用版本 |
+| `application.url` | `String` | — | 应用 URL |
+| `application.base-package` | `String` | — | 基本包 |
+| `application.contact.name` | `String` | — | 联系人名称 |
+| `application.contact.email` | `String` | — | 联系人邮箱 |
+| `application.contact.url` | `String` | — | 联系人 URL |
+| `application.license.name` | `String` | — | 许可协议名称 |
+| `application.license.url` | `String` | — | 许可协议 URL |
+| `application.production` | `boolean` | `false` | 是否为生产环境 |
+
+### `spring.task`（线程池扩展，`ThreadPoolExtensionProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `spring.task.execution.rejected-policy` | `ThreadPoolExecutorRejectedPolicy` | `CALLER_RUNS` | 异步任务线程池拒绝策略 |
+| `spring.task.scheduling.rejected-policy` | `ThreadPoolExecutorRejectedPolicy` | `CALLER_RUNS` | 调度任务线程池拒绝策略 |
+
+## Web 模块
+
+### `continew-starter.web.cors`（跨域，`CorsProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.web.cors.enabled` | `boolean` | `false` | 是否启用跨域过滤器 |
+| `continew-starter.web.cors.allowed-origin-patterns` | `List<String>` | `[]` | 允许跨域的域名（Ant 风格通配符模式） |
+| `continew-starter.web.cors.allowed-origins` | `List<String>` | `*` | 允许跨域的域名 |
+| `continew-starter.web.cors.allowed-methods` | `List<String>` | `*` | 允许跨域的请求方式 |
+| `continew-starter.web.cors.allowed-headers` | `List<String>` | `*` | 允许跨域的请求头 |
+| `continew-starter.web.cors.exposed-headers` | `List<String>` | `[]` | 允许跨域的响应头 |
+
+### `continew-starter.web.response`（全局响应，`GlobalResponseProperties`）
+
+`GlobalResponseProperties` 直接继承 Graceful Response 的 `GracefulResponseProperties`，除前缀由 `graceful-response` 替换为 `continew-starter.web.response` 外，配置项与 Graceful Response 官方文档一致，此处不再罗列。
+
+### `server.extension`（服务器增强，`ServerExtensionProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `server.extension.enabled` | `boolean` | `true` | 是否启用 |
+| `server.extension.disallowed-methods` | `List<String>` | `CONNECT`, `TRACE`, `TRACK` | 不允许的 HTTP 请求方式 |
+
+## 缓存模块（Cache）
+
+### `spring.data.redisson`（Redisson 实现，`RedissonProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `spring.data.redisson.enabled` | `boolean` | `true` | 是否启用 |
+| `spring.data.redisson.key-prefix` | `String` | — | 缓存键前缀 |
+| `spring.data.redisson.mode` | `Mode` | `SINGLE` | Redis 模式：`SINGLE`（单机）/ `CLUSTER`（集群）/ `SENTINEL`（哨兵） |
+| `spring.data.redisson.single-server-config` | `SingleServerConfig` | — | 单机服务配置（Redisson 原生配置对象） |
+| `spring.data.redisson.cluster-servers-config` | `ClusterServersConfig` | — | 集群服务配置（Redisson 原生配置对象） |
+| `spring.data.redisson.sentinel-servers-config` | `SentinelServersConfig` | — | 哨兵服务配置（Redisson 原生配置对象） |
+
+<Callout type="warn">
+JetCache 与 Spring Cache 两种实现未定义独立的 `@ConfigurationProperties` 类：JetCache 直接使用 `jetcache.*` 原生配置，Spring Cache 直接使用 `spring.cache.*` 原生配置，请分别参考对应框架官方文档。
+</Callout>
+
+## 加密模块（Encrypt）
+
+### `continew-starter.encrypt.password-encoder`（密码编码器，`PasswordEncoderProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.encrypt.password-encoder.enabled` | `Boolean` | — | 是否启用 |
+| `continew-starter.encrypt.password-encoder.algorithm` | `PasswordEncoderAlgorithm` | `BCRYPT` | 默认启用的编码器算法（BCrypt 加密算法） |
+
+### `continew-starter.encrypt.field`（字段加密，`FieldEncryptProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.encrypt.field.enabled` | `Boolean` | — | 是否启用 |
+| `continew-starter.encrypt.field.algorithm` | `Algorithm` | `AES` | 默认算法 |
+| `continew-starter.encrypt.field.password` | `String` | — | 对称加密算法密钥 |
+| `continew-starter.encrypt.field.public-key` | `String` | — | 非对称加密算法公钥 |
+| `continew-starter.encrypt.field.private-key` | `String` | — | 非对称加密算法私钥 |
+
+### `continew-starter.encrypt.api`（API 加密，`ApiEncryptProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.encrypt.api.enabled` | `Boolean` | — | 是否启用 |
+| `continew-starter.encrypt.api.secret-key-header` | `String` | `X-Api-Encrypt` | 请求头中 AES 密钥的键名 |
+| `continew-starter.encrypt.api.public-key` | `String` | — | 响应加密公钥 |
+| `continew-starter.encrypt.api.private-key` | `String` | — | 请求解密私钥 |
+
+## 认证模块（Auth）
+
+### `sa-token.extension`（Sa-Token 扩展，`SaTokenExtensionProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `sa-token.extension.enabled` | `boolean` | `false` | 是否启用扩展功能 |
+| `sa-token.extension.jwt-enabled` | `boolean` | `false` | 是否启用 JWT 整合 |
+| `sa-token.extension.dao.type` | `DaoType` | `DEFAULT` | 持久层类型：`DEFAULT` / `REDIS` / `CUSTOM` |
+| `sa-token.extension.security.excludes` | `String[]` | `[]` | 安全拦截放行路由 |
+
+### `continew-starter.justauth`（JustAuth 第三方登录，`JustAuthProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.justauth.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.justauth.type` | `Map<String, AuthConfig>` | — | 各平台授权配置（key 为平台名，值为 JustAuth `AuthConfig`） |
+| `continew-starter.justauth.extend.enum-class` | `Class<? extends AuthSource>` | — | 自定义授权平台枚举类 |
+| `continew-starter.justauth.extend.config` | `Map<String, ExtendRequestConfig>` | `{}` | 自定义平台授权配置（`ExtendRequestConfig` 额外含 `request-class`，自定义 `AuthRequest` 实现类） |
+| `continew-starter.justauth.cache.type` | `CacheType` | `DEFAULT` | State 缓存类型：`DEFAULT` / `REDIS` / `CUSTOM` |
+| `continew-starter.justauth.cache.prefix` | `String` | `CONTINEW-STARTER::JUSTAUTH::STATE::` | State 缓存键前缀 |
+| `continew-starter.justauth.cache.timeout` | `Duration` | `3m`（3 分钟） | State 缓存过期时间 |
+| `continew-starter.justauth.http.timeout` | `int` | `0` | HTTP 请求超时时间（毫秒） |
+| `continew-starter.justauth.http.proxy` | `Map<String, JustAuthProxyConfig>` | — | 各平台 HTTP 代理配置，含 `type`（默认 `HTTP`）、`hostname`、`port` |
+
+### `continew-starter.refresh-token`（Refresh Token，`RefreshTokenProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.refresh-token.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.refresh-token.secret` | `String` | — | 服务端密钥（**必填**，长度不能少于 32 个字符） |
+| `continew-starter.refresh-token.cookie-name` | `String` | `refresh_token` | Cookie 名称（使用 `__Host-` 前缀时必须开启 Secure 且 Path 为 `/`） |
+| `continew-starter.refresh-token.cookie-path` | `String` | `/` | Cookie Path |
+| `continew-starter.refresh-token.cookie-secure` | `boolean` | `false` | 是否仅通过 HTTPS 传输 Cookie |
+| `continew-starter.refresh-token.cookie-insecure-allowed` | `boolean` | `false` | 是否允许不安全（HTTP）环境下的 Cookie 传输 |
+| `continew-starter.refresh-token.cookie-same-site` | `String` | `Lax` | Cookie SameSite（仅支持 `Strict` / `Lax` / `None`，`None` 时必须同时开启 Secure） |
+| `continew-starter.refresh-token.cookie-allowed-origins` | `List<String>` | `[]` | Cookie 允许来源（明确的 HTTP(S) Origin 或 `http[s]://*.example.com` 格式的子域通配符） |
+| `continew-starter.refresh-token.rotation-grace-period` | `int` | `30` | 轮换宽限期（秒，1 ~ 120） |
+| `continew-starter.refresh-token.rotation-pending-period` | `int` | `60` | 待恢复快照保留时间（秒，10 ~ 3600） |
+| `continew-starter.refresh-token.ip-rate-limit` | `int` | `60` | IP 限流次数（0 ~ 10000） |
+| `continew-starter.refresh-token.ip-rate-limit-period` | `int` | `60` | IP 限流窗口（秒，1 ~ 3600） |
+| `continew-starter.refresh-token.session-rate-limit` | `int` | `10` | 会话限流次数（0 ~ 1000） |
+| `continew-starter.refresh-token.session-rate-limit-period` | `int` | `60` | 会话限流窗口（秒，1 ~ 3600） |
+| `continew-starter.refresh-token.trusted-proxy-addresses` | `List<String>` | `[]` | 可信代理地址列表 |
+| `continew-starter.refresh-token.trusted-proxy-hops` | `int` | `0` | 可信代理跳数（0 ~ 10） |
+| `continew-starter.refresh-token.access-session-cache-enabled` | `boolean` | `true` | 是否启用访问会话缓存 |
+| `continew-starter.refresh-token.access-session-invalid-topic` | `String` | 空字符串 | 访问会话失效广播 Topic |
+| `continew-starter.refresh-token.websocket-validation-interval` | `long` | `60000` | WebSocket 连接校验间隔（毫秒，1000 ~ 3600000） |
+
+## 数据模块（Data）
+
+### `mybatis-plus.extension`（MyBatis Plus 扩展，`MyBatisPlusExtensionProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `mybatis-plus.extension.enabled` | `boolean` | `false` | 是否启用 |
+| `mybatis-plus.extension.id-generator.type` | `IdGeneratorType` | `DEFAULT` | ID 生成器类型：`DEFAULT`（雪花算法，使用网卡信息绑定雪花生成器，防止集群 ID 重复）/ `COSID` / `CUSTOM` |
+| `mybatis-plus.extension.pagination.enabled` | `boolean` | `true` | 是否启用分页插件 |
+| `mybatis-plus.extension.pagination.db-type` | `DbType` | — | 数据库类型 |
+| `mybatis-plus.extension.pagination.overflow` | `boolean` | `false` | 是否溢出处理 |
+| `mybatis-plus.extension.pagination.max-limit` | `Long` | `-1` | 单页分页条数限制（-1 表示无限制） |
+| `mybatis-plus.extension.optimistic-locker-enabled` | `boolean` | `false` | 是否启用乐观锁插件 |
+| `mybatis-plus.extension.block-attack-plugin-enabled` | `boolean` | `true` | 是否启用防全表更新与删除插件 |
+
+### `mybatis-flex.extension`（MyBatis Flex 扩展，`MyBatisFlexExtensionProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `mybatis-flex.extension.enabled` | `boolean` | `false` | 是否启用 |
+| `mybatis-flex.extension.data-permission.enabled` | `boolean` | `false` | 是否启用数据权限插件 |
+| `mybatis-flex.extension.pagination.enabled` | `boolean` | `true` | 是否启用分页插件 |
+| `mybatis-flex.extension.pagination.db-type` | `DbType` | — | 数据库类型 |
+| `mybatis-flex.extension.pagination.overflow` | `boolean` | `false` | 是否溢出处理 |
+| `mybatis-flex.extension.pagination.max-limit` | `Long` | `-1` | 单页分页条数限制（-1 表示无限制） |
+
+## 验证码模块（Captcha）
+
+### `continew-starter.captcha.graphic`（图形验证码，`GraphicCaptchaProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.captcha.graphic.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.captcha.graphic.type` | `GraphicCaptchaType` | `SPEC` | 验证码类型 |
+| `continew-starter.captcha.graphic.length` | `int` | `4` | 内容长度 |
+| `continew-starter.captcha.graphic.width` | `int` | `111` | 宽度（像素） |
+| `continew-starter.captcha.graphic.height` | `int` | `36` | 高度（像素） |
+| `continew-starter.captcha.graphic.font-name` | `String` | — | 字体 |
+| `continew-starter.captcha.graphic.font-size` | `int` | `25` | 字体大小 |
+
+### `continew-starter.captcha.behavior`（行为验证码，`BehaviorCaptchaProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.captcha.behavior.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.captcha.behavior.enable-aes` | `Boolean` | `true` | 是否开启 AES 坐标加密 |
+| `continew-starter.captcha.behavior.type` | `CaptchaTypeEnum` | `BLOCKPUZZLE` | 验证码类型（默认滑动验证码） |
+| `continew-starter.captcha.behavior.cache-type` | `StorageType` | `DEFAULT` | 缓存类型 |
+| `continew-starter.captcha.behavior.jigsaw-base-map-path` | `String` | — | 滑动拼图底图路径（为空则使用默认底图；路径下需有 `original`（底图）与 `slidingBlock`（滑块）两个文件夹） |
+| `continew-starter.captcha.behavior.slip-offset` | `String` | `5` | 校验滑动拼图允许误差偏移量（像素） |
+| `continew-starter.captcha.behavior.pic-click-base-map-path` | `String` | — | 点选文字底图路径（为空则使用默认底图） |
+| `continew-starter.captcha.behavior.font-type` | `String` | `WenQuanZhengHei.ttf` | 点选文字验证码的字体 |
+| `continew-starter.captcha.behavior.history-data-clear-enable` | `String` | `0` | 历史数据清除开关（`0`：关闭；`1`：开启） |
+| `continew-starter.captcha.behavior.req-frequency-limit-enable` | `String` | `0` | 一分钟内接口请求次数限制开关（`0`：关闭；`1`：开启） |
+| `continew-starter.captcha.behavior.req-get-lock-limit` | `String` | `5` | 一分钟内验证码最多失败次数限制 |
+| `continew-starter.captcha.behavior.req-get-lock-seconds` | `String` | `300` | 失败次数达标后锁定时间（秒） |
+| `continew-starter.captcha.behavior.req-get-minute-limit` | `String` | `100` | 获取验证码接口一分钟内请求次数限制 |
+| `continew-starter.captcha.behavior.req-check-minute-limit` | `String` | `100` | 校验验证码接口一分钟内请求次数限制 |
+| `continew-starter.captcha.behavior.req-verify-minute-limit` | `String` | `100` | 二次校验验证码接口一分钟内请求次数限制 |
+| `continew-starter.captcha.behavior.cache-number` | `String` | `1000` | local 缓存阈值（个） |
+| `continew-starter.captcha.behavior.timing-clear` | `String` | `180` | 定时清理过期 local 缓存（秒） |
+| `continew-starter.captcha.behavior.water-mark` | `String` | `我的水印` | 右下角水印文字 |
+| `continew-starter.captcha.behavior.water-font` | `String` | `WenQuanZhengHei.ttf` | 右下角水印字体 |
+| `continew-starter.captcha.behavior.interference-options` | `String` | `0` | 滑块干扰项 |
+| `continew-starter.captcha.behavior.font-style` | `String` | `1`（BOLD） | 点选字体样式 |
+| `continew-starter.captcha.behavior.font-size` | `String` | `25` | 点选字体大小 |
+
+## 安全模块（Security）
+
+### `continew-starter.security.xss`（XSS 过滤，`XssProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.security.xss.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.security.xss.include-patterns` | `List<String>` | `[]` | 拦截路由（默认为空；配置不为空时按该配置执行过滤） |
+| `continew-starter.security.xss.exclude-patterns` | `List<String>` | `[]` | 放行路由 |
+| `continew-starter.security.xss.mode` | `XssMode` | `CLEAN` | XSS 处理模式 |
+
+### `continew-starter.security.sensitive-words`（敏感词，`SensitiveWordsProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.security.sensitive-words.values` | `List<String>` | — | 敏感词列表 |
+
+## 限流模块（Rate Limiter）
+
+### `continew-starter.rate-limiter`（限流器，`RateLimiterProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.rate-limiter.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.rate-limiter.key-prefix` | `String` | `RateLimiter` | Key 前缀 |
+
+## 幂等模块（Idempotent）
+
+### `continew-starter.idempotent`（幂等，`IdempotentProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.idempotent.key-prefix` | `String` | `Idempotent` | Key 前缀 |
+
+## 链路追踪模块（Trace）
+
+### `continew-starter.trace`，链路追踪（`TraceProperties` / `TLogProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.trace.enabled` | `boolean` | `false` | 是否启用 |
+| `continew-starter.trace.trace-id-name` | `String` | `traceId` | 链路 ID 名称 |
+| `continew-starter.trace.tlog.pattern` | `String` | — | TLog 日志标签模板 |
+| `continew-starter.trace.tlog.enable-invoke-time-print` | `Boolean` | — | TLog 自动打印调用参数和时间 |
+| `continew-starter.trace.tlog.id-generator` | `String` | — | 自定义 TraceId 生成器 |
+| `continew-starter.trace.tlog.mdc-enable` | `Boolean` | — | MDC 模式 |
+
+## 日志模块（Log）
+
+### `continew-starter.log`，日志（`LogProperties` / `AccessLogProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.log.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.log.includes` | `Set<Include>` | `REQUEST_HEADERS`, `RESPONSE_HEADERS`, `REQUEST_PARAM`, `RESPONSE_PARAM` | 包含信息 |
+| `continew-starter.log.exclude-patterns` | `List<String>` | `[]` | 放行路由 |
+| `continew-starter.log.access-log.enabled` | `boolean` | `false` | 是否打印访问日志（不记录请求日志也可单独开启） |
+| `continew-starter.log.access-log.print-request-param` | `boolean` | `false` | 是否打印请求参数（body/query/form） |
+| `continew-starter.log.access-log.long-param-truncate` | `boolean` | `false` | 是否自动截断超长参数值（如 base64、大文本） |
+| `continew-starter.log.access-log.long-param-threshold` | `int` | `2000` | 超长参数检测阈值（字符），仅在截断启用时生效 |
+| `continew-starter.log.access-log.long-param-max-length` | `int` | `50` | 超长参数最大保留长度（字符），仅在截断启用时生效 |
+| `continew-starter.log.access-log.long-param-suffix` | `String` | `...` | 截断后追加的后缀符号，仅在截断启用时生效 |
+| `continew-starter.log.access-log.param-sensitive` | `boolean` | `false` | 是否过滤敏感参数 |
+| `continew-starter.log.access-log.sensitive-params` | `List<String>` | `[]` | 敏感参数字段列表（如 `password,token`，精确匹配且区分大小写） |
+
+## JSON 模块
+
+### `spring.jackson`（Jackson 扩展，`JacksonExtensionProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `spring.jackson.big-number-serialize-mode` | `BigNumberSerializeMode` | `FLEXIBLE` | 大数值序列化模式 |
+
+## 消息模块（Messaging）
+
+### `continew-starter.messaging.websocket`（WebSocket，`WebSocketProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.messaging.websocket.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.messaging.websocket.path` | `String` | `/websocket` | 路径 |
+| `continew-starter.messaging.websocket.allowed-origins` | `List<String>` | `*` | 允许跨域的域名 |
+| `continew-starter.messaging.websocket.client-id-key` | `String` | `CLIENT_ID` | 客户端 ID Key |
+
+### `continew-starter.messaging.mqtt`（MQTT，`MqttProperties`）
+
+连接级配置：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.messaging.mqtt.enabled` | `boolean` | `false` | 开关 |
+| `continew-starter.messaging.mqtt.host` | `String` | — | 地址，格式如 `tcp://192.168.20.95:1883` |
+| `continew-starter.messaging.mqtt.username` | `String` | — | 用户名 |
+| `continew-starter.messaging.mqtt.password` | `String` | — | 密码 |
+| `continew-starter.messaging.mqtt.keep-alive-interval` | `Integer` | `60` | 心跳间隔（秒） |
+| `continew-starter.messaging.mqtt.max-inflight` | `Integer` | `10` | 客户端允许同时存在的最大未确认消息数 |
+| `continew-starter.messaging.mqtt.will.topic` | `String` | — | 遗嘱消息目标主题 |
+| `continew-starter.messaging.mqtt.will.payload` | `String` | — | 遗嘱消息内容 |
+| `continew-starter.messaging.mqtt.will.qos` | `Integer` | `0` | 遗嘱消息 QoS 等级 |
+| `continew-starter.messaging.mqtt.will.retained` | `Boolean` | `false` | 遗嘱消息是否保留 |
+| `continew-starter.messaging.mqtt.ssl-client-props` | `Properties` | — | SSL 连接所需的客户端属性（证书路径、密钥密码等） |
+| `continew-starter.messaging.mqtt.https-hostname-verification-enabled` | `Boolean` | `false` | 是否启用 HTTPS 主机名验证 |
+| `continew-starter.messaging.mqtt.ssl-hostname-verifier` | `HostnameVerifier` | — | 自定义主机名校验器 |
+| `continew-starter.messaging.mqtt.clean-session` | `Boolean` | `false` | 是否使用清洁会话（false 表示会话持久化） |
+| `continew-starter.messaging.mqtt.connection-timeout` | `Integer` | `30` | 连接超时时间（秒） |
+| `continew-starter.messaging.mqtt.automatic-reconnect` | `Boolean` | `true` | 是否启用自动重连 |
+| `continew-starter.messaging.mqtt.max-reconnect-delay` | `Integer` | `128000` | 最大重连延迟时间（毫秒） |
+| `continew-starter.messaging.mqtt.custom-web-socket-headers` | `Properties` | — | 使用 WebSocket 协议连接时的自定义 HTTP 请求头 |
+| `continew-starter.messaging.mqtt.executor-service-timeout` | `Integer` | `1` | 终止执行服务时的等待时间（秒） |
+
+生产者（`continew-starter.messaging.mqtt.producer.*`）：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `default-qos` | `Integer` | `0`（AT_MOST_ONCE） | 默认消息服务质量等级 |
+| `client-id` | `String` | — | 客户端 ID（同一 broker 下必须唯一，为空时自动生成） |
+| `default-topic` | `String` | `producer` | 默认发布 Topic |
+| `async` | `Boolean` | `false` | 是否启用异步发送模式 |
+| `async-events` | `Boolean` | `false` | 是否异步触发发送事件（仅 `async = true` 时生效） |
+| `default-retained` | `Boolean` | `false` | 是否将消息设置为保留（Retained）消息 |
+
+消费者（`continew-starter.messaging.mqtt.consumer.*`）：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `qos` | `Integer` | `0`（AT_MOST_ONCE） | 消息服务质量等级 |
+| `completion-timeout` | `Long` | `ClientManager.DEFAULT_COMPLETION_TIMEOUT` | 消息发送完成等待超时时间（毫秒） |
+| `auto-start-up` | `Boolean` | `true` | 是否在应用启动时自动连接并订阅 |
+| `client-id` | `String` | — | 客户端 ID（同一 broker 下必须唯一，为空时自动生成） |
+| `async` | `Boolean` | `false` | 是否启用异步消息发送 |
+| `disconnect-completion-timeout` | `Long` | `ClientManager.DISCONNECT_COMPLETION_TIMEOUT` | 断开连接时的完成超时时间（毫秒） |
+
+消息处理线程池（`producer.executor.*` 与 `consumer.executor.*`，结构相同）：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `core-pool-size` | `Integer` | `5` | 核心线程数 |
+| `max-pool-size` | `Integer` | `10` | 最大线程数 |
+| `keep-alive-seconds` | `Integer` | `60` | 线程最大空闲时间（秒） |
+| `queue-capacity` | `Integer` | `512` | 任务队列容量 |
+
+## 存储模块（Storage）
+
+### `continew-starter.storage`（文件存储，`StorageProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.storage.default-platform` | `String` | `local` | 默认使用的存储平台 |
+| `continew-starter.storage.default-storage-source` | `DefaultStorageSource` | `DYNAMIC` | 默认存储配置来源（配置文件 / 动态配置） |
+| `continew-starter.storage.multipart-upload-threshold` | `long` | `10485760`（10 MB） | 全局分片阈值（字节） |
+| `continew-starter.storage.multipart-upload-part-size` | `long` | `5242880`（5 MB） | 全局分片大小（字节） |
+| `continew-starter.storage.local-multipart-temp-dir` | `String` | `/tmp` | 全局本地分片临时目录 |
+| `continew-starter.storage.local` | `List<LocalStorageConfig>` | `[]` | 本地存储配置列表 |
+| `continew-starter.storage.oss` | `List<OssStorageConfig>` | `[]` | OSS 存储配置列表 |
+
+## License 模块
+
+### `continew-starter.license.generator`（License 生成，`LicenseGenerateProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.license.generator.enabled` | `boolean` | `true` | 是否启用 |
+
+### `continew-starter.license.verifier`（License 校验，`LicenseVerifyProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.license.verifier.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.license.verifier.store-path` | `String` | 系统临时目录（`FileUtil.getTmpDirPath()`） | License 文件所在路径 |
+
+## 扩展模块（Extension）
+
+### `continew-starter.crud`，CRUD（`CrudProperties` / `CrudTreeDictModelProperties`）
+
+树型字典结构映射配置（用于查询树型结构字典列表 API）：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.crud.tree-dict-model.id-key` | `String` | `id` | ID 字段名 |
+| `continew-starter.crud.tree-dict-model.parent-id-key` | `String` | `parentId` | 父 ID 字段名 |
+| `continew-starter.crud.tree-dict-model.name-key` | `String` | `name` | 名称字段名 |
+| `continew-starter.crud.tree-dict-model.weight-key` | `String` | `weight` | 排序字段名 |
+| `continew-starter.crud.tree-dict-model.children-key` | `String` | `children` | 子列表字段名 |
+| `continew-starter.crud.tree-dict-model.deep` | `Integer` | `-1` | 递归深度（< 0 不限制） |
+| `continew-starter.crud.tree-dict-model.root-id` | `Long` | `0` | 根节点 ID |
+
+### `continew-starter.data-permission`（数据权限，`DataPermissionProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.data-permission.enabled` | `boolean` | `true` | 是否启用 |
+
+### `continew-starter.tenant`（租户，`TenantProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.tenant.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.tenant.isolation-level` | `TenantIsolationLevel` | `LINE` | 租户隔离级别 |
+| `continew-starter.tenant.tenant-id-column` | `String` | `tenant_id` | 租户 ID 列名 |
+| `continew-starter.tenant.tenant-id-header` | `String` | `X-Tenant-Id` | 请求头中租户 ID 键名 |
+| `continew-starter.tenant.ignore-tables` | `List<String>` | — | 忽略表（忽略拼接租户条件） |
+
+<Callout type="info">
+以下配置项**并非 starter 内置**（`TenantProperties` 未定义），属于业务方在同一前缀下的扩展配置（ContiNew Admin 以 `TenantExtensionProperties` 声明，供其 `TenantProvider` 实现与租户插件使用）。此处列出仅为说明 `continew-starter.tenant.*` 命名空间下的完整用法：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.tenant.tenant-code-header` | `String` | `X-Tenant-Code` | 请求头中租户编码键名（供 `TenantProvider` 按租户编码解析租户） |
+| `continew-starter.tenant.default-tenant-id` | `Long` | `0` | 默认租户 ID（超级管理员所在租户） |
+| `continew-starter.tenant.ignore-menus` | `List<Long>` | — | 忽略菜单 ID 列表（租户不能使用的菜单） |
+</Callout>

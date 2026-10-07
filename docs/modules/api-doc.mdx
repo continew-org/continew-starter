@@ -1,0 +1,167 @@
+---
+title: 接口文档
+description: continew-starter-api-doc 基于 SpringDoc + NextDoc4j 实现接口文档自动装配，内置默认配置与枚举展示、鉴权展示插件，支持分组文档与全局鉴权配置。
+---
+
+`continew-starter-api-doc` 模块基于 SpringDoc（OpenAPI 3 集成框架）+ [NextDoc4j](https://nextdoc4j.top)（现代化 API 文档 UI 工具，全面替代 Swagger UI / Knife4j）实现接口文档的自动装配，内置默认配置，并增强了枚举、鉴权信息的展示。
+
+## 主要特性
+
+- **默认配置**：已预设接口文档通用配置（Swagger UI 路径、排序等），并自动处理 `/favicon.ico` 静态资源路径映射
+- **文档信息自动注入**：自动根据项目信息（`continew-starter.project` 配置项）生成 OpenAPI 文档标题、版本、描述、联系人、许可证等信息
+- **增强 UI**：基于 NextDoc4j 提供更现代化的接口文档界面，并内置枚举展示、鉴权展示等插件
+- **枚举展示**：自动识别实现了 `BaseEnum` 接口的枚举，在文档中展示枚举值与描述
+- **鉴权配置**：支持在配置文件中定义全局接口鉴权规则
+- **分组文档**：提供 `ApiDocUtils` 工具类快速构建 `GroupedOpenApi` 分组接口文档
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-api-doc</artifactId>
+</dependency>
+```
+
+模块自动引入以下核心依赖：
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-core` | 核心模块 |
+| `org.springdoc:springdoc-openapi-starter-webmvc-ui` | SpringDoc（OpenAPI 3 集成框架） |
+| `top.nextdoc4j:nextdoc4j-spring-boot-starter` | NextDoc4j（现代化 API 文档 UI 工具，全面替代 Swagger UI） |
+| `top.nextdoc4j:nextdoc4j-plugin-enum` | NextDoc4j 枚举展示插件 |
+| `top.nextdoc4j:nextdoc4j-plugin-security-schemes` | NextDoc4j 鉴权展示插件 |
+
+## 配置
+
+模块已通过 `default-api-doc.yml` 内置默认配置，通常无需额外配置即可使用。默认配置如下：
+
+```yaml
+springdoc:
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    show-extensions: true
+  api-docs:
+    enabled: ${springdoc.swagger-ui.enabled}
+    path: /v3/api-docs
+nextdoc4j:
+  enabled: true
+  plugin:
+    # 认证展示插件
+    security:
+      enabled: true
+    # 枚举展示插件
+    enum:
+      enabled: true
+```
+
+如需覆盖默认配置或补充鉴权规则，可在 `application.yml` 中按需配置：
+
+```yaml
+springdoc:
+  # 设置对象型参数的展示形式（设为 true 表示将对象型参数平展开，即对象内的属性直接作为参数展示而不是嵌套在对象内，默认 false）
+  # 如果不添加该全局配置，可以在需要如此处理的对象参数类上使用 @ParameterObject
+  default-flat-param-object: true
+  # 组件配置
+  components:
+    # 鉴权配置
+    security-schemes:
+      Authorization:
+        type: HTTP
+        in: HEADER
+        name: 你的 Token 名称
+        scheme: 你的 Token 前缀
+nextdoc4j:
+  # 接口文档增强配置（NextDoc4j）
+  plugin:
+    security:
+      enabled: true
+    enum:
+      enabled: true
+```
+
+<Callout type="info">
+文档的标题、版本、描述、联系人、许可证等信息取自核心模块的 `continew-starter.project` 配置项（由 `SpringDocAutoConfiguration` 中的 `openApi` Bean 自动组装），详见 [核心模块（core）](/docs/starter/modules/core)。
+</Callout>
+
+## 使用
+
+### 访问文档
+
+启动应用后，访问 `/doc.html` 即可查看 NextDoc4j 接口文档界面。
+
+### 编写接口注解
+
+使用 Swagger（OpenAPI 3）注解描述接口：
+
+```java
+@Tag(name = "用户管理", description = "用户的增删改查接口")
+@RestController
+@RequestMapping("/user")
+public class UserController {
+
+    @Operation(summary = "查询用户详情", description = "根据 ID 查询用户详情")
+    @GetMapping("/{id}")
+    public UserResp get(@PathVariable Long id) {
+        // ...
+    }
+}
+```
+
+### 枚举展示
+
+实现了核心模块 `BaseEnum` 接口的枚举，会被 `BaseEnumProcessor` 自动识别，在文档中展示枚举值与描述（无需额外配置）：
+
+```java
+@Getter
+@AllArgsConstructor
+public enum GenderEnum implements BaseEnum<Integer> {
+
+    UNKNOWN(0, "未知"),
+    MALE(1, "男"),
+    FEMALE(2, "女");
+
+    private final Integer value;
+    private final String description;
+}
+```
+
+### 分组接口文档
+
+使用 `ApiDocUtils.buildGroupedOpenApi` 快速构建分组文档：
+
+```java
+@Configuration
+public class ApiDocConfiguration {
+
+    @Bean
+    public GroupedOpenApi systemApi() {
+        return ApiDocUtils.buildGroupedOpenApi("系统管理", "/system/**");
+    }
+
+    @Bean
+    public GroupedOpenApi monitorApi() {
+        return ApiDocUtils.buildGroupedOpenApi("monitor", "系统监控", "/monitor/**");
+    }
+}
+```
+
+`ApiDocUtils` 提供两个重载方法：
+
+- `buildGroupedOpenApi(String group, String... pathsToMatch)`：分组显示名称与分组名称相同
+- `buildGroupedOpenApi(String group, String displayName, String... pathsToMatch)`：自定义分组显示名称
+
+## 注意事项
+
+- 生产环境建议通过 `springdoc.api-docs.enabled: false` 或 `springdoc.swagger-ui.enabled: false` 关闭接口文档，避免接口信息泄露。默认配置中 `springdoc.api-docs.enabled` 引用了 `springdoc.swagger-ui.enabled`，因此只需关闭 `springdoc.swagger-ui.enabled` 即可同时关闭两者。
+- 若需自定义 OpenAPI 文档信息（例如修改标题、增加扩展信息），可自行声明一个 `OpenAPI` Bean 覆盖默认实现（默认 Bean 标注了 `@ConditionalOnMissingBean`）。
+- NextDoc4j 插件（枚举展示、鉴权展示）可通过 `nextdoc4j.plugin.*.enabled` 单独开关。
+
+## 参考资料
+
+1. NextDoc4j 官方文档：https://nextdoc4j.top
+2. SpringDoc 官方文档：https://springdoc.org/

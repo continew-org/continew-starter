@@ -1,0 +1,148 @@
+---
+title: 行为验证码
+description: 基于 AJ-Captcha 的行为验证码实现，提供滑动拼图与文字点选两种交互验证，内置内存与 Redis 缓存，并支持接口限流、水印等丰富配置。
+---
+
+`continew-starter-captcha-behavior` 底层基于 AJ-Captcha，提供滑动拼图（拖动滑块至缺口位置）与文字点选（按顺序点击图片中的文字）两种行为验证方式，内置内存与 Redis 两种缓存实现，并支持接口限流、水印等丰富配置。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-captcha-behavior</artifactId>
+</dependency>
+```
+
+模块会传递引入 `com.anji-plus:captcha` 与 `continew-starter-cache-redisson`（用于 Redis 缓存实现）。
+
+## 配置
+
+配置项位于 `continew-starter.captcha.behavior` 前缀下，完整定义见 `top.continew.starter.captcha.behavior.autoconfigure.BehaviorCaptchaProperties`：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `enabled` | 是否启用（设为 `false` 可关闭自动配置） | `true` |
+| `enable-aes` | 是否开启坐标 AES 加密 | `true` |
+| `type` | 验证码类型：`BLOCKPUZZLE`（滑动拼图）、`CLICKWORD`（文字点选）、`DEFAULT`（两种均实例化） | `BLOCKPUZZLE` |
+| `cache-type` | 缓存类型：`DEFAULT`（内存）、`REDIS`、`CUSTOM`（自定义） | `DEFAULT` |
+| `jigsaw-base-map-path` | 滑动拼图底图路径，为空则使用默认底图。支持全路径或 `classpath:` 开头的资源路径；路径下需包含 `original`（底图）与 `slidingBlock`（滑块）两个文件夹 | 无 |
+| `pic-click-base-map-path` | 点选文字底图路径，为空则使用默认底图。支持全路径或 `classpath:` 开头的资源路径，仅一个图片目录 | 无 |
+| `slip-offset` | 校验滑动拼图允许的误差偏移量（像素） | `5` |
+| `water-mark` | 右下角水印文字 | `我的水印` |
+| `water-font` | 右下角水印字体。可配置操作系统字体名（如 `宋体`），或将自定义字体文件放入 `resources/fonts` 目录后配置文件名（支持 ttf/ttc/otf） | `WenQuanZhengHei.ttf` |
+| `font-type` | 点选文字验证码的文字字体 | `WenQuanZhengHei.ttf` |
+| `font-style` | 点选字体样式（`0`：常规、`1`：加粗、`2`：斜体） | `1`（BOLD） |
+| `font-size` | 点选字体大小 | `25` |
+| `interference-options` | 滑块干扰项数量（0~3），仅 `type` 为 `BLOCKPUZZLE` 时生效 | `0` |
+| `history-data-clear-enable` | 历史数据清除开关（`0`：关闭；`1`：开启） | `0` |
+| `req-frequency-limit-enable` | 一分钟内接口请求次数限制开关（`0`：关闭；`1`：开启，开启后所有验证码相关接口将限流） | `0` |
+| `req-get-lock-limit` | 一分钟内验证码最多失败次数限制 | `5` |
+| `req-get-lock-seconds` | 失败次数达标后的锁定时间（秒） | `300` |
+| `req-get-minute-limit` | 获取验证码接口一分钟内请求次数限制 | `100` |
+| `req-check-minute-limit` | 校验验证码接口一分钟内请求次数限制 | `100` |
+| `req-verify-minute-limit` | 二次校验验证码接口一分钟内请求次数限制 | `100` |
+| `cache-number` | 内存缓存的阈值（个），仅 `cache-type` 为 `DEFAULT` 时生效 | `1000` |
+| `timing-clear` | 定时清理过期内存缓存的周期（秒），仅 `cache-type` 为 `DEFAULT` 时生效 | `180` |
+
+```yaml
+continew-starter:
+  captcha:
+    behavior:
+      enabled: true
+      type: BLOCKPUZZLE
+      # 分布式部署建议使用 REDIS
+      cache-type: REDIS
+      # 滑动拼图底图路径（为空则使用默认底图）
+      jigsaw-base-map-path: classpath:images/jigsaw
+      # 点选文字底图路径（为空则使用默认底图）
+      pic-click-base-map-path: classpath:images/pic-click
+      water-mark: 你的水印
+      slip-offset: 5
+      # 接口限流相关
+      req-frequency-limit-enable: 0
+      req-get-minute-limit: 100
+```
+
+## 使用示例
+
+自动配置会注册 AJ-Captcha 原生的 `CaptchaService` Bean，直接注入使用即可：
+
+```java
+import com.anji.captcha.model.common.RepCodeEnum;
+import com.anji.captcha.model.common.ResponseModel;
+import com.anji.captcha.model.vo.CaptchaVO;
+import com.anji.captcha.service.CaptchaService;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/captcha")
+public class CaptchaController {
+
+    private final CaptchaService captchaService;
+
+    @GetMapping("/behavior")
+    public Object getBehaviorCaptcha(CaptchaVO captchaReq, HttpServletRequest request) {
+        captchaReq.setBrowserInfo(request.getRemoteAddr() + request.getHeader(HttpHeaders.USER_AGENT));
+        ResponseModel responseModel = captchaService.get(captchaReq);
+        CheckUtils.throwIf(() -> !StrUtil.equals(RepCodeEnum.SUCCESS.getCode(), responseModel
+            .getRepCode()), responseModel.getRepMsg());
+        return responseModel.getRepData();
+    }
+
+    @PostMapping("/behavior")
+    public Object checkBehaviorCaptcha(@RequestBody CaptchaVO captchaReq, HttpServletRequest request) {
+        captchaReq.setBrowserInfo(request.getRemoteAddr() + request.getHeader(HttpHeaders.USER_AGENT));
+        return captchaService.check(captchaReq);
+    }
+}
+```
+
+## 缓存实现
+
+行为验证码需要将校验中间状态写入缓存，模块提供三种实现：
+
+- **`DEFAULT`（内存）**：单机部署开箱即用，无需额外配置；
+- **`REDIS`**：基于 `continew-starter-cache-redisson` 中的 `RedisUtils` 实现，要求容器中已存在 `RedissonClient` Bean，分布式部署推荐使用；
+- **`CUSTOM`（自定义）**：自行向 Spring 容器注册一个 `com.anji.captcha.service.CaptchaCacheService` 类型的 Bean，并将 `cache-type` 设为 `CUSTOM`，模块会自动将其接入 AJ-Captcha。
+
+```java
+@Component
+public class CustomCaptchaCacheService implements CaptchaCacheService {
+
+    @Override
+    public void set(String key, String value, long expiresInSeconds) {
+        // 自定义写入逻辑
+    }
+
+    @Override
+    public boolean exists(String key) {
+        // 自定义存在性判断
+    }
+
+    @Override
+    public void delete(String key) {
+        // 自定义删除逻辑
+    }
+
+    @Override
+    public String get(String key) {
+        // 自定义读取逻辑
+    }
+
+    @Override
+    public String type() {
+        return "custom";
+    }
+
+    @Override
+    public Long increment(String key, long val) {
+        // 自定义自增逻辑
+    }
+}
+```
+
+## 注意事项
+
+- 使用自定义底图且路径以 `classpath:` 开头时，模块会在启动时将图片初始化加载到内存：滑动拼图底图需放在 `jigsaw-base-map-path` 下的 `original/*.png`（底图）与 `slidingBlock/*.png`（滑块），点选底图直接放在 `pic-click-base-map-path` 下的 `*.png`。
+- 水印与点选文字字体默认使用 AJ-Captcha 内置的开源字体文泉驿正黑（`WenQuanZhengHei.ttf`），避免宋体等字体的版权问题。

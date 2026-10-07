@@ -1,0 +1,168 @@
+---
+title: 数据权限
+description: 基于 MyBatis Plus 数据权限插件封装的通用行级数据权限模块，内置五种数据范围，通过 @DataPermission 注解为指定 Mapper 方法添加数据过滤。
+---
+
+`continew-starter-extension-datapermission-mp` 是 ContiNew Starter 基于 MyBatis Plus 封装的通用数据权限处理扩展模块。已提供默认数据权限处理器（`DefaultDataPermissionHandler`），支持五种数据范围（`DataScope` 枚举，见 `DataScope.java`）：
+
+| 枚举值 | 说明 |
+|:-------|:-----|
+| `ALL` | 全部数据权限 |
+| `DEPT_AND_CHILD` | 本部门及以下数据权限 |
+| `DEPT` | 本部门数据权限 |
+| `SELF` | 仅本人数据权限 |
+| `CUSTOM` | 自定义数据权限 |
+
+### 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-extension-datapermission-mp</artifactId>
+</dependency>
+```
+
+模块会传递引入 `continew-starter-extension-datapermission-core`、`continew-starter-data-core` 与 `com.baomidou:mybatis-plus-jsqlparser`（见 `continew-starter-extension-datapermission-mp/pom.xml`）。
+
+### 配置
+
+配置属性类为 `top.continew.starter.extension.datapermission.autoconfigure.DataPermissionProperties`，配置前缀为 `continew-starter.data-permission`（见 `PropertiesConstants.java:180`）：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `continew-starter.data-permission.enabled` | 是否启用数据权限自动配置 | `true` |
+
+```yaml
+# 数据权限配置
+continew-starter:
+  data-permission:
+    # 是否启用（默认：已启用）
+    enabled: true
+```
+
+### 实现 DataPermissionUserDataProvider 接口
+
+编写一个实现类，实现 `DataPermissionUserDataProvider` 接口的 `isFilter`（是否过滤）和 `getUserData`（获取用户数据）方法，并注册为 Spring Bean：
+
+```java
+import top.continew.starter.core.util.CollUtils;
+import top.continew.starter.extension.datapermission.enums.DataScope;
+import top.continew.starter.extension.datapermission.model.RoleData;
+import top.continew.starter.extension.datapermission.model.UserData;
+import top.continew.starter.extension.datapermission.provider.DataPermissionUserDataProvider;
+
+/**
+ * 数据权限用户数据提供者
+ *
+ * @author Charles7c
+ */
+@Component
+public class DefaultDataPermissionUserDataProvider implements DataPermissionUserDataProvider {
+
+    @Override
+    public boolean isFilter() {
+        return !UserContextHolder.isSuperAdminUser() && !UserContextHolder.isTenantAdminUser();
+    }
+
+    @Override
+    public UserData getUserData() {
+        UserContext userContext = UserContextHolder.getContext();
+        UserData userData = new UserData();
+        userData.setUserId(userContext.getId());
+        userData.setDeptId(userContext.getDeptId());
+        userData.setRoles(CollUtils.mapToSet(userContext.getRoles(),
+            r -> new RoleData(r.getId(), DataScope.valueOf(r.getDataScope().name()))));
+        return userData;
+    }
+}
+```
+
+<Callout type="warn">
+`DataPermissionUserDataProvider` 是必须由业务方提供的 Bean。未提供时自动配置会抛出 `NoSuchBeanDefinitionException`（见 `DataPermissionAutoConfiguration.java:77-85`），应用无法启动。示例中的 `UserContextHolder` 为业务项目自身的用户上下文组件，需按项目实际情况替换。
+</Callout>
+
+### 使用 @DataPermission 注解
+
+配置好数据权限后，可以通过 `@DataPermission` 注解灵活地为指定 Mapper 接口方法添加数据权限处理。为了方便使用，建议继承 `BaseMapper` 并使用 `@DataPermission` 注解重写默认方法：
+
+```java
+import top.continew.starter.data.mapper.BaseMapper;
+import top.continew.starter.extension.datapermission.annotation.DataPermission;
+
+/**
+ * 数据权限 Mapper 基类
+ *
+ * @param <T> 实体类
+ * @author Charles7c
+ */
+public interface DataPermissionMapper<T> extends BaseMapper<T> {
+
+    /**
+     * 根据 entity 条件，查询全部记录
+     */
+    @DataPermission
+    @Override
+    List<T> selectList(@Param(Constants.WRAPPER) Wrapper<T> queryWrapper);
+
+    /**
+     * 根据 entity 条件，查询全部记录（并翻页）
+     */
+    @DataPermission
+    @Override
+    List<T> selectList(IPage<T> page, @Param(Constants.WRAPPER) Wrapper<T> queryWrapper);
+
+    /**
+     * 根据 ID 删除
+     */
+    @DataPermission
+    @Override
+    int deleteById(@Param("id") Serializable id);
+}
+```
+
+<Callout type="info">
+为什么没有重写 `selectOne`、`selectPage` 方法？因为它们都依赖 `selectList` 实现，只需重写 `selectList` 即可。
+</Callout>
+
+`@DataPermission` 注解支持按表结构调整字段映射（见 `DataPermission.java`）：
+
+| 属性 | 说明 | 默认值 |
+|:-----|:-----|:-------|
+| `tableAlias` | 表别名 | 空 |
+| `id` | 主键 ID 列名 | `id` |
+| `deptId` | 部门 ID 列名 | `dept_id` |
+| `userId` | 用户 ID 列名 | `create_user` |
+| `roleId` | 角色 ID 列名（角色和部门关联表） | `role_id` |
+| `deptTableAlias` | 部门表别名 | `sys_dept` |
+| `roleDeptTableAlias` | 角色和部门关联表别名 | `sys_role_dept` |
+
+### 自定义权限处理器
+
+如果不想使用默认数据权限处理器，但仍想基于 MyBatis Plus 数据权限插件实现数据权限处理，可自行实现 `com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler` 并将 Bean 注入 Spring 容器，组件会自动识别加载（自动配置上的 `@ConditionalOnMissingBean` 保证自定义 Bean 优先，见 `DataPermissionAutoConfiguration.java:65-70`）。
+
+```java
+import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
+import top.continew.starter.extension.datapermission.provider.DataPermissionUserDataProvider;
+
+/**
+ * 默认数据权限处理器
+ *
+ * @author Charles7c
+ */
+@Component
+public class DefaultDataPermissionHandler implements DataPermissionHandler {
+
+    private final DataPermissionUserDataProvider dataPermissionUserDataProvider;
+
+    public DefaultDataPermissionHandler(DataPermissionUserDataProvider dataPermissionUserDataProvider) {
+        this.dataPermissionUserDataProvider = dataPermissionUserDataProvider;
+    }
+
+    @Override
+    public Expression getSqlSegment(Expression where, String mappedStatementId) {
+        // 自定义处理...
+    }
+}
+```
+
+更多原理可参考 MyBatis Plus 官方文档：[数据权限插件](https://baomidou.com/plugins/data-permission/)。

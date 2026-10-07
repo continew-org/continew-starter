@@ -1,0 +1,112 @@
+---
+title: 常见问题
+description: 汇总使用 ContiNew Starter 时最常见的集成、配置与运行问题及排查方法，并说明版本变更记录的查阅方式。
+---
+
+本页汇总集成与使用 ContiNew Starter 时的常见问题与排查思路。遇到问题建议先按本文自查，仍未解决可到 [GitHub Issues](https://github.com/continew-org/continew-starter/issues) 搜索或提问。
+
+## 环境要求
+
+**Q：ContiNew Starter 对 JDK 和 Spring Boot 版本有什么要求？**
+
+ContiNew Starter 2.x 要求 **JDK 17+**、**Spring Boot 3.x**，自动配置基于 Spring Boot 3 的 `META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 机制注册。Spring Boot 2.x 项目无法直接使用 2.x 版本，请使用 1.x 历史版本或先升级 Spring Boot。
+
+## 依赖与版本
+
+**Q：引入模块后报 `Could not find artifact top.continew.starter:continew-starter-xxx` 或版本缺失？**
+
+通常是只加了 `<dependency>` 却没有锁定版本。ContiNew Starter 各模块**不单独写 `<version>`**，必须由 Parent 或 BOM 统一供给，两种方式任选其一（详见[快速开始](/docs/starter)）：
+
+- 将 `top.continew.starter:continew-starter` 作为 `<parent>`；
+- 或在 `<dependencyManagement>` 中 import `top.continew.starter:continew-starter-dependencies`。
+
+排查命令：
+
+```bash
+mvn dependency:tree -Dincludes=top.continew.starter
+```
+
+若输出中模块版本为空白或报 `missing`，即说明 BOM 未生效，检查 `<dependencyManagement>` 是否写对了 `<type>pom</type>` 与 `<scope>import</scope>`。
+
+**Q：Parent 方式与 BOM 方式能同时用吗？**
+
+不要同时使用。两者都承担「锁定 Spring Boot 与 ContiNew Starter 版本」的职责，混用容易产生版本冲突。项目已有自定义 Parent 时选 BOM 方式即可。
+
+**Q：第三方依赖（MyBatis-Plus、Sa-Token、Redisson 等）版本冲突怎么办？**
+
+各第三方依赖版本由 `continew-starter-dependencies` 统一托管。若项目自身或 Company BOM 中也声明了同一依赖的版本，后声明/就近声明的会生效，可能覆盖 Starter 托管的版本。用以下命令定位冲突来源：
+
+```bash
+mvn dependency:tree -Dverbose
+```
+
+确认后在自己的 `<dependencyManagement>` 中显式锁定期望版本，或排除掉重复引入的一方。
+
+## 自动配置与 Bean
+
+**Q：引入了某个模块，但功能没有生效？**
+
+按以下顺序排查：
+
+1. **多数自动配置默认关闭**。例如跨域 `CorsAutoConfiguration` 标注了 `@ConditionalOnProperty(prefix = "continew-starter.web.cors", name = "enabled", havingValue = "true")`，必须显式开启：
+
+   ```yaml
+   continew-starter:
+     web:
+       cors:
+         enabled: true
+   ```
+
+   各模块的开关项详见[配置参考](/docs/starter/reference/properties)。
+2. **确认依赖真的在 classpath 上**：检查 `mvn dependency:tree` 输出，排除被 `<optional>` 或 `<exclusions>` 意外排除的情况。
+3. **查看启动日志**：自动配置初始化成功时会输出 `[ContiNew Starter] - Auto Configuration '...' completed initialization.` 的 DEBUG 日志，可将 `top.continew.starter` 包日志级别调为 `debug` 观察。
+4. **条件不满足**：部分自动配置带 `@ConditionalOnWebApplication` 等条件，非 Web 环境下不会生效。
+
+**Q：自己定义了同名 Bean 后启动报 Bean 冲突？**
+
+Starter 的可覆盖 Bean 大多标注了 `@ConditionalOnMissingBean`，你自定义的同类型 Bean 会优先生效、自动配置自动退让。如果仍报冲突，说明该 Bean 不属于可覆盖设计，请改用 Starter 提供的扩展点（如 Jackson 模块通过 `Jackson2ObjectMapperBuilderCustomizer` 扩展，而非直接替换 `ObjectMapper`）。
+
+**Q：Spring Boot 默认时区/日期格式被改了？**
+
+`json-jackson` 模块通过 `@PropertySource` 加载了内置的 `default-json-jackson.yml`，默认将 `spring.jackson.time-zone` 设为 `GMT+8`、日期格式设为 `yyyy-MM-dd HH:mm:ss`。如需调整，在你的 `application.yml` 中显式配置同名项即可覆盖（应用配置优先级高于 Starter 内置默认值）。
+
+## 序列化与 JSON
+
+**Q：Long 类型主键返回给前端后精度丢失（如 `173...905` 变成 `173...900`）？**
+
+这是 JS `Number` 精度上限（2^53）导致的经典问题。`json-jackson` 模块提供 `spring.jackson.big-number-serialize-mode` 扩展配置（`JacksonExtensionProperties`，前缀 `spring.jackson`），支持 `FLEXIBLE`（超范围才转字符串）、`TO_STRING`（统一转字符串）、`NO_OPERATE`（不处理）三种模式，默认为 `FLEXIBLE`。确认未显式改为 `NO_OPERATE` 即可。
+
+## 社区登录（JustAuth）
+
+**Q：集成 `auth-justauth` 后启动报 `AuthStateCache` 相关的 `NoSuchBeanDefinitionException`？**
+
+`JustAuthAutoConfiguration` 中的 `AuthRequestFactory` 依赖 `AuthStateCache` Bean，默认由 `JustAuthStateCacheConfiguration` 提供基于本地缓存的实现；若你引入了 Redis 相关模块并自定义了缓存配置，或排除了有状态的默认实现，就会出现该 Bean 缺失。解决方式：保留默认状态缓存配置，或自行声明一个 `AuthStateCache` 类型的 Bean（如基于 Redis 实现）。
+
+## 日志与追踪
+
+**Q：按文档引入了 `trace` / `log` 模块，但响应头没有 Trace ID？**
+
+先确认链路配置已开启并检查启动日志中是否有 `Trace` 相关自动配置初始化记录；再确认请求确实经过了 Web 过滤器（如被上游网关/Nginx 提前转发或过滤链被自定义 `FilterRegistrationBean` 打乱顺序，也可能导致头信息未写入）。具体配置项见 [trace 模块文档](/docs/starter/modules/trace)。
+
+## 配置项不生效
+
+**Q：改了 `application.yml` 但配置不生效？**
+
+1. 检查前缀是否写全，所有配置项均以 `continew-starter.<模块>` 为前缀，且模块名层级不能简写（如 `continew-starter.web.cors.enabled` 不能写成 `continew-starter.cors.enabled`）；
+2. YAML 缩进必须严格对齐，`enabled` 等布尔项不要加引号；
+3. 多环境配置下，确认修改的是当前激活 profile 对应的文件；
+4. 与 Starter 内置默认值同名的项（如 Jackson 时区），需在你的 `application.yml` 显式声明才能覆盖。
+
+## 版本变更（Changelog）
+
+各版本的新特性、修复与破坏性变更记录维护在仓库的 [CHANGELOG.md](https://github.com/continew-org/continew-starter/blob/main/CHANGELOG.md) 中，按版本号倒序组织，每条变更附对应的 Commit 与 PR 链接；1.x 与 2.0.0–2.12.2 的历史记录分别在 `CHANGELOG_1.x.x.md`、`CHANGELOG_2.0.0-2.12.2.md`。
+
+查阅建议：
+
+- **升级前**：先看目标版本与你当前版本之间的所有条目，重点关注标注「破坏性变更/Breaking Change」的条目；
+- **遇到行为变化**：对照 Changelog 确认是否为某版本有意调整，再决定适配还是回退；
+- **在线查阅**：[GitHub Releases 页面](https://github.com/continew-org/continew-starter/releases) 与 CHANGELOG.md 内容一致，按 Tag 浏览更直观。
+
+<Callout type="info">
+若上述条目未覆盖你的问题，欢迎到 [GitHub Issues](https://github.com/continew-org/continew-starter/issues) 提问，提问时附上 JDK/Spring Boot/ContiNew Starter 版本与最小复现配置，能更快得到答复。
+</Callout>

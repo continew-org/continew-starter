@@ -1,0 +1,25 @@
+{
+  "title": "功能模块",
+  "pages": [
+    "core",
+    "web",
+    "validation",
+    "json",
+    "api-doc",
+    "auth",
+    "cache",
+    "data",
+    "encrypt",
+    "security",
+    "captcha",
+    "ratelimiter",
+    "idempotent",
+    "trace",
+    "log",
+    "messaging",
+    "excel",
+    "storage",
+    "license",
+    "extension"
+  ]
+}

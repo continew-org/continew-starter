@@ -1,0 +1,65 @@
+---
+title: License 校验器
+description: 集成在客户端应用中的 License 校验器（continew-starter-license-verifier），启动时自动解压并安装证书，验证有效期与服务器硬件信息，验证失败则拒绝启动。
+---
+
+`continew-starter-license-verifier` 集成在交付给客户的应用中，启动时自动安装并校验 License。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-license-verifier</artifactId>
+</dependency>
+```
+
+## 配置
+
+配置项位于 `continew-starter.license.verifier` 前缀下，完整定义见 `top.continew.starter.license.autoconfigure.LicenseVerifyProperties`：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `enabled` | 是否启用（设为 `false` 可关闭自动配置） | `true` |
+| `store-path` | 授权文件（`clientLicense.zip`）所在路径 | 系统临时目录（`FileUtil.getTmpDirPath()`） |
+
+```yaml
+continew-starter:
+  license:
+    verifier:
+      enabled: true
+      store-path: D:/license
+```
+
+## 使用示例
+
+将生成器签发的 `clientLicense.zip` 放置到 `store-path` 配置的目录下即可。项目启动时，`LicenseStarterInitializingBean` 会自动完成证书解压、安装与校验，校验失败抛出 `LicenseException`，应用无法启动。
+
+如需在运行期手动操作，可注入 `LicenseInstallerBean`：
+
+```java
+import top.continew.starter.license.bean.LicenseInstallerBean;
+
+@RestController
+@RequiredArgsConstructor
+public class LicenseController {
+
+    private final LicenseInstallerBean licenseInstallerBean;
+
+    /** 重新安装证书（如替换新证书后热加载） */
+    @PostMapping("/license/install")
+    public void install() {
+        licenseInstallerBean.installLicense();
+    }
+
+    /** 即时验证当前证书合法性 */
+    @GetMapping("/license/verify")
+    public void verify() {
+        licenseInstallerBean.verify();
+    }
+}
+```
+
+<Callout type="warn">
+校验器除验证证书签名与有效期外，还会比对 License 中绑定的服务器硬件信息（IP 地址、MAC 地址、CPU 序列号、主板序列号），任一不匹配均会校验失败。因此签发 License 时务必使用**目标部署服务器**的硬件信息。
+</Callout>

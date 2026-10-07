@@ -1,0 +1,132 @@
+---
+title: JSON 序列化
+description: continew-starter-json-jackson 基于 Jackson 提供开箱即用的 JSON 序列化定制：大数值防精度丢失、Java 8 时间类型与 BaseEnum 枚举的序列化/反序列化，并内置 JsonUtils 与 JsonBuilder 工具。
+---
+
+`continew-starter-json-jackson` 基于 Jackson 预置了一套符合 RESTful API 最佳实践的 JSON 序列化规则：默认解决 `Long` 型主键传给前端时的精度丢失问题，完善 `LocalDateTime` 等 Java 8 时间类型和 `BaseEnum` 枚举的序列化/反序列化，并提供 `JsonUtils`、`JsonBuilder` 两个工具类。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-json-jackson</artifactId>
+</dependency>
+```
+
+模块会传递引入 `spring-boot-starter-json` 与 `jackson-datatype-jsr310`，引入后自动配置 `JacksonAutoConfiguration` 即刻生效，无需任何额外代码。
+
+## 配置
+
+模块自带一份默认配置（`default-json-jackson.yml`），均已按最佳实践设置好，**如需覆盖才在你的 `application.yml` 中声明**，否则无需配置：
+
+```yaml
+spring:
+  mvc:
+    format:
+      # 日期格式化（针对 URL 参数中的 java.util.Date）
+      date-time: yyyy-MM-dd HH:mm:ss
+  jackson:
+    # 时区配置
+    time-zone: GMT+8
+    # 日期格式化（针对 java.util.Date）
+    date-format: yyyy-MM-dd HH:mm:ss
+    # 序列化配置（Bean -> JSON）
+    serialization:
+      # 序列化日期时不以 timestamps 输出
+      write-dates-as-timestamps: false
+      # 允许序列化无属性的 Bean
+      fail-on-empty-beans: false
+    # 反序列化配置（JSON -> Bean）
+    deserialization:
+      # 允许 JSON 中存在 Bean 上不存在的属性
+      fail-on-unknown-properties: false
+    # 大数值序列化模式（模块扩展配置，默认 FLEXIBLE）
+    big-number-serialize-mode: FLEXIBLE
+```
+
+其中 `spring.jackson.big-number-serialize-mode` 是模块的扩展配置项，对应 `top.continew.starter.json.jackson.autoconfigure.JacksonExtensionProperties`，可选值：
+
+| 取值 | 行为 | 说明 |
+|:-----|:-----|:-----|
+| `FLEXIBLE`（默认） | 超出 JS 安全整数范围的数值转为 `String`，范围内保持原类型 | 兼顾前端可读性与精度安全 |
+| `TO_STRING` | `Long`/`BigInteger` 统一转为 `String` | 前端始终收到字符串 |
+| `NO_OPERATE` | 不做任何处理（不建议） | 超过 JS 范围的数值会损失精度，如 `8014753905961037835` 会变成 `8014753905961038000` |
+
+<Callout type="info">
+JS 的 `Number.MAX_SAFE_INTEGER` 为 `9007199254740991`，雪花算法等生成的 19 位 ID 已超出该范围，直接以数值返回给前端会丢失末位精度，这就是模块默认开启大数值序列化的原因。
+</Callout>
+
+## 内置序列化能力
+
+自动配置通过 `Jackson2ObjectMapperBuilderCustomizer` 向全局 `ObjectMapper` 注册了三组 Module：
+
+### 时间类型
+
+`JavaTimeModule` 为常用时间类型注册了序列化器与反序列化器：
+
+| 类型 | 序列化格式 |
+|:-----|:-----------|
+| `LocalDateTime` | `yyyy-MM-dd HH:mm:ss` |
+| `LocalDate` | `yyyy-MM-dd` |
+| `LocalTime` | `HH:mm:ss` |
+| `Instant` | ISO-8601（Jackson 内置） |
+| `Duration` | ISO-8601（Jackson 内置） |
+
+### `BaseEnum` 枚举
+
+实现了核心模块 `top.continew.starter.core.enums.BaseEnum` 接口的枚举，序列化时输出其 `getValue()` 的值；反序列化时按 `getValue()` 匹配回枚举常量，匹配不到会抛出 `InvalidFormatException`。前后端交互因此只需传输枚举值而非枚举名。
+
+### 大数值
+
+根据 `big-number-serialize-mode` 的配置，为 `Long`、`long`、`BigInteger` 注册对应的序列化器（`BigNumberSerializer` 或 `ToStringSerializer`），见上文配置表。
+
+## 工具类
+
+### `JsonUtils`
+
+`top.continew.starter.json.jackson.util.JsonUtils` 是对全局 `ObjectMapper` 的静态封装，常用方法：
+
+```java
+// 对象 -> JSON 字符串
+String json = JsonUtils.toJsonStr(user);
+
+// JSON 字符串 -> Bean
+User user = JsonUtils.toBean(json, User.class);
+
+// JSON 字符串/JsonNode -> List
+List<User> users = JsonUtils.toList(jsonArrayStr, User.class);
+
+// 对象 -> JsonNode
+JsonNode node = JsonUtils.parseObj(user);
+
+// 判断字符串是否为 JSON / JSONObject / JSONArray 格式
+boolean isJson = JsonUtils.isTypeJson(str);
+boolean isObj = JsonUtils.isTypeJsonObject(str);
+boolean isArr = JsonUtils.isTypeJsonArray(str);
+
+// 获取全局 ObjectMapper 自行定制操作
+ObjectMapper objectMapper = JsonUtils.getObjectMapper();
+```
+
+转换失败时抛出 `top.continew.starter.json.jackson.exception.JsonException`。
+
+### `JsonBuilder`
+
+`top.continew.starter.json.jackson.util.JsonBuilder` 以链式方式动态构建 JSON：
+
+```java
+String json = JsonBuilder.builder()
+    .add("code", 200)
+    .add("msg", "操作成功")
+    .add("data", user)
+    .add("list", userList)
+    .buildString();
+```
+
+`add` 方法支持 `String`、`int`、`long`、`boolean`、`double`、`JsonNode`、`Object`、`List`、`Map` 类型的值，值为 `null` 时自动跳过该字段；`build()` 返回 `JsonNode`，`buildString()` 返回 JSON 字符串。
+
+## 注意事项
+
+- 时区：默认配置将 `spring.jackson.time-zone` 设为 `GMT+8`，而自动配置会以 JVM 默认时区（`TimeZone.getDefault()`）定制 `ObjectMapper`。若服务部署在 UTC 等其他时区的容器中，请显式设置 JVM 时区（如 `-Duser.timezone=Asia/Shanghai`），避免时间序列化结果偏移 8 小时。
+- `JsonUtils` 与 `JsonBuilder` 内部通过 Hutool `SpringUtil` 获取 Spring 容器中的 `ObjectMapper`，请在 Spring 环境下使用，不要在容器启动完成前调用。

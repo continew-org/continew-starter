@@ -1,0 +1,58 @@
+---
+title: XSS 过滤
+description: 基于 Servlet Filter 对 GET 查询参数与 POST/PATCH/PUT 请求体统一清理或转义，防止跨站脚本注入，业务代码零改动。
+---
+
+`continew-starter-security-xss` 通过 Servlet 过滤器对 GET 查询参数与 POST/PATCH/PUT 请求体进行统一清理或转义，防止恶意脚本注入，业务代码零改动。
+
+### 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-security-xss</artifactId>
+</dependency>
+```
+
+### 配置
+
+配置项定义在 `top.continew.starter.security.xss.autoconfigure.XssProperties` 中：
+
+```yaml
+continew-starter:
+  security:
+    xss:
+      # 是否启用（默认：true）
+      enabled: true
+      # XSS 模式：CLEAN-清理 | ESCAPE-转义（默认：CLEAN）
+      mode: CLEAN
+      # 拦截路由（默认为空，为空时全量过滤；不为空时仅过滤命中路由）
+      include-patterns: []
+      # 放行路由（默认为空）
+      exclude-patterns: []
+```
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `continew-starter.security.xss.enabled` | 是否启用 XSS 过滤自动配置 | `true` |
+| `continew-starter.security.xss.mode` | 处理模式：`CLEAN` 清理 HTML 标签；`ESCAPE` HTML 转义 | `XssMode.CLEAN` |
+| `continew-starter.security.xss.include-patterns` | 拦截路由（Ant 风格路径），不为空时仅过滤命中路由 | `[]` |
+| `continew-starter.security.xss.exclude-patterns` | 放行路由（Ant 风格路径），命中时跳过过滤 | `[]` |
+
+<Callout type="warn">
+自动装配条件为 `continew-starter.security.xss.enabled=true`（`matchIfMissing = false`），即**未显式配置该属性时自动装配不生效**（这与属性字段默认值 `true` 的语义不同）。引入依赖后请务必显式配置 `enabled: true`。
+</Callout>
+
+### 过滤规则
+
+启用后，模块注册全局 `XssFilter`（匹配 `/*`，仅处理 REQUEST 类型请求，执行顺序为最高优先级 + 200），处理逻辑如下（见 `XssFilter.doFilter`）：
+
+1. 请求路径命中 `exclude-patterns` → 跳过过滤；
+2. `include-patterns` 不为空 → 仅过滤命中的路由；
+3. 两者均为空 → 全量过滤。
+
+对 GET 查询参数及 POST/PATCH/PUT 请求体：`CLEAN` 模式调用 `HtmlUtil.cleanHtmlTag` 清理 HTML 标签，`ESCAPE` 模式对命中的 HTML 片段做转义（见 `XssServletRequestWrapper`）。
+
+## 参考资料
+
+- OWASP 跨站脚本防御手册：https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html

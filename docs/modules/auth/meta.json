@@ -1,0 +1,4 @@
+{
+  "title": "认证",
+  "pages": ["index", "satoken", "justauth", "refresh-token"]
+}

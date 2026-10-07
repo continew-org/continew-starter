@@ -1,0 +1,4 @@
+{
+  "title": "安全",
+  "pages": ["index", "mask", "xss", "sensitivewords"]
+}

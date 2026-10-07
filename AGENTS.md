@@ -213,6 +213,37 @@ public class XxxAutoConfiguration {
 
 不得通过 GitHub Issue 报告安全漏洞。请使用 GitHub 私有漏洞报告——详见 [SECURITY.md](./SECURITY.md)。
 
+## 文档（docs/）
+
+本仓库 `docs/` 目录是 ContiNew Starter 官方文档的**唯一权威源**，经 [continew.top](https://github.com/continew-org/continew.top) 官网仓库在构建时汇聚渲染为 `/docs/starter/*`。AI 智能体被指派编写或更新本模块文档时，**在此目录工作**。以下为关键约定；完整写作规范以 continew.top 仓库 `.agents/skills/ocn-doc-writing/SKILL.md` 为**事实源全本**。
+
+### 目录与结构
+
+- **叙事式学习路径**：`index.mdx`（分区入口，只导航不复述正文）+ `guide/`（introduction 是什么/解决什么 → quick-start → configuration）+ `modules/`（功能模块）+ `reference/`（properties/dependencies/faq/changelog）；每个目录含 `meta.json` 声明页面顺序。
+- **多实现模块拆分**：含多个子实现的模块（cache、auth、data、encrypt、security、captcha、messaging、excel、license、extension），按「目录 + 子实现各一篇 + 模块 index 入口」组织，侧边栏可直达具体组件；模块公共内容（如公共配置、核心依赖）放模块 index 页。单实现模块保持单篇。
+- **Root Folder**：`docs/meta.json` 标 `root: true`，构成官网侧边栏顶部的项目切换器。
+
+### frontmatter 与命名
+
+- 每个 `.mdx` 顶部含 `title` 与 `description`（一句话说明本页解决什么问题）；`title` 用**纯中文**（如「数据权限」），模块英文名放 `description`。
+- 链接策略：**跨模块/跨分区引用用绝对路径** `/docs/starter/...`；**同模块/同目录内引用用相对链接**（GitHub 裸看也能跳转）。
+
+### 内容与准确性
+
+- **事实源优先级**：starter 源码（类名/默认值/异常）> continew-admin 实际用法（示例/最佳实践）> 上游官方文档。API 签名以源码为准；示例场景去业务化（不贴 admin 的 `sys_user`、`ignore-menus: 1050` 这类业务数据）；**配置项归 starter，配置值归 admin**。模块文档末尾可加「完整参考实现」链接指向 admin 仓库文件。
+- 依赖坐标不写 `<version>`（由 BOM 供给）；配置以 `continew-starter.<模块>` 为前缀；示例版本号给**具体值**并附 Maven Central 链接。
+- **文档-代码同步**：修改某模块代码（尤其配置项、行为）时，**必须在同一 PR 中同步更新对应文档**；纯文档改动无需跑 `./mvnw verify` 门禁。
+
+### 写作风格（活人感 · 硬禁令）
+
+- 不用破折号 `——`（改分句、括号或另起一句）；不用提示性冒号（「说明：」「通用模式：」，代码块与配置键除外）。
+- 不写翻案腔（「不是 A 而是 B」「值得注意的是」「说白了」「先说结论」）；不写商业黑话（赋能、一站式、无缝、极致、助力、综上所述）。
+- 不把动词名词化；不在末段摘要全文；每个判断后面跟依据（类名/配置键/默认值/报错串/真实用法）。
+
+### 模块 README
+
+各代码模块如需保留 `README.md`，只放「是什么 + 坐标 + 一句话用法 + 完整文档链接」，不复述完整文档。
+
 ## Agent Skills
 
 各 agent 工具（DeepSeek Harness / Claude Code / Codex）共用的技能统一存放在 `.agents/skills/` 作为唯一事实源——每个技能一个目录、含 `SKILL.md`。新增技能沿用 `ocn-` 命名前缀。

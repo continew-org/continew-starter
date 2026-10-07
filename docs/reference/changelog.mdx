@@ -1,0 +1,57 @@
+---
+title: 变更日志
+description: 说明如何查阅 ContiNew Starter 的版本变更记录：每个版本的新特性、功能优化、问题修复、依赖升级与破坏性变更。
+---
+
+ContiNew Starter 的版本变更记录维护在源码仓库根目录的 `CHANGELOG.md` 中，每次发布一个版本都会同步更新。本页说明变更日志的查阅方式与记录约定，不在文档站重复维护一份副本，以避免两处内容漂移。
+
+## 查阅方式
+
+<Cards>
+  <Card title="GitHub" description="continew-org/continew-starter" href="https://github.com/continew-org/continew-starter/blob/main/CHANGELOG.md" />
+  <Card title="Gitee" description="continew/continew-starter" href="https://gitee.com/continew/continew-starter/blob/main/CHANGELOG.md" />
+  <Card title="AtomGit" description="continew/continew-starter" href="https://atomgit.com/continew/continew-starter/blob/main/CHANGELOG.md" />
+</Cards>
+
+除直接阅读 `CHANGELOG.md` 外，还有两种常用查阅方式：
+
+- **GitHub Releases**：[Release 列表](https://github.com/continew-org/continew-starter/releases)按版本逐个列出，适合快速浏览或订阅发布通知；
+- **版本比较**：每个版本条目头部都带有 `compare` 链接（如 `v2.16.1...v2.17.0`），点击即可查看两个版本之间的完整代码差异，升级前评估改动范围时非常有用。
+
+## 历史版本归档
+
+为避免单个文件无限膨胀，较早版本的变更记录已从主文件拆分为独立归档文件，均位于仓库根目录：
+
+| 文件 | 覆盖版本范围 |
+|:-----|:-------------|
+| [`CHANGELOG.md`](https://github.com/continew-org/continew-starter/blob/main/CHANGELOG.md) | 当前维护的 2.x 版本（最新记录） |
+| [`CHANGELOG_2.0.0-2.12.2.md`](https://github.com/continew-org/continew-starter/blob/main/CHANGELOG_2.0.0-2.12.2.md) | v2.0.0 ~ v2.12.2 历史归档 |
+| [`CHANGELOG_1.x.x.md`](https://github.com/continew-org/continew-starter/blob/main/CHANGELOG_1.x.x.md) | 1.x 系列全部版本（基于 Spring Boot 2.x） |
+
+<Callout type="info">
+1.x 系列基于 Spring Boot 2.x / JDK 8，2.x 系列基于 Spring Boot 3.x / JDK 17+。从 1.x 升级时，除版本号外还需关注 JDK、Jakarta EE 包名等基础环境变化，详见对应版本的「破坏性变更」小节。
+</Callout>
+
+## 记录约定
+
+变更日志由 release 流程根据提交记录自动生成（提交信息遵循[约定式提交](https://www.conventionalcommits.org/zh-hans/v1.0.0/)），每个版本条目按以下小节归类：
+
+| 小节 | 含义 |
+|:-----|:-----|
+| ✨ 新特性 | 新增模块、新增功能、新增配置项等 |
+| 💎 功能优化 | 已有功能的改进、重构、性能优化 |
+| 🐛 问题修复 | Bug 修复，安全漏洞修复会附带 GHSA 编号 |
+| 📦 依赖升级 | 第三方依赖版本变化（含 Spring Boot 基线升级） |
+| 💥 破坏性变更 | 不兼容改动：包名/类名调整、配置项变更、默认行为变化等 |
+
+条目中的 `【模块】` 前缀（如 `【cache/redisson】`、`【extension/crud】`）标明变更所属模块，便于快速定位与自己所用的功能模块相关的改动。
+
+## 升级注意事项
+
+<Callout type="warn">
+升级版本前，请务必通读当前版本到目标版本之间**所有版本条目**的「💥 破坏性变更」与「📦 依赖升级」小节。涉及包名、类名、配置项前缀调整的版本，需要同步修改业务代码与配置文件后再升级。
+</Callout>
+
+- 所有模块版本由 BOM（`continew-starter-dependencies`）统一管理，升级时只需修改 BOM 的 `<version>`，各模块会随之升级，详见[快速开始](/docs/starter)；
+- 各模块固定配置项的默认值可能随版本调整，升级后如遇行为差异，可对照[配置参考](/docs/starter/reference/properties)核实；
+- 升级中遇到的问题可先查阅[常见问题](/docs/starter/reference/faq)，未覆盖的请到源码仓库提交 Issue 反馈。

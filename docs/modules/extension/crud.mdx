@@ -1,0 +1,392 @@
+---
+title: CRUD（增删改查）
+description: 基于 MyBatis Plus / MyBatis Flex 实现的 CRUD 扩展模块，继承抽象基类即可获得分页、列表、详情、增删改、导出、字典等标准 RESTful API，统一项目规范。
+---
+
+`continew-starter-extension-crud-mp` 是 ContiNew Starter 基于 MyBatis Plus 实现的 CRUD（增删改查）扩展模块，提供开箱即用的 RESTful API 快速开发方案。通过继承抽象基类，可快速实现标准的分页查询、列表查询、详情查询、新增、修改、删除等接口，大幅减少重复编码工作，统一项目规范。
+
+主要特性如下。
+
+- **开箱即用的三层架构**：基于 ORM 实现完整的 Controller → Service → Mapper 三层 CRUD 能力
+  - **Controller 层**：分页、列表、树列表、详情、创建、修改、删除、批量删除、导出、字典列表（下拉选项）、树型字典列表（树型下拉选项）等标准 API
+  - **Service 层**：对应 API 的默认实现，并提供灵活的生命周期钩子（`beforeCreate`、`afterCreate` 等）
+  - **Mapper 层**：在数据访问模块 `BaseMapper` 基础上提供优雅的 Lambda CRUD API
+- **灵活扩展机制**：支持通过重写父类方法或实现特定接口进行功能扩展
+
+<Tabs items={['MyBatis Plus', 'MyBatis Flex']}>
+<Tab value="MyBatis Plus">
+
+### 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-extension-crud-mp</artifactId>
+</dependency>
+```
+
+模块会传递引入 `continew-starter-extension-crud-core` 与数据访问模块 `continew-starter-data-mp`（见 `continew-starter-extension-crud-mp/pom.xml`）。
+
+### 编写 Mapper
+
+Mapper 接口继承数据访问模块 MyBatis Plus 实现的 `top.continew.starter.data.mapper.BaseMapper`。
+
+```java
+import top.continew.starter.data.mapper.BaseMapper;
+
+/**
+ * 用户 Mapper
+ *
+ * @author Charles7c
+ */
+public interface UserMapper extends BaseMapper<UserDO> {
+}
+```
+
+</Tab>
+<Tab value="MyBatis Flex">
+
+### 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-extension-crud-mf</artifactId>
+</dependency>
+```
+
+模块提供基于 MyBatis Flex 的 `CrudServiceImpl` 实现（`BaseMapper` 位于 `top.continew.starter.data.base` 包），`continew-starter-extension-crud-core` 中的注解、Controller 基类、模型类与 MyBatis Plus 实现完全共用。
+
+### 编写 Mapper
+
+Mapper 接口继承数据访问模块 MyBatis Flex 实现的 `top.continew.starter.data.base.BaseMapper`。
+
+```java
+import top.continew.starter.data.base.BaseMapper;
+
+/**
+ * 用户 Mapper
+ *
+ * @author Charles7c
+ */
+public interface UserMapper extends BaseMapper<UserDO> {
+}
+```
+
+</Tab>
+</Tabs>
+
+<Callout type="info">
+下文示例以 MyBatis Plus 实现（`continew-starter-extension-crud-mp`）为准。两种 ORM 实现的配置项、注解与三层骨架用法一致，仅 `BaseMapper` 所在包与 `CrudServiceImpl` 内部实现不同。
+</Callout>
+
+### 配置
+
+配置属性类为 `top.continew.starter.extension.crud.autoconfigure.CrudProperties`，配置前缀为 `continew-starter.crud`（见 `PropertiesConstants.java:174`）。目前仅包含树型字典结构映射配置（`CrudTreeDictModelProperties`），用于「查询树型字典列表」API（树型结构下拉选项等场景），请根据对应前端 UI 调整字段名。
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `continew-starter.crud.tree-dict-model.id-key` | ID 字段名 | `id` |
+| `continew-starter.crud.tree-dict-model.parent-id-key` | 父 ID 字段名 | `parentId` |
+| `continew-starter.crud.tree-dict-model.name-key` | 名称字段名 | `name` |
+| `continew-starter.crud.tree-dict-model.weight-key` | 排序字段名 | `weight` |
+| `continew-starter.crud.tree-dict-model.children-key` | 子列表字段名 | `children` |
+| `continew-starter.crud.tree-dict-model.deep` | 递归深度（< 0 不限制） | `-1` |
+| `continew-starter.crud.tree-dict-model.root-id` | 根节点 ID | `0` |
+
+```yaml
+# CRUD 配置
+continew-starter:
+  crud:
+    # 树型结构字典映射配置，用于查询树型结构字典列表 API（树型结构下拉选项等场景）
+    tree-dict-model:
+      id-key: key
+      name-key: title
+      weight-key: sort
+```
+
+### 编写 POJO
+
+需要编写的 POJO 类包括实体类（`XxxDO`）、列表响应参数类（`XxxResp`）、详情响应参数类（`XxxDetailResp`）、查询条件类（`XxxQuery`）、创建或修改请求参数类（`XxxReq`）。
+
+```java
+import top.continew.starter.extension.crud.annotation.DictModel;
+import top.continew.starter.extension.crud.model.entity.BaseIdDO;
+
+/**
+ * 用户实体
+ *
+ * @author Charles7c
+ */
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@DictModel(labelKey = "nickname", extraKeys = { "username" }) // 用于查询字典列表 API
+@TableName("sys_user")
+public class UserDO extends BaseIdDO {
+
+    /**
+     * 用户名
+     */
+    private String username;
+
+    /**
+     * 昵称
+     */
+    private String nickname;
+    // 其他略...
+}
+```
+
+```java
+/**
+ * 用户响应参数
+ *
+ * @author Charles7c
+ */
+@Data
+@Schema(description = "用户响应参数")
+public class UserResp {
+
+    @Schema(description = "用户名", example = "zhangsan")
+    private String username;
+
+    @Schema(description = "昵称", example = "张三")
+    private String nickname;
+    // 其他略...
+}
+```
+
+```java
+/**
+ * 用户详情响应参数
+ *
+ * @author Charles7c
+ */
+@Data
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+@Schema(description = "用户详情响应参数")
+public class UserDetailResp extends UserResp {
+
+    @Schema(description = "最后一次修改密码时间", example = "2023-08-08 08:08:08", type = "string")
+    private LocalDateTime pwdResetTime;
+    // 其他略...
+}
+```
+
+```java
+/**
+ * 用户查询条件
+ *
+ * @author Charles7c
+ */
+@Data
+@Schema(description = "用户查询条件")
+public class UserQuery {
+
+    @Schema(description = "昵称", example = "张三")
+    private String nickname;
+    // 其他略...
+}
+```
+
+```java
+/**
+ * 用户创建或修改请求参数
+ *
+ * @author Charles7c
+ */
+@Data
+@Schema(description = "用户创建或修改请求参数")
+public class UserReq {
+
+    @Schema(description = "用户名", example = "zhangsan")
+    @NotBlank(message = "用户名不能为空")
+    private String username;
+
+    @Schema(description = "昵称", example = "张三")
+    @NotBlank(message = "昵称不能为空")
+    private String nickname;
+    // 其他略...
+}
+```
+
+### 编写 Service 接口与实现
+
+创建 Service 接口和实现类，分别继承 `CrudService` 和 `CrudServiceImpl`。
+
+```java
+import top.continew.starter.extension.crud.service.CrudService;
+
+/**
+ * 用户业务接口
+ *
+ * @author Charles7c
+ */
+public interface UserService extends CrudService<UserResp, UserDetailResp, UserQuery, UserReq> {
+}
+```
+
+```java
+import top.continew.starter.extension.crud.service.CrudServiceImpl;
+
+/**
+ * 用户业务实现
+ *
+ * @author Charles7c
+ */
+@Slf4j
+@Validated // 启用 Service 层参数校验
+@Service
+public class UserServiceImpl extends CrudServiceImpl<UserMapper, UserDO, UserResp, UserDetailResp, UserQuery, UserReq>
+    implements UserService {
+
+    // 可根据需要重写父类方法进行自定义扩展
+
+    @Override
+    protected void beforeCreate(UserReq req) {
+        log.info("创建用户前置处理: {}", req);
+        // 自定义业务逻辑
+    }
+
+    @Override
+    protected void afterCreate(UserReq req, UserDO entity) {
+        log.info("创建用户后置处理: {}", req);
+        // 自定义业务逻辑
+    }
+}
+```
+
+### 编写 Controller
+
+创建 Controller，继承 `AbstractCrudController` 并添加 `@CrudRequestMapping` 注解，指定访问路径和需要的 API 操作。
+
+```java
+import top.continew.starter.extension.crud.annotation.CrudApi;
+import top.continew.starter.extension.crud.annotation.CrudRequestMapping;
+import top.continew.starter.extension.crud.controller.AbstractCrudController;
+import top.continew.starter.extension.crud.enums.Api;
+
+/**
+ * 用户管理 API
+ *
+ * @author Charles7c
+ */
+@RestController
+@Tag(name = "用户管理", description = "用户管理相关 API")
+@CrudRequestMapping(value = "/system/users", api = { Api.PAGE, Api.GET, Api.CREATE, Api.UPDATE, Api.DELETE, Api.EXPORT,
+    Api.DICT })
+public class UserController extends AbstractCrudController<UserService, UserResp, UserDetailResp, UserQuery, UserReq> {
+
+    // 可根据需要重写父类方法进行自定义扩展
+
+    @CrudApi(Api.CREATE)
+    @Override
+    @Operation(summary = "新增数据", description = "新增数据")
+    public IdResp<Long> create(@RequestBody @Valid UserReq req) {
+        return super.create(req);
+    }
+}
+```
+
+`Api` 枚举支持的操作类型包括 `PAGE`（分页）、`LIST`（列表）、`TREE`（树列表）、`GET`（详情）、`CREATE`（创建）、`UPDATE`（修改）、`DELETE`（删除）、`BATCH_DELETE`（批量删除）、`EXPORT`（导出）、`DICT`（字典列表）、`TREE_DICT`（树型字典列表）。未显式指定 `api` 时，默认启用 `PAGE`、`GET`、`CREATE`、`UPDATE`、`BATCH_DELETE`、`EXPORT`、`DICT`（见 `CrudRequestMapping.java:50`）。
+
+### 启用 CRUD
+
+在 Spring Boot 启动类添加 `@EnableCrudApi` 注解启用 CRUD 能力（该注解通过 `@Import` 引入 `CrudRequestMappingAutoConfiguration` 与 `CrudApiAutoConfiguration`，见 `EnableCrudApi.java:38`）。
+
+```java
+@EnableCrudApi
+@SpringBootApplication
+public class ContiNewDemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ContiNewDemoApplication.class, args);
+    }
+}
+```
+
+启动项目，查看 API 文档，即可看到所配置的 API，包括分页查询列表、查询详情、创建数据、修改数据、删除数据、导出数据、查询字典列表。
+
+### 查询字典列表
+
+#### 普通字典 `@DictModel`
+
+`@DictModel` 用于定义字典结构映射，「查询字典列表」API 会根据字典定义返回结果，适合下拉列表场景（例如，用户创建表单中提供查询角色列表的下拉选项 API）。
+
+注解属性（见 `DictModel.java`）如下表。
+
+| 属性 | 说明 | 默认值 |
+|:-----|:-----|:-------|
+| `labelKey` | 标签字段名 | `name` |
+| `valueKey` | 值字段名 | `id` |
+| `extraKeys` | 额外信息字段名 | 空数组 |
+
+#### 树型字典
+
+「查询树型字典列表」API 使用全局 `continew-starter.crud.tree-dict-model` 配置构建简单树结构（仅包含树结构基本字段），适合树型下拉选项场景。
+
+与之对应，「查询树列表」API（`tree`，复杂结构，包含实体的全部扩展字段）需要在对应列表响应类上添加 `@TreeField` 注解进行字段映射。
+
+```java
+@Data
+@TreeField(value = "id", parentIdKey = "parentId", nameKey = "name", weightKey = "sort")
+@Schema(description = "部门响应参数")
+public class DeptResp {
+    // 字段略...
+}
+```
+
+`@TreeField` 注解属性（见 `TreeField.java`）包括 `value`（ID 字段名，默认 `key`）、`parentIdKey`（父 ID 字段名，默认 `parentId`）、`nameKey`（名称字段名，默认 `title`）、`weightKey`（排序字段名，默认 `sort`）、`childrenKey`（子列表字段名，默认 `children`）、`deep`（递归深度，默认 `-1` 不限制）、`rootId`（根节点 ID，默认 `0`）。
+
+### 自定义扩展
+
+通过预留的钩子函数和面向对象特性，可以灵活实现业务定制。
+
+#### 重写 Service 方法
+
+```java
+@Override
+public PageResp<UserResp> page(UserQuery query, PageQuery pageQuery) {
+    // 自定义查询逻辑
+    return super.page(query, pageQuery);
+}
+```
+
+通过重写 `buildQueryWrapper` 方法自定义查询条件。
+
+```java
+@Override
+protected QueryWrapper<UserDO> buildQueryWrapper(UserQuery query) {
+    QueryWrapper<UserDO> queryWrapper = super.buildQueryWrapper(query);
+    // 添加自定义查询条件
+    queryWrapper.eq("status", 1);
+    return queryWrapper;
+}
+```
+
+#### 生命周期钩子
+
+`CrudServiceImpl` 提供以下钩子方法，由子类按需重写（见 `CrudServiceImpl.java:366-425`）。
+
+| 钩子方法 | 触发时机 |
+|:---------|:---------|
+| `fill(Object obj)` | 查询（分页/列表/详情/导出）后的数据填充 |
+| `beforeCreate(C req)` / `afterCreate(C req, T entity)` | 新增前 / 新增后 |
+| `beforeUpdate(C req, Long id)` / `afterUpdate(C req, T entity)` | 修改前 / 修改后 |
+| `beforeDelete(List<Long> ids)` / `afterDelete(List<Long> ids)` | 删除前 / 删除后 |
+
+#### 重写 Controller `preHandle` 方法
+
+通过重写 `AbstractCrudController` 的 `preHandle` 方法（来自 `CrudApiHandler` 接口），可以为每个 CRUD 接口进行逻辑增强，适合添加权限校验、参数增强校验等。该能力通过 `@CrudApi` 注解结合 AOP 实现。
+
+```java
+public class UserController extends AbstractCrudController<UserService, UserResp, UserDetailResp, UserQuery, UserReq> {
+
+    @Override
+    public void preHandle(CrudApi crudApi, Object[] args, Method targetMethod, Class<?> targetClass) throws Exception {
+        // 自定义增强逻辑，例如：权限校验
+    }
+}
+```

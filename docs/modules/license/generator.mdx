@@ -1,0 +1,82 @@
+---
+title: License 生成器
+description: 部署在授权方侧的 License 生成器（continew-starter-license-generator），负责生成密钥对、签发带硬件绑定信息的 License，并打包客户端所需的 clientLicense.zip。
+---
+
+`continew-starter-license-generator` 提供开箱即用的 License 签发能力，供授权方使用。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-license-generator</artifactId>
+</dependency>
+```
+
+## 配置
+
+配置项位于 `continew-starter.license.generator` 前缀下，完整定义见 `top.continew.starter.license.autoconfigure.LicenseGenerateProperties`：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `enabled` | 是否启用（设为 `false` 可关闭自动配置） | `true` |
+
+```yaml
+continew-starter:
+  license:
+    generator:
+      enabled: true
+```
+
+## 使用示例
+
+注入 `LicenseCreateService`，组装 `LicenseCreatorParamVO` 后调用 `generateLicense` 签发证书。签发过程会自动调用 keytool 生成密钥库，最终产出一个发给客户端的 `clientLicense.zip`（内含 `license.lic`、`publicCerts.keystore` 与 `clientConfig.json`）：
+
+```java
+import top.continew.starter.license.model.LicenseCreatorParamVO;
+import top.continew.starter.license.model.LicenseExtraModel;
+import top.continew.starter.license.service.LicenseCreateService;
+
+@RestController
+@RequiredArgsConstructor
+public class LicenseController {
+
+    private final LicenseCreateService licenseCreateService;
+
+    @GetMapping("/license/generate")
+    public void generate() throws Exception {
+        LicenseCreatorParamVO paramVO = new LicenseCreatorParamVO();
+        paramVO.setCustomerName("测试客户");
+        paramVO.setDescription("测试客户 License");
+        paramVO.setKeyPass("123456abc");
+        paramVO.setStorePass("123456abc");
+        // 设置过期时间（示例：签发后 1 天）
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(Instant.now().toEpochMilli() + 24L * 3600L * 1000L);
+        paramVO.setExpireTime(calendar.getTime());
+        // 采集目标服务器硬件信息作为额外校验参数（也可由客户提供后手工组装 LicenseExtraModel）
+        LicenseExtraModel extraModel = licenseCreateService.getServerInfo();
+        paramVO.setLicenseExtraModel(extraModel);
+        licenseCreateService.generateLicense(paramVO);
+    }
+}
+```
+
+`LicenseCreatorParamVO` 主要字段：
+
+| 字段 | 说明 |
+|:-----|:-----|
+| `customerName` | 客户名称，同时作为证书 subject 与密钥库别名前缀 |
+| `keyPass` | 私钥密码（须包含数字和字母） |
+| `storePass` | 密钥库密码（须包含数字和字母） |
+| `expireTime` | 有效期截止时间 |
+| `description` | 描述信息 |
+| `licenseSavePath` | License 产物保存路径（可选） |
+| `licenseExtraModel` | 额外的服务器硬件校验信息（IP、MAC、CPU 序列号、主板序列号） |
+
+<Callout type="info">
+- 生成路径：未设置 `licenseSavePath` 时，Windows 下默认输出到 `C:/license/`，Linux/macOS 下默认输出到 `/data/license/`（见 `LicenseCreateService.relativePath`）。
+- 生成器会在运行环境调用 `keytool` 命令，请确保运行环境中 JDK 的 `keytool` 可执行（JDK 17 及以上会自动追加 `-keyalg DSA` 参数）。
+- 硬件信息采集建议在**目标部署服务器**上执行 `getServerInfo()`（或由客户提供其服务器信息），否则校验端会因硬件不匹配而验证失败。
+</Callout>

@@ -1,0 +1,168 @@
+---
+title: MQTT
+description: 基于 Spring Integration MQTT 与 Eclipse Paho 封装，提供开箱即用的生产者与消费者能力，支持注解订阅（@MqttListener）与动态订阅（MqttOptions）。
+---
+
+`continew-starter-messaging-mqtt` 基于 Spring Integration MQTT 与 Eclipse Paho 封装，提供开箱即用的生产者与消费者能力，同时支持注解订阅（`@MqttListener`）与动态订阅（`MqttOptions`）。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-messaging-mqtt</artifactId>
+</dependency>
+```
+
+模块会传递引入 `spring-integration-mqtt` 与 `org.eclipse.paho.client.mqttv3`。
+
+<Callout type="warn">
+与多数模块不同，MQTT 的 `enabled` 默认值为 `false`（自动配置以 `@ConditionalOnProperty(havingValue = "true")` 生效），必须显式设置 `continew-starter.messaging.mqtt.enabled: true` 才会启用。
+</Callout>
+
+## 配置
+
+配置项位于 `continew-starter.messaging.mqtt` 前缀下，完整定义见 `top.continew.starter.messaging.mqtt.autoconfigure.properties.MqttProperties` 及嵌套的 `MqttProducerProperties`、`MqttConsumerProperties`、`MqttWillProperties`、`MqttExecutorProperties`：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `enabled` | 是否启用 MQTT 功能 | `false` |
+| `host` | Broker 地址，格式如 `tcp://127.0.0.1:1883`（支持 tcp / ssl / ws） | 无（必填） |
+| `username` | 用户名 | 无 |
+| `password` | 密码 | 无 |
+| `keep-alive-interval` | 心跳间隔（秒） | `60` |
+| `max-inflight` | 客户端允许同时存在的最大未确认消息数，超出后新消息阻塞 | `10` |
+| `clean-session` | 是否清除会话（`false` = 持久会话，保留订阅与未送达消息） | `false` |
+| `connection-timeout` | 连接超时（秒） | `30` |
+| `automatic-reconnect` | 是否启用自动重连 | `true` |
+| `max-reconnect-delay` | 自动重连最大延迟（毫秒） | `128000` |
+| `executor-service-timeout` | 关闭执行服务时的等待时长（秒） | `1` |
+| `will.topic` | 遗嘱消息主题（客户端异常掉线时由 Broker 发布） | 无 |
+| `will.payload` | 遗嘱消息内容 | 无 |
+| `will.qos` | 遗嘱消息 QoS | `0` |
+| `will.retained` | 遗嘱是否为保留消息 | `false` |
+| `https-hostname-verification-enabled` | 是否启用 HTTPS 主机名验证（SSL/TLS 时） | `false` |
+| `ssl-hostname-verifier` | 自定义 `HostnameVerifier`（替换默认主机名校验策略） | 无 |
+| `ssl-client-props` | SSL 客户端属性（证书路径、密钥密码等，Map 结构） | 无 |
+| `custom-web-socket-headers` | 使用 WebSocket 协议连接时的自定义请求头 | 无 |
+| `producer.client-id` | 生产者客户端 ID（为空时自动生成：应用名 + UUID） | 无 |
+| `producer.default-qos` | 默认 QoS（0/1/2） | `0` |
+| `producer.default-topic` | 默认主题（`sendToMqtt(payload)` 单参方法使用） | `producer` |
+| `producer.async` | 是否异步发送 | `false` |
+| `producer.async-events` | 是否异步触发发送事件（仅 `async = true` 时生效） | `false` |
+| `producer.default-retained` | 是否默认发送保留消息 | `false` |
+| `producer.executor.*` | 生产者线程池（异步时生效）：`core-pool-size` / `max-pool-size` / `keep-alive-seconds` / `queue-capacity` | `5` / `10` / `60` / `512` |
+| `consumer.client-id` | 消费者客户端 ID（为空时自动生成） | 无 |
+| `consumer.qos` | 默认订阅 QoS（0/1/2） | `0` |
+| `consumer.auto-start-up` | 是否随应用启动自动连接并订阅 | `true` |
+| `consumer.async` | 是否异步消费（`true` 时使用线程池处理消息） | `false` |
+| `consumer.completion-timeout` | 消息完成等待超时（毫秒） | `30000`（Paho 默认值） |
+| `consumer.disconnect-completion-timeout` | 断开连接完成等待超时（毫秒） | Paho 默认值 |
+| `consumer.executor.*` | 消费者线程池（异步时生效），同 `producer.executor.*` | `5` / `10` / `60` / `512` |
+
+```yaml
+continew-starter:
+  messaging:
+    mqtt:
+      enabled: true                     # 必须显式开启
+      host: tcp://127.0.0.1:1883        # Broker 地址
+      username: ContiNew
+      password: ContiNew
+      keep-alive-interval: 60
+      clean-session: false              # 持久会话
+      automatic-reconnect: true
+      max-reconnect-delay: 128000
+      connection-timeout: 30
+      will:                             # 遗嘱消息（可选）
+        topic: client/offline
+        payload: offline
+        qos: 1
+        retained: true
+      producer:                         # 生产者
+        client-id: mqtt-producer-001
+        default-qos: 0
+        default-topic: default/topic
+        async: false
+        default-retained: false
+      consumer:                         # 消费者
+        client-id: mqtt-consumer-001
+        qos: 0
+        auto-start-up: true
+        async: true                     # 异步消费，配合线程池
+        executor:
+          core-pool-size: 8
+          max-pool-size: 16
+          queue-capacity: 512
+```
+
+## 使用示例
+
+### 注解订阅
+
+实现 `MqttMessageConsumer` 接口并标注 `@MqttListener`（该注解本身带有 `@Component`，无需再标注其他 Spring 注解）；`topic` 支持配置占位符与通配符（`+` 单级、`#` 多级且只能用于末尾），`qos` 默认 `"0"`：
+
+```java
+@Slf4j
+@MqttListener(topic = "${robot.mqtt.topic}")
+public class RobotMqttConsumer implements MqttMessageConsumer {
+
+    @Override
+    public void onMessage(MqttMessage message) {
+        log.info("收到消息 - Topic: {}, QoS: {}", message.getTopic(), message.getQos());
+        log.info("消息内容: {}", message.getPayload());
+    }
+}
+```
+
+### 动态订阅
+
+注入 `MqttOptions` 在运行时增删订阅主题：
+
+```java
+@Component
+@RequiredArgsConstructor
+public class SubscriptionManager implements ApplicationRunner {
+
+    private final MqttOptions mqttOptions;
+
+    @Override
+    public void run(ApplicationArguments args) {
+        // 批量添加（默认 QoS），也可 addTopics(1, "a", "b") 指定 QoS
+        mqttOptions.addTopics("robot/topic2", "other/topic");
+        // 取消订阅：mqttOptions.removeTopics("other/topic");
+        // 查询已订阅：mqttOptions.listTopics();
+    }
+}
+```
+
+### 发布消息
+
+注入 `MqttMessageProducer` 网关接口发布消息：
+
+```java
+@RestController
+@RequiredArgsConstructor
+public class MqttController {
+
+    private final MqttMessageProducer producer;
+
+    @PostMapping("/publish")
+    public String publish(String payload) {
+        // 发送到默认主题（producer.default-topic）
+        producer.sendToMqtt(payload);
+        // 发送到指定主题
+        producer.sendToMqtt("robot/data", payload);
+        // 指定主题、QoS 与是否保留消息（payload 也支持 byte[]）
+        producer.sendToMqtt("robot/data", 1, false, payload);
+        return "发送成功";
+    }
+}
+```
+
+## 注意事项
+
+- **消息分发逻辑**：消息到达时由 `MqttMessageInboundHandler` 分发，优先匹配精确的注解订阅，不匹配时检查是否在动态订阅列表中，支持通配符与共享订阅；单个监听器异常会被自动捕获，不影响其他监听器。
+- **QoS 选择**：`0` 最多一次（最快，可能丢失）、`1` 至少一次（可能重复）、`2` 恰好一次（最可靠）。
+- **消息积压**：调大消费者线程池（`consumer.executor.core-pool-size` / `max-pool-size` / `queue-capacity`）并开启 `consumer.async`。
+- **消息持久化**：`clean-session: false` 配合 `producer.default-retained: true`，可让离线订阅者在重连后收到未送达消息、新订阅者立即收到保留消息。
+- **注解 vs 动态订阅**：注解适合固定主题、写法简洁；动态订阅适合运行时灵活调整，二者可混合使用。

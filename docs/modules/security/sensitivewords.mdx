@@ -1,0 +1,72 @@
+---
+title: 敏感词
+description: 基于 Hutool DFA 算法的敏感词检测，提供编程式检测服务 SensitiveWordsService 与 Bean Validation 校验注解 @SensitiveWords。
+---
+
+`continew-starter-security-sensitivewords` 基于 Hutool DFA 算法实现敏感词匹配，提供编程式检测服务 `SensitiveWordsService` 与 Bean Validation 校验注解 `@SensitiveWords`。
+
+### 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-security-sensitivewords</artifactId>
+</dependency>
+```
+
+### 配置
+
+配置项定义在 `top.continew.starter.security.sensitivewords.autoconfigure.SensitiveWordsProperties` 中。模块**不内置词库文件**，默认词库即配置项 `values`：
+
+```yaml
+continew-starter:
+  security:
+    sensitive-words:
+      # 敏感词列表
+      values:
+        - 敏感词一
+        - 敏感词二
+```
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `continew-starter.security.sensitive-words.values` | 敏感词列表 | 无 |
+
+<Callout type="info">
+需要从数据库等外部来源加载词库时，实现 `SensitiveWordsConfig` 接口（返回词列表的 `getWords()` 方法）并注册为 Bean 即可，自动配置提供的默认实现 `DefaultSensitiveWordsConfig`（`@ConditionalOnMissingBean`）会自动让位。
+</Callout>
+
+### 编程式检测
+
+注入 `SensitiveWordsService`，调用 `check(String content)`，返回命中的敏感词列表（未命中返回空列表）：
+
+```java
+@RequiredArgsConstructor
+@Service
+public class DemoService {
+
+    private final SensitiveWordsService sensitiveWordsService;
+
+    public void check(String content) {
+        List<String> hitWords = sensitiveWordsService.check(content);
+        // ...
+    }
+}
+```
+
+### 使用 @SensitiveWords 注解校验
+
+在 `String` 类型的字段/参数上标注 `@SensitiveWords`（默认消息：`内容包含敏感词汇`），命中时校验消息动态拼接为：`内容包含敏感词汇: 命中词1,命中词2`（见 `SensitiveWordsValidator`）：
+
+```java
+@Data
+public class CommentReq {
+
+    @SensitiveWords
+    private String content;
+}
+```
+
+## 参考资料
+
+- Hutool DFA 模块文档：https://hutool.cn/docs/#/dfa/概述

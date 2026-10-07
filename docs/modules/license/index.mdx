@@ -1,0 +1,24 @@
+---
+title: 许可证
+description: 基于 TrueLicense 的软件许可证书解决方案，由生成器（license-generator）签发 License，由校验器（license-verifier）在客户端启动时安装并验证 License。
+---
+
+软件许可证书（License）可在软件产品交付时，授权其使用时间和范围。当用户申请或购买变更使用时间和范围时，授权方可为用户签发新证书替换旧证书，避免修改源码、重新部署等繁琐操作。
+
+License 模块基于 [TrueLicense](https://github.com/schlichtherle/truelicense)（开源证书管理引擎）实现，由两个相互独立的子模块组成：
+
+- **生成器** `continew-starter-license-generator`：部署在授权方侧，负责生成密钥对、签发带硬件绑定信息的 License，并打包出客户端所需的 `clientLicense.zip`。
+- **校验器** `continew-starter-license-verifier`：集成在交付给客户的服务中，启动时自动解压并安装证书，验证有效期与服务器硬件信息（IP、MAC、CPU 序列号、主板序列号），验证失败则拒绝启动。
+
+整体工作方式：授权方用 keytool 生成公私钥证书库，私钥留在授权方侧用于签名 License，公钥库与配置文件打包发给客户端，校验器用公钥验证 License 签名及内容。
+
+<Cards>
+  <Card title="License 生成器" href="/docs/starter/modules/license/generator" />
+  <Card title="License 校验器" href="/docs/starter/modules/license/verifier" />
+</Cards>
+
+## 注意事项
+
+- 生成器与校验器共享 `continew-starter-license-core` 模块中的模型与工具类（如 `LicenseExtraModel`、`ServerInfoUtils`），无需单独引入，会随上述坐标传递依赖。
+- 模块传递依赖 `de.schlichtherle.truelicense:truelicense-core`（证书管理引擎）与 `net.lingala.zip4j:zip4j`（ZIP 压缩包处理）。
+- 两个子模块可独立引入：仅在授权方侧使用生成器，仅在客户端侧使用校验器。

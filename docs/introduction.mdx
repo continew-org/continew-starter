@@ -1,0 +1,67 @@
+---
+title: 什么是 ContiNew Starter
+description: ContiNew Starter 是什么、解决什么问题、包含哪些模块，以及它与传统集成方式的区别。
+icon: CircleQuestionMark
+---
+
+ContiNew Starter（Continue New Starter）基于「约定优于配置」理念，进一步精简常规配置，提供完整的配置解决方案，帮助开发人员更快速地将常用第三方库或工具集成到 Spring Boot Web 应用程序中。
+
+它封装了一系列经过企业实践验证的依赖包（如 MyBatis-Plus、Sa-Token、Redisson、JetCache 等），可轻松集成到应用中，减少手动引入依赖及配置的工作量，为 Spring Boot Web 项目的灵活快速构建提供支持。
+
+## 解决什么问题
+
+在 Spring Boot 项目中集成一个成熟组件，通常要经历：查依赖坐标 → 引入正确版本 → 编写配置类 → 调参 → 处理版本冲突。当项目里有十几个这样的组件时，这套重复劳动既繁琐又容易出错。
+
+ContiNew Starter 把这套流程收敛为**引入一个 Starter、配置几个属性**：
+
+- **统一的依赖管理**：全部第三方依赖版本由 `continew-starter-dependencies` 统一供给，你无需关心版本号，也无需担心组件间的版本冲突；
+- **开箱即用的自动配置**：每个模块通过 Spring Boot 3 的 `AutoConfiguration.imports` 机制注册，引入即生效，无需手写配置类；
+- **约定优于配置**：合理的默认值让你多数情况下「零配置」可用，需要定制时再以 `continew-starter.<module>` 前缀的属性覆盖；
+- **企业实践验证**：封装的组件与默认参数来自真实企业项目实践，而非简单包装。
+
+## 模块总览
+
+ContiNew Starter 是一个多模块 Starter 库，按功能划分为以下模块（点击可查看对应文档）。聚合模块以 `-core` 子模块定义接口与通用逻辑，`-mp` / `-mf` 提供特定 ORM 实现，按需选择。
+
+<Cards>
+  <Card title="core" description="核心：常量、PropertiesConstants、通用工具" href="/docs/starter/modules/core" />
+  <Card title="web" description="Web：跨域、全局异常与响应、链路追踪" href="/docs/starter/modules/web" />
+  <Card title="validation" description="参数校验：Hibernate Validator" href="/docs/starter/modules/validation" />
+  <Card title="json" description="JSON：Jackson 序列化" href="/docs/starter/modules/json" />
+  <Card title="api-doc" description="接口文档：Spring Doc + NextDoc4j" href="/docs/starter/modules/api-doc" />
+  <Card title="auth" description="认证：Sa-Token / JustAuth / Refresh Token" href="/docs/starter/modules/auth" />
+  <Card title="cache" description="缓存：Redisson / JetCache / Spring Cache" href="/docs/starter/modules/cache" />
+  <Card title="data" description="数据访问：MyBatis Plus / MyBatis Flex" href="/docs/starter/modules/data" />
+  <Card title="encrypt" description="加密：字段加密 / API 加密 / 密码编码" href="/docs/starter/modules/encrypt" />
+  <Card title="security" description="安全：脱敏 / XSS / 敏感词" href="/docs/starter/modules/security" />
+  <Card title="captcha" description="验证码：图形 / 行为" href="/docs/starter/modules/captcha" />
+  <Card title="ratelimiter" description="限流" href="/docs/starter/modules/ratelimiter" />
+  <Card title="idempotent" description="幂等" href="/docs/starter/modules/idempotent" />
+  <Card title="trace" description="链路追踪" href="/docs/starter/modules/trace" />
+  <Card title="log" description="日志：AOP / 拦截器" href="/docs/starter/modules/log" />
+  <Card title="messaging" description="消息：邮件 / WebSocket / MQTT" href="/docs/starter/modules/messaging" />
+  <Card title="excel" description="Excel：FastExcel / POI" href="/docs/starter/modules/excel" />
+  <Card title="storage" description="存储：本地 / 对象存储（S3）" href="/docs/starter/modules/storage" />
+  <Card title="license" description="License：生成器 / 校验器" href="/docs/starter/modules/license" />
+  <Card title="extension" description="扩展：CRUD / 数据权限 / 租户" href="/docs/starter/modules/extension" />
+</Cards>
+
+## 环境要求
+
+| 要求 | 版本 |
+|:-----|:-----|
+| JDK | 17+ |
+| Spring Boot | 3.x |
+| 构建工具 | Maven 3.9+（或等效 Gradle） |
+
+<Callout type="info">
+ContiNew Starter 2.x 基于 Spring Boot 3.x 与 JDK 17。仍在使用 Spring Boot 2.x 的项目请参考历史版本文档。
+</Callout>
+
+## 项目源码
+
+| 平台 | 地址 |
+|:-----|:-----|
+| GitHub | https://github.com/continew-org/continew-starter |
+| AtomGit | https://atomgit.com/continew/continew-starter |
+| Gitee | https://gitee.com/continew/continew-starter |

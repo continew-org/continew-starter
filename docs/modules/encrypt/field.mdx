@@ -1,0 +1,121 @@
+---
+title: 字段加密
+description: 基于 MyBatis 拦截器的数据库字段加解密：标注 @FieldEncrypt 的字段写入时自动加密、查询时自动解密，对业务代码零侵入。
+---
+
+通过 MyBatis 拦截器对标注 `@FieldEncrypt` 注解的字段在写入时自动加密、查询时自动解密，对业务代码透明。支持实体字段、Map 参数、`@Param` 别名参数及 Wrapper 场景。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-encrypt-field</artifactId>
+</dependency>
+```
+
+<Callout type="info">
+字段加密基于 MyBatis 拦截器实现，依赖 `mybatis-plus-extension`，仅在 MyBatis（MyBatis Plus）持久层场景下生效。
+</Callout>
+
+## 配置
+
+配置项定义在 `top.continew.starter.encrypt.field.autoconfigure.FieldEncryptProperties` 中：
+
+```yaml
+continew-starter:
+  encrypt:
+    field:
+      # 是否启用（默认：true）
+      enabled: true
+      # 默认算法（默认：AES）
+      algorithm: AES
+      # 对称加密算法密钥
+      password: abcdefghijklmnop
+      # 非对称加密算法公钥（RSA 需要）
+      public-key: ''
+      # 非对称加密算法私钥（RSA 需要）
+      private-key: ''
+```
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `continew-starter.encrypt.field.enabled` | 是否启用字段加密自动配置 | `true` |
+| `continew-starter.encrypt.field.algorithm` | 默认加密算法 | `AES` |
+| `continew-starter.encrypt.field.password` | 对称加密算法密钥 | 无 |
+| `continew-starter.encrypt.field.public-key` | 非对称加密算法公钥（RSA） | 无 |
+| `continew-starter.encrypt.field.private-key` | 非对称加密算法私钥（RSA） | 无 |
+
+内置算法由 `top.continew.starter.encrypt.enums.Algorithm` 枚举定义：`AES`、`DES`、`PBE_WITH_MD5_AND_DES`、`RSA`、`BASE64`，另有 `DEFAULT` 表示跟随全局配置的 `algorithm`。
+
+## 使用 @FieldEncrypt 注解
+
+在需要加密的实体类字段上添加 `top.continew.starter.encrypt.field.annotation.FieldEncrypt` 注解：
+
+```java
+@Data
+public class User {
+
+    private Long id;
+
+    /**
+     * 用户名（普通字段）
+     */
+    private String username;
+
+    /**
+     * 手机号（加密字段，跟随全局默认算法）
+     */
+    @FieldEncrypt
+    private String phone;
+
+    /**
+     * 邮箱（加密字段，指定 RSA 算法与注解级密钥）
+     */
+    @FieldEncrypt(value = Algorithm.RSA, publicKey = "...", privateKey = "...")
+    private String email;
+}
+```
+
+注解属性：
+
+| 属性 | 说明 |
+|:-----|:-----|
+| `value` | 加密算法，默认 `DEFAULT`（跟随全局配置） |
+| `encryptor` | 自定义加密处理器（`IEncryptor` 实现类），优先级高于算法 |
+| `password` / `publicKey` / `privateKey` | 注解级密钥，非空时优先于全局配置 |
+
+## 编程式加解密
+
+非 ORM 场景可使用 `EncryptHelper` 工具类（`top.continew.starter.encrypt.field.util.EncryptHelper`），按全局默认配置或指定注解参数手工加解密：
+
+```java
+// 按全局默认配置
+String ciphertext = EncryptHelper.encrypt("明文");
+String plaintext = EncryptHelper.decrypt(ciphertext);
+```
+
+## 自定义加密器
+
+字段加密支持通过实现 `IEncryptor` 接口（`top.continew.starter.encrypt.encryptor.IEncryptor`）扩展自定义加密算法，在 `@FieldEncrypt(encryptor = 自定义加密器.class)` 上指定即可：
+
+```java
+public class MyEncryptor extends AbstractEncryptor {
+
+    public MyEncryptor(CryptoContext context) {
+        super(context);
+    }
+
+    @Override
+    public String encrypt(String plaintext) {
+        // 自定义加密逻辑
+    }
+
+    @Override
+    public String decrypt(String ciphertext) {
+        // 自定义解密逻辑
+    }
+}
+```
+
+`IEncryptor` 接口仅定义 `encrypt` / `decrypt` 两个方法；内置加密器均继承 `AbstractEncryptor` 以获取 `CryptoContext` 中的算法与密钥配置，自定义实现建议同样继承。

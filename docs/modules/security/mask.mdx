@@ -1,0 +1,119 @@
+---
+title: 数据脱敏
+description: 基于 @JsonMask 注解，在 Jackson 序列化阶段对 String 类型响应字段自动脱敏，内置多种脱敏类型并支持自定义策略，对业务代码零侵入。
+---
+
+`continew-starter-security-mask` 提供基于注解的数据脱敏能力，仅作用于 `String` 类型字段的 Jackson 序列化过程，对业务代码零侵入，保护敏感信息在传输与展示过程中的安全性。
+
+### 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-security-mask</artifactId>
+</dependency>
+```
+
+模块无需配置，引入依赖后在响应对象字段上添加 `@JsonMask` 注解即可：
+
+```java
+@Data
+@Schema(description = "用户信息响应")
+public class UserResp {
+
+    @Schema(description = "用户名")
+    private String username;
+
+    /**
+     * 手机号（脱敏）：保留前 3 位和后 4 位
+     */
+    @Schema(description = "手机号")
+    @JsonMask(MaskType.MOBILE_PHONE)
+    private String phone;
+
+    /**
+     * 邮箱（脱敏）：前缀仅保留第 1 个字母
+     */
+    @Schema(description = "邮箱")
+    @JsonMask(MaskType.EMAIL)
+    private String email;
+
+    /**
+     * 自定义脱敏：保留前 2 位和后 2 位
+     */
+    @Schema(description = "敏感信息")
+    @JsonMask(left = 2, right = 2)
+    private String sensitiveInfo;
+}
+```
+
+### 注解属性
+
+`@JsonMask`（`top.continew.starter.security.mask.annotation.JsonMask`）各属性定义如下：
+
+| 属性 | 说明 | 默认值 |
+|:-----|:-----|:-------|
+| `value` | 脱敏类型（`MaskType` 枚举） | `MaskType.CUSTOM` |
+| `strategy` | 自定义脱敏策略实现类，优先级高于 `value`，指定后将忽略 `value`/`left`/`right` 的类型语义（仍会作为参数传入策略） | `IMaskStrategy.class`（即不指定） |
+| `left` | 左侧保留位数，仅 `MaskType.CUSTOM` 时生效 | `0` |
+| `right` | 右侧保留位数，仅 `MaskType.CUSTOM` 时生效 | `0` |
+| `character` | 脱敏符号 | `*` |
+
+### 内置脱敏类型
+
+`MaskType` 枚举内置以下脱敏类型（规则与 `MaskType.java` 源码一致）：
+
+| 枚举值 | 脱敏类型 | 脱敏规则 |
+|:-------|:---------|:---------|
+| `CUSTOM` | 自定义脱敏 | 结合 `left`、`right` 配置保留首尾位数，其余替换为脱敏符号 |
+| `MOBILE_PHONE` | 手机号码 | 保留前 3 位和后 4 位，例如：`135****2210` |
+| `FIXED_PHONE` | 固定电话 | 保留前 4 位和后 2 位 |
+| `EMAIL` | 电子邮箱 | 邮箱前缀仅保留第 1 个字母，`@` 及之后不脱敏，例如：`d**@126.com` |
+| `ID_CARD` | 身份证号 | 保留前 1 位和后 2 位 |
+| `BANK_CARD` | 银行卡 | 清理空格后按 4 位分组展示，保留前 4 位；末尾按卡号长度保留 1-4 位，中间替换为脱敏符号，例如：`1234 **** **** 6789` |
+| `CAR_LICENSE` | 中国大陆车牌（含普通、新能源车辆） | 例如：`苏D40000` => `苏D4***0` |
+| `CHINESE_NAME` | 中文名 | 仅保留第 1 个汉字，例如：`李**` |
+| `PASSWORD` | 密码 | 全部字符替换为脱敏符号，例如：`******` |
+| `ADDRESS` | 地址 | 仅保留前部区域信息，末尾 8 个字符替换为脱敏符号，例如：`北京市海淀区****` |
+| `IPV4` | IPv4 地址 | 例如：`192.0.2.1` => `192.*.*.*` |
+| `IPV6` | IPv6 地址 | 例如：`2001:0db8:86a3:08d3:1319:8a2e:0370:7344` => `2001:*:*:*:*:*:*:*` |
+
+### 自定义脱敏策略
+
+对于内置类型无法满足的需求，实现 `IMaskStrategy` 接口并注册为 Spring Bean，再通过 `strategy` 属性引用即可：
+
+```java
+/**
+ * 自定义脱敏策略
+ */
+@Component
+public class CustomMaskStrategy implements IMaskStrategy {
+
+    /**
+     * 数据脱敏
+     *
+     * @param str       原始字符串
+     * @param character 脱敏符号
+     * @param left      左侧保留位数
+     * @param right     右侧保留位数
+     * @return 脱敏后的数据
+     */
+    @Override
+    public String mask(String str, char character, int left, int right) {
+        // 略
+    }
+}
+```
+
+```java
+@JsonMask(strategy = CustomMaskStrategy.class)
+private String sensitiveInfo;
+```
+
+<Callout type="warn">
+脱敏序列化器 `JsonMaskSerializer` 通过 `SpringUtil.getBean` 获取策略实例，自定义策略必须注册为 Spring Bean，否则启动或序列化时会因找不到 Bean 而失败。
+</Callout>
+
+## 参考资料
+
+- Jackson 自定义序列化文档：https://github.com/FasterXML/jackson-docs/wiki/JacksonHowToCustomSerializers

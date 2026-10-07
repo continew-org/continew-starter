@@ -1,0 +1,69 @@
+---
+title: 邮件
+description: 基于 spring-boot-starter-mail 自动装配 JavaMailSenderImpl 并封装 MailUtils 工具类，支持文本/HTML 邮件、抄送/密送与附件发送。
+---
+
+`continew-starter-messaging-mail` 自动装配 `JavaMailSenderImpl`，并提供静态工具类 `MailUtils`，支持发送普通文本邮件与 HTML 邮件，可指定收件人、抄送人、密送人与附件。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-messaging-mail</artifactId>
+</dependency>
+```
+
+模块会传递引入 `spring-boot-starter-mail`（Java 邮件支持）。
+
+## 配置
+
+邮件连接使用 Spring Boot 原生 `spring.mail.*` 配置项（对应 `org.springframework.boot.autoconfigure.mail.MailProperties`），其中 `default-encoding` 已由模块默认配置为 `utf-8`（见 `default-messaging-mail.yml`），可按需覆盖：
+
+```yaml
+spring:
+  mail:
+    host: smtp.example.com      # 邮件服务器地址
+    port: 465                   # 端口
+    username: your@example.com  # 用户名
+    password: your-password     # 密码（授权码）
+    default-encoding: utf-8
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+```
+
+<Callout type="info">
+如需在发送时动态决定邮件参数（例如由业务系统读取数据库中的邮箱服务器配置），可实现 `top.continew.starter.messaging.mail.core.MailConfigurer` 接口并注册为 Bean，返回自定义的 `MailConfig`（支持 `protocol`、`host`、`port`、`username`、`password`、`from`、`ssl-enabled`、`ssl-port` 等项）。`MailUtils` 在获取 `JavaMailSenderImpl` 时会自动应用该配置。
+</Callout>
+
+## 使用示例
+
+直接调用 `MailUtils` 静态方法发送邮件：
+
+```java
+import top.continew.starter.messaging.mail.util.MailUtils;
+
+// 发送文本邮件给单人（多个收件人可用英文逗号或分号分隔）
+MailUtils.sendText("user@example.com", "主题", "这是一封文本邮件");
+
+// 发送 HTML 邮件给单人
+MailUtils.sendHtml("user@example.com", "主题", "<h1>这是一封 HTML 邮件</h1>");
+
+// 发送 HTML 邮件给多人，并携带附件
+MailUtils.sendHtml(List.of("a@example.com", "b@example.com"), "主题", "<p>请查收附件</p>",
+    new File("D:/report.pdf"));
+
+// 完整形式：收件人 + 抄送人 + 密送人 + 附件
+MailUtils.sendHtml(tos, ccs, bccs, "主题", "<p>内容</p>", new File("D:/report.pdf"));
+
+// 最底层 API：可自行控制是否 HTML
+MailUtils.send(tos, null, null, "主题", "内容", false);
+```
+
+<Callout type="warn">
+上述方法均声明抛出 `jakarta.mail.MessagingException`，调用方需处理异常。发件人默认取 `mail.from` 属性，未配置时使用 `spring.mail.username`。
+</Callout>

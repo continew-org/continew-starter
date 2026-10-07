@@ -1,0 +1,27 @@
+---
+title: 数据访问
+description: 提供 MyBatis Plus 与 MyBatis Flex 双 ORM 增强实现：通用查询注解、通用 Mapper/Service、分页与数据权限等数据访问层开箱能力。
+---
+
+数据访问模块提供 **MyBatis Plus** 与 **MyBatis Flex** 两套 ORM 增强实现，二选一引入即可：
+
+| 模块 | 说明 |
+|:-----|:-----|
+| `continew-starter-data-mp` | 基于 MyBatis Plus 的增强：拦截器预配置、ID 生成器、`BaseEnum` 枚举处理、P6Spy SQL 分析 |
+| `continew-starter-data-mf` | 基于 MyBatis Flex 的增强：内置 SQL 级数据权限方言、分页插件、`flexId` 主键生成 |
+
+两个模块共用核心模块 `continew-starter-data-core` 提供的 `@Query` 通用查询注解体系（注解定义见 `Query.java`，查询类型枚举见 `QueryType.java`），并各自提供扩展的 `BaseMapper`、`IService`、`ServiceImpl` 与 `QueryWrapperHelper`。
+
+<Cards>
+  <Card title="MyBatis Plus" href="/docs/starter/modules/data/mybatis-plus">
+    基于 MyBatis Plus 的增强实现：扩展配置、@Query 通用查询、通用 Mapper/Service、拦截器与 P6Spy、ID 生成器等插件能力
+  </Card>
+  <Card title="MyBatis Flex" href="/docs/starter/modules/data/mybatis-flex">
+    基于 MyBatis Flex 的增强实现：扩展配置、@Query 通用查询、通用 Mapper/Service、数据权限方言与分页插件
+  </Card>
+</Cards>
+
+## 参考资料
+
+- MyBatis Plus 官方文档：https://baomidou.com/
+- MyBatis Flex 官方文档：https://mybatis-flex.com/

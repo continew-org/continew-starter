@@ -1,0 +1,221 @@
+---
+title: 日志
+description: 记录接口请求/响应日志（请求头、参数、IP、浏览器、耗时、异常等），提供 AOP 与拦截器两种实现，支持访问日志打印与可插拔持久化存储。
+---
+
+ContiNew Starter 日志模块用于记录 HTTP 接口的请求/响应日志（请求头、请求参数、IP 归属地、浏览器、操作系统、响应头、响应参数、耗时、异常信息等），并可像 Nginx access log 一样在控制台打印访问日志。模块提供两种实现，二选一引入：
+
+- **AOP 版**（`continew-starter-log-aop`）：以 `@Log` 注解为切点，按方法/类精细声明记录范围，与 Spring Doc 注解联动效果最佳；
+- **拦截器版**（`continew-starter-log-interceptor`）：基于 Spring MVC 拦截器实现（最初参考 Spring Boot Actuator 的 HttpExchange/HttpTrace），Web 层全量记录，无需修改业务代码。
+
+<Callout type="warn">
+两种实现注册的是同一个自动配置类 `top.continew.starter.log.autoconfigure.LogAutoConfiguration`，**不可同时引入**。需要「全量记录、零侵入」选拦截器版；需要「按 `@Log` 注解精细声明」选 AOP 版。
+</Callout>
+
+主要特性：
+
+- 记录内容灵活可配：请求头/请求体/请求参数、IP 归属地、浏览器、操作系统、响应头/响应体/响应参数等按需包含或排除
+- 访问日志打印：即使不记录日志的接口也可开启控制台访问日志，支持敏感参数过滤与超长参数截断
+- 放行路由：可配置不进行日志拦截/记录的路径
+- 可插拔存储：默认内存存储（容量 100），实现 `LogDao` 接口即可持久化到任意数据源
+- 与 Spring Doc 集成：自动识别 `@Operation`、`@Tag` 等注解记录操作描述与所属模块
+
+## 引入依赖
+
+<Tabs items={['AOP 版', '拦截器版']}>
+<Tab value="AOP 版">
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-log-aop</artifactId>
+</dependency>
+```
+
+</Tab>
+<Tab value="拦截器版">
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-log-interceptor</artifactId>
+</dependency>
+```
+
+</Tab>
+</Tabs>
+
+两个模块均依赖核心模块 `continew-starter-log-core`（提供 `@Log` 注解、配置属性、日志模型与 SPI），核心模块会顺带引入 `io.swagger.core.v3:swagger-annotations-jakarta` 与 `com.alibaba:transmittable-thread-local`。
+
+## 配置
+
+两种实现共用同一套配置（配置类 `top.continew.starter.log.model.LogProperties`，前缀 `continew-starter.log`）：
+
+```yaml
+continew-starter:
+  log:
+    # 是否启用（默认 true）
+    enabled: true
+    # 包含信息（默认：请求头、请求参数、响应头、响应参数）
+    includes:
+      - REQUEST_HEADERS
+      - REQUEST_PARAM
+      - RESPONSE_HEADERS
+      - RESPONSE_PARAM
+    # 放行路由（默认为空，匹配的路径不记录日志也不打印访问日志）
+    exclude-patterns: []
+    # 访问日志配置
+    access-log:
+      # 是否启用控制台访问日志打印（默认 false，不记录请求日志也支持开启）
+      enabled: false
+      # 是否打印请求参数（body/query/form，默认 false）
+      print-request-param: false
+      # 是否过滤敏感参数（默认 false）
+      param-sensitive: false
+      # 敏感参数字段列表（精确匹配，区分大小写）
+      sensitive-params: []
+      # 是否自动截断超长参数值，如 base64、大文本（默认 false）
+      long-param-truncate: false
+      # 超长参数检测阈值（单位：字符，默认 2000，仅在 long-param-truncate 启用时生效）
+      long-param-threshold: 2000
+      # 超长参数最大保留长度（单位：字符，默认 50）
+      long-param-max-length: 50
+      # 超长参数截断后缀（默认 ...）
+      long-param-suffix: ...
+```
+
+配置项说明（前缀均为 `continew-starter.log`）：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `enabled` | `boolean` | `true` | 是否启用日志模块 |
+| `includes` | `Set<Include>` | `REQUEST_HEADERS`、`REQUEST_PARAM`、`RESPONSE_HEADERS`、`RESPONSE_PARAM` | 全局包含信息 |
+| `exclude-patterns` | `List<String>` | 空 | 放行路由（Ant 风格路径），匹配的路径不记录日志、不打印访问日志 |
+| `access-log.enabled` | `boolean` | `false` | 是否打印访问日志（类似 Nginx access log） |
+| `access-log.print-request-param` | `boolean` | `false` | 访问日志是否打印请求参数（body/query/form） |
+| `access-log.param-sensitive` | `boolean` | `false` | 是否过滤敏感参数 |
+| `access-log.sensitive-params` | `List<String>` | 空 | 敏感参数字段列表（如 `password`、`token`，精确匹配、区分大小写） |
+| `access-log.long-param-truncate` | `boolean` | `false` | 是否自动截断超长参数值 |
+| `access-log.long-param-threshold` | `int` | `2000` | 超长参数检测阈值（字符），超过则触发截断 |
+| `access-log.long-param-max-length` | `int` | `50` | 超长参数截断后的最大保留长度（字符） |
+| `access-log.long-param-suffix` | `String` | `...` | 截断后追加的后缀符号 |
+
+### 包含信息（Include 枚举）
+
+除必然记录的请求方式、请求 URL 等基础信息外，其余内容由 `top.continew.starter.log.enums.Include` 枚举控制，可自由组合：
+
+| 枚举值 | 说明 |
+|:-------|:-----|
+| `DESCRIPTION` | 接口描述（来自 `@Log` 或 `@Operation`） |
+| `MODULE` | 所属模块（来自 `@Log` 或 `@Tag`） |
+| `REQUEST_HEADERS` | 请求头（默认） |
+| `REQUEST_BODY` | 请求体（如包含请求体，则请求参数无效） |
+| `REQUEST_PARAM` | 请求参数（默认） |
+| `IP_ADDRESS` | IP 归属地 |
+| `BROWSER` | 浏览器 |
+| `OS` | 操作系统 |
+| `RESPONSE_HEADERS` | 响应头（默认） |
+| `RESPONSE_BODY` | 响应体（如包含响应体，则响应参数无效） |
+| `RESPONSE_PARAM` | 响应参数（默认） |
+
+<Callout type="info">
+访问日志打印会自动排除常见静态资源与文档路径（`/doc.html`、`/v*/api-docs/**`、`/swagger-ui/**`、`/webjars/**`、`/favicon.ico`、`/actuator/**`、`/error` 等），无需手工配置 `exclude-patterns`。
+</Callout>
+
+## 使用
+
+<Tabs items={['AOP 版', '拦截器版']}>
+<Tab value="AOP 版">
+
+### 使用 @Log 注解
+
+AOP 版的切点为 `@Log` 注解，在接口方法或类上标注即可在方法执行完成（含异常）后记录一条日志：
+
+```java
+@Log(module = "系统管理", value = "新增用户")
+@PostMapping
+public Resp<Void> add(@Valid @RequestBody UserReq req) {
+    // 记录内容：请求与响应信息、耗时、异常信息等
+}
+```
+
+`@Log` 注解属性（`top.continew.starter.log.annotation.Log`）：
+
+| 属性 | 说明 |
+|:-----|:-----|
+| `value` | 日志描述（仅用于方法上），优先级高于 `@Operation(summary)` |
+| `module` | 所属模块（方法或类上），优先级：方法上的 `@Log(module)` > 类上的 `@Log(module)` > `@Tag(name)` |
+| `includes` | 在全局配置基础上扩展包含信息 |
+| `excludes` | 在全局配置基础上减少包含信息 |
+| `ignore` | 是否忽略日志记录（方法或类上，默认 `false`） |
+
+标注 `@Hidden` 或 `@Operation(hidden = true)` 的接口不会被记录。
+
+</Tab>
+<Tab value="拦截器版">
+
+### 全量记录与局部调整
+
+拦截器版通过 `LogInterceptor` 对 Web 层接口全量记录，无需修改业务代码；如需对单个接口或类精细调整，同样使用 `@Log` 注解（`top.continew.starter.log.annotation.Log`）：
+
+```java
+@Log(module = "系统管理", value = "新增用户", includes = Include.IP_ADDRESS)
+@PostMapping
+public Resp<Void> add(@Valid @RequestBody UserReq req) {
+    // 在全局 includes 基础上额外记录 IP 归属地
+}
+```
+
+`@Log` 注解属性（与 AOP 版一致）：`value`（日志描述）、`module`（所属模块）、`includes`（扩展包含信息）、`excludes`（减少包含信息）、`ignore`（是否忽略记录）。
+
+标注 `@Hidden` 或 `@Operation(hidden = true)` 的接口不会被记录。
+
+</Tab>
+</Tabs>
+
+### 与 Spring Doc 联动
+
+两种实现都会自动识别 Spring Doc 注解，补全日志的「描述」与「所属模块」信息（`@Log` 注解优先级更高）：
+
+- 描述：`@Log("新增部门")` > `@Operation(summary = "新增部门")`
+- 模块：方法上的 `@Log(module = "部门管理")` > 类上的 `@Log(module = "部门管理")` > `@Tag(name = "部门管理")`
+
+未通过注解指定描述或模块时，日志中会记录一条提示信息，引导添加 `@Log` 注解。
+
+## 自定义存储
+
+默认实现 `DefaultLogDao` 将日志保存在内存中（容量 100 条，超出后丢弃最旧记录）。实现 `top.continew.starter.log.dao.LogDao` 接口并注册为 Bean，即可将日志持久化到数据库等任意存储（模块内的 `LogDao` Bean 标注了 `@ConditionalOnMissingBean`，会被你的实现覆盖）：
+
+```java
+@RequiredArgsConstructor
+public class CustomLogDao implements LogDao {
+
+    private final LogMapper logMapper;
+
+    @Override
+    public void add(LogRecord logRecord) {
+        // 实现日志记录保存逻辑
+    }
+}
+```
+
+```java
+@Configuration
+@ConditionalOnEnabledLog
+public class LogConfiguration {
+
+    @Bean
+    public LogDao logDao() {
+        return new CustomLogDao();
+    }
+}
+```
+
+如需自定义日志内容处理，可继承 `AbstractLogHandler`（AOP 版默认处理器为 `AopLogHandler`，拦截器版为 `InterceptorLogHandler`）；AOP 版也可直接替换 `LogAspect` / `AccessLogAspect` Bean。
+
+## 注意事项
+
+- 两种实现互斥，只引入其中一个；自动配置仅在 Servlet Web 应用中生效。
+- 日志记录过程做了异常兜底：日志记录失败不会影响业务方法的正常返回或异常传播（异常以 ERROR 级别输出到控制台）。
+- `REQUEST_BODY` 与 `REQUEST_PARAM` 互斥（`RESPONSE_BODY` 与 `RESPONSE_PARAM` 同理）：包含 body 时对应的 param 记录无效。
+- 访问日志打印与请求日志记录相互独立：`continew-starter.log.access-log.enabled` 开启后，即使某接口未被 `@Log` 覆盖（AOP 版）也会打印访问日志。

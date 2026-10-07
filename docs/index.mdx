@@ -1,0 +1,110 @@
+---
+title: 快速开始
+description: 三步将 ContiNew Starter 集成到你的 Spring Boot 项目：锁定版本、引入模块、按需配置。
+icon: Rocket
+---
+
+集成 ContiNew Starter 只需三步：锁定版本、引入所需模块、按需配置。下面以最常用的 `web` 模块为例。
+
+<Steps>
+
+<Step>
+## 锁定版本
+
+在 `pom.xml` 中锁定 ContiNew Starter 版本，**两种方式任选其一**。
+
+**方式一：作为 Parent**（替换 Spring Boot Parent）
+
+```xml
+<parent>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter</artifactId>
+    <version>2.16.0</version>
+</parent>
+```
+
+**方式二：导入 Dependencies BOM**（替换 Spring Boot Dependencies）
+
+```xml
+<properties>
+    <java.version>17</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+</properties>
+
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>top.continew.starter</groupId>
+            <artifactId>continew-starter-dependencies</artifactId>
+            <version>2.16.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+<Callout type="info">
+示例版本号 `2.16.0` 请替换为最新版本，可在 [Maven Central](https://central.sonatype.com/search?namespace=top.continew.starter) 查询。
+</Callout>
+
+</Step>
+
+<Step>
+## 引入所需模块
+
+在 `pom.xml` 的 `<dependencies>` 中引入你需要的模块，**无需指定版本号**（由上面锁定的 BOM 统一供给）：
+
+```xml
+<dependencies>
+    <!-- Web 模块 -->
+    <dependency>
+        <groupId>top.continew.starter</groupId>
+        <artifactId>continew-starter-web</artifactId>
+    </dependency>
+</dependencies>
+```
+
+各模块坐标均为 `top.continew.starter:continew-starter-<模块名>`，完整模块清单见[功能模块](/docs/starter/modules/core)。
+
+</Step>
+
+<Step>
+## 按需配置
+
+在 `application.yml` 中按引入的模块添加配置。多数模块提供合理默认值，**只需配置你要定制的项**。
+
+示例：开启跨域配置
+
+```yaml
+continew-starter:
+  web:
+    cors:
+      enabled: true
+      allowed-origins: '*'   # 允许跨域的域名
+      allowed-methods: '*'   # 允许的请求方式
+      allowed-headers: '*'   # 允许的请求头
+      exposed-headers: '*'   # 暴露的响应头
+```
+
+全部配置项均以 `continew-starter.<模块>` 为前缀，详见[配置参考](/docs/starter/reference/properties)。
+
+</Step>
+
+</Steps>
+
+## 下一步
+
+- 按需求浏览[功能模块](/docs/starter/modules/core)，引入缓存、认证、加密等能力
+- 查阅[配置参考](/docs/starter/reference/properties)了解各模块全部配置项
+- 遇到问题先看[常见问题](/docs/starter/reference/faq)
+
+## 项目源码
+
+| 平台 | 地址 |
+|:-----|:-----|
+| GitHub | https://github.com/continew-org/continew-starter |
+| AtomGit | https://atomgit.com/continew/continew-starter |
+| Gitee | https://gitee.com/continew/continew-starter |

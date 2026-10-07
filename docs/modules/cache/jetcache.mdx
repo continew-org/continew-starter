@@ -1,0 +1,77 @@
+---
+title: JetCache
+description: continew-starter-cache-jetcache 提供多级缓存（本地 + 远程）解决方案，注解原生支持 TTL、两级缓存与分布式自动刷新，远程缓存基于 Redisson 适配。
+---
+
+`continew-starter-cache-jetcache` 提供多级缓存（本地 + 远程）解决方案。相比 Spring Cache，JetCache 注解原生支持 TTL、两级缓存与分布式自动刷新，并提供 `Cache` 接口用于手工缓存操作。引入依赖即自动装配，无启用开关。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-cache-jetcache</artifactId>
+</dependency>
+```
+
+<Callout type="info">
+本模块依赖 `continew-starter-cache-redisson`，远程缓存基于 Redisson 客户端适配（见 `pom.xml` 第 19-47 行），因此 Redis 连接与 `spring.data.redisson.*` 配置与 [Redisson](./redisson) 实现一致。
+</Callout>
+
+## 配置
+
+本模块无专属配置属性类，内置默认配置仅以下两项（由 `default-cache-jetcache.yml` 提供）；`jetcache.local.*`、`jetcache.remote.*` 等更多配置请按 JetCache 官方配置文档设置。
+
+```yaml
+jetcache:
+  # 统计间隔（默认 0，表示不统计）
+  statIntervalMinutes: 0
+  # 远程缓存 key 前缀中是否包含 areaName（新项目建议 false）
+  areaInCacheName: false
+```
+
+## 使用 @Cached 注解
+
+通过 `@EnableMethodCache` 开启方法缓存后，即可使用 JetCache 标准注解：
+
+```java
+@EnableMethodCache(basePackages = "com.example.demo")
+@SpringBootApplication
+public class Application {
+
+    public static void main(String[] args) {
+        SpringApplication.run(Application.class, args);
+    }
+}
+```
+
+```java
+@Service
+public class DemoService {
+
+    @Cached(name = "demo:", key = "#id", expire = 3600, cacheType = CacheType.BOTH)
+    public DemoVO get(Long id) {
+        // cacheType = BOTH 时同时使用本地与远程缓存（两级缓存）
+        return ...;
+    }
+
+    @CacheInvalidate(name = "demo:", key = "#id")
+    public void update(DemoReq req) {
+        // ...
+    }
+}
+```
+
+常用注解：`@Cached`（方法缓存）、`@CacheUpdate`（更新缓存）、`@CacheInvalidate`（失效缓存）、`@CacheRefresh`（自动刷新）、`@CachePenetrationProtect`（防击穿）。
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-cache-redisson` | Redisson 缓存支撑模块（远程缓存客户端基础） |
+| `com.alicp.jetcache:jetcache-autoconfigure` | JetCache 官方自动配置 |
+| `com.alicp.jetcache:jetcache-anno` | JetCache 注解与方法缓存支持 |
+| `com.alicp.jetcache:jetcache-redisson` | JetCache 的 Redisson 适配 |
+| `org.apache.commons:commons-pool2` | 通用对象池（Redis 连接池化依赖） |
+
+更多配置与注解细节请参考 [JetCache 官方文档](https://github.com/alibaba/jetcache/blob/master/docs/CN/Readme.md) 与 [JetCache 配置文档](https://github.com/alibaba/jetcache/blob/master/docs/CN/Config.md)。

@@ -1,0 +1,79 @@
+---
+title: 配置约定
+description: ContiNew Starter 的统一配置约定：属性前缀、自动配置注册机制与按需启用方式。
+icon: Settings
+---
+
+ContiNew Starter 各模块遵循统一的配置与自动配置约定。理解这些约定，能让你更高效地查阅和定制各模块配置。
+
+## 配置属性前缀
+
+所有配置属性统一使用 `continew-starter` 前缀，格式为 `continew-starter.<module>[.<sub-feature>]`。
+
+```yaml
+continew-starter:
+  web:
+    cors:
+      enabled: true          # continew-starter.web.cors
+  encrypt:
+    field:
+      enabled: true          # continew-starter.encrypt.field
+  cache:
+    type: jetcache           # continew-starter.cache
+```
+
+每个前缀常量定义在 `continew-starter-core` 的 `PropertiesConstants` 类中。绝大多数配置项都有合理默认值，**多数模块引入后「零配置」即可用**，只有当某能力默认关闭（如跨域），或你要修改默认行为时才需要显式配置。
+
+## 按需启用
+
+许多模块的能力通过 `enabled` 属性开关控制，默认关闭或开启依模块而定，但配置形式相同。
+
+```yaml
+continew-starter:
+  <module>:
+    enabled: true   # 开启该模块能力
+```
+
+## 自动配置机制
+
+每个 Starter 模块通过 Spring Boot 3 的 `AutoConfiguration.imports` 机制注册自动配置（**不是**旧版 `spring.factories`），位于各模块的以下路径。
+
+```
+src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
+```
+
+引入依赖后自动配置即生效，无需手写 `@Configuration`。如需禁用某个自动配置，可使用 Spring Boot 的排除机制。
+
+```yaml
+spring:
+  autoconfigure:
+    exclude: top.continew.starter.web.autoconfigure.WebAutoConfiguration
+```
+
+## 条件化装配
+
+多数自动配置类带有 `@ConditionalOnProperty`，只有当你设置了对应属性（通常是 `enabled: true`）才会装配对应 Bean。这意味着以下两点。
+
+- **未配置 = 不生效**：某些能力（如字段加密、API 加密）默认完全不装配，不产生任何开销；
+- **配置了才装配**：设置属性后，相关 Bean 才会创建并生效。
+
+## 覆盖默认 Bean
+
+多数模块的关键 Bean 标注了 `@ConditionalOnMissingBean`，你可以声明同类型 Bean 来覆盖默认实现。
+
+```java
+@Configuration
+public class CustomConfig {
+
+    @Bean
+    public MyService myService() {
+        // 你的自定义实现，将覆盖 Starter 的默认 Bean
+        return new MyServiceImpl();
+    }
+}
+```
+
+## 下一步
+
+- 各模块的具体配置项见[配置参考](/docs/starter/reference/properties)
+- 各模块的能力与用法见[功能模块](/docs/starter/modules/core)

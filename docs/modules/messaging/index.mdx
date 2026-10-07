@@ -1,0 +1,22 @@
+---
+title: 消息
+description: 消息模块提供邮件（mail）、WebSocket 服务端与 MQTT 三个子模块，覆盖邮件发送、服务端消息推送与 MQTT 发布/订阅等消息通信场景。
+---
+
+消息模块按通信方式拆分为三个相互独立的子模块，按需引入其一或组合使用：
+
+- **邮件** `continew-starter-messaging-mail`：基于 `spring-boot-starter-mail` 封装 `MailUtils` 工具类，支持文本/HTML 邮件、抄送/密送与附件；
+- **WebSocket** `continew-starter-messaging-websocket`：自动注册 WebSocket 端点并管理客户端会话，支持定向、批量与广播推送；
+- **MQTT** `continew-starter-messaging-mqtt`：基于 Spring Integration MQTT 与 Eclipse Paho，提供开箱即用的发布者与消费者能力，支持注解订阅与动态订阅。
+
+<Cards>
+  <Card title="邮件（mail）" href="/docs/starter/modules/messaging/mail">
+    基于 `spring-boot-starter-mail` 封装 `MailUtils` 工具类，支持文本/HTML 邮件、抄送/密送与附件。
+  </Card>
+  <Card title="WebSocket" href="/docs/starter/modules/messaging/websocket">
+    自动注册 WebSocket 端点并管理客户端会话，支持定向、批量与广播推送。
+  </Card>
+  <Card title="MQTT" href="/docs/starter/modules/messaging/mqtt">
+    基于 Spring Integration MQTT 与 Eclipse Paho，提供开箱即用的发布/订阅能力，支持注解订阅与动态订阅。
+  </Card>
+</Cards>

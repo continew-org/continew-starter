@@ -1,0 +1,108 @@
+---
+title: Redisson
+description: continew-starter-cache-redisson 基于 Redisson 提供 Redis 客户端增强，内置 RedisUtils、RedisLockUtils 工具类与分布式锁、限流器等分布式工具，支持单机、集群、哨兵三种部署模式。
+---
+
+`continew-starter-cache-redisson` 基于 Redisson 提供分布式缓存解决方案，尽可能兼容 Spring Redis 配置风格，并提供 `RedisUtils` 工具类简化常见 Redis 操作。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-cache-redisson</artifactId>
+</dependency>
+```
+
+## 配置
+
+配置属性类为 `top.continew.starter.cache.redisson.autoconfigure.RedissonProperties`，配置前缀为 `spring.data.redisson`。
+
+```yaml
+spring:
+  data:
+    ## Redisson 配置
+    redisson:
+      # 是否启用（默认 true）
+      enabled: true
+      # Redis 部署模式：SINGLE（单机，默认）/ CLUSTER（集群）/ SENTINEL（哨兵）
+      mode: SINGLE
+      # 缓存键统一前缀（可选）
+      key-prefix: myapp
+```
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `spring.data.redisson.enabled` | 是否启用 Redisson 自动配置（不配即启用） | `true` |
+| `spring.data.redisson.mode` | 部署模式：`SINGLE` / `CLUSTER` / `SENTINEL` | `SINGLE` |
+| `spring.data.redisson.key-prefix` | 缓存键统一前缀，通过 `NameMapper` 实现 | 无 |
+| `spring.data.redisson.single-server-config` | Redisson 原生单机配置（`SingleServerConfig`） | 无 |
+| `spring.data.redisson.cluster-servers-config` | Redisson 原生集群配置（`ClusterServersConfig`） | 无 |
+| `spring.data.redisson.sentinel-servers-config` | Redisson 原生哨兵配置（`SentinelServersConfig`） | 无 |
+
+连接参数（地址、密码、database 等）默认复用 `spring.data.redis.*` 的配置；`xxx-server-config` 中显式设置的值优先。集群与哨兵模式下节点地址的取值顺序为：
+
+1. `spring.data.redisson.cluster-servers-config.node-addresses` / `sentinel-servers-config.sentinel-addresses`；
+2. 否则回退到 `spring.data.redis.cluster.nodes` / `spring.data.redis.sentinel.nodes`。
+
+## 使用 RedisUtils
+
+`RedisUtils` 提供静态方法封装常见 Redis 操作：
+
+```java
+public class Demo {
+
+    public void demo() {
+        // 设置缓存，3 分钟后过期
+        RedisUtils.set("key", "value", Duration.ofMinutes(3));
+        // 键不存在时才设置
+        RedisUtils.setIfAbsent("key", "value");
+        // 读取缓存
+        String value = RedisUtils.get("key");
+        // 自增 / 自减
+        RedisUtils.incr("count");
+        // 限流：同一 key 每分钟最多通过 100 次
+        RedisUtils.rateLimit("limit:demo", RateType.OVERALL, 100, 60);
+        // 获取原生 RedissonClient，使用分布式对象、锁等全部能力
+        RedissonClient client = RedisUtils.getClient();
+    }
+}
+```
+
+`RedisUtils` 覆盖的操作类别（完整方法列表见源码 `top.continew.starter.cache.redisson.util.RedisUtils`）：
+
+- 基础 KV：`set` / `setIfAbsent` / `setIfExists` / `get` / `delete` / `deleteByPattern` / `expire` / `exists` / `keys`；
+- 计数：`incr` / `decr`；
+- 集合：List（`setList` / `getList`）、Hash（`hSet` / `hGet` / `hGetAll` 等）、ZSet（`zAdd` / `zRangeByScore` 等）；
+- 限流：`rateLimit`（基于 `RRateLimiter`）；
+- 消息发布订阅：`publish` / `subscribe`。
+
+## 使用 RedisLockUtils
+
+`RedisLockUtils` 封装 Redisson 分布式锁，实现 `AutoCloseable`，可配合 try-with-resources 自动释放：
+
+```java
+// 方式一：固定过期时间（默认锁过期 10s、获取锁超时 5s）
+try (RedisLockUtils lock = RedisLockUtils.tryLock("lock:order:" + orderId)) {
+    if (lock.isLocked()) {
+        // 持有锁，执行业务
+    }
+}
+
+// 方式二：看门狗自动续期，业务执行完才释放，适合执行时长不确定的场景
+try (RedisLockUtils lock = RedisLockUtils.tryLockWithWatchdog("lock:order:" + orderId)) {
+    if (lock.isLocked()) {
+        // 持有锁，锁由看门狗自动续期
+    }
+}
+```
+
+<Callout type="warn">
+未启用看门狗时，默认锁过期时间为 10 秒、获取锁超时时间为 5 秒（见 `RedisLockUtils` 中的 `DEFAULT_EXPIRE_TIME` 与 `DEFAULT_TIMEOUT`）。业务执行时间可能超过 10 秒时，请使用 `tryLock(key, expireTime, timeout)` 显式指定过期时间，或改用 `tryLockWithWatchdog`。
+</Callout>
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `org.redisson:redisson-spring-boot-starter` | Redisson（分布式锁、限流器等分布式工具） |
