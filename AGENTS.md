@@ -58,7 +58,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 ## 构建与测试命令
 
 ```bash
-# 完整构建（全部门禁：validate 阶段 Enforcer -> Spotless -> Checkstyle，编译，verify 阶段 SpotBugs）
+# 完整构建（validate 阶段 Enforcer -> Spotless -> Checkstyle，编译 + 单元测试，verify 阶段 SpotBugs）
 ./mvnw verify
 
 # 仅编译（含 validate 阶段三道门禁，不含 SpotBugs）——仅用于快速迭代，不可作为提交前自检
@@ -77,7 +77,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 ./mvnw clean
 ```
 
-单元测试随模块维护（如 `continew-starter-auth-refresh-token` 内置 67 个用例，无外部依赖，本地与 CI 自动执行）。代码改动的验证方式是执行 `./mvnw verify` 确保四道门禁与全部单元测试通过。
+单元测试随模块维护（如 `continew-starter-auth-refresh-token` 内置 67 个用例，无外部依赖，本地与 CI 自动执行）。代码改动的验证方式是执行 `./mvnw verify` 确保四道静态门禁与全部单元测试通过。
 
 版本管理：`${revision}` 属性定义在 `continew-starter-dependencies` 与 `continew-starter-bom` 中，`flatten-maven-plugin` 在 `process-resources` 阶段将其解析为实际版本并生成用于发布的简化 `.flattened-pom.xml`——修改版本只需改一处。
 
@@ -85,13 +85,15 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 
 提交 Java 代码前，AI 智能体**必须**让门禁通过：
 
-1. 执行 `./mvnw verify`。四道门禁依次为：validate 阶段的 **Enforcer**（构建环境与依赖合规）、**Spotless check**（代码格式）、**Checkstyle**（代码规范），以及编译后 verify 阶段的 **SpotBugs**（字节码缺陷），任一不通过都会直接构建失败。
+1. 执行 `./mvnw verify`。门禁依次为：validate 阶段的 **Enforcer**（构建环境与依赖合规）、**Spotless check**（代码格式）、**Checkstyle**（代码规范），编译后 test 阶段的**单元测试**，以及 verify 阶段的 **SpotBugs**（字节码缺陷），任一不通过都会直接构建失败。
 2. 若被 Spotless 拦截，执行 `./mvnw compile -Pformat` 自动修复，然后再执行一次 `./mvnw verify` 确认通过。
-3. 四道门禁全部通过后才能提交。
+3. 全部门禁与单元测试通过后才能提交。
 
-> **无需跑门禁**：四道门禁只作用于 Java 源码与 POM。仅改文档（`*.md`）、运行时配置（各模块 `src/main/resources/` 下的 `*.yml`、`*.properties`）、CI workflow 或脚本时，不触发任何门禁，可直接提交，无需执行 `./mvnw verify`。
+> **无需跑门禁**：四道静态门禁与单元测试只作用于 Java 源码与 POM。仅改文档（`*.md`）、运行时配置（各模块 `src/main/resources/` 下的 `*.yml`、`*.properties`）、CI workflow 或脚本时，不触发任何门禁，可直接提交，无需执行 `./mvnw verify`。
 
 构建过程**不会修改任何源码文件**；`-Pformat` 是唯一会修改源码的 profile。不要用 IDE 格式化或 `git diff --check` 替代 Spotless 门禁——IDE 格式化引擎是另一套实现，可能放行项目格式化器拒绝的代码。
+
+**Sonar 覆盖率**：`./mvnw verify -Psonar` 会激活 JaCoCo（prepare-agent + report），Sonar 分析自动读取各模块 `target/site/jacoco/jacoco.xml`；日常 `./mvnw verify` 不激活该 profile，无额外开销。
 
 ## 代码风格
 
@@ -110,6 +112,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 | 行宽 | 最多 **100 字符**（由 Spotless 的 Eclipse 格式化器 `lineSplit=100` 强制；Checkstyle `LineLength` 设为 150 仅作兜底） |
 | 星号导入 | **禁止**（`AvoidStarImport`） |
 | 无用 import | **禁止**（`-Pformat` 自动清理） |
+| import 顺序 | 静态导入置顶，第三方组居中，JDK 平台组（java/javax/jakarta）收尾；组内按字典序（不含尾部分隔符比较，短前缀在前）、组间空行分隔（`CustomImportOrder` 强制，Spotless 不做排序） |
 | 大括号 | `if/else/for/while/do-while` 必须加大括号（`NeedBraces`） |
 | 空行 | 连续空行最多保留 1 行（`EmptyLineSeparator`） |
 | 类注释 | 必须包含 `@author` 与 `@since` 标签（`@author` 由 `JavadocType(authorFormat=\S)` 门禁强制；`@since` 保持约定。嵌套类型按行业惯例不强制 `@author`/`@since`） |
@@ -201,7 +204,7 @@ public class XxxAutoConfiguration {
 **提交前检查**：
 
 ```bash
-./mvnw verify     # 四道门禁必须全部通过（被 Spotless 拦截时使用 -Pformat）
+./mvnw verify     # 四道静态门禁与单元测试必须全部通过（被 Spotless 拦截时使用 -Pformat）
 ```
 
 ## 安全漏洞
