@@ -92,6 +92,7 @@
         <!-- Maven Plugin Versions -->
         <flatten.version>1.8.0</flatten.version>
         <sonar.version>5.7.0.6970</sonar.version>
+        <jacoco.version>0.8.13</jacoco.version>
         <spotless.version>3.9.0</spotless.version>
         <checkstyle.version>11.0.0</checkstyle.version>
         <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
@@ -742,6 +743,27 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                 </plugin>
+                <!-- 单元测试覆盖率插件（经 -Psonar 激活，为 Sonar 分析采集单测覆盖率） -->
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco.version}</version>
+                    <executions>
+                        <execution>
+                            <id>jacoco-prepare-agent</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>jacoco-report</id>
+                            <phase>test</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -831,6 +853,10 @@
             </activation>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                    </plugin>
                     <plugin>
                         <groupId>org.sonarsource.scanner.maven</groupId>
                         <artifactId>sonar-maven-plugin</artifactId>
