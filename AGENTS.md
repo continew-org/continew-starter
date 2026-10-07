@@ -116,6 +116,8 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 | 大括号 | `if/else/for/while/do-while` 必须加大括号（`NeedBraces`） |
 | 空行 | 连续空行最多保留 1 行（`EmptyLineSeparator`） |
 | 类注释 | 必须包含 `@author` 与 `@since` 标签（`@author` 由 `JavadocType(authorFormat=\S)` 门禁强制；`@since` 保持约定。嵌套类型按行业惯例不强制 `@author`/`@since`） |
+| @since 取值 | 标注**当前形态首次发布的版本**（如 `@since 2.17.0`），禁止日期；新类取当前开发版本；类发布后新增的 public/protected 方法在方法 Javadoc 补方法级 `@since`（存量不补，private 不标）；迁移或删除后重加的类按"宁新勿旧"取最新形态的版本 |
+| @author 署名 | 类级必填：创建者一行在前，实质贡献者按贡献顺序追加；**方法级禁止**（第三方改编代码的来源署名除外，如 Hutool 的 `Looly`/`looly`/`echo` 及社区文章致谢，保留以示出处）；AI 辅助创建或重写的类，`@author` 仍署**使用该 AI 的用户**（提交作者本人），AI 辅助信息只体现在 commit trailer `Assisted-by`，不进入源码署名 |
 | Javadoc | **禁止单行 Javadoc**：注释一律展开为多行（`RegexpSingleline` 强制）；方法注释需写全 `@param`（含类型参数）/`@return`，接口方法按 P3C【强制】必须写全 |
 | 内联全限定名 | **禁止**（`InlineFullyQualifiedName`：与依赖库同名时应调整类名，而非内联全限定名绕过） |
 | 格式化豁免 | `// @formatter:off` 与 `// @formatter:on` 之间的代码不参与格式化 |
