@@ -81,7 +81,6 @@ public interface CrudService<L, D, Q, C> {
      * @param isSimple     是否为简单树结构（不包含基本树结构之外的扩展字段，简单树（下拉列表）使用全局配置结构，复杂树（表格）使用 @TreeField 局部配置）
      * @param isSingleRoot 是否为单个根节点
      * @return 树列表信息
-     * @author lishuyan
      * @since 2.13.3
      * @see TreeField
      * @see top.continew.starter.extension.crud.autoconfigure.CrudTreeDictModelProperties

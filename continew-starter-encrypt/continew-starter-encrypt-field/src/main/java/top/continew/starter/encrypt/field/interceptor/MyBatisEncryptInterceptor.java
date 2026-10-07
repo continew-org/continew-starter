@@ -155,7 +155,6 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
      *
      * @param parameter       Wrapper 参数
      * @param mappedStatement 映射语句
-     * @author cary
      * @author wangshaopeng@talkweb.com.cn（<a
      *         href="https://blog.csdn.net/tianmaxingkonger/article/details/130986784">基于Mybatis-Plus拦截器实现MySQL数据加解密</a>）
      * @since 2.1.1

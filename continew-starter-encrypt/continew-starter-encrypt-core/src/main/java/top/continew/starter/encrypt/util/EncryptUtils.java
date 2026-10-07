@@ -38,7 +38,6 @@ public class EncryptUtils {
      *
      * @param data 待编码数据
      * @return 编码后字符串
-     * @author lishuyan
      */
     public static String encodeByBase64(String data) {
         return Base64.encode(data, StandardCharsets.UTF_8);
@@ -49,7 +48,6 @@ public class EncryptUtils {
      *
      * @param data 待解码数据
      * @return 解码后字符串
-     * @author lishuyan
      */
     public static String decodeByBase64(String data) {
         return Base64.decodeStr(data, StandardCharsets.UTF_8);
@@ -61,7 +59,6 @@ public class EncryptUtils {
      * @param data     待加密数据
      * @param password 秘钥字符串
      * @return 加密后字符串, 采用 Base64 编码
-     * @author lishuyan
      */
     public static String encryptByAes(String data, String password) {
         if (CharSequenceUtil.isBlank(password)) {
@@ -82,7 +79,6 @@ public class EncryptUtils {
      * @param data     待解密数据
      * @param password 秘钥字符串
      * @return 解密后字符串
-     * @author lishuyan
      */
     public static String decryptByAes(String data, String password) {
         if (CharSequenceUtil.isBlank(password)) {
@@ -103,7 +99,6 @@ public class EncryptUtils {
      * @param data      待加密数据
      * @param publicKey 公钥
      * @return 加密后字符串, 采用Base64编码
-     * @author lishuyan
      */
     public static String encryptByRsa(String data, String publicKey) {
         if (CharSequenceUtil.isBlank(publicKey)) {
@@ -119,7 +114,6 @@ public class EncryptUtils {
      * @param data       待解密数据
      * @param privateKey 私钥
      * @return 解密后字符串
-     * @author lishuyan
      */
     public static String decryptByRsa(String data, String privateKey) {
         if (CharSequenceUtil.isBlank(privateKey)) {

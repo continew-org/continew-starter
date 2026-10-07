@@ -53,7 +53,6 @@ public class MapUtils {
      * @param to   需要合并的map
      * @param from 需要被合并的map
      * @return {@code Map<String, Object>} 必须重新使用的map
-     * @author luoqiz
      * @since 2.14.0
      */
     public static Map<String, Object> mergeMap(Map<String, Object> to, Map<String, Object> from) {

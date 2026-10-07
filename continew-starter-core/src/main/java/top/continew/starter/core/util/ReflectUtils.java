@@ -79,7 +79,6 @@ public class ReflectUtils {
      * @param <K>        返回值类型
      * @return {@code Function<T, K>} 方法引用
      * @throws IllegalArgumentException 如果参数不合法
-     * @author lishuyan
      * @since 2.13.2
      */
     // 方法引用需经 unreflect 绑定不可见的非 public 方法，setAccessible 为必要手段
