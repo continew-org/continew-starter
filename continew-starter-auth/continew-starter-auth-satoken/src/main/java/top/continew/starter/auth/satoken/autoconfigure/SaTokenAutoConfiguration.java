@@ -21,7 +21,6 @@ import cn.dev33.satoken.jwt.StpLogicJwtForSimple;
 import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpLogic;
 import cn.dev33.satoken.stp.StpUtil;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -35,6 +34,8 @@ import top.continew.starter.auth.satoken.autoconfigure.dao.SaTokenDaoConfigurati
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Sa-Token 自动配置

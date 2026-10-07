@@ -25,10 +25,10 @@ import top.continew.starter.storage.domain.model.req.ThumbnailInfo;
 import top.continew.starter.storage.domain.model.req.ThumbnailSize;
 import top.continew.starter.storage.processor.preprocess.ThumbnailProcessor;
 
-import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import javax.imageio.ImageIO;
 
 /**
  * 默认缩略图处理器

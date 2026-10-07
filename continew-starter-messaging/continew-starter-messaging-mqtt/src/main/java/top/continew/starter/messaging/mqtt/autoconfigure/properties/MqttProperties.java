@@ -20,8 +20,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.NestedConfigurationProperty;
 import top.continew.starter.core.constant.PropertiesConstants;
 
-import javax.net.ssl.HostnameVerifier;
 import java.util.Properties;
+import javax.net.ssl.HostnameVerifier;
 
 /**
  * 配置参数

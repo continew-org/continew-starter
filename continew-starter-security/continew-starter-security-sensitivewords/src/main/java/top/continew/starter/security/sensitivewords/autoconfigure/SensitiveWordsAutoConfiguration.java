@@ -16,7 +16,6 @@
 
 package top.continew.starter.security.sensitivewords.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -27,6 +26,8 @@ import top.continew.starter.security.sensitivewords.service.DefaultSensitiveWord
 import top.continew.starter.security.sensitivewords.service.DefaultSensitiveWordsService;
 import top.continew.starter.security.sensitivewords.service.SensitiveWordsConfig;
 import top.continew.starter.security.sensitivewords.service.SensitiveWordsService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * 敏感词自动配置

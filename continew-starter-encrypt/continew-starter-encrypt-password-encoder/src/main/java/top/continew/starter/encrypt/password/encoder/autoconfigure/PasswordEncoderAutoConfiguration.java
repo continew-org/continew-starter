@@ -16,7 +16,6 @@
 
 package top.continew.starter.encrypt.password.encoder.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -32,6 +31,7 @@ import top.continew.starter.core.util.validation.CheckUtils;
 import top.continew.starter.encrypt.password.encoder.enums.PasswordEncoderAlgorithm;
 import top.continew.starter.encrypt.password.encoder.util.PasswordEncoderUtil;
 
+import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;

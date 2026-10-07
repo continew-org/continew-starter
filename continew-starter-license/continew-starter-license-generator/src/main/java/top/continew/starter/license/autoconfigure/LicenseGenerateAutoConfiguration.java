@@ -16,7 +16,6 @@
 
 package top.continew.starter.license.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -24,9 +23,10 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-
-import top.continew.starter.license.service.LicenseCreateService;
 import top.continew.starter.core.constant.PropertiesConstants;
+import top.continew.starter.license.service.LicenseCreateService;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * license 生成模块 自动配置

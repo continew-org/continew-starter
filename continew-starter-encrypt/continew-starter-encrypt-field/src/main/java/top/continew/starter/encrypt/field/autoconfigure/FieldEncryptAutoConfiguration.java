@@ -16,7 +16,6 @@
 
 package top.continew.starter.encrypt.field.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -28,6 +27,8 @@ import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.encrypt.field.interceptor.MyBatisDecryptInterceptor;
 import top.continew.starter.encrypt.field.interceptor.MyBatisEncryptInterceptor;
 import top.continew.starter.encrypt.field.util.EncryptHelper;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * 字段加密自动配置

@@ -27,7 +27,6 @@ import cn.hutool.db.meta.TableType;
 import top.continew.starter.core.exception.BusinessException;
 import top.continew.starter.data.enums.DatabaseType;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
@@ -35,6 +34,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.sql.DataSource;
 
 /**
  * 数据库元数据信息工具类

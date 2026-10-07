@@ -16,8 +16,6 @@
 
 package top.continew.starter.validation.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.validation.Validator;
 import org.hibernate.validator.BaseHibernateValidatorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +23,9 @@ import org.springframework.boot.autoconfigure.AutoConfigureBefore;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.validation.Validator;
 
 /**
  * JSR 303 校验器自动配置

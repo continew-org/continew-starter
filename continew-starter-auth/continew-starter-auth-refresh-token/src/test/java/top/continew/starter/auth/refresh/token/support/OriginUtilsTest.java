@@ -16,10 +16,10 @@
 
 package top.continew.starter.auth.refresh.token.support;
 
-import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Origin 严格校验边界测试。

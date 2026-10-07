@@ -16,6 +16,9 @@
 
 package top.continew.starter.web.autoconfigure.server;
 
+import io.undertow.Undertow;
+import io.undertow.server.handlers.DisallowedMethodsHandler;
+import io.undertow.util.HttpString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -26,10 +29,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
 import org.springframework.context.annotation.Bean;
-
-import io.undertow.Undertow;
-import io.undertow.server.handlers.DisallowedMethodsHandler;
-import io.undertow.util.HttpString;
 import org.springframework.context.annotation.PropertySource;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.util.CollUtils;

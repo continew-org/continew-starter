@@ -20,7 +20,6 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.anji.captcha.service.CaptchaCacheService;
 import com.anji.captcha.service.impl.CaptchaCacheServiceMemImpl;
 import com.anji.captcha.service.impl.CaptchaServiceFactory;
-import jakarta.annotation.PostConstruct;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,8 @@ import org.springframework.core.ResolvableType;
 import top.continew.starter.captcha.behavior.cache.BehaviorCaptchaCacheService;
 import top.continew.starter.captcha.behavior.enums.StorageType;
 import top.continew.starter.core.constant.PropertiesConstants;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * 行为验证码缓存配置

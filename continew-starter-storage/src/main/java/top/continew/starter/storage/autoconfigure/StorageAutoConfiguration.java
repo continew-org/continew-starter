@@ -16,7 +16,6 @@
 
 package top.continew.starter.storage.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
@@ -33,6 +32,8 @@ import top.continew.starter.storage.annotation.PlatformProcessor;
 import top.continew.starter.storage.autoconfigure.properties.StorageProperties;
 import top.continew.starter.storage.core.FileStorageService;
 import top.continew.starter.storage.engine.StorageDecoratorManager;
+import top.continew.starter.storage.engine.StorageStrategyRegistrar;
+import top.continew.starter.storage.engine.StorageStrategyRouter;
 import top.continew.starter.storage.processor.preprocess.FileNameGenerator;
 import top.continew.starter.storage.processor.preprocess.FilePathGenerator;
 import top.continew.starter.storage.processor.preprocess.FileValidator;
@@ -43,12 +44,11 @@ import top.continew.starter.storage.processor.preprocess.impl.DefaultThumbnailPr
 import top.continew.starter.storage.processor.preprocess.impl.FileSizeValidator;
 import top.continew.starter.storage.processor.preprocess.impl.FileTypeValidator;
 import top.continew.starter.storage.processor.registry.ProcessorRegistry;
-import top.continew.starter.storage.engine.StorageStrategyRegistrar;
-import top.continew.starter.storage.engine.StorageStrategyRouter;
 import top.continew.starter.storage.service.FileProcessor;
 import top.continew.starter.storage.service.FileRecorder;
 import top.continew.starter.storage.service.impl.DefaultFileRecorder;
 
+import jakarta.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 

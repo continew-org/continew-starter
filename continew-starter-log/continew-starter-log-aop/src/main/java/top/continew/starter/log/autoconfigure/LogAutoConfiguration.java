@@ -16,8 +16,6 @@
 
 package top.continew.starter.log.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.servlet.DispatcherType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -37,6 +35,9 @@ import top.continew.starter.log.filter.LogFilter;
 import top.continew.starter.log.handler.AopLogHandler;
 import top.continew.starter.log.handler.LogHandler;
 import top.continew.starter.log.model.LogProperties;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.DispatcherType;
 
 /**
  * 日志自动配置

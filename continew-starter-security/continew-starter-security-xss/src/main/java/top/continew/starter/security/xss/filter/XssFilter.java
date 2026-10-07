@@ -17,6 +17,11 @@
 package top.continew.starter.security.xss.filter;
 
 import cn.hutool.core.collection.CollUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import top.continew.starter.core.util.SpringUtils;
+import top.continew.starter.security.xss.autoconfigure.XssProperties;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -24,11 +29,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import top.continew.starter.core.util.SpringUtils;
-import top.continew.starter.security.xss.autoconfigure.XssProperties;
-
 import java.io.IOException;
 import java.util.List;
 

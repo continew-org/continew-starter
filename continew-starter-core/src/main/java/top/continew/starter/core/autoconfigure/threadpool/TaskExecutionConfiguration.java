@@ -17,7 +17,6 @@
 package top.continew.starter.core.autoconfigure.threadpool;
 
 import cn.hutool.core.util.ArrayUtil;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
@@ -36,6 +35,7 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.exception.BaseException;
 
+import jakarta.annotation.PostConstruct;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.Executor;

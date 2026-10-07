@@ -30,8 +30,8 @@ import top.continew.starter.core.exception.BadRequestException;
 import top.continew.starter.core.util.ReflectUtils;
 import top.continew.starter.core.util.validation.ValidationUtils;
 import top.continew.starter.data.annotation.Query;
-import top.continew.starter.data.enums.QueryType;
 import top.continew.starter.data.enums.LogicalRelation;
+import top.continew.starter.data.enums.QueryType;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;

@@ -17,7 +17,6 @@
 package top.continew.starter.messaging.mqtt.autoconfigure;
 
 import cn.hutool.core.util.ObjectUtil;
-import jakarta.annotation.PostConstruct;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +53,7 @@ import top.continew.starter.messaging.mqtt.msg.MqttMessageProducer;
 import top.continew.starter.messaging.mqtt.strategy.MqttOptions;
 import top.continew.starter.messaging.mqtt.strategy.MqttTemplate;
 
+import jakarta.annotation.PostConstruct;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;

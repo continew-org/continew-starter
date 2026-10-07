@@ -16,7 +16,6 @@
 
 package top.continew.starter.messaging.websocket.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -35,6 +34,8 @@ import top.continew.starter.messaging.websocket.core.WebSocketClientService;
 import top.continew.starter.messaging.websocket.core.WebSocketInterceptor;
 import top.continew.starter.messaging.websocket.dao.DefaultWebSocketSessionDao;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * WebSocket 自动配置

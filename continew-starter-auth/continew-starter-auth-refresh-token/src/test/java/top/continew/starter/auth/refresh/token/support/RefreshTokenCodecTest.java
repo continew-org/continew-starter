@@ -16,22 +16,22 @@
 
 package top.continew.starter.auth.refresh.token.support;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpStatus;
-import top.continew.starter.auth.refresh.token.autoconfigure.RefreshTokenProperties;
-import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec.IssuedToken;
-import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec.ParsedToken;
-import top.continew.starter.auth.refresh.token.exception.RefreshTokenException;
-import top.continew.starter.core.exception.BusinessException;
-
-import java.util.Base64;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import top.continew.starter.auth.refresh.token.autoconfigure.RefreshTokenProperties;
+import top.continew.starter.auth.refresh.token.exception.RefreshTokenException;
+import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec.IssuedToken;
+import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec.ParsedToken;
+import top.continew.starter.core.exception.BusinessException;
+
+import java.util.Base64;
 
 /**
  * Refresh Token 编解码安全边界测试。

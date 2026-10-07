@@ -20,7 +20,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.configuration.SpringDocConfiguration;
@@ -34,6 +33,8 @@ import top.continew.starter.apidoc.processor.BaseEnumProcessor;
 import top.continew.starter.core.autoconfigure.application.ApplicationProperties;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.nextdoc4j.enums.resolver.EnumMetadataResolver;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * API 文档自动配置

@@ -18,8 +18,6 @@ package top.continew.starter.auth.refresh.token.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -32,8 +30,8 @@ import top.continew.starter.auth.refresh.token.enums.RefreshTokenModeEnum;
 import top.continew.starter.auth.refresh.token.enums.SessionReplacementScope;
 import top.continew.starter.auth.refresh.token.exception.RefreshTokenException;
 import top.continew.starter.auth.refresh.token.model.AuthSecurityVersion;
-import top.continew.starter.auth.refresh.token.model.RefreshClientPolicy;
 import top.continew.starter.auth.refresh.token.model.IssuedAccessToken;
+import top.continew.starter.auth.refresh.token.model.RefreshClientPolicy;
 import top.continew.starter.auth.refresh.token.model.RefreshIssueResult;
 import top.continew.starter.auth.refresh.token.model.RefreshRotationResult;
 import top.continew.starter.auth.refresh.token.model.RefreshSession;
@@ -50,15 +48,17 @@ import top.continew.starter.auth.refresh.token.support.RefreshTokenRequestGuard;
 import top.continew.starter.cache.redisson.util.RedisLockUtils;
 import top.continew.starter.core.exception.BusinessException;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
-import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * 基于单 Session 状态的 Refresh Token 实现。

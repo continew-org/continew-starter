@@ -19,7 +19,6 @@ package top.continew.starter.auth.refresh.token.support;
 import cn.hutool.core.util.StrUtil;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.embedded.CaffeineCacheBuilder;
-import jakarta.annotation.PostConstruct;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import top.continew.starter.auth.refresh.token.api.AuthSessionConstants;
 import top.continew.starter.auth.refresh.token.autoconfigure.RefreshTokenProperties;
 
+import jakarta.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 
 /**

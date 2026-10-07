@@ -16,6 +16,10 @@
 
 package top.continew.starter.data.util;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+
 import cn.hutool.extra.spring.SpringUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Bean;
@@ -23,10 +27,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import top.continew.starter.core.exception.BadRequestException;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.mock;
 
 /**
  * 排序字段白名单校验测试。

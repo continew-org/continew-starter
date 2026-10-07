@@ -19,6 +19,7 @@ package top.continew.starter.extension.crud.annotation;
 import org.springframework.context.annotation.Import;
 import top.continew.starter.extension.crud.autoconfigure.CrudApiAutoConfiguration;
 import top.continew.starter.extension.crud.autoconfigure.CrudRequestMappingAutoConfiguration;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

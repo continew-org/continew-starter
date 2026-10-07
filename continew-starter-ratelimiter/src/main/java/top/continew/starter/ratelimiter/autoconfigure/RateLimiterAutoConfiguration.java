@@ -16,7 +16,6 @@
 
 package top.continew.starter.ratelimiter.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,8 @@ import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.ratelimiter.aop.RateLimiterAspect;
 import top.continew.starter.ratelimiter.generator.DefaultRateLimiterNameGenerator;
 import top.continew.starter.ratelimiter.generator.RateLimiterNameGenerator;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * 限流器自动配置

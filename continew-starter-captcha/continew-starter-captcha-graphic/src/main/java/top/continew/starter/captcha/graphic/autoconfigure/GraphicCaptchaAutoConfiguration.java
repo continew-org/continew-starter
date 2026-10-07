@@ -16,7 +16,6 @@
 
 package top.continew.starter.captcha.graphic.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -26,6 +25,8 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import top.continew.starter.captcha.graphic.core.GraphicCaptchaService;
 import top.continew.starter.core.constant.PropertiesConstants;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * 图形验证码自动配置

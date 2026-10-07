@@ -19,7 +19,6 @@ package top.continew.starter.auth.satoken.autoconfigure.dao;
 import cn.dev33.satoken.dao.SaTokenDao;
 import cn.dev33.satoken.dao.SaTokenDaoDefaultImpl;
 import cn.dev33.satoken.dao.SaTokenDaoForRedisson;
-import jakarta.annotation.PostConstruct;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +29,8 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * SaToken 持久层配置

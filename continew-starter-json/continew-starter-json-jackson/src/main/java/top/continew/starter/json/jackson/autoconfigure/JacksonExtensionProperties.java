@@ -17,7 +17,6 @@
 package top.continew.starter.json.jackson.autoconfigure;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import top.continew.starter.json.jackson.enums.BigNumberSerializeMode;
 
 /**

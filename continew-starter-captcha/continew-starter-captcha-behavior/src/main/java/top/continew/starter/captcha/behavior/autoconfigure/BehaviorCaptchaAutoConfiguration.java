@@ -23,7 +23,6 @@ import com.anji.captcha.model.common.Const;
 import com.anji.captcha.service.CaptchaService;
 import com.anji.captcha.service.impl.CaptchaServiceFactory;
 import com.anji.captcha.util.ImageUtils;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -39,6 +38,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import top.continew.starter.captcha.behavior.autoconfigure.cache.BehaviorCaptchaCacheConfiguration;
 import top.continew.starter.core.constant.PropertiesConstants;
 
+import jakarta.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;

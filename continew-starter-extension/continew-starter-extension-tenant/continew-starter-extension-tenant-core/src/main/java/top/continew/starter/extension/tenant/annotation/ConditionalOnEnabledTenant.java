@@ -18,6 +18,7 @@ package top.continew.starter.extension.tenant.annotation;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import top.continew.starter.core.constant.PropertiesConstants;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

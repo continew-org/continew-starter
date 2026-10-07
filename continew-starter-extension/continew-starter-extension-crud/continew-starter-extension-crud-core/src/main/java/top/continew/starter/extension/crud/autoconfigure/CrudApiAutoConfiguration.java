@@ -16,7 +16,6 @@
 
 package top.continew.starter.extension.crud.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -26,6 +25,8 @@ import org.springframework.context.annotation.Bean;
 import top.continew.starter.extension.crud.annotation.CrudApi;
 import top.continew.starter.extension.crud.aop.CrudApiAnnotationAdvisor;
 import top.continew.starter.extension.crud.aop.CrudApiAnnotationInterceptor;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * CRUD API 自动配置

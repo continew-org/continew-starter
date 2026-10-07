@@ -23,7 +23,6 @@ import com.baomidou.mybatisplus.extension.plugins.inner.BlockAttackInnerIntercep
 import com.baomidou.mybatisplus.extension.plugins.inner.InnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.OptimisticLockerInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -39,6 +38,7 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.continew.starter.data.autoconfigure.idgenerator.MyBatisPlusIdGeneratorConfiguration;
 import top.continew.starter.data.handler.CompositeBaseEnumTypeHandler;
 
+import jakarta.annotation.PostConstruct;
 import java.util.Map;
 
 /**

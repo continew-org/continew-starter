@@ -17,11 +17,11 @@
 package top.continew.starter.extension.crud.model.query;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.Min;
 import org.hibernate.validator.constraints.Range;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Sort;
 
+import jakarta.validation.constraints.Min;
 import java.io.Serial;
 
 /**

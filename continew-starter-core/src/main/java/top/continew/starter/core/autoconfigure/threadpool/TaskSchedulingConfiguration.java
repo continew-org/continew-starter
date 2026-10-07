@@ -16,7 +16,6 @@
 
 package top.continew.starter.core.autoconfigure.threadpool;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -26,6 +25,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
 import top.continew.starter.core.constant.PropertiesConstants;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * {@link EnableAutoConfiguration Auto-configuration} for {@link TaskScheduler}.

@@ -16,14 +16,14 @@
 
 package top.continew.starter.storage.processor.preprocess.impl;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import top.continew.starter.storage.common.exception.StorageException;
 import top.continew.starter.storage.domain.model.context.UploadContext;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * 上传文件类型校验器测试。

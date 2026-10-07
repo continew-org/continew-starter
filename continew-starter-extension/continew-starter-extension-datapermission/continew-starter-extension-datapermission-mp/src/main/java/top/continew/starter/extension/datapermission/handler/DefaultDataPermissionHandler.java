@@ -48,12 +48,12 @@ import top.continew.starter.extension.datapermission.model.RoleData;
 import top.continew.starter.extension.datapermission.model.UserData;
 import top.continew.starter.extension.datapermission.provider.DataPermissionUserDataProvider;
 
-import javax.sql.DataSource;
 import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.sql.DataSource;
 
 /**
  * 默认数据权限处理器

@@ -16,8 +16,6 @@
 
 package top.continew.starter.encrypt.api.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.servlet.DispatcherType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -29,6 +27,9 @@ import top.continew.starter.core.constant.OrderedConstants;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.encrypt.api.filter.ApiEncryptFilter;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.servlet.DispatcherType;
 
 /**
  * API 加密自动配置

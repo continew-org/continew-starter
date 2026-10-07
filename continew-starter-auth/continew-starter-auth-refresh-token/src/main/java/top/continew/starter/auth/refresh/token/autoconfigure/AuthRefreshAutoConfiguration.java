@@ -16,7 +16,6 @@
 
 package top.continew.starter.auth.refresh.token.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +50,10 @@ import top.continew.starter.auth.refresh.token.websocket.WebSocketCredentialRegi
 import top.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.messaging.websocket.autoconfigure.WebSocketAutoConfiguration;
-import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
 import top.continew.starter.messaging.websocket.core.WebSocketClientService;
+import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * Refresh Token 认证会话自动配置。

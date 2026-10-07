@@ -23,8 +23,6 @@ import com.alibaba.ttl.TransmittableThreadLocal;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.log.annotation.Log;
@@ -38,6 +36,8 @@ import top.continew.starter.log.model.AccessLogProperties;
 import top.continew.starter.log.model.LogRecord;
 import top.continew.starter.log.util.AccessLogUtils;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.time.Duration;
 import java.time.Instant;

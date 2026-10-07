@@ -39,7 +39,6 @@ import top.continew.starter.license.model.LicenseExtraModel;
 import top.continew.starter.license.util.ExecCmdUtil;
 import top.continew.starter.license.util.ServerInfoUtils;
 
-import javax.security.auth.x500.X500Principal;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -48,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.prefs.Preferences;
+import javax.security.auth.x500.X500Principal;
 
 /**
  * 证书生成接口 实现类

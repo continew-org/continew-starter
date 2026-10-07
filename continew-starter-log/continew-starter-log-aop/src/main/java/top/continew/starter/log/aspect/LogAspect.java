@@ -17,8 +17,6 @@
 package top.continew.starter.log.aspect;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -36,6 +34,8 @@ import top.continew.starter.log.handler.LogHandler;
 import top.continew.starter.log.model.LogProperties;
 import top.continew.starter.log.model.LogRecord;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.lang.reflect.Method;
 import java.time.Instant;
 

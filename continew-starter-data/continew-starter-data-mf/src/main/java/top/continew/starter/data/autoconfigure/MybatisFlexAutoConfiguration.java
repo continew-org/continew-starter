@@ -18,8 +18,6 @@ package top.continew.starter.data.autoconfigure;
 
 import com.mybatisflex.core.dialect.DbType;
 import com.mybatisflex.core.dialect.DialectFactory;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.Resource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -31,6 +29,9 @@ import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.continew.starter.data.datapermission.DataPermissionDialect;
 import top.continew.starter.data.datapermission.DataPermissionFilter;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 
 /**
  * MyBatis Flex 自动配置

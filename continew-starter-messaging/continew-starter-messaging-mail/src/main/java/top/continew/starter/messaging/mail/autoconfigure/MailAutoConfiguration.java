@@ -17,7 +17,6 @@
 package top.continew.starter.messaging.mail.autoconfigure;
 
 import cn.hutool.core.map.MapUtil;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -28,6 +27,8 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.continew.starter.core.util.MapUtils;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * 邮件自动配置

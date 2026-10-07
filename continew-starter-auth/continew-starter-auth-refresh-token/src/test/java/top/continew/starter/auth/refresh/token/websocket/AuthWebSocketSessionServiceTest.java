@@ -16,21 +16,6 @@
 
 package top.continew.starter.auth.refresh.token.websocket;
 
-import cn.dev33.satoken.stp.StpUtil;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.redisson.api.RTopic;
-import org.redisson.api.RedissonClient;
-import org.redisson.api.listener.MessageListener;
-import org.springframework.beans.factory.ObjectProvider;
-import org.springframework.web.socket.CloseStatus;
-import org.springframework.web.socket.WebSocketSession;
-import top.continew.starter.auth.refresh.token.api.AuthSessionConstants;
-import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
-import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
-
-import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,6 +27,21 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import cn.dev33.satoken.stp.StpUtil;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.redisson.api.RTopic;
+import org.redisson.api.RedissonClient;
+import org.redisson.api.listener.MessageListener;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.web.socket.CloseStatus;
+import org.springframework.web.socket.WebSocketSession;
+import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
+import top.continew.starter.auth.refresh.token.api.AuthSessionConstants;
+import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
+
+import java.util.Set;
 
 /**
  * Refresh Session 撤销与 WebSocket 连接联动测试。

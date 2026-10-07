@@ -16,13 +16,13 @@
 
 package top.continew.starter.auth.refresh.token.support;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import org.junit.jupiter.api.Test;
 import top.continew.starter.auth.refresh.token.api.AuthPolicyLockTarget;
 
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * 用户策略锁参数解析测试。

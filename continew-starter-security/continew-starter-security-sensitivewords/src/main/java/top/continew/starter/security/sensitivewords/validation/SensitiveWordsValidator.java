@@ -16,11 +16,11 @@
 
 package top.continew.starter.security.sensitivewords.validation;
 
+import top.continew.starter.security.sensitivewords.service.SensitiveWordsService;
+
 import jakarta.annotation.Resource;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import top.continew.starter.security.sensitivewords.service.SensitiveWordsService;
-
 import java.util.List;
 
 /**

@@ -16,16 +16,6 @@
 
 package top.continew.starter.auth.refresh.token.websocket;
 
-import cn.dev33.satoken.stp.StpUtil;
-import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.http.server.ServletServerHttpRequest;
-import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
-import top.continew.starter.auth.refresh.token.autoconfigure.RefreshTokenProperties;
-import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec;
-import top.continew.starter.core.exception.BusinessException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -34,6 +24,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
+
+import cn.dev33.satoken.stp.StpUtil;
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.mock.web.MockHttpServletRequest;
+import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
+import top.continew.starter.auth.refresh.token.autoconfigure.RefreshTokenProperties;
+import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec;
+import top.continew.starter.core.exception.BusinessException;
 
 /**
  * WebSocket 握手凭证与可记录客户端标识分离测试。

@@ -16,7 +16,6 @@
 
 package top.continew.starter.auth.justauth.autoconfigure.cache;
 
-import jakarta.annotation.PostConstruct;
 import me.zhyd.oauth.cache.AuthDefaultStateCache;
 import me.zhyd.oauth.cache.AuthStateCache;
 import org.redisson.api.RedissonClient;
@@ -32,6 +31,8 @@ import org.springframework.core.ResolvableType;
 import top.continew.starter.auth.justauth.autoconfigure.JustAuthProperties;
 import top.continew.starter.auth.justauth.cache.RedisAuthStateCache;
 import top.continew.starter.core.constant.PropertiesConstants;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * JustAuth State 缓存配置

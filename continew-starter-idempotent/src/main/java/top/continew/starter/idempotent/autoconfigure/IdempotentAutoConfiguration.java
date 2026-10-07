@@ -16,7 +16,6 @@
 
 package top.continew.starter.idempotent.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -29,6 +28,8 @@ import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.idempotent.aop.IdempotentAspect;
 import top.continew.starter.idempotent.generator.DefaultIdempotentNameGenerator;
 import top.continew.starter.idempotent.generator.IdempotentNameGenerator;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * 幂等自动配置

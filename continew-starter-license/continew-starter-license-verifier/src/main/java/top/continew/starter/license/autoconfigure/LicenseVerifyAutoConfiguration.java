@@ -16,6 +16,7 @@
 
 package top.continew.starter.license.autoconfigure;
 
+import de.schlichtherle.license.LicenseManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -23,13 +24,12 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
-
-import de.schlichtherle.license.LicenseManager;
-import jakarta.annotation.PostConstruct;
-import top.continew.starter.license.initializing.LicenseStarterInitializingBean;
-import top.continew.starter.license.bean.LicenseInstallerBean;
-import top.continew.starter.license.manager.CustomLicenseManager;
 import top.continew.starter.core.constant.PropertiesConstants;
+import top.continew.starter.license.bean.LicenseInstallerBean;
+import top.continew.starter.license.initializing.LicenseStarterInitializingBean;
+import top.continew.starter.license.manager.CustomLicenseManager;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * license 校验模块 自动配置

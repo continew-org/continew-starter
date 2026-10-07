@@ -19,7 +19,6 @@ package top.continew.starter.data.autoconfigure.idgenerator;
 import cn.hutool.core.net.NetUtil;
 import com.baomidou.mybatisplus.core.incrementer.DefaultIdentifierGenerator;
 import com.baomidou.mybatisplus.core.incrementer.IdentifierGenerator;
-import jakarta.annotation.PostConstruct;
 import me.ahoo.cosid.IdGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +30,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.ResolvableType;
 import top.continew.starter.data.idgenerator.MyBatisPlusCosIdIdentifierGenerator;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * MyBatis Plus ID 生成器配置

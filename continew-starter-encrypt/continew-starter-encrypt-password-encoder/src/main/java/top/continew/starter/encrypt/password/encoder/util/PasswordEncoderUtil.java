@@ -16,13 +16,13 @@
 
 package top.continew.starter.encrypt.password.encoder.util;
 
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
-import top.continew.starter.encrypt.password.encoder.exception.PasswordEncodeException;
 import top.continew.starter.encrypt.password.encoder.enums.PasswordEncoderAlgorithm;
+import top.continew.starter.encrypt.password.encoder.exception.PasswordEncodeException;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

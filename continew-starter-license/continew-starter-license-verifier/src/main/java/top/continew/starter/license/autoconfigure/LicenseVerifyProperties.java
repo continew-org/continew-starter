@@ -16,9 +16,8 @@
 
 package top.continew.starter.license.autoconfigure;
 
-import org.springframework.boot.context.properties.ConfigurationProperties;
-
 import cn.hutool.core.io.FileUtil;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;
 
 /**

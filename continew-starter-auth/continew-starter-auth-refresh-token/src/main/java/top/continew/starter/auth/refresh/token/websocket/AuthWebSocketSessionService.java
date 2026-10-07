@@ -16,8 +16,6 @@
 
 package top.continew.starter.auth.refresh.token.websocket;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -31,6 +29,8 @@ import top.continew.starter.auth.refresh.token.api.AuthSessionRevocationNotifier
 import top.continew.starter.auth.refresh.token.support.AccessTokenClaimsReader;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Map;

@@ -16,7 +16,6 @@
 
 package top.continew.starter.auth.justauth.autoconfigure;
 
-import jakarta.annotation.PostConstruct;
 import me.zhyd.oauth.cache.AuthStateCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +27,8 @@ import org.springframework.context.annotation.Import;
 import top.continew.starter.auth.justauth.AuthRequestFactory;
 import top.continew.starter.auth.justauth.autoconfigure.cache.JustAuthStateCacheConfiguration;
 import top.continew.starter.core.constant.PropertiesConstants;
+
+import jakarta.annotation.PostConstruct;
 
 /**
  * JustAuth 自动配置

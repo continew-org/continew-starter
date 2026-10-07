@@ -18,7 +18,6 @@ package top.continew.starter.extension.tenant.autoconfigure;
 
 import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
 import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
-import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -29,16 +28,17 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.ResolvableType;
+import top.continew.starter.extension.tenant.TenantDataSourceHandler;
 import top.continew.starter.extension.tenant.annotation.ConditionalOnEnabledTenant;
 import top.continew.starter.extension.tenant.aop.TenantIgnoreAspect;
 import top.continew.starter.extension.tenant.config.TenantProvider;
-import top.continew.starter.extension.tenant.TenantDataSourceHandler;
 import top.continew.starter.extension.tenant.handler.datasource.DefaultTenantDataSourceHandler;
 import top.continew.starter.extension.tenant.handler.datasource.TenantDataSourceAdvisor;
 import top.continew.starter.extension.tenant.handler.datasource.TenantDataSourceInterceptor;
 import top.continew.starter.extension.tenant.handler.line.DefaultTenantLineHandler;
 import top.continew.starter.extension.tenant.interceptor.TenantInterceptor;
 
+import jakarta.annotation.PostConstruct;
 import javax.sql.DataSource;
 
 /**

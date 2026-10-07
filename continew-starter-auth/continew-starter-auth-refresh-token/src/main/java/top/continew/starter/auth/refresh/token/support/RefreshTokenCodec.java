@@ -19,10 +19,6 @@ package top.continew.starter.auth.refresh.token.support;
 import top.continew.starter.auth.refresh.token.autoconfigure.RefreshTokenProperties;
 import top.continew.starter.auth.refresh.token.exception.RefreshTokenException;
 
-import javax.crypto.Cipher;
-import javax.crypto.Mac;
-import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
@@ -30,6 +26,10 @@ import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.regex.Pattern;
+import javax.crypto.Cipher;
+import javax.crypto.Mac;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * Refresh Token 编解码器。
