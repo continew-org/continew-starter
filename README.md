@@ -40,7 +40,7 @@
 <img src="https://gitee.com/continew/continew-starter/badge/fork.svg?theme=dark" alt="Gitee Forks" />
 </a>
 
-📚 [在线文档](https://continew.top) | 💬 [吐槽广场（你就是 Talk King!）](https://continew.top/docs/starter/issue-hub.html)
+📚 [在线文档](https://continew.top) | 💬 [提交 Issue](https://github.com/continew-org/continew-starter/issues)
 
 ## 简介
 
@@ -248,7 +248,7 @@ ContiNew 系列项目采用清晰的分支策略，确保开发与维护有序�
 | dev   | 开发分支，用于下个大版本的 SNAPSHOT 开发，接受新功能或功能优化 PR |
 | x.x.x | 维护分支，用于特定版本（如 vx.x.x）的 bug 修复，仅接受已有功能的修复 PR，不接受新功能 |
 
-详细贡献流程（环境准备、代码规范配置、本地门禁检查、提交规范、CLA 签署等）请查阅 [贡献指南](CONTRIBUTING.md)。欢迎各位感兴趣的小伙伴儿，[添加微信](https://continew.top/discussion.html) 讨论或认领任务。
+详细贡献流程（环境准备、代码规范配置、本地门禁检查、提交规范、CLA 签署等）请查阅 [贡献指南](CONTRIBUTING.md)。欢迎各位感兴趣的小伙伴儿，[添加微信](#反馈交流) 讨论或认领任务。
 
 ## 反馈交流
 
