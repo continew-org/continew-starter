@@ -85,11 +85,17 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
             if (dataPermission != null && dataPermissionUserDataProvider.isFilter()) {
                 return buildDataScopeFilter(dataPermission, where);
             }
+            return where;
+        } catch (DataPermissionException e) {
+            LOGGER.error("Data permission handler build data scope filter occurred an error: {}.",
+                e.getMessage(), e);
+            throw e;
         } catch (Exception e) {
             LOGGER.error("Data permission handler build data scope filter occurred an error: {}.",
                 e.getMessage(), e);
+            throw new DataPermissionException(
+                "Failed to build data permission filter for: " + mappedStatementId, e);
         }
-        return where;
     }
 
     /**
