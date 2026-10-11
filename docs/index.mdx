@@ -19,7 +19,7 @@ icon: Rocket
 <parent>
     <groupId>top.continew.starter</groupId>
     <artifactId>continew-starter</artifactId>
-    <version>2.16.0</version>
+    <version>2.17.0</version>
 </parent>
 ```
 
@@ -38,7 +38,7 @@ icon: Rocket
         <dependency>
             <groupId>top.continew.starter</groupId>
             <artifactId>continew-starter-dependencies</artifactId>
-            <version>2.16.0</version>
+            <version>2.17.0</version>
             <type>pom</type>
             <scope>import</scope>
         </dependency>
@@ -47,7 +47,7 @@ icon: Rocket
 ```
 
 <Callout type="info">
-示例版本号 `2.16.0` 请替换为最新版本，可在 [Maven Central](https://central.sonatype.com/search?namespace=top.continew.starter) 查询。
+示例使用当前版本 `2.17.0`；升级时把它换成目标版本即可，最新版本可在 [Maven Central](https://central.sonatype.com/search?namespace=top.continew.starter) 查询。
 </Callout>
 
 </Step>
@@ -89,7 +89,7 @@ continew-starter:
       exposed-headers: '*'   # 暴露的响应头
 ```
 
-全部配置项均以 `continew-starter.<模块>` 为前缀，详见[配置参考](/docs/starter/reference/properties)。
+自研配置项以 `continew-starter.<模块>` 为前缀；对上游框架的扩展沿用对方命名空间（如 `application.*`、`spring.task.*`），详见[配置约定](/docs/starter/configuration)。完整清单见[配置参考](/docs/starter/reference/properties)。
 
 </Step>
 

@@ -89,7 +89,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 2. 若被 Spotless 拦截，执行 `./mvnw compile -Pformat` 自动修复，然后再执行一次 `./mvnw verify` 确认通过。
 3. 全部门禁与单元测试通过后才能提交。
 
-> **无需跑门禁**：四道静态门禁与单元测试只作用于 Java 源码与 POM。仅改文档（`*.md`）、运行时配置（各模块 `src/main/resources/` 下的 `*.yml`、`*.properties`）、CI workflow 或脚本时，不触发任何门禁，可直接提交，无需执行 `./mvnw verify`。
+> **非 Java 改动**：仅改普通文档或运行时配置时可不执行完整 `./mvnw verify`；但修改 `docs/reference/properties.mdx` 或任何 `@ConfigurationProperties` 类时，必须先执行 `./mvnw compile -DskipTests` 生成 metadata，再执行 `python scripts/check-doc-properties.py`，确保配置参考没有失效键或漏项。CI 对文档改动同样执行完整构建与此漂移检查。
 
 构建过程**不会修改任何源码文件**；`-Pformat` 是唯一会修改源码的 profile。不要用 IDE 格式化或 `git diff --check` 替代 Spotless 门禁——IDE 格式化引擎是另一套实现，可能放行项目格式化器拒绝的代码。
 

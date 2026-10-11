@@ -39,7 +39,7 @@ description: continew-starter-storage 提供统一的文件存储抽象，支持
 <Tabs items={['本地存储', '对象存储（S3）']}>
 <Tab value="本地存储">
 
-### 本地存储
+**本地存储**
 
 本地存储将文件写入服务器本地磁盘，并自动注册 Spring 静态资源映射，使文件可直接通过 HTTP URL 访问。每个条目对应 `top.continew.starter.storage.autoconfigure.properties.LocalStorageConfig`：
 
@@ -67,7 +67,7 @@ continew-starter:
 </Tab>
 <Tab value="对象存储（S3）">
 
-### 对象存储（S3）
+**对象存储（S3）**
 
 S3 存储基于 AWS SDK for Java V2，兼容所有实现 S3 协议的对象存储服务。每个条目对应 `top.continew.starter.storage.autoconfigure.properties.OssStorageConfig`：
 

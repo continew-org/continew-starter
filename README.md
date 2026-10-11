@@ -40,7 +40,7 @@
 <img src="https://gitee.com/continew/continew-starter/badge/fork.svg?theme=dark" alt="Gitee Forks" />
 </a>
 
-📚 [在线文档](https://continew.top) | 💬 [提交 Issue](https://github.com/continew-org/continew-starter/issues)
+📚 [在线文档](https://continew.top/docs/starter) | 💬 [提交 Issue](https://github.com/continew-org/continew-starter/issues)
 
 ## 简介
 

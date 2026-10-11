@@ -1,0 +1,89 @@
+---
+title: 拦截器版
+description: 日志模块的拦截器实现，基于 Spring MVC 拦截器对 Web 层接口全量记录，无需修改业务代码。
+---
+
+拦截器版通过 `LogInterceptor` 对 Web 层接口全量记录（最初参考 Spring Boot Actuator 的 HttpExchange / HttpTrace）。适合审计全量请求、接受较大日志量的场景。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-log-interceptor</artifactId>
+</dependency>
+```
+
+## 全量记录与局部调整
+
+引入后无需任何注解，所有 Web 接口都会被记录。要对单个接口或类精细调整，使用 `@Log` 注解（`top.continew.starter.log.annotation.Log`）：
+
+```java
+@Log(module = "系统管理", value = "新增用户", includes = Include.IP_ADDRESS)
+@PostMapping
+public Resp<Void> add(@Valid @RequestBody UserReq req) {
+    // 在全局 includes 基础上额外记录 IP 归属地
+}
+```
+
+`@Log` 注解属性：`value`（日志描述）、`module`（所属模块）、`includes`（扩展包含信息）、`excludes`（减少包含信息）、`ignore`（是否忽略记录）。标注 `@Hidden` 或 `@Operation(hidden = true)` 的接口不会被记录。
+
+## 配置
+
+前缀 `continew-starter.log`，与 AOP 版共用（完整表见[配置参考](/docs/starter/reference/properties)）。
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `enabled` | `boolean` | `true` | 是否启用日志模块 |
+| `includes` | `Set<Include>` | `REQUEST_HEADERS`、`REQUEST_PARAM`、`RESPONSE_HEADERS`、`RESPONSE_PARAM` | 全局包含信息 |
+| `exclude-patterns` | `List<String>` | 空 | 放行路由（Ant 风格路径） |
+| `access-log.enabled` | `boolean` | `false` | 是否打印访问日志 |
+| `access-log.print-request-param` | `boolean` | `false` | 访问日志是否打印请求参数 |
+| `access-log.param-sensitive` | `boolean` | `false` | 是否过滤敏感参数 |
+| `access-log.sensitive-params` | `List<String>` | 空 | 敏感参数字段列表（精确匹配、区分大小写） |
+| `access-log.long-param-truncate` | `boolean` | `false` | 是否自动截断超长参数值 |
+| `access-log.long-param-threshold` | `int` | `2000` | 超长参数检测阈值（字符） |
+| `access-log.long-param-max-length` | `int` | `50` | 截断后最大保留长度（字符） |
+| `access-log.long-param-suffix` | `String` | `...` | 截断后追加的后缀符号 |
+
+### 包含信息（Include 枚举）
+
+| 枚举值 | 说明 |
+|:-------|:-----|
+| `DESCRIPTION` | 接口描述（来自 `@Log` 或 `@Operation`） |
+| `MODULE` | 所属模块（来自 `@Log` 或 `@Tag`） |
+| `REQUEST_HEADERS` | 请求头（默认） |
+| `REQUEST_BODY` | 请求体（包含请求体时请求参数无效） |
+| `REQUEST_PARAM` | 请求参数（默认） |
+| `IP_ADDRESS` | IP 归属地 |
+| `BROWSER` | 浏览器 |
+| `OS` | 操作系统 |
+| `RESPONSE_HEADERS` | 响应头（默认） |
+| `RESPONSE_BODY` | 响应体（包含响应体时响应参数无效） |
+| `RESPONSE_PARAM` | 响应参数（默认） |
+
+<Callout type="info">
+全量记录下日志量随接口调用量线性增长。`exclude-patterns` 建议至少排除健康检查、静态资源与文档路径；访问日志打印本身会自动排除 `/doc.html`、`/v*/api-docs/**`、`/swagger-ui/**`、`/webjars/**`、`/favicon.ico`、`/actuator/**`、`/error` 等。
+</Callout>
+
+## 自定义存储与处理器
+
+默认实现 `DefaultLogDao` 将日志保存在内存中（容量 100 条，超出后丢弃最旧记录）。全量记录场景下建议尽早替换为持久化实现：实现 `top.continew.starter.log.dao.LogDao` 并注册为 Bean 即可（`LogDao` Bean 标注了 `@ConditionalOnMissingBean`）。
+
+```java
+@Configuration
+@ConditionalOnEnabledLog
+public class LogConfiguration {
+
+    @Bean
+    public LogDao logDao() {
+        return new CustomLogDao();
+    }
+}
+```
+
+默认处理器为 `InterceptorLogHandler`；需要自定义日志内容处理时继承 `AbstractLogHandler`。
+
+## 相关源码
+
+- [continew-starter-log-interceptor](https://github.com/continew-org/continew-starter/tree/dev/continew-starter-log/continew-starter-log-interceptor)：拦截器与处理器

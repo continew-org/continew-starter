@@ -92,14 +92,14 @@ Starter 的可覆盖 Bean 大多标注了 `@ConditionalOnMissingBean`，你自�
 
 **Q：改了 `application.yml` 但配置不生效？**
 
-1. 检查前缀是否写全，所有配置项均以 `continew-starter.<模块>` 为前缀，且模块名层级不能简写（如 `continew-starter.web.cors.enabled` 不能写成 `continew-starter.cors.enabled`）；
+1. 检查前缀是否写对。**先用[配置参考](/docs/starter/reference/properties)确认这个键的真实前缀**：自研能力用 `continew-starter.<模块>`（如 `continew-starter.web.cors.enabled`，模块名层级不能简写），但对上游框架的扩展沿用对方命名空间，例如 `application.*`、`spring.task.*`、`spring.data.redisson.*`、`spring.jackson.*`、`mybatis-plus.extension.*`、`sa-token.extension.*`、`server.extension.*`。把扩展键写成 `continew-starter.*` 时配置会被静默忽略；
 2. YAML 缩进必须严格对齐，`enabled` 等布尔项不要加引号；
 3. 多环境配置下，确认修改的是当前激活 profile 对应的文件；
 4. 与 Starter 内置默认值同名的项（如 Jackson 时区），需在你的 `application.yml` 显式声明才能覆盖。
 
 ## 版本变更（Changelog）
 
-各版本的新特性、修复与破坏性变更记录维护在仓库的 [CHANGELOG.md](https://github.com/continew-org/continew-starter/blob/main/CHANGELOG.md) 中，按版本号倒序组织，每条变更附对应的 Commit 与 PR 链接；1.x 与 2.0.0–2.12.2 的历史记录分别在 `CHANGELOG_1.x.x.md`、`CHANGELOG_2.0.0-2.12.2.md`。
+各版本的新特性、修复与破坏性变更记录维护在仓库的 [CHANGELOG.md](https://github.com/continew-org/continew-starter/blob/dev/CHANGELOG.md) 中，按版本号倒序组织，每条变更附对应的 Commit 与 PR 链接；1.x 与 2.0.0–2.12.2 的历史记录分别在 `CHANGELOG_1.x.x.md`、`CHANGELOG_2.0.0-2.12.2.md`。
 
 查阅建议：
 

@@ -1,0 +1,64 @@
+---
+title: 日志
+description: 记录接口请求/响应日志，提供 AOP 与拦截器两种互斥实现，支持访问日志打印与可插拔持久化存储。
+---
+
+日志模块记录 HTTP 接口的请求与响应信息（请求头、请求参数、IP 归属地、浏览器、操作系统、响应头、响应参数、耗时、异常等），并可像 Nginx access log 一样在控制台打印访问日志。
+
+模块提供两种实现，**二选一引入**：
+
+- **AOP 版**（`continew-starter-log-aop`）：以 `@Log` 注解为切点，按方法/类精细声明记录范围，与 Spring Doc 注解联动效果最佳；
+- **拦截器版**（`continew-starter-log-interceptor`）：基于 Spring MVC 拦截器实现，Web 层全量记录，无需修改业务代码。
+
+<Callout type="warn">
+两种实现注册的是同一个自动配置类 `top.continew.starter.log.autoconfigure.LogAutoConfiguration`，**不可同时引入**。需要「全量记录、零侵入」选拦截器版；需要「按 `@Log` 注解精细声明」选 AOP 版。
+</Callout>
+
+两个实现都依赖核心模块 `continew-starter-log-core`（提供 `@Log` 注解、配置属性、日志模型与 SPI），核心模块会顺带引入 `io.swagger.core.v3:swagger-annotations-jakarta` 与 `com.alibaba:transmittable-thread-local`。
+
+## 如何选择
+
+| 维度 | AOP 版 | 拦截器版 |
+|:-----|:-------|:---------|
+| 记录范围 | 标注 `@Log` 的方法或类 | Web 层全量接口 |
+| 业务代码侵入 | 需要加注解 | 零侵入 |
+| 与 Spring Doc 联动 | 最佳（描述、模块自动补全） | 支持 |
+| 适合场景 | 只关心关键操作，日志量可控 | 审计全量请求，接受日志量 |
+
+<Cards>
+  <Card title="AOP 版" description="@Log 注解切点，按方法/类精细声明记录范围。" href="/docs/starter/modules/log/aop" />
+  <Card title="拦截器版" description="Web 层全量记录，无需修改业务代码。" href="/docs/starter/modules/log/interceptor" />
+</Cards>
+
+## 公共配置
+
+两种实现共用同一套配置（配置类 `top.continew.starter.log.model.LogProperties`，前缀 `continew-starter.log`），完整表见各实现页与[配置参考](/docs/starter/reference/properties)。
+
+```yaml
+continew-starter:
+  log:
+    # 是否启用（默认 true）
+    enabled: true
+    # 包含信息（默认：请求头、请求参数、响应头、响应参数）
+    includes:
+      - REQUEST_HEADERS
+      - REQUEST_PARAM
+      - RESPONSE_HEADERS
+      - RESPONSE_PARAM
+    # 放行路由（默认为空，匹配的路径不记录日志也不打印访问日志）
+    exclude-patterns: []
+```
+
+## 公共注意事项
+
+- 两种实现互斥，只引入其中一个；自动配置仅在 Servlet Web 应用中生效。
+- 日志记录过程做了异常兜底：记录失败不会影响业务方法的正常返回或异常传播（异常以 ERROR 级别输出到控制台）。
+- `REQUEST_BODY` 与 `REQUEST_PARAM` 互斥（`RESPONSE_BODY` 与 `RESPONSE_PARAM` 同理）：包含 body 时对应的 param 记录无效。
+- 访问日志打印与请求日志记录相互独立：`continew-starter.log.access-log.enabled` 开启后，即使某接口未被 `@Log` 覆盖（AOP 版）也会打印访问日志。
+- 访问日志打印会自动排除常见静态资源与文档路径（`/doc.html`、`/v*/api-docs/**`、`/swagger-ui/**`、`/webjars/**`、`/favicon.ico`、`/actuator/**`、`/error` 等），无需手工配置 `exclude-patterns`。
+
+## 相关源码
+
+- [continew-starter-log-core](https://github.com/continew-org/continew-starter/tree/dev/continew-starter-log/continew-starter-log-core)：注解、配置与 SPI
+- [continew-starter-log-aop](https://github.com/continew-org/continew-starter/tree/dev/continew-starter-log/continew-starter-log-aop)
+- [continew-starter-log-interceptor](https://github.com/continew-org/continew-starter/tree/dev/continew-starter-log/continew-starter-log-interceptor)

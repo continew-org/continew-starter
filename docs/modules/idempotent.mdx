@@ -39,8 +39,12 @@ continew-starter:
 
 | 配置项 | 说明 | 默认值 |
 |:-------|:-----|:-------|
-| `continew-starter.idempotent.enabled` | 是否启用幂等模块（`matchIfMissing = true`，不配即启用） | `true` |
+| `continew-starter.idempotent.enabled` | 模块开关（自动配置条件，非绑定属性；`matchIfMissing = true`，不配即启用） | `true` |
 | `continew-starter.idempotent.key-prefix` | 幂等键在 Redis 中的统一前缀 | `Idempotent` |
+
+<Callout type="info">
+`enabled` 是自动配置类上的 `@ConditionalOnProperty` 条件，不由 `IdempotentProperties` 绑定，因此 IDE 配置提示里不会出现这一项。设置它照样生效（关掉整个模块），只是它和下面这类有 getter/setter 的键在机制上不同。
+</Callout>
 
 ## 使用
 

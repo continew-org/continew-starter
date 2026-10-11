@@ -1,14 +1,14 @@
 ---
 title: 配置约定
-description: ContiNew Starter 的统一配置约定：属性前缀、自动配置注册机制与按需启用方式。
+description: ContiNew Starter 的配置前缀约定、自动配置注册机制、条件装配与覆盖默认 Bean 的方式。
 icon: Settings
 ---
 
-ContiNew Starter 各模块遵循统一的配置与自动配置约定。理解这些约定，能让你更高效地查阅和定制各模块配置。
+本页只讲三件事：配置键的前缀怎么定、自动配置怎么被 Spring Boot 发现、想改默认行为时从哪下手。各模块的具体配置项与默认值见[配置参考](/docs/starter/reference/properties)，不在这里罗列。
 
-## 配置属性前缀
+## 配置前缀
 
-所有配置属性统一使用 `continew-starter` 前缀，格式为 `continew-starter.<module>[.<sub-feature>]`。
+自研能力统一使用 `continew-starter` 前缀，格式为 `continew-starter.<module>[.<sub-feature>]`，每个前缀常量定义在 `continew-starter-core` 的 `PropertiesConstants` 类中。
 
 ```yaml
 continew-starter:
@@ -18,48 +18,56 @@ continew-starter:
   encrypt:
     field:
       enabled: true          # continew-starter.encrypt.field
-  cache:
-    type: jetcache           # continew-starter.cache
 ```
 
-每个前缀常量定义在 `continew-starter-core` 的 `PropertiesConstants` 类中。绝大多数配置项都有合理默认值，**多数模块引入后「零配置」即可用**，只有当某能力默认关闭（如跨域），或你要修改默认行为时才需要显式配置。
+这条约定只覆盖 Starter 自己定义的配置。对上游框架的扩展会沿用对方的命名空间，不要写成 `continew-starter.*`：
 
-## 按需启用
+| 场景 | 实际前缀 | 例子 |
+|:-----|:---------|:-----|
+| 应用信息 | `application` | `application.name`、`application.url` |
+| 线程池扩展 | `spring.task` | `spring.task.execution.rejected-policy` |
+| 异步/调度线程池开关 | `spring.task` | `spring.task.execution.extension.enabled` |
+| Redis 客户端 | `spring.data.redisson` | `spring.data.redisson.mode` |
+| 邮件 | `spring.mail` | `spring.mail.host` |
+| ORM 扩展 | `mybatis-plus.extension` / `mybatis-flex.extension` | `mybatis-plus.extension.enabled` |
+| 鉴权扩展 | `sa-token.extension` | `sa-token.extension.dao.type` |
+| 服务器增强 | `server.extension` | `server.extension.disallowed-methods` |
 
-许多模块的能力通过 `enabled` 属性开关控制，默认关闭或开启依模块而定，但配置形式相同。
+判断某个键该用哪个前缀，直接看它绑定的是哪个 `@ConfigurationProperties` 类；拿不准时查[配置参考](/docs/starter/reference/properties)，它按前缀分组列出全部真实存在的键。
 
-```yaml
-continew-starter:
-  <module>:
-    enabled: true   # 开启该模块能力
-```
+多数配置项都有合理默认值，引入模块后零配置即可用；只有默认关闭的能力（如跨域）或要改默认行为时才需要显式配置。
 
 ## 自动配置机制
 
-每个 Starter 模块通过 Spring Boot 3 的 `AutoConfiguration.imports` 机制注册自动配置（**不是**旧版 `spring.factories`），位于各模块的以下路径。
+每个 Starter 模块通过 Spring Boot 3 的 `AutoConfiguration.imports` 机制注册自动配置（不是旧版 `spring.factories`），文件位于各模块：
 
 ```
 src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports
 ```
 
-引入依赖后自动配置即生效，无需手写 `@Configuration`。如需禁用某个自动配置，可使用 Spring Boot 的排除机制。
+引入依赖后自动配置即生效，无需手写 `@Configuration`。要排除某个自动配置，用 Spring Boot 的 `spring.autoconfigure.exclude`，填**注册表中真实存在的类名**，而不是想当然的模块名。以 Web 模块为例，`AutoConfiguration.imports` 里注册的是：
+
+```
+top.continew.starter.web.autoconfigure.mvc.WebMvcAutoConfiguration
+top.continew.starter.web.autoconfigure.cors.CorsAutoConfiguration
+top.continew.starter.web.autoconfigure.server.UndertowAutoConfiguration
+```
 
 ```yaml
 spring:
   autoconfigure:
-    exclude: top.continew.starter.web.autoconfigure.WebAutoConfiguration
+    exclude: top.continew.starter.web.autoconfigure.cors.CorsAutoConfiguration
 ```
+
+排除前先确认目标类确实在该模块的 `AutoConfiguration.imports` 文件中；填了不存在的类名时 Spring Boot 会按无效排除处理，达不到禁用效果。
 
 ## 条件化装配
 
-多数自动配置类带有 `@ConditionalOnProperty`，只有当你设置了对应属性（通常是 `enabled: true`）才会装配对应 Bean。这意味着以下两点。
-
-- **未配置 = 不生效**：某些能力（如字段加密、API 加密）默认完全不装配，不产生任何开销；
-- **配置了才装配**：设置属性后，相关 Bean 才会创建并生效。
+多数自动配置类带 `@ConditionalOnProperty`，只有设置了对应属性（通常是 `enabled: true`）才装配 Bean。默认开关因模块而异，例如 `continew-starter.web.cors.enabled` 默认 `false`、`continew-starter.trace.enabled` 默认 `false`、`continew-starter.log.enabled` 默认 `true`。是否默认启用以各模块文档与[配置参考](/docs/starter/reference/properties)为准，不要凭经验推断。
 
 ## 覆盖默认 Bean
 
-多数模块的关键 Bean 标注了 `@ConditionalOnMissingBean`，你可以声明同类型 Bean 来覆盖默认实现。
+多数模块的关键 Bean 标注了 `@ConditionalOnMissingBean`，声明同类型 Bean 即可覆盖默认实现。
 
 ```java
 @Configuration
@@ -67,11 +75,13 @@ public class CustomConfig {
 
     @Bean
     public MyService myService() {
-        // 你的自定义实现，将覆盖 Starter 的默认 Bean
+        // 将覆盖 Starter 的默认 Bean
         return new MyServiceImpl();
     }
 }
 ```
+
+少数模块按 Bean 名精确装配（例如部分缓存服务），此时需要按文档要求指定 Bean 名，只声明同类型 Bean 不会被注入。这类约束在各模块页中单独说明。
 
 ## 下一步
 

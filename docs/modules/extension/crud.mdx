@@ -16,7 +16,7 @@ description: 基于 MyBatis Plus / MyBatis Flex 实现的 CRUD 扩展模块，�
 <Tabs items={['MyBatis Plus', 'MyBatis Flex']}>
 <Tab value="MyBatis Plus">
 
-### 引入依赖
+**MyBatis Plus：引入依赖**
 
 ```xml
 <dependency>
@@ -27,7 +27,7 @@ description: 基于 MyBatis Plus / MyBatis Flex 实现的 CRUD 扩展模块，�
 
 模块会传递引入 `continew-starter-extension-crud-core` 与数据访问模块 `continew-starter-data-mp`（见 `continew-starter-extension-crud-mp/pom.xml`）。
 
-### 编写 Mapper
+**MyBatis Plus：编写 Mapper**
 
 Mapper 接口继承数据访问模块 MyBatis Plus 实现的 `top.continew.starter.data.mapper.BaseMapper`。
 
@@ -46,7 +46,7 @@ public interface UserMapper extends BaseMapper<UserDO> {
 </Tab>
 <Tab value="MyBatis Flex">
 
-### 引入依赖
+**MyBatis Flex：引入依赖**
 
 ```xml
 <dependency>
@@ -57,7 +57,7 @@ public interface UserMapper extends BaseMapper<UserDO> {
 
 模块提供基于 MyBatis Flex 的 `CrudServiceImpl` 实现（`BaseMapper` 位于 `top.continew.starter.data.base` 包），`continew-starter-extension-crud-core` 中的注解、Controller 基类、模型类与 MyBatis Plus 实现完全共用。
 
-### 编写 Mapper
+**MyBatis Flex：编写 Mapper**
 
 Mapper 接口继承数据访问模块 MyBatis Flex 实现的 `top.continew.starter.data.base.BaseMapper`。
 

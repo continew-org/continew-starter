@@ -1,0 +1,140 @@
+---
+title: 安全通告
+description: ContiNew Starter 已公开披露的安全漏洞通告：编号、影响范围、修复版本与临时缓解方案，以及下游项目如何判断自己是否受影响。
+---
+
+本页汇总 ContiNew Starter 已公开的安全漏洞通告与修复情况，按披露时间倒序。Starter 作为基础组件库，其安全问题会影响所有下游项目（包括 ContiNew Admin），建议结合[变更日志（CHANGELOG.md）](https://github.com/continew-org/continew-starter/blob/dev/CHANGELOG.md)与仓库 Release 一起跟进。
+
+ContiNew Admin 侧的通告见 [Admin 安全通告](/docs/admin/reference/security)。
+
+## 报告漏洞
+
+发现安全漏洞时，**不要在任何代码托管平台通过公开 Issue、Pull Request 或讨论区披露**。请通过 [GitHub 私有漏洞报告](https://github.com/continew-org/continew-starter/security/advisories/new) 提交（无论你在哪个平台发现问题，都请统一走这个渠道）。通告发布前只有维护者与报告者可见。
+
+完整的安全策略见项目 [SECURITY.md](https://github.com/continew-org/continew-starter/blob/dev/SECURITY.md)。
+
+## GHSA-g8qc-r85v-gqpp · 排序字段 ORDER BY SQL 注入
+
+| 项目 | 说明 |
+|:-----|:-----|
+| 编号 | [GHSA-g8qc-r85v-gqpp](https://github.com/continew-org/continew-admin/security/advisories/GHSA-g8qc-r85v-gqpp)（GitHub 未分配 CVE 编号；通告登记于 [continew-admin](https://github.com/continew-org/continew-admin) 仓库） |
+| 类型 | SQL 注入（CWE-89）：排序字段会被拼接进 `ORDER BY`，原有的 `SqlInjectionUtils` 关键字黑名单与 `CrudServiceImpl#sort` 实体字段校验可被同时绕过，认证用户可通过布尔盲注读取接口未返回的数据列 |
+| 严重性 | Medium（CVSS 3.1：6.5） |
+| 影响范围 | `top.continew.starter:continew-starter` ≤ 2.16.0（涉及 `data-mp`、`data-mf`、`extension-crud-mp`、`extension-crud-mf` 模块的排序拼接点） |
+| 前置条件 | 需要有效登录凭证 |
+| 修复版本 | [2.16.1](https://github.com/continew-org/continew-starter/releases/tag/v2.16.1)（已同步至 Maven Central） |
+| 披露时间 | 2026-09-29 |
+| 报告者 | [tonghuaroot](https://github.com/tonghuaroot) |
+
+**修复方案**
+
+新增 `SortUtils#validateProperty`，按标识符白名单（仅字母、数字、下划线，可携带 `.` 分隔的表别名前缀）校验完整排序字段，并在全部 `ORDER BY` 拼接点接入：`SortQuery#getOrder`、`CrudServiceImpl#sort`（mp / mf）、`QueryWrapperHelper#sort` 与 `build`（mp / mf）。
+
+**升级建议**
+
+1. Maven 依赖升级至 2.16.1 或更高版本（BOM：`top.continew.starter:continew-starter:2.16.1`）。
+2. 暂时无法升级的用户按下方临时缓解方案处置。
+3. 下游项目以**实际生效的 Starter 版本**为准，≤ 2.16.0 即受影响。ContiNew Admin ≤ 4.1.0 各发布版本内置的 Starter 均低于 2.16.1（如 4.1.0 内置 2.14.0），可升级 Admin 到内置 2.16.1+ 的版本，也可自行把 Starter 依赖升到 2.16.1+ 先行修复。
+
+**临时缓解方案**
+
+在自己的项目中新增下面两个类（包名按需调整），以与 2.16.1 相同的口径（标识符白名单）在 HTTP 入口拦截注入向量。升级后可移除。
+
+```java
+// SortParameterSecurityFilter.java
+package com.example.security;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.regex.Pattern;
+
+/**
+ * 排序参数 SQL 注入临时防护过滤器（对应 GHSA-g8qc-r85v-gqpp）
+ */
+public class SortParameterSecurityFilter extends OncePerRequestFilter {
+
+    /** CRUD 套件排序参数名（如有自定义请同步调整） */
+    private static final String SORT_PARAMETER_NAME = "sort";
+
+    /** 合法排序字段：仅允许字母、数字、下划线，可携带表别名（如 u.create_time） */
+    private static final Pattern PROPERTY_PATTERN = Pattern
+        .compile("[a-zA-Z0-9_]+(\\.[a-zA-Z0-9_]+)*");
+
+    /** 合法排序方向 */
+    private static final Pattern DIRECTION_PATTERN = Pattern.compile("(?i:asc|desc)");
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException {
+        String[] values = request.getParameterValues(SORT_PARAMETER_NAME);
+        if (values != null) {
+            for (String value : values) {
+                if (!isValid(value)) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.setContentType("application/json;charset=UTF-8");
+                    response.getWriter().write("{\"code\":400,\"msg\":\"无效的排序参数\"}");
+                    return;
+                }
+            }
+        }
+        filterChain.doFilter(request, response);
+    }
+
+    /** 校验单个排序参数值，例如：name,desc / u.create_time,asc / id */
+    private boolean isValid(String value) {
+        if (value == null || value.isBlank()) {
+            return true;
+        }
+        return Arrays.stream(value.split(","))
+            .allMatch(segment -> PROPERTY_PATTERN.matcher(segment).matches()
+                || DIRECTION_PATTERN.matcher(segment).matches());
+    }
+}
+```
+
+```java
+// SortSecurityFilterConfiguration.java
+package com.example.security;
+
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+
+@Configuration
+public class SortSecurityFilterConfiguration {
+
+    @Bean
+    public FilterRegistrationBean<SortParameterSecurityFilter> sortParameterSecurityFilter() {
+        FilterRegistrationBean<SortParameterSecurityFilter> registration = new FilterRegistrationBean<>(
+            new SortParameterSecurityFilter());
+        registration.addUrlPatterns("/*");
+        // 尽早执行，在业务处理前完成校验
+        registration.setOrder(Ordered.HIGHEST_PRECEDENCE + 100);
+        return registration;
+    }
+}
+```
+
+过滤器覆盖的是 HTTP 入口的 `sort` 参数。代码内部直接调用 `QueryWrapperHelper` 等工具拼接排序的场景，仍需升级 Starter 才能覆盖。
+
+## CVE-2024-8150 / CVE-2024-8155 · sort 参数 SQL 注入
+
+| 项目 | 说明 |
+|:-----|:-----|
+| 编号 | [CVE-2024-8150](https://github.com/advisories/GHSA-cvgw-fpmw-hr5x)、[CVE-2024-8155](https://github.com/advisories/GHSA-xwrp-v4f7-2hq3) |
+| 类型 | SQL 注入（CWE-89）：CRUD 列表、树型接口的 `sort` 排序参数存在 SQL 注入 |
+| 影响范围 | ContiNew Starter ≤ 2.5.1（当年通告以 ContiNew Admin 3.2.0 名义登记） |
+| 修复版本 | [2.5.2](https://github.com/continew-org/continew-starter/releases/tag/v2.5.2)（重构排序字段处理） |
+| 披露时间 | 2024-08-24 / 2024-08-26 |
+
+## 跟进渠道
+
+- 关注 GitHub 仓库的 Release（Watch → Custom → Releases）
+- 定期查看本页与[变更日志（CHANGELOG.md）](https://github.com/continew-org/continew-starter/blob/dev/CHANGELOG.md)

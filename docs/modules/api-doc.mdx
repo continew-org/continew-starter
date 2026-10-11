@@ -8,7 +8,7 @@ description: continew-starter-api-doc 基于 SpringDoc + NextDoc4j 实现接口�
 ## 主要特性
 
 - **默认配置**：已预设接口文档通用配置（Swagger UI 路径、排序等），并自动处理 `/favicon.ico` 静态资源路径映射
-- **文档信息自动注入**：自动根据项目信息（`continew-starter.project` 配置项）生成 OpenAPI 文档标题、版本、描述、联系人、许可证等信息
+- **文档信息自动注入**：自动根据项目信息（`application` 配置项）生成 OpenAPI 文档标题、版本、描述、联系人、许可证等信息
 - **增强 UI**：基于 NextDoc4j 提供更现代化的接口文档界面，并内置枚举展示、鉴权展示等插件
 - **枚举展示**：自动识别实现了 `BaseEnum` 接口的枚举，在文档中展示枚举值与描述
 - **鉴权配置**：支持在配置文件中定义全局接口鉴权规则
@@ -85,7 +85,7 @@ nextdoc4j:
 ```
 
 <Callout type="info">
-文档的标题、版本、描述、联系人、许可证等信息取自核心模块的 `continew-starter.project` 配置项（由 `SpringDocAutoConfiguration` 中的 `openApi` Bean 自动组装），详见 [核心模块（core）](/docs/starter/modules/core)。
+文档的标题、版本、描述、联系人、许可证等信息取自核心模块 `ApplicationProperties` 绑定的 `application.*` 配置（`SpringDocAutoConfiguration#openApi` 自动组装），不是 `continew-starter.*` 前缀。配置示例见 [核心模块（core）](/docs/starter/modules/core)。
 </Callout>
 
 ## 使用
