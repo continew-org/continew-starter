@@ -1,6 +1,6 @@
 {
   "title": "ContiNew Starter",
-  "description": "Spring Boot 企业级 Starter 库",
+  "description": "Spring Boot Starter 库",
   "icon": "Rocket",
   "root": true,
   "pages": [
