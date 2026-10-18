@@ -33,11 +33,9 @@ import java.util.List;
 @ConditionalOnMissingBean(SensitiveWordsService.class)
 public class DefaultSensitiveWordsService implements SensitiveWordsService {
 
-    private final SensitiveWordsConfig sensitiveWordsConfig;
     private final WordTree tree = new WordTree();
 
     public DefaultSensitiveWordsService(SensitiveWordsConfig sensitiveWordsConfig) {
-        this.sensitiveWordsConfig = sensitiveWordsConfig;
         if (sensitiveWordsConfig != null && sensitiveWordsConfig.getWords() != null) {
             tree.addWords(sensitiveWordsConfig.getWords());
         }

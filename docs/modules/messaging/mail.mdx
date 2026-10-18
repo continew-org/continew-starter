@@ -40,6 +40,10 @@ spring:
 如需在发送时动态决定邮件参数（例如由业务系统读取数据库中的邮箱服务器配置），可实现 `top.continew.starter.messaging.mail.core.MailConfigurer` 接口并注册为 Bean，返回自定义的 `MailConfig`（支持 `protocol`、`host`、`port`、`username`、`password`、`from`、`ssl-enabled`、`ssl-port` 等项）。`MailUtils` 在获取 `JavaMailSenderImpl` 时会自动应用该配置。
 </Callout>
 
+<Callout type="warning">
+启用 `ssl-enabled` 时，`MailConfigurer.apply` 会默认写入 `mail.smtp.ssl.trust=*`（跳过证书链校验）与 `mail.smtp.ssl.checkserveridentity=true`（Angus Mail 2.x 默认已开启），两者均可由 `MailConfig.properties` 覆盖。需要完整证书链校验时，请直接使用上文的 `spring.mail.*` 配置。
+</Callout>
+
 ## 使用示例
 
 直接调用 `MailUtils` 静态方法发送邮件：

@@ -835,7 +835,7 @@
                     S3252：项目统一使用 Hutool 门面类 StrUtil/ValidateUtil/URLEncodeUtil 等调用静态方法，
                     其父类 CharSequenceUtil/Validator/URLEncodeUtil 属实现细节，经门面访问是 Hutool 官方推荐用法，故关闭该规则。
                 -->
-                <sonar.issue.ignore.multicriteria>S3252,S2143-excel,S2143-license</sonar.issue.ignore.multicriteria>
+                <sonar.issue.ignore.multicriteria>S3252,S2143-excel,S2143-license,S2143-license-param,S2143-license-param-vo,S2143-license-manager,S2143-date-converter,S2176-iservice,S2176-serviceimpl,S6204-tree,S6204-reflect,S6204-storage,S9149-tree,S9149-servlet,S3077-progress,S3077-license</sonar.issue.ignore.multicriteria>
                 <sonar.issue.ignore.multicriteria.S3252.ruleKey>java:S3252</sonar.issue.ignore.multicriteria.S3252.ruleKey>
                 <sonar.issue.ignore.multicriteria.S3252.resourceKey>**/*</sonar.issue.ignore.multicriteria.S3252.resourceKey>
                 <!--
@@ -847,6 +847,52 @@
                 <sonar.issue.ignore.multicriteria.S2143-excel.resourceKey>**/excel/util/ExcelUtils.java</sonar.issue.ignore.multicriteria.S2143-excel.resourceKey>
                 <sonar.issue.ignore.multicriteria.S2143-license.ruleKey>java:S2143</sonar.issue.ignore.multicriteria.S2143-license.ruleKey>
                 <sonar.issue.ignore.multicriteria.S2143-license.resourceKey>**/license/service/LicenseCreateService.java</sonar.issue.ignore.multicriteria.S2143-license.resourceKey>
+                <!--
+                    S2143：LicenseCreatorParam/LicenseCreatorParamVO 与 ServerLicenseManager 同属 truelicense LicenseContent 边界，
+                    与 LicenseCreateService 同等处理。
+                -->
+                <sonar.issue.ignore.multicriteria.S2143-license-param.ruleKey>java:S2143</sonar.issue.ignore.multicriteria.S2143-license-param.ruleKey>
+                <sonar.issue.ignore.multicriteria.S2143-license-param.resourceKey>**/license/model/LicenseCreatorParam.java</sonar.issue.ignore.multicriteria.S2143-license-param.resourceKey>
+                <sonar.issue.ignore.multicriteria.S2143-license-param-vo.ruleKey>java:S2143</sonar.issue.ignore.multicriteria.S2143-license-param-vo.ruleKey>
+                <sonar.issue.ignore.multicriteria.S2143-license-param-vo.resourceKey>**/license/model/LicenseCreatorParamVO.java</sonar.issue.ignore.multicriteria.S2143-license-param-vo.resourceKey>
+                <sonar.issue.ignore.multicriteria.S2143-license-manager.ruleKey>java:S2143</sonar.issue.ignore.multicriteria.S2143-license-manager.ruleKey>
+                <sonar.issue.ignore.multicriteria.S2143-license-manager.resourceKey>**/license/manager/ServerLicenseManager.java</sonar.issue.ignore.multicriteria.S2143-license-manager.resourceKey>
+                <!--
+                    S2143：DateConverter 的职责就是把字符串转换为 java.util.Date（Spring MVC 对 Date 参数的转换器），
+                    改用 java.time 会改变该转换器的语义，故排除。
+                -->
+                <sonar.issue.ignore.multicriteria.S2143-date-converter.ruleKey>java:S2143</sonar.issue.ignore.multicriteria.S2143-date-converter.ruleKey>
+                <sonar.issue.ignore.multicriteria.S2143-date-converter.resourceKey>**/web/autoconfigure/mvc/converter/time/DateConverter.java</sonar.issue.ignore.multicriteria.S2143-date-converter.resourceKey>
+                <!--
+                    S2176：data-mf 的 IService/ServiceImpl 刻意镜像 MyBatis-Flex 同名 API，重命名会破坏公开 API，故按文件排除。
+                -->
+                <sonar.issue.ignore.multicriteria.S2176-iservice.ruleKey>java:S2176</sonar.issue.ignore.multicriteria.S2176-iservice.ruleKey>
+                <sonar.issue.ignore.multicriteria.S2176-iservice.resourceKey>**/data/service/IService.java</sonar.issue.ignore.multicriteria.S2176-iservice.resourceKey>
+                <sonar.issue.ignore.multicriteria.S2176-serviceimpl.ruleKey>java:S2176</sonar.issue.ignore.multicriteria.S2176-serviceimpl.ruleKey>
+                <sonar.issue.ignore.multicriteria.S2176-serviceimpl.resourceKey>**/data/service/impl/ServiceImpl.java</sonar.issue.ignore.multicriteria.S2176-serviceimpl.resourceKey>
+                <!--
+                    S6204：TreeUtils/ReflectUtils/LocalStorageStrategy 保持返回可变列表的既有契约，Stream.toList() 会破坏契约，故按文件排除。
+                -->
+                <sonar.issue.ignore.multicriteria.S6204-tree.ruleKey>java:S6204</sonar.issue.ignore.multicriteria.S6204-tree.ruleKey>
+                <sonar.issue.ignore.multicriteria.S6204-tree.resourceKey>**/core/util/TreeUtils.java</sonar.issue.ignore.multicriteria.S6204-tree.resourceKey>
+                <sonar.issue.ignore.multicriteria.S6204-reflect.ruleKey>java:S6204</sonar.issue.ignore.multicriteria.S6204-reflect.ruleKey>
+                <sonar.issue.ignore.multicriteria.S6204-reflect.resourceKey>**/core/util/ReflectUtils.java</sonar.issue.ignore.multicriteria.S6204-reflect.resourceKey>
+                <sonar.issue.ignore.multicriteria.S6204-storage.ruleKey>java:S6204</sonar.issue.ignore.multicriteria.S6204-storage.ruleKey>
+                <sonar.issue.ignore.multicriteria.S6204-storage.resourceKey>**/storage/strategy/impl/LocalStorageStrategy.java</sonar.issue.ignore.multicriteria.S6204-storage.resourceKey>
+                <!--
+                    S9149：TreeUtils.build / ServletUtils.isMultipart 与上游 TreeUtil、JakartaServletUtil 同名，属刻意保留的门面方法，故按文件排除。
+                -->
+                <sonar.issue.ignore.multicriteria.S9149-tree.ruleKey>java:S9149</sonar.issue.ignore.multicriteria.S9149-tree.ruleKey>
+                <sonar.issue.ignore.multicriteria.S9149-tree.resourceKey>**/core/util/TreeUtils.java</sonar.issue.ignore.multicriteria.S9149-tree.resourceKey>
+                <sonar.issue.ignore.multicriteria.S9149-servlet.ruleKey>java:S9149</sonar.issue.ignore.multicriteria.S9149-servlet.ruleKey>
+                <sonar.issue.ignore.multicriteria.S9149-servlet.resourceKey>**/core/util/ServletUtils.java</sonar.issue.ignore.multicriteria.S9149-servlet.resourceKey>
+                <!--
+                    S3077：ProgressAwareMultipartFile 的字段访问受 progressLock 保护，CustomLicenseManager 为带参惰性单例，故按文件排除。
+                -->
+                <sonar.issue.ignore.multicriteria.S3077-progress.ruleKey>java:S3077</sonar.issue.ignore.multicriteria.S3077-progress.ruleKey>
+                <sonar.issue.ignore.multicriteria.S3077-progress.resourceKey>**/storage/domain/file/ProgressAwareMultipartFile.java</sonar.issue.ignore.multicriteria.S3077-progress.resourceKey>
+                <sonar.issue.ignore.multicriteria.S3077-license.ruleKey>java:S3077</sonar.issue.ignore.multicriteria.S3077-license.ruleKey>
+                <sonar.issue.ignore.multicriteria.S3077-license.resourceKey>**/license/manager/CustomLicenseManager.java</sonar.issue.ignore.multicriteria.S3077-license.resourceKey>
             </properties>
             <activation>
                 <activeByDefault>false</activeByDefault>

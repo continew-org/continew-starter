@@ -37,7 +37,10 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public class TLogWebCommon extends TLogRPCHandler {
 
-    private static volatile TLogWebCommon tLogWebCommon;
+    private static class Holder {
+
+        private static final TLogWebCommon INSTANCE = new TLogWebCommon();
+    }
 
     /**
      * 获取单例实例
@@ -45,14 +48,7 @@ public class TLogWebCommon extends TLogRPCHandler {
      * @return TLogWebCommon 实例
      */
     public static TLogWebCommon loadInstance() {
-        if (tLogWebCommon == null) {
-            synchronized (TLogWebCommon.class) {
-                if (tLogWebCommon == null) {
-                    tLogWebCommon = new TLogWebCommon();
-                }
-            }
-        }
-        return tLogWebCommon;
+        return Holder.INSTANCE;
     }
 
     /**

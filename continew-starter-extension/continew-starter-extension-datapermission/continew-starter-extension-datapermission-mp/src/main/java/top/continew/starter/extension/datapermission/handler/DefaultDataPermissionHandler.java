@@ -86,10 +86,6 @@ public class DefaultDataPermissionHandler implements DataPermissionHandler {
                 return buildDataScopeFilter(dataPermission, where);
             }
             return where;
-        } catch (DataPermissionException e) {
-            LOGGER.error("Data permission handler build data scope filter occurred an error: {}.",
-                e.getMessage(), e);
-            throw e;
         } catch (Exception e) {
             LOGGER.error("Data permission handler build data scope filter occurred an error: {}.",
                 e.getMessage(), e);

@@ -16,7 +16,6 @@
 
 package top.continew.starter.auth.refresh.token.websocket;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -81,12 +80,9 @@ public class WebSocketCredentialRegistry {
      * @param onlineClientIds 当前仍登记在 DAO 索引中的客户端标识
      */
     public void retainAll(Set<String> onlineClientIds) {
-        List<String> staleClientIds = new ArrayList<>();
-        for (String clientId : rawTokens.keySet()) {
-            if (!onlineClientIds.contains(clientId)) {
-                staleClientIds.add(clientId);
-            }
-        }
+        List<String> staleClientIds = rawTokens.keySet().stream()
+            .filter(clientId -> !onlineClientIds.contains(clientId))
+            .toList();
         for (String clientId : staleClientIds) {
             String rawToken = rawTokens.remove(clientId);
             if (rawToken != null) {

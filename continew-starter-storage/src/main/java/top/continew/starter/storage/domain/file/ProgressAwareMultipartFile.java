@@ -49,8 +49,6 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
         UPLOAD // 实际上传
     }
 
-    private volatile ReadPhase currentPhase = ReadPhase.VALIDATION;
-
     public ProgressAwareMultipartFile(MultipartFile originalFile,
         boolean enableCache,
         UploadProgressListener progressListener) {
@@ -65,7 +63,6 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
      */
     public void setReadPhase(ReadPhase phase) {
         synchronized (progressLock) {
-            this.currentPhase = phase;
             // 只在上传阶段启用进度
             this.progressEnabled = (phase == ReadPhase.UPLOAD);
 

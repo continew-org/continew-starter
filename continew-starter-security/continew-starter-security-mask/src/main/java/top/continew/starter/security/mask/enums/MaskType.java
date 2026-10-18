@@ -210,8 +210,8 @@ public enum MaskType implements IMaskStrategy {
 
         @Override
         public String mask(String str, char character, int left, int right) {
-            return CharSequenceUtil.subBefore(str, StringConstants.DOT, false) + String
-                .format(".%s.%s.%s", character, character, character);
+            return CharSequenceUtil.subBefore(str, StringConstants.DOT, false) + StringConstants.DOT
+                + character + StringConstants.DOT + character + StringConstants.DOT + character;
         }
     },
 

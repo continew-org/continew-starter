@@ -21,7 +21,6 @@ import cn.hutool.core.map.MapUtil;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 /**
  * Map 工具类
@@ -80,11 +79,8 @@ public class MapUtils {
             }
         }
 
-        Set<String> keys = from.keySet();
-        for (String key : keys) {
-            if (!to.containsKey(key)) {
-                to.put(key, from.get(key));
-            }
+        for (Map.Entry<String, Object> entry : from.entrySet()) {
+            to.putIfAbsent(entry.getKey(), entry.getValue());
         }
         return to;
     }

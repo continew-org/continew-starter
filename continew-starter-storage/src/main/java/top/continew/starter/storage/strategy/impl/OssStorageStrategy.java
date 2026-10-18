@@ -446,7 +446,8 @@ public class OssStorageStrategy implements StorageStrategy {
         if (StrUtil.isNotBlank(config.getDomain())) {
             return baseUrl + StringConstants.SLASH + path;
         }
-        return String.format("%s/%s/%s", baseUrl, config.getBucketName(), path);
+        return baseUrl + StringConstants.SLASH + config.getBucketName() + StringConstants.SLASH
+            + path;
     }
 
     /**
