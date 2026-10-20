@@ -22,10 +22,10 @@
 
     <properties>
         <!-- Maven Environment Versions -->
+        <!-- 产物字节码版本：与 Spring Boot 4 官方基线（Java 17）对齐，构建机使用 JDK 25 -->
         <java.version>17</java.version>
+        <maven.compiler.release>${java.version}</maven.compiler.release>
         <resource.delimiter>@</resource.delimiter>
-        <maven.compiler.source>${java.version}</maven.compiler.source>
-        <maven.compiler.target>${java.version}</maven.compiler.target>
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -62,8 +62,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
-                    <compilerArgument>-parameters</compilerArgument>
+                    <parameters>true</parameters>
+                    <!-- compiler 3.16+ 随 javac 新默认（proc:none）不再隐式执行 classpath 上的注解处理器，
+                         显式开启以保证 spring-boot-configuration-processor 持续生成配置元数据 -->
+                    <proc>full</proc>
                 </configuration>
             </plugin>
             <!-- 统一版本号插件 -->
