@@ -22,7 +22,7 @@
 
     <properties>
         <!-- Maven Environment Versions -->
-        <!-- 产物字节码版本：与 Spring Boot 4 官方基线（Java 17）对齐；构建机使用 JDK 25（详见 Issue #9） -->
+        <!-- 产物字节码版本：与 Spring Boot 4 官方基线（Java 17）对齐，构建机使用 JDK 25 -->
         <java.version>17</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <resource.delimiter>@</resource.delimiter>
