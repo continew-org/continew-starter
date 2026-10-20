@@ -10,7 +10,7 @@
 <img src="https://img.shields.io/badge/Spring Boot-3.5.16-%236CB52D.svg?logo=Spring-Boot" alt="Spring Boot" />
 </a>
 <a href="https://github.com/continew-org/continew-starter" title="Open JDK" target="_blank">
-<img src="https://img.shields.io/badge/Open JDK-17-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
+<img src="https://img.shields.io/badge/Open JDK-25-%236CB52D.svg?logo=OpenJDK&logoColor=FFF" alt="Open JDK" />
 </a>
 <a href="https://github.com/continew-org/continew-starter/actions/workflows/ci.yml" title="CI" target="_blank">
 <img src="https://github.com/continew-org/continew-starter/actions/workflows/ci.yml/badge.svg?branch=dev" alt="CI" />

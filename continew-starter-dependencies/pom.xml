@@ -91,15 +91,16 @@
 
         <!-- Maven Plugin Versions -->
         <flatten.version>1.8.0</flatten.version>
-        <sonar.version>5.7.0.6970</sonar.version>
-        <jacoco.version>0.8.13</jacoco.version>
-        <spotless.version>3.9.0</spotless.version>
-        <checkstyle.version>11.0.0</checkstyle.version>
+        <sonar.version>5.8.0.7211</sonar.version>
+        <jacoco.version>0.8.15</jacoco.version>
+        <spotless.version>3.10.4</spotless.version>
+        <checkstyle.version>14.3.0</checkstyle.version>
         <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
-        <spotbugs.version>4.9.4.0</spotbugs.version>
-        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
-        <extra-enforcer-rules.version>1.9.0</extra-enforcer-rules.version>
-        <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
+        <spotbugs.version>4.10.5.0</spotbugs.version>
+        <extra-enforcer-rules.version>1.12.1</extra-enforcer-rules.version>
+        <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
+        <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+        <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -604,8 +605,8 @@
                             <message>Maven 版本不满足要求：需要 &gt;= 3.9 且 &lt; 4.0（项目锁定 3.9.16；Maven 4 暂未适配），当前为 ${maven.version}。&#10;请改用项目自带的 Maven Wrapper 构建：&#10;· 命令行：Linux/macOS 执行 ./mvnw，Windows 执行 mvnw.cmd&#10;· IntelliJ IDEA：设置内搜索 Maven，将 Maven home path（Maven 主路径）设为 Use Maven wrapper</message>
                         </requireMavenVersion>
                         <requireJavaVersion>
-                            <version>[17,)</version>
-                            <message>本项目要求 JDK 17 及以上版本。</message>
+                            <version>[21,)</version>
+                            <message>本项目要求 JDK 21 及以上版本构建（推荐 JDK 25，产物字节码为 Java 17）。</message>
                         </requireJavaVersion>
                         <banDuplicatePomDependencyVersions/>
                         <enforceBytecodeVersion>
@@ -776,6 +777,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-source-plugin</artifactId>
+                        <version>3.4.0</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -788,6 +790,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.12.0</version>
                         <executions>
                             <execution>
                                 <phase>package</phase>
@@ -800,7 +803,7 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                        <version>3.1.0</version>
+                        <version>3.2.8</version>
                         <executions>
                             <execution>
                                 <phase>verify</phase>
@@ -813,7 +816,7 @@
                     <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.4.0</version>
+                        <version>0.12.0</version>
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>central</publishingServerId>

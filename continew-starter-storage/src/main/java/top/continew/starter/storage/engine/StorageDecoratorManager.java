@@ -109,7 +109,7 @@ public class StorageDecoratorManager {
      * 查找适用的装饰器
      *
      * @param strategyClass 策略类
-     * @return {@link List }<{@link StorageStrategyDecorator }<{@link ? }>>
+     * @return 装饰器列表
      */
     private List<StorageStrategyDecorator<?>> findApplicableDecorators(
         Class<? extends StorageStrategy> strategyClass) {
