@@ -43,6 +43,17 @@ public class MultipartUploadInitReq {
     private String fileName;
 
     /**
+     * 原始文件名
+     *
+     * <p>
+     * 用户上传时的原始文件名，用于展示；空白值按未传入处理，完成上传时回退为 {@link #fileName}。该值参与会话复用判定：
+     * 原始文件名或上级目录不一致的上传不会复用同一会话。存储文件名不参与复用判定，无法用于隔离会话；
+     * 需要区分请使用不同的原始文件名或上级目录。
+     * </p>
+     */
+    private String originalFileName;
+
+    /**
      * 文件大小（字节）
      */
     private Long fileSize;
@@ -89,6 +100,14 @@ public class MultipartUploadInitReq {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
     }
 
     public Long getFileSize() {

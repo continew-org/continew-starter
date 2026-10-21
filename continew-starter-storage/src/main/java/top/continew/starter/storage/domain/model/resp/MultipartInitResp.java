@@ -21,6 +21,12 @@ import java.util.Set;
 /**
  * 分片上传初始化结果
  *
+ * <p>
+ * 复用命中已有会话时，本对象中的 {@code fileName}、{@code path} 来自已存在的会话，可能与本次请求传入的
+ * {@code fileName} 不同（存储文件名不参与会话复用判定）。调用方后续上传分片、完成上传时必须使用本对象返回的
+ * {@code path}，不能使用自行拼接的路径，否则对象会落到另一个位置。
+ * </p>
+ *
  * @author echo
  * @since 2.14.0
  */
@@ -62,9 +68,18 @@ public class MultipartInitResp {
     private Integer totalParts;
 
     /**
-     * 原始文件名
+     * 存储文件名
      */
     private String fileName;
+
+    /**
+     * 原始文件名
+     *
+     * <p>
+     * 用户上传时的原始文件名，用于展示；未指定时为空，调用方可回退为 {@link #fileName}。
+     * </p>
+     */
+    private String originalFileName;
 
     /**
      * 文件 MD5
@@ -158,6 +173,14 @@ public class MultipartInitResp {
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public void setOriginalFileName(String originalFileName) {
+        this.originalFileName = originalFileName;
     }
 
     public String getFileMd5() {
