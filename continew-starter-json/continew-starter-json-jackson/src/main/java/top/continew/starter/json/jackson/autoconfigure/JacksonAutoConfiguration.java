@@ -74,6 +74,7 @@ public class JacksonAutoConfiguration {
     }
 
     @Bean
+    @SuppressWarnings({"deprecation", "removal"})
     public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
         return builder -> {
             JavaTimeModule javaTimeModule = this.javaTimeModule();
