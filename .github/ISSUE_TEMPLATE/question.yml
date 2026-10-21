@@ -23,7 +23,7 @@ body:
     id: version
     attributes:
       label: ContiNew Starter 版本
-      placeholder: 例如：2.16.0
+      placeholder: 例如：3.0.0-SNAPSHOT
     validations:
       required: true
   - type: textarea
