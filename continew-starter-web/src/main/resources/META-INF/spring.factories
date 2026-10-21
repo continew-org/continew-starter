@@ -1,0 +1,2 @@
+org.springframework.boot.env.EnvironmentPostProcessor=\
+  top.continew.starter.web.autoconfigure.Jackson2PreferenceEnvironmentPostProcessor

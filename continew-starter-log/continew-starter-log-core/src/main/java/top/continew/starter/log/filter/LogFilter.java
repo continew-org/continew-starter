@@ -17,7 +17,7 @@
 package top.continew.starter.log.filter;
 
 import cn.hutool.extra.spring.SpringUtil;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.autoconfigure.web.ErrorProperties;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.continew.starter.core.wrapper.RepeatReadRequestWrapper;
@@ -82,8 +82,8 @@ public class LogFilter extends OncePerRequestFilter {
             return true;
         }
         // 不拦截 /error
-        ServerProperties serverProperties = SpringUtil.getBean(ServerProperties.class);
-        if (request.getRequestURI().equals(serverProperties.getError().getPath())) {
+        ErrorProperties errorProperties = SpringUtil.getBean(ErrorProperties.class);
+        if (request.getRequestURI().equals(errorProperties.getPath())) {
             return true;
         }
         // 放行路径

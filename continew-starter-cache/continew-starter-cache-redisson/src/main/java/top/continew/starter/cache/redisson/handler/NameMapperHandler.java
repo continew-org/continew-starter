@@ -17,7 +17,7 @@
 package top.continew.starter.cache.redisson.handler;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import org.redisson.api.NameMapper;
+import org.redisson.config.NameMapper;
 
 /**
  * 缓存名称映射处理器

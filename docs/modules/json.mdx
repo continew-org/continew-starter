@@ -14,7 +14,7 @@ description: continew-starter-json-jackson 基于 Jackson 提供开箱即用的 
 </dependency>
 ```
 
-模块会传递引入 `spring-boot-starter-json` 与 `jackson-datatype-jsr310`，引入后自动配置 `JacksonAutoConfiguration` 即刻生效，无需任何额外代码。
+模块会传递引入 `spring-boot-jackson2` 与 `jackson-datatype-jsr310`，引入后自动配置 `JacksonAutoConfiguration` 即刻生效，无需任何额外代码。Spring Boot 4 默认使用 Jackson 3，本模块在 3.0.0 过渡期通过 `spring.http.converters.preferred-json-mapper=jackson2` 将 HTTP 层的 JSON 转换器锚定到 Jackson 2，标准 Jackson 配置随之使用 `spring.jackson2.*` 命名空间。
 
 ## 配置
 
@@ -26,7 +26,7 @@ spring:
     format:
       # 日期格式化（针对 URL 参数中的 java.util.Date）
       date-time: yyyy-MM-dd HH:mm:ss
-  jackson:
+  jackson2:
     # 时区配置
     time-zone: GMT+8
     # 日期格式化（针对 java.util.Date）
@@ -45,7 +45,7 @@ spring:
     big-number-serialize-mode: FLEXIBLE
 ```
 
-其中 `spring.jackson.big-number-serialize-mode` 是模块的扩展配置项，对应 `top.continew.starter.json.jackson.autoconfigure.JacksonExtensionProperties`，可选值：
+其中 `spring.jackson.big-number-serialize-mode` 是模块的扩展配置项（沿用原命名空间以兼容存量配置），对应 `top.continew.starter.json.jackson.autoconfigure.JacksonExtensionProperties`，可选值：
 
 | 取值 | 行为 | 说明 |
 |:-----|:-----|:-----|
@@ -128,5 +128,5 @@ String json = JsonBuilder.builder()
 
 ## 注意事项
 
-- 时区：默认配置将 `spring.jackson.time-zone` 设为 `GMT+8`，而自动配置会以 JVM 默认时区（`TimeZone.getDefault()`）定制 `ObjectMapper`。若服务部署在 UTC 等其他时区的容器中，请显式设置 JVM 时区（如 `-Duser.timezone=Asia/Shanghai`），避免时间序列化结果偏移 8 小时。
+- 时区：默认配置将 `spring.jackson2.time-zone` 设为 `GMT+8`，而自动配置会以 JVM 默认时区（`TimeZone.getDefault()`）定制 `ObjectMapper`。若服务部署在 UTC 等其他时区的容器中，请显式设置 JVM 时区（如 `-Duser.timezone=Asia/Shanghai`），避免时间序列化结果偏移 8 小时。
 - `JsonUtils` 与 `JsonBuilder` 内部通过 Hutool `SpringUtil` 获取 Spring 容器中的 `ObjectMapper`，请在 Spring 环境下使用，不要在容器启动完成前调用。

@@ -1,3 +1,3 @@
 top.continew.starter.web.autoconfigure.mvc.WebMvcAutoConfiguration
 top.continew.starter.web.autoconfigure.cors.CorsAutoConfiguration
-top.continew.starter.web.autoconfigure.server.UndertowAutoConfiguration
+top.continew.starter.web.autoconfigure.server.ServerExtensionAutoConfiguration

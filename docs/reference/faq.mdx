@@ -68,7 +68,7 @@ Starter 的可覆盖 Bean 大多标注了 `@ConditionalOnMissingBean`，你自�
 
 **Q：Spring Boot 默认时区/日期格式被改了？**
 
-`json-jackson` 模块通过 `@PropertySource` 加载了内置的 `default-json-jackson.yml`，默认将 `spring.jackson.time-zone` 设为 `GMT+8`、日期格式设为 `yyyy-MM-dd HH:mm:ss`。如需调整，在你的 `application.yml` 中显式配置同名项即可覆盖（应用配置优先级高于 Starter 内置默认值）。
+`json-jackson` 模块通过 `@PropertySource` 加载了内置的 `default-json-jackson.yml`，默认将 `spring.jackson2.time-zone` 设为 `GMT+8`、日期格式设为 `yyyy-MM-dd HH:mm:ss`。如需调整，在你的 `application.yml` 中显式配置同名项即可覆盖（应用配置优先级高于 Starter 内置默认值）。
 
 ## 序列化与 JSON
 

@@ -22,6 +22,12 @@
             <artifactId>continew-starter-cache-redisson</artifactId>
         </dependency>
 
+        <!-- Spring Cache（Spring Boot 4 起 CacheProperties 迁移至独立模块） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+
         <!-- Hutool 加密模块（提供对称加密、非对称加密、摘要算法、签名算法等） -->
         <dependency>
             <groupId>cn.hutool</groupId>

@@ -188,5 +188,5 @@ public class CustomCorsConfiguration {
 
 ## 注意事项
 
-- 核心模块自带的 `spring-web`、`spring-webmvc`、`jakarta.servlet-api` 等依赖以传递方式引入；若项目本身未引入 `spring-boot-starter-web`，请确认运行环境满足需要。
+- 核心模块自带的 `spring-web`、`spring-webmvc`、`jakarta.servlet-api` 等依赖以传递方式引入；若项目本身未引入 `spring-boot-starter-webmvc`，请确认运行环境满足需要。
 - `IpUtils.getIpv4Address` 依赖容器中存在 `Ip2regionSearcher` Bean（由 `mica-ip2region` 自动装配提供），在非 Web 或未启用相关自动配置的环境下调用可能失败。
