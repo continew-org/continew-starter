@@ -1,0 +1,121 @@
+---
+title: Sa-Token
+description: Sa-Token 框架的扩展集成：登录拦截器样板化注册、内存 / Redisson / 自定义可切换持久层、JWT 模式与内置前后端分离默认配置。
+---
+
+`continew-starter-auth-satoken` 针对 [Sa-Token](https://sa-token.cc/) 框架做扩展集成：Sa-Token 是一个轻量级 Java 权限认证框架，解决登录认证、权限认证、单点登录、OAuth2.0、分布式 Session 会话、微服务网关鉴权等权限相关问题。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-auth-satoken</artifactId>
+</dependency>
+```
+
+模块自动配置以 `sa-token.extension.enabled=true` 为生效条件（见 `SaTokenAutoConfiguration`），开启后完成以下样板化处理：
+
+- 注册全局登录拦截器 `SaInterceptor`：对全部请求执行 `StpUtil.checkLogin()`，放行路径由 `sa-token.extension.security.excludes` 配置；
+- 提供可切换的持久层（内存 / Redisson / 自定义），见下文「持久层」；
+- 提供内置默认配置（`default-auth-satoken.yml`）：`token-prefix: Bearer`、`is-read-body: true`、`is-read-header: true`、`is-read-cookie: false`（适合前后端分离模式），如需修改直接在自己的配置中覆盖同名键即可。
+
+## 添加配置
+
+Sa-Token 本体配置（`sa-token.*`）遵循 [Sa-Token 官方配置项](https://sa-token.cc/doc.html#/use/config)；扩展配置位于 `sa-token.extension` 下，定义在 `top.continew.starter.auth.satoken.autoconfigure.SaTokenExtensionProperties`：
+
+```yaml
+--- ### Sa-Token 配置
+sa-token:
+  # Token 名称（同时也是 Cookie 名称）
+  token-name: Authorization
+  # Token 有效期（单位：秒，默认 30 天，-1 代表永不过期）
+  timeout: 86400
+  # Token 最低活跃频率（单位：秒，默认 -1 不限制；超过此时间未访问系统会被冻结）
+  active-timeout: 1800
+  # 是否打开自动续签（每次直接或间接调用 getLoginId() 时进行过期检查与续签）
+  auto-renew: true
+  # 是否允许同一账号多地同时登录（为 false 时新登录挤掉旧登录）
+  is-concurrent: true
+  # 多人登录同一账号时是否共用一个 Token（为 false 时每次登录新建一个 Token）
+  is-share: false
+  # 是否输出操作日志
+  is-log: false
+  # JWT 秘钥（开启 JWT 模式时必填）
+  jwt-secret-key: asdasdasifhueuiwyurfewbfjsdafjk
+  ## 扩展配置
+  extension:
+    # 是否启用 Sa-Token 扩展自动配置（默认：false）
+    enabled: true
+    # 是否启用 JWT（默认：false，启用后注入 StpLogicJwtForSimple）
+    jwt-enabled: true
+    # 持久层类型：DEFAULT（内存，默认）/ REDIS / CUSTOM
+    dao:
+      type: REDIS
+    # 安全配置：排除（放行）路径
+    security:
+      excludes:
+        - /error
+        # 静态资源
+        - /*.html
+        - /*/*.html
+        - /*/*.css
+        - /*/*.js
+        - /websocket/**
+        # 接口文档相关资源
+        - /favicon.ico
+        - /doc.html
+        - /webjars/**
+        - /swagger-ui/**
+        - /swagger-resources/**
+        - /*/api-docs/**
+```
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `sa-token.extension.enabled` | 是否启用 Sa-Token 扩展自动配置 | `false` |
+| `sa-token.extension.jwt-enabled` | 是否启用 JWT（注入 `StpLogicJwtForSimple`） | `false` |
+| `sa-token.extension.dao.type` | 持久层类型：`DEFAULT` / `REDIS` / `CUSTOM` | `DEFAULT` |
+| `sa-token.extension.security.excludes` | 登录拦截放行路径（Ant 风格） | `[]` |
+
+<Callout type="info">
+旧版配置键 `sa-token.extension.enableJwt` 对应的属性字段为 `jwtEnabled`，宽松绑定下 `enable-jwt` / `jwt-enabled` 均可生效，建议按源码字段名使用 `jwt-enabled`。
+</Callout>
+
+## 持久层
+
+`sa-token.extension.dao.type` 支持三种取值（`SaTokenDaoProperties.DaoType`）：
+
+- `DEFAULT`：使用 Sa-Token 内置内存实现 `SaTokenDaoDefaultImpl`，重启即失效，仅适合本地开发；
+- `REDIS`：使用 `SaTokenDaoForRedisson`，要求容器中存在 `RedissonClient` Bean（通常经[缓存模块 Redisson 实现](/docs/starter/modules/cache)提供），是分布式环境的推荐方式；
+- `CUSTOM`：自定义持久层。此时必须自行实现 `cn.dev33.satoken.dao.SaTokenDao` 接口并注册为 Spring Bean，否则启动即抛出 `NoSuchBeanDefinitionException`。
+
+```yaml
+sa-token:
+  extension:
+    dao:
+      type: CUSTOM
+```
+
+```java
+@Component
+public class MySaTokenDao implements SaTokenDao {
+    // 实现各读写方法
+}
+```
+
+## 自定义拦截器
+
+默认登录拦截器标注了 `@ConditionalOnMissingBean`，注册自己的 `SaInterceptor` Bean 即可覆盖：
+
+```java
+/**
+ * SaToken 拦截器配置
+ */
+@Bean
+public SaInterceptor saInterceptor(SaTokenExtensionProperties properties) {
+    return new SaInterceptor(handle -> SaRouter.match(StringConstants.PATH_PATTERN)
+        .notMatch(properties.getSecurity().getExcludes())
+        .check(r -> StpUtil.checkLogin()));
+}
+```

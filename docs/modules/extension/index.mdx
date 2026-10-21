@@ -1,0 +1,20 @@
+---
+title: 扩展
+description: 提供 CRUD（增删改查）、数据权限、多租户三类企业级扩展模块，基于 MyBatis Plus / MyBatis Flex 实现，开箱即用。
+---
+
+扩展模块提供三类面向业务开发的增强能力：
+
+| 模块 | 说明 |
+|:-----|:-----|
+| `continew-starter-extension-crud-mp` / `continew-starter-extension-crud-mf` | CRUD（增删改查）：继承基类即可获得分页、列表、树、详情、增删改、导出、字典等标准 RESTful API |
+| `continew-starter-extension-datapermission-mp` | 数据权限：基于 MyBatis Plus 数据权限插件的行级数据过滤，内置五种数据范围 |
+| `continew-starter-extension-tenant-mp` | 多租户：基于 MyBatis Plus 的多租户隔离，支持行级与数据源级两种隔离策略 |
+
+各扩展均拆分为 `-core`（注解、模型、SPI 接口）与 ORM 实现模块（`-mp` / `-mf`），按需引入实现模块即可。
+
+<Cards>
+  <Card title="CRUD 增删改查" href="/docs/starter/modules/extension/crud" />
+  <Card title="数据权限" href="/docs/starter/modules/extension/data-permission" />
+  <Card title="多租户" href="/docs/starter/modules/extension/tenant" />
+</Cards>

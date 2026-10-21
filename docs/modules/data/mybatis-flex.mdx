@@ -1,0 +1,179 @@
+---
+title: MyBatis Flex
+description: continew-starter-data-mf：基于 MyBatis Flex 的数据访问增强，含扩展配置、@Query 通用查询、通用 Mapper/Service、数据权限方言与分页插件。
+---
+
+`continew-starter-data-mf` 是数据访问模块针对 MyBatis Flex 框架的增强实现，提供通用业务体系、声明式查询构建、数据权限与分页插件等能力。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-data-mf</artifactId>
+</dependency>
+```
+
+模块会传递引入 `com.mybatis-flex:mybatis-flex-spring-boot3-starter`，`mybatis-flex-processor`（APT 注解处理器）以 `provided`  scope 提供；`me.ahoo.cosid:cosid-spring-boot-starter` 为 `optional`，按需自行引入（见 `continew-starter-data-mf/pom.xml`）。
+
+## 配置
+
+扩展配置项前缀为 `mybatis-flex.extension`，属性类为 `top.continew.starter.data.autoconfigure.MyBatisFlexExtensionProperties`：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `mybatis-flex.extension.enabled` | 是否启用本模块扩展（自动配置生效条件，无缺省匹配，**必须显式配置为 `true`**） | `false` |
+| `mybatis-flex.extension.data-permission.enabled` | 是否启用数据权限插件 | `false` |
+| `mybatis-flex.extension.pagination.enabled` | 是否启用分页插件 | `true` |
+| `mybatis-flex.extension.pagination.db-type` | 数据库类型（`com.mybatisflex.core.dialect.DbType`，如 `MYSQL`） | 未设置 |
+| `mybatis-flex.extension.pagination.overflow` | 分页溢出处理 | `false` |
+| `mybatis-flex.extension.pagination.max-limit` | 单页分页条数限制，`-1` 表示无限制 | `-1` |
+
+```yaml
+# MyBatis Flex 扩展配置
+mybatis-flex:
+  extension:
+    enabled: true
+    # 数据权限插件配置
+    data-permission:
+      enabled: false
+    # 分页插件配置
+    pagination:
+      enabled: true
+      db-type: MYSQL
+      overflow: false
+      max-limit: -1
+```
+
+<Callout type="warn">
+自动配置 `MybatisFlexAutoConfiguration` 的生效条件为 `mybatis-flex.extension.enabled=true`（`@ConditionalOnProperty` 未设 `matchIfMissing`）。未开启时 MyBatis Flex 本体仍由其官方 starter 装配，但本模块的扩展能力（事务管理、默认配置、数据权限方言）不生效。
+</Callout>
+
+启用扩展时，模块还会通过 `default-data-mybatis-flex.yml` 提供样板化默认配置：开启下划线转驼峰映射（`map-underscore-to-camel-case: true`）、未知列处理策略 `NONE`、关闭 MyBatis 自带日志，并配置主键为 `flexId` 生成器：
+
+```yaml
+mybatis-flex:
+  check-config-location: true
+  configuration:
+    map-underscore-to-camel-case: true
+    auto-mapping-unknown-column-behavior: NONE
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+  global-config:
+    key-config:
+      key-type: generator
+      # flexId 主键生成器 com.mybatisflex.core.keygen.impl.FlexIDKeyGenerator
+      value: flexId
+```
+
+## 通用查询注解
+
+与 MyBatis Plus 实现共用 `data-core` 的 `@Query` 注解体系（注解属性与 `QueryType` 枚举见 [MyBatis Plus 页](/docs/starter/modules/data/mybatis-plus#通用查询注解)），在查询条件类字段上标注后，通过 `QueryWrapperHelper.build(query)` 构建 MyBatis Flex 的 `QueryWrapper`，并支持传入 Spring Data `Sort` 排序对象：
+
+```java
+@Data
+public class DeptQuery implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    @Query(type = QueryType.LIKE)
+    private String name;
+
+    @Query
+    private Integer status;
+}
+
+QueryWrapper queryWrapper = QueryWrapperHelper.build(query);
+```
+
+构建过程会对查询值做 SQL 注入校验、对排序字段做合法性校验（`QueryWrapperHelper.java`）。
+
+## 通用 Mapper 与 Service
+
+```java
+public interface DemoMapper extends BaseMapper<DemoDO> {
+}
+
+public interface DemoService extends IService<DemoDO> {
+}
+
+@Service
+public class DemoServiceImpl extends ServiceImpl<DemoMapper, DemoDO> implements DemoService {
+}
+```
+
+`BaseMapper`（`top.continew.starter.data.base.BaseMapper`）在 MyBatis Flex `BaseMapper` 之上扩展了 `updateBatchById`（批量更新）、`query()` / `query(T entity)`（链式查询）、`currentEntityClass` 等方法（`BaseMapper.java:42-72`）。
+
+## 数据权限
+
+数据权限基于 MyBatis Flex 方言（`DataPermissionDialect`）在 SQL 层按数据权限范围拼接查询过滤条件，在 Mapper 或 Service 方法上标注 `@DataPermission` 注解即可生效：
+
+```java
+public interface UserMapper extends BaseMapper<UserDO> {
+
+    @DataPermission
+    List<UserDO> list(@Param("query") UserQuery query);
+}
+```
+
+`@DataPermission` 注解属性（均有默认值，可按表结构覆盖）：
+
+| 属性 | 说明 | 默认值 |
+|:-----|:-----|:-------|
+| `tableAlias` | 表别名 | `""` |
+| `id` | 主键列名 | `id` |
+| `deptId` | 部门 ID 列名 | `dept_id` |
+| `userId` | 用户 ID 列名 | `create_user` |
+| `roleId` | 角色 ID 列名（角色和部门关联表） | `role_id` |
+| `deptTableAlias` | 部门表名 | `sys_dept` |
+| `roleDeptTableAlias` | 角色和部门关联表名 | `sys_role_dept` |
+
+支持的数据权限范围（`top.continew.starter.data.datapermission.DataScope` 枚举）：
+
+| 范围 | 说明 |
+|:-----|:-----|
+| `ALL` | 全部数据权限 |
+| `DEPT_AND_CHILD` | 本部门及以下数据权限 |
+| `DEPT` | 本部门数据权限 |
+| `SELF` | 仅本人数据权限 |
+| `CUSTOM` | 自定义数据权限 |
+
+```java
+// 实现 DataPermissionFilter 接口并注册为 Bean
+@Component
+public class DataPermissionFilterImpl implements DataPermissionFilter {
+
+    @Override
+    public boolean isFilter() {
+        // 返回 false 可整体跳过数据权限过滤（如超级管理员）
+        return true;
+    }
+
+    @Override
+    public DataPermissionCurrentUser getCurrentUser() {
+        // 返回当前用户 ID、部门 ID、角色及其数据权限范围
+        return currentUser;
+    }
+}
+```
+
+<Callout type="warn">
+- 开启数据权限（`data-permission.enabled: true`）后，**必须**提供 `DataPermissionFilter` 实现 Bean：自动配置类通过 `@Resource` 注入它并向 `DialectFactory` 注册方言（当前仅注册了 `DbType.MYSQL`），缺失该 Bean 会导致启动失败（`MybatisFlexAutoConfiguration.java:54-63`）。
+- 源码中 `DataPermissionAspect`（负责将方法上的 `@DataPermission` 注解信息传递给方言）未注册为 Spring Bean，需要在使用方项目中自行声明，例如：
+
+```java
+@Bean
+public DataPermissionAspect dataPermissionAspect() {
+    return new DataPermissionAspect();
+}
+```
+</Callout>
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-data-core` | 数据访问模块 - 核心模块（`@Query` 查询注解体系） |
+| `com.mybatis-flex:mybatis-flex-spring-boot3-starter` | MyBatis Flex 框架本体 |
+| `com.mybatis-flex:mybatis-flex-processor` | MyBatis Flex APT 注解处理器（`provided`） |
+| `me.ahoo.cosid:cosid-spring-boot-starter` | CosId 分布式 ID 生成器（`optional`，按需引入） |

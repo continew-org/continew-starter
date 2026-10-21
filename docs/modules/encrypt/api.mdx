@@ -1,0 +1,64 @@
+---
+title: API 加密
+description: RSA + AES 信封加密的 API 报文加解密：Servlet 过滤器自动解密请求体、加密响应体，防止接口报文明文传输被窃取。
+---
+
+采用 RSA + AES 混合信封加密（AES 加密报文 + RSA 加密 AES 密钥，兼顾性能与安全），通过 Servlet 过滤器自动解密请求体、加密响应体，防止接口报文明文传输被窃取。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-encrypt-api</artifactId>
+</dependency>
+```
+
+## 配置
+
+配置项定义在 `top.continew.starter.encrypt.api.autoconfigure.ApiEncryptProperties` 中：
+
+```yaml
+continew-starter:
+  encrypt:
+    api:
+      # 是否启用（默认：true）
+      enabled: true
+      # 请求头中 AES 密钥键名（默认：X-Api-Encrypt）
+      secret-key-header: X-Api-Encrypt
+      # 响应加密公钥（RSA）
+      public-key: ''
+      # 请求解密私钥（RSA）
+      private-key: ''
+```
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `continew-starter.encrypt.api.enabled` | 是否启用 API 加密自动配置 | `true` |
+| `continew-starter.encrypt.api.secret-key-header` | 存放加密后 AES 密钥的请求/响应头键名 | `X-Api-Encrypt` |
+| `continew-starter.encrypt.api.public-key` | 响应加密公钥（RSA） | 无 |
+| `continew-starter.encrypt.api.private-key` | 请求解密私钥（RSA） | 无 |
+
+## 使用 @ApiEncrypt 注解
+
+在需要加密响应的 Controller 方法上标注 `top.continew.starter.encrypt.api.annotation.ApiEncrypt` 注解：
+
+```java
+@Operation(summary = "新增数据")
+@ApiEncrypt
+@PostMapping
+public Resp<Void> add(@RequestBody @Validated DemoReq req) {
+    // 请求体已由过滤器自动解密，响应体将自动加密
+}
+```
+
+注解仅一个属性 `response`（默认 `true`），表示是否加密响应体；标注后设为 `false` 可只解密请求而不加密响应。
+
+## 请求/响应处理流程
+
+过滤器 `ApiEncryptFilter` 注册于 `/*`，仅处理 POST / PUT 请求：
+
+1. **请求解密**：请求头携带 `X-Api-Encrypt`（经 RSA 公钥加密后 Base64 编码的 AES 密钥）时，使用 RSA 私钥解出 AES 密钥（先 Base64 解码），再用 AES 解密请求体；
+2. **响应加密**：命中 `@ApiEncrypt(response = true)` 的接口，随机生成 32 位 AES 密钥加密响应体，并将 AES 密钥 Base64 编码后经 RSA 公钥加密写入响应头 `X-Api-Encrypt`，同时通过 `Access-Control-Expose-Headers` 暴露该头，方便跨域读取。
+
+客户端按相同约定实现：请求时随机生成 AES 密钥加密报文，密钥 Base64 编码后用 RSA 公钥加密放入请求头；收到响应后从响应头取出 AES 密钥解密响应体。

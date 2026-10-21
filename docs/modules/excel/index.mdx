@@ -1,0 +1,34 @@
+---
+title: Excel
+description: Excel 模块提供 FastExcel 与 Apache POI 两种实现，覆盖大数据量高性能导出与模板导出、导入校验回填、下拉列表、行/列合并、图片导出等场景。
+---
+
+Excel 文件处理模块提供两种实现，均为**无自动配置、无配置属性**的纯工具类模块，按需引入其一即可：
+
+- **FastExcel**：`continew-starter-excel-fastexcel`，基于 FastExcel（EasyExcel 替代版），面向大数据量导出场景，一行代码完成导出，自动适配列宽并内置大数值、枚举、集合转换器，有效避免内存溢出；
+- **POI**：`continew-starter-excel-poi`，基于 Apache POI，功能全面，支持模板导出、下拉列表、行/列合并、URL 图片导出与导入校验错误回填。
+
+两种实现共用核心模块 `continew-starter-excel-core`（提供 `@ExcelExport` / `@ExcelImport` 注解，随实现模块自动传递引入）。
+
+<Callout type="warn">
+两个实现模块提供的 `ExcelUtils` **同名同包**（`top.continew.starter.excel.util.ExcelUtils`）但 API 体系完全独立，同时引入会产生类冲突，请按需二选一。
+</Callout>
+
+<Cards>
+  <Card title="FastExcel" href="/docs/starter/modules/excel/fastexcel">
+    大数据量高性能导出，自动适配列宽，内置大数值/枚举/集合转换器
+  </Card>
+  <Card title="POI" href="/docs/starter/modules/excel/poi">
+    功能全面的导入导出：模板导出、下拉列表、行/列合并、URL 图片导出、导入校验与错误回填
+  </Card>
+</Cards>
+
+## 如何选择
+
+| 实现 | 定位 |
+|:-----|:-----|
+| FastExcel | 大数据量高性能导出，自动适配列宽，内置大数值/枚举/集合转换器，与 FastExcel 注解体系一致 |
+| POI | 功能全面的导入导出：模板导出、下拉列表、行/列合并、URL 图片导出、导入校验与错误回填 |
+
+- 只需把查询结果快速导出为 Excel，或数据量大、关注内存占用：引入 `continew-starter-excel-fastexcel`；
+- 需要导入模板、导入校验回填、下拉列表、行/列合并或图片导出：引入 `continew-starter-excel-poi`。

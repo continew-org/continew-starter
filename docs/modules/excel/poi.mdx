@@ -1,0 +1,109 @@
+---
+title: POI
+description: continew-starter-excel-poi 基于 Apache POI 提供功能全面的 Excel 导入导出能力，支持模板导出、下拉列表、行/列合并、URL 图片导出与导入校验错误回填。
+---
+
+`continew-starter-excel-poi` 基于 Apache POI 提供 Excel 导入导出工具类，支持模板导出、下拉列表、行/列合并、图片导出及导入校验回填等能力。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-excel-poi</artifactId>
+</dependency>
+```
+
+## 实体注解
+
+在实体字段上标注 `@ExcelExport` / `@ExcelImport` 注解（由核心模块 `continew-starter-excel-core` 提供，包名 `top.continew.excel.annotation`）：
+
+```java
+@Data
+public class UserExcel {
+
+    @ExcelExport(value = "用户名", sort = 1)
+    @ExcelImport(value = "用户名", required = true)
+    private String username;
+
+    @ExcelExport(value = "状态", kv = "1-正常;2-禁用", sort = 2)
+    @ExcelImport(value = "状态", kv = "1-正常;2-禁用")
+    private Integer status;
+}
+```
+
+`@ExcelExport` 属性（见 `ExcelExport.java`）：
+
+| 属性 | 说明 | 默认值 |
+|:-----|:-----|:-------|
+| `value` | 字段名称（表头） | 必填 |
+| `sort` | 导出排序，数字越小越靠前；不设置时按 Java 类字段顺序导出 | `0` |
+| `kv` | 导出映射，格式如 `0-未知;1-男;2-女` | 空 |
+| `example` | 导出模板示例值（有值时模板行直接取该值，不做映射） | 空 |
+
+`@ExcelImport` 属性（见 `ExcelImport.java`）：
+
+| 属性 | 说明 | 默认值 |
+|:-----|:-----|:-------|
+| `value` | 字段名称（表头） | 必填 |
+| `kv` | 导入映射，格式如 `0-未知;1-男;2-女`，导入时按显示值反查实际值 | 空 |
+| `required` | 是否必填，必填字段为空时记录错误 | `false` |
+| `maxLength` | 最大长度，超长记录错误 | `255` |
+| `unique` | 是否参与唯一性校验，多个字段标注时取联合唯一 | `false` |
+
+## 导入
+
+```java
+// 读取文件为实体列表（.xlsx / .xls 均可，MultipartFile 用 readMultipartFile）
+List<UserExcel> list = ExcelUtils.readFile(file, UserExcel.class);
+
+// 只读取原始数据（JSONArray）
+JSONArray array = ExcelUtils.readFile(file);
+
+// 读取多 Sheet 页（键为 Sheet 名）
+Map<String, JSONArray> sheetMap = ExcelUtils.readFileManySheet(file);
+```
+
+导入时按 `@ExcelImport` 配置自动完成必填、最大长度、kv 映射与联合唯一校验。在实体中声明以下约定字段可接收校验结果（见 `ExcelUtils.java:99-101`）：
+
+- `rowNum`：数据所在行号；
+- `rowTips`：校验错误信息（多条以 `;` 分隔，如 `[用户名]不能为空`）；
+- `rowData`：该行原始数据（JSON 字符串）。
+
+## 导出
+
+`ExcelUtils` 提供以下静态导出方法（完整签名见源码 `top.continew.starter.excel.util.ExcelUtils`）：
+
+```java
+// 按实体列表导出（list 为空且指定模板类时自动导出模板，二者皆空时导出空文件）
+ExcelUtils.export(response, "用户列表", list, UserExcel.class);
+
+// 按原始二维数据导出，可自定义 sheet 名与下拉列表（列下标 -> 选项）
+ExcelUtils.export(response, "用户列表", "用户信息", sheetDataList, selectMap);
+
+// 导出导入模板（可选是否包含示例行，kv 映射字段自动生成下拉列表）
+ExcelUtils.exportTemplate(response, "用户导入模板", UserExcel.class, true);
+
+// 多 Sheet 页导出（键为 Sheet 名）
+ExcelUtils.exportManySheet(response, "统计报表", sheetMap);
+
+// 导出到本地文件
+ExcelUtils.exportFile("D:/doc/excel/", "用户表", list);
+```
+
+导出行为说明：
+
+- 底层使用 `SXSSFWorkbook` 流式写出（见 `ExcelUtils.java:954`），大数据量导出内存占用低；导出文件为 `.xlsx` 格式；
+- 配置了 `kv` 映射的字段，导出时自动将实际值转为显示值，并在模板导出时生成下拉列表（见 `exportTemplate` 实现，`ExcelUtils.java:589-597`）；
+- 单元格值填入 `ExcelUtils.ROW_MERGE` / `ExcelUtils.COLUMN_MERGE` 常量字符串（值为 `row_merge` / `column_merge`）可触发相邻同值单元格的行/列合并（见 `ExcelUtils.java:94-95`）；
+- 单元格值传入 `java.net.URL` 对象时，该单元格导出为图片（见 `ExcelUtils.java:1043-1045`）。
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-excel-core` | Excel 文件处理模块 - 核心模块（`@ExcelExport` / `@ExcelImport` 注解） |
+| `org.apache.poi:poi-ooxml` | Apache POI（适用于 Microsoft 文档的 Java API） |
+| `org.apache.httpcomponents.client5:httpclient5` | Apache HttpClient 5（图片导出时获取远程图片） |
+
+更多细节请参考 [Apache POI 官方文档](https://poi.apache.org/)。

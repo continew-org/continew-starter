@@ -1,0 +1,137 @@
+---
+title: 限流
+description: 基于 AOP + Redisson 分布式限流器（令牌桶算法）的开箱即用限流模块，通过 @RateLimiter 注解实现全局限流、IP 限流与集群单实例限流。
+---
+
+
+`continew-starter-ratelimiter` 基于 AOP 与 Redisson 内置分布式限流器（令牌桶算法）实现，提供开箱即用的分布式限流方案：以恒定速率生成令牌，每个请求需先获取令牌才能被处理，获取失败即抛出限流异常。
+
+主要特性：
+
+- **多维度限流**：支持全局限流（`DEFAULT`）、IP 限流（`IP`）、集群单实例限流（`CLUSTER`）三种类型；
+- **SpEL 支持**：`key` 属性支持 Spring EL 表达式，可动态解析方法参数作为限流键；
+- **限流器链**：通过 `@RateLimiters` 组合多个 `@RateLimiter`，实现多级流量控制；
+- **自动配置**：`continew-starter.rate-limiter.enabled=false` 可整体关闭。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-ratelimiter</artifactId>
+</dependency>
+```
+
+<Callout type="info">
+限流模块依赖 Redisson 客户端（`continew-starter-cache-redisson`），需保证 Redis 连接可用；Redis 连接配置见[缓存模块（Redisson）](/docs/starter/modules/cache)。
+</Callout>
+
+## 配置
+
+配置项定义在 `top.continew.starter.ratelimiter.autoconfigure.RateLimiterProperties` 中：
+
+```yaml
+continew-starter:
+  rate-limiter:
+    # 是否启用（默认：true）
+    enabled: true
+    # 限流 Key 统一前缀（默认：RateLimiter）
+    key-prefix: RateLimiter
+```
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `continew-starter.rate-limiter.enabled` | 是否启用限流自动配置 | `true` |
+| `continew-starter.rate-limiter.key-prefix` | 限流器在 Redis 中的 Key 前缀 | `RateLimiter` |
+
+## 使用 @RateLimiter 注解
+
+在需要限流的接口方法上添加 `top.continew.starter.ratelimiter.annotation.RateLimiter` 注解即可；如需组合多个限流策略，使用 `@RateLimiters` 包裹。
+
+下方以预防短信炸弹的限流策略为例：
+
+1. 同一号码同一模板：1 分钟 2 条、1 小时 8 条、24 小时 20 条；
+2. 同一号码所有模板：24 小时 100 条；
+3. 同一 IP：每分钟最多发送 30 条。
+
+```java
+@Operation(summary = "获取短信验证码", description = "发送验证码到指定手机号")
+@GetMapping("/sms")
+@RateLimiters({
+    @RateLimiter(name = CacheConstants.CAPTCHA_KEY_PREFIX + "MIN", key = "#phone + ':' + T(cn.hutool.extra.spring.SpringUtil).getProperty('captcha.sms.templateId')", rate = 2, interval = 1, unit = TimeUnit.MINUTES, message = "获取验证码操作太频繁，请稍后再试"),
+    @RateLimiter(name = CacheConstants.CAPTCHA_KEY_PREFIX + "HOUR", key = "#phone + ':' + T(cn.hutool.extra.spring.SpringUtil).getProperty('captcha.sms.templateId')", rate = 8, interval = 1, unit = TimeUnit.HOURS, message = "获取验证码操作太频繁，请稍后再试"),
+    @RateLimiter(name = CacheConstants.CAPTCHA_KEY_PREFIX + "DAY", key = "#phone + ':' + T(cn.hutool.extra.spring.SpringUtil).getProperty('captcha.sms.templateId')", rate = 20, interval = 24, unit = TimeUnit.HOURS, message = "获取验证码操作太频繁，请稍后再试"),
+    @RateLimiter(name = CacheConstants.CAPTCHA_KEY_PREFIX, key = "#phone", rate = 100, interval = 24, unit = TimeUnit.HOURS, message = "获取验证码操作太频繁，请稍后再试"),
+    @RateLimiter(name = CacheConstants.CAPTCHA_KEY_PREFIX, key = "#phone", rate = 30, interval = 1, unit = TimeUnit.MINUTES, type = LimitType.IP, message = "获取验证码操作太频繁，请稍后再试")
+})
+public R getSmsCaptcha(@NotBlank(message = "手机号不能为空") @Mobile String phone) {
+    // ...略
+}
+```
+
+<Callout type="warn">
+短信炸弹不能单凭限流器预防，还需结合行为验证码等其他措施，上方仅示例针对短信场景的限流策略组合。
+</Callout>
+
+### 注解属性
+
+`@RateLimiter` 各属性定义如下（与 `RateLimiter.java` 源码一致）：
+
+| 属性 | 说明 | 默认值 |
+|:-----|:-----|:-------|
+| `type` | 限流类型：`DEFAULT` 全局限流；`IP` 按客户端 IP 限流；`CLUSTER` 集群模式下单实例限流 | `LimitType.DEFAULT` |
+| `name` | 限流器名称，留空时由 `RateLimiterNameGenerator` 生成 | `""` |
+| `key` | 限流键，支持 Spring EL 表达式（如 `#userId`） | `""` |
+| `rate` | 速率：指定时间间隔内产生的令牌数 | `Integer.MAX_VALUE` |
+| `interval` | 速率间隔（时间间隔数值） | `0` |
+| `unit` | 速率间隔的时间单位 | `TimeUnit.MILLISECONDS` |
+| `message` | 触发限流时的提示信息 | `操作过于频繁，请稍后再试` |
+
+三种 `LimitType` 的行为差异（见 `RateLimiterAspect.getCacheKey`）：
+
+- `DEFAULT`：所有实例共享同一令牌桶，Key 不附加后缀，实现全局限流；
+- `IP`：Key 附加当前请求的客户端 IP，对每个 IP 单独限流（`RateType.OVERALL`）；
+- `CLUSTER`：Key 附加当前 Redisson 节点 ID，限流速率按 `RateType.PER_CLIENT` 生效，即每个实例独享配额。
+
+触发限流时抛出 `top.continew.starter.ratelimiter.exception.RateLimiterException`，全局异常处理可据此返回统一响应。
+
+## 自定义限流器名称生成器
+
+当 `@RateLimiter` 的 `name` 属性为空时，由 `RateLimiterNameGenerator` 生成限流器名称：
+
+```java
+public interface RateLimiterNameGenerator {
+
+    /**
+     * Generate a rate limiter name for the given method and its parameters.
+     */
+    String generate(Object target, Method method, Object... args);
+}
+```
+
+默认实现 `DefaultRateLimiterNameGenerator` 根据「类名 + 方法名 + 参数类型描述」生成名称。如需自定义，实现该接口并注册为 Spring Bean 即可（自动配置使用 `@ConditionalOnMissingBean`，你的实现会覆盖默认实现）：
+
+```java
+@Configuration
+public class GlobalConfiguration {
+
+    /**
+     * 限流器名称生成器
+     */
+    @Bean
+    public RateLimiterNameGenerator nameGenerator() {
+        return new MyRateLimiterNameGenerator();
+    }
+}
+```
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-cache-redisson` | 缓存模块（Redisson 客户端） |
+| `top.continew.starter:continew-starter-core` | 核心模块 |
+
+## 参考资料
+
+- Redisson 官方文档 - RateLimiter：https://redisson.pro/docs/data-and-services/objects/#ratelimiter

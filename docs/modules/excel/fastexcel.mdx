@@ -1,0 +1,50 @@
+---
+title: FastExcel
+description: continew-starter-excel-fastexcel 基于 FastExcel 提供开箱即用的 Excel 导出能力，专为大数据量导出场景设计，自动适配列宽并内置大数值、枚举、集合转换器。
+---
+
+`continew-starter-excel-fastexcel` 基于 FastExcel 提供开箱即用的 Excel 导出能力，专为大数据量 Excel 文件处理而设计。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-excel-fastexcel</artifactId>
+</dependency>
+```
+
+## 使用 ExcelUtils 导出
+
+`ExcelUtils` 提供两个静态导出方法：简单版本按默认工作表导出，完整版本支持自定义工作表名称与排除字段。导出的实体类直接使用 FastExcel 原生注解（如 `@ExcelProperty`）描述表头。
+
+```java
+// 简单版本：默认 Sheet1，导出全部字段
+ExcelUtils.export(list, "用户列表", UserExcel.class, response);
+
+// 完整版本：自定义工作表名称，排除指定字段
+ExcelUtils.export(list, "用户列表", "用户信息", Set.of("password"), UserExcel.class, response);
+```
+
+导出时自动完成以下处理（见 `top.continew.starter.excel.util.ExcelUtils`）：
+
+- 文件名自动追加时间戳（`文件名_yyyyMMddHHmmss.xlsx`）并进行 URL 编码，以 `Content-Disposition: attachment` 写入响应；
+- 注册 `LongestMatchColumnWidthStyleStrategy`，按内容自动适配列宽；
+- 注册 `ExcelBigNumberConverter`，自动转换大数值。
+
+## 数据类型转换器
+
+模块在 `top.continew.starter.excel.converter` 包下内置三个转换器，除大数值转换器已随导出自动注册外，其余可在实体字段上通过 `@ExcelProperty(converter = ...)` 按需指定。
+
+**大数值转换器 `ExcelBigNumberConverter`**：解决 Excel 中超过 15 位数字的精度问题（Excel 对超过 15 位的数值从第 16 位起一律归零），因此写入时将超长 `Long` 转为文本，读取时再转回 `Long`（见 `ExcelBigNumberConverter.java:42` 的 `MAX_LENGTH = 15`）。
+
+**集合转换器 `ExcelListConverter`**：仅适合 `List<基本类型>` 与逗号分隔字符串（`xxx,xxx`）之间的互相转换（见 `ExcelListConverter.java` 类注释）。
+
+**枚举转换器 `ExcelBaseEnumConverter`**：支持实现 `BaseEnum` 接口的枚举类型，写入 Excel 时取枚举的描述（`getDescription()`），读取时按描述反查枚举（见 `ExcelBaseEnumConverter.java:55`）。
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-excel-core` | Excel 文件处理模块 - 核心模块 |
+| `cn.idev.excel:fastexcel` | FastExcel（基于 Java 的快速、简洁、解决大文件内存溢出的 Excel 处理工具） |

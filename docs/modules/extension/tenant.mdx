@@ -1,0 +1,194 @@
+---
+title: 多租户
+description: 基于 MyBatis Plus 实现的 SaaS 多租户扩展模块，支持行级与数据源级两种隔离策略，通过简单配置和注解即可实现租户数据隔离。
+---
+
+`continew-starter-extension-tenant-mp` 是 ContiNew Starter 基于 MyBatis Plus 实现的多租户扩展模块，提供开箱即用的 SaaS 多租户解决方案。通过简单的配置和注解，可快速实现租户数据隔离，保障不同租户数据的安全性和独立性。
+
+主要特性：
+
+- **双重隔离策略**：支持行级隔离和数据源级隔离两种方式，满足不同场景需求
+- **无侵入性**：基于 MyBatis Plus 拦截器，对业务代码无侵入
+- **上下文管理**：基于 `ThreadLocal` 的租户上下文管理（`TenantContextHolder`）
+
+### 隔离策略
+
+隔离级别由 `TenantIsolationLevel` 枚举定义（见 `TenantIsolationLevel.java`）：
+
+| 枚举值 | 说明 | 优点 | 缺点 |
+|:-------|:-----|:-----|:-----|
+| `LINE` | 行级隔离：SQL 查询时自动追加租户 ID 条件，所有租户数据存储在同一个数据库 | 资源利用率高、维护成本低，数据迁移和备份简单，适合租户数量多但数据量适中的场景 | 数据安全性相对较低，单表数据量大时查询性能可能受影响 |
+| `DATASOURCE` | 数据源级隔离：每个租户使用独立的数据库，通过动态切换数据源实现隔离（依赖 `dynamic-datasource-spring-boot3-starter`） | 数据安全性高、租户间完全隔离，单租户性能优异，支持租户定制化需求 | 资源消耗大、维护成本高，数据迁移和跨租户查询复杂 |
+
+### 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-extension-tenant-mp</artifactId>
+</dependency>
+```
+
+模块会传递引入 `continew-starter-extension-tenant-core` 与 `com.baomidou:mybatis-plus-jsqlparser`；`com.baomidou:dynamic-datasource-spring-boot3-starter` 为 `optional`，仅在使用数据源级隔离时需要自行引入（见 `continew-starter-extension-tenant-mp/pom.xml` 与 `TenantAutoConfiguration.java:105` 的 `@ConditionalOnClass` 条件）。
+
+### 配置
+
+配置属性类为 `top.continew.starter.extension.tenant.autoconfigure.TenantProperties`，配置前缀为 `continew-starter.tenant`（见 `PropertiesConstants.java:185`）：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `continew-starter.tenant.enabled` | 是否启用租户功能 | `true` |
+| `continew-starter.tenant.isolation-level` | 租户隔离级别：`LINE`（行级）/ `DATASOURCE`（数据源级） | `LINE` |
+| `continew-starter.tenant.tenant-id-column` | 租户 ID 列名 | `tenant_id` |
+| `continew-starter.tenant.tenant-id-header` | 请求头中租户 ID 键名 | `X-Tenant-Id` |
+| `continew-starter.tenant.ignore-tables` | 忽略表列表（不拼接租户条件） | 无 |
+
+```yaml
+# 租户配置
+continew-starter:
+  tenant:
+    enabled: true
+    # 隔离级别（默认：LINE，行级）
+    isolation-level: LINE
+    # 租户 ID 列名
+    tenant-id-column: tenant_id
+    # 请求头中租户 ID 键名
+    tenant-id-header: X-Tenant-Id
+    # 忽略表（忽略拼接租户条件）
+    ignore-tables:
+      - tenant # 租户表
+      - sys_menu # 菜单表
+      - sys_dict # 字典表
+      - sys_dict_item # 字典项表
+```
+
+#### 业务侧扩展配置项
+
+`TenantProperties` 只提供上述通用隔离配置。实际项目往往还需要「默认租户」「按租户编码登录」「限制租户可用菜单」等能力，这些属于业务扩展，应由业务方自行声明 `@ConfigurationProperties(prefix = "continew-starter.tenant")` 的配置类来补充（ContiNew Admin 即以 `TenantExtensionProperties` 扩展了以下三项）：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.tenant.tenant-code-header` | `String` | `X-Tenant-Code` | 请求头中租户编码键名。`TenantProvider` 实现类可读取该请求头，按租户编码解析租户（常用于登录时未携带租户 ID、仅指定租户编码的场景） |
+| `continew-starter.tenant.default-tenant-id` | `Long` | `0` | 默认租户 ID（超级管理员所在租户），用于识别默认租户：默认租户通常拥有全部菜单/数据权限，且不允许被删除或停用 |
+| `continew-starter.tenant.ignore-menus` | `List<Long>` | 无 | 忽略菜单 ID 列表（租户不能使用的菜单），配置租户套餐可用菜单、或按租户过滤菜单树时排除这些菜单 |
+
+```yaml
+continew-starter:
+  tenant:
+    # 请求头中租户编码键名
+    tenant-code-header: X-Tenant-Code
+    # 默认租户 ID
+    default-tenant-id: 0
+    # 忽略菜单 ID（租户不能使用的菜单，按实际菜单 ID 配置）
+    ignore-menus: []
+```
+
+<Callout type="info">
+以上三项并非 starter 内置配置（`TenantProperties` 未定义），不配置对应业务逻辑时它们不生效；键名、类型与默认值以业务方声明的配置类为准。
+</Callout>
+
+### 实现 TenantProvider
+
+创建租户提供者实现类，用于根据租户 ID 获取租户上下文信息，并注册为 Spring Bean：
+
+```java
+import top.continew.starter.extension.tenant.config.TenantProvider;
+import top.continew.starter.extension.tenant.context.TenantContext;
+import top.continew.starter.extension.tenant.enums.TenantIsolationLevel;
+
+/**
+ * 默认租户提供者
+ *
+ * @author Charles7c
+ */
+@Component
+public class DefaultTenantProvider implements TenantProvider {
+
+    @Override
+    public TenantContext getByTenantId(String tenantIdAsString, boolean isVerify) {
+        TenantContext context = new TenantContext();
+        // 隔离级别（数据源级隔离和行级隔离混用时需要）
+        context.setIsolationLevel(TenantIsolationLevel.LINE);
+        // 设置租户 ID
+        if (StrUtil.isNotBlank(tenantIdAsString)) {
+            context.setTenantId(Long.parseLong(tenantIdAsString));
+            return context;
+        }
+        // 自定义校验及处理...
+        return context;
+    }
+}
+```
+
+<Callout type="warn">
+与数据权限模块一样，`TenantProvider` 是必须由业务方提供的 Bean，未提供时自动配置会抛出 `NoSuchBeanDefinitionException`（见 `TenantAutoConfiguration.java:137-145`）。
+</Callout>
+
+### 数据库表设计
+
+**行级隔离**：需要在相关表中添加租户 ID 字段：
+
+```sql
+CREATE TABLE `sys_user` (
+  `id`          bigint(20)   NOT NULL AUTO_INCREMENT COMMENT '用户ID',
+  `username`    varchar(64)  NOT NULL                COMMENT '用户名',
+  `create_time` datetime     NOT NULL                COMMENT '创建时间',
+  `update_time` datetime     NOT NULL                COMMENT '修改时间',
+  `tenant_id`   bigint(20)   NOT NULL                COMMENT '租户ID',
+  PRIMARY KEY (`id`),
+  INDEX `idx_tenant_id` (`tenant_id`)
+) ENGINE = InnoDB COMMENT ='用户表';
+```
+
+**数据源级隔离**：每个租户使用独立的数据库，表结构不需要租户 ID 字段。
+
+### 前端处理
+
+前端发起请求时，在请求头中携带 `X-Tenant-Id`。后端 `TenantInterceptor` 会根据该请求头解析租户 ID，通过 `TenantProvider` 构建租户上下文（见 `TenantInterceptor.java:50-51`）。随后在相关数据库操作时进行租户隔离。
+
+例如：根据用户名查询用户，对应 SQL 经过租户隔离处理后为：
+
+```sql
+select * from sys_user where username = 'zhangsan' and tenant_id = 1
+```
+
+### 忽略租户处理
+
+如果某个接口或类不需要租户隔离，可添加 `@TenantIgnore` 注解（可标注在类或方法上，见 `TenantIgnore.java`）。`TenantInterceptor` 会在请求进入时识别该注解并设置忽略标记，`TenantIgnoreAspect` 则为非 Web 入口（如定时任务）提供 AOP 支持：
+
+```java
+@RestController
+@RequestMapping("/system")
+public class SystemController {
+
+    /**
+     * 获取系统配置（忽略租户隔离）
+     */
+    @TenantIgnore
+    @GetMapping("/config")
+    public R<SystemConfig> getSystemConfig() {
+        // 该方法不会添加租户条件
+        return R.ok(systemService.getConfig());
+    }
+}
+```
+
+如果只是方法内局部逻辑需要忽略租户隔离，可以使用 `TenantUtils.executeIgnore`：
+
+```java
+TenantUtils.executeIgnore(() -> {
+    // 代码逻辑
+});
+```
+
+### 指定租户处理
+
+如果需要在指定租户中执行某些逻辑（例如异步任务、定时任务中按租户处理数据），可以使用 `TenantUtils.execute`（见 `TenantUtils.java:49`）。它会切换租户上下文（数据源级隔离时同步切换数据源），执行完毕后自动恢复原上下文：
+
+```java
+TenantUtils.execute(tenantId, () -> {
+    // 代码逻辑
+});
+```
+
+更多原理可参考 MyBatis Plus 官方文档：[多租户插件](https://baomidou.com/plugins/tenant/)。

@@ -1,0 +1,68 @@
+---
+title: Spring Cache
+description: continew-starter-cache-springcache 基于 Spring Cache 抽象提供单级 Redis 缓存，自动配置 RedisCacheManager 并解决 Jackson 序列化乱码问题，引入即用。
+---
+
+`continew-starter-cache-springcache` 基于 Spring Cache 提供 Redis 缓存实现，在 Redisson 之上完成 `@Cacheable` 等声明式缓存的自动配置，无需手动配置 `RedisCacheManager`，开箱即用。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-cache-springcache</artifactId>
+</dependency>
+```
+
+## 配置
+
+本模块无专属配置属性类，缓存过期策略复用 Spring Boot 原生 `spring.cache.*` 配置，默认值由模块内置的 `default-cache-springcache.yml` 提供。
+
+```yaml
+spring:
+  cache:
+    redis:
+      # 缓存过期时长（单位：毫秒，Spring Boot 默认 -1 表示永不过期，模块内置默认 2 小时）
+      time-to-live: 7200000
+      # 是否允许缓存空值（默认 true，允许缓存空值可缓解缓存穿透）
+      cache-null-values: true
+```
+
+| 配置项 | 说明 | 模块内置默认值 |
+|:-------|:-----|:---------------|
+| `spring.cache.redis.time-to-live` | 缓存过期时长（毫秒） | `7200000`（2 小时） |
+| `spring.cache.redis.cache-null-values` | 是否允许缓存空值 | `true` |
+
+## 使用 Spring Cache 注解
+
+引入依赖后，直接使用 Spring Cache 标准注解即可，缓存值以 Jackson JSON 序列化存入 Redis（`SpringCacheAutoConfiguration` 中配置了 `StringRedisSerializer` 序列化 Key、`GenericJackson2JsonRedisSerializer` 序列化 Value，解决了 Jackson 解析缓存乱码问题）。
+
+```java
+@Service
+public class DemoService {
+
+    @Cacheable(cacheNames = "demo", key = "'id:' + #id")
+    public DemoVO get(Long id) {
+        // 首次执行后结果缓存至 Redis，过期策略取 spring.cache.redis 配置
+        return ...;
+    }
+
+    @CacheEvict(cacheNames = "demo", key = "'id:' + #id")
+    public void update(DemoReq req) {
+        // ...
+    }
+}
+```
+
+未指定 `key` 时，使用模块内置的 `KeyGenerator` 生成缓存 Key：方法名（下划线分隔后大写）+ `:` + 方法参数 JSON 的 SHA-256 摘要（见 `SpringCacheAutoConfiguration.keyGenerator`）。
+
+<Callout type="info">
+本模块依赖 `continew-starter-cache-redisson`，可一并使用其 `RedisUtils`、`RedisLockUtils` 工具类（见 [Redisson](./redisson) 子页）。
+</Callout>
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-cache-redisson` | Redisson 缓存支撑模块（Redis 客户端及分布式工具） |
+| `cn.hutool:hutool-crypto` | Hutool 加密模块（用于缓存 Key 生成的 SHA-256 摘要） |

@@ -1,0 +1,132 @@
+---
+title: JustAuth 第三方登录
+description: JustAuth 第三方登录的默认处理：内存 / Redis / 自定义 State 缓存、自定义平台扩展机制与按平台 HTTP 代理配置，适配 Spring Boot 3.x。
+---
+
+`continew-starter-auth-justauth` 针对 [JustAuth](https://justauth.wiki/)（开箱即用的第三方登录整合组件）做默认处理：涉及依赖已锁定版本，内置 State 缓存的多实现（内存 / Redis / 自定义），并适配 Spring Boot 3.x。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-auth-justauth</artifactId>
+</dependency>
+```
+
+## 添加配置
+
+配置项定义在 `top.continew.starter.auth.justauth.autoconfigure.JustAuthProperties`，前缀为 `continew-starter.justauth`：
+
+```yaml
+--- ### JustAuth 配置
+## 应用地址取自核心模块的 application.url（不是 project.url）
+application:
+  url: https://admin.example.com
+continew-starter:
+  justauth:
+    # 是否启用（默认：true）
+    enabled: true
+    # 第三方平台配置（key 为 AuthDefaultSource 枚举名或自定义 AuthSource 枚举名）
+    # client-id / client-secret 建议用环境变量注入，不要写进配置文件
+    type:
+      GITEE:
+        client-id: ${JUSTAUTH_GITEE_CLIENT_ID}
+        client-secret: ${JUSTAUTH_GITEE_SECRET}
+        redirect-uri: ${application.url}/social/callback?source=gitee
+      GITHUB:
+        client-id: ${JUSTAUTH_GITHUB_CLIENT_ID}
+        client-secret: ${JUSTAUTH_GITHUB_SECRET}
+        redirect-uri: ${application.url}/social/callback?source=github
+    # State 缓存配置
+    cache:
+      # 缓存类型：DEFAULT（内存，默认）/ REDIS / CUSTOM
+      type: REDIS
+      # 缓存前缀（仅 REDIS 生效，默认：CONTINEW-STARTER::JUSTAUTH::STATE::）
+      prefix: CONTINEW-STARTER::JUSTAUTH::STATE::
+      # 缓存超时时长（仅 REDIS 生效，默认：3 分钟）
+      timeout: 3m
+```
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `continew-starter.justauth.enabled` | 是否启用 JustAuth 自动配置 | `true` |
+| `continew-starter.justauth.type` | 第三方平台配置（`Map<String, AuthConfig>`，key 为平台名） | 无 |
+| `continew-starter.justauth.cache.type` | State 缓存类型：`DEFAULT` / `REDIS` / `CUSTOM` | `DEFAULT` |
+| `continew-starter.justauth.cache.prefix` | 缓存前缀（仅 `REDIS` 生效） | `CONTINEW-STARTER::JUSTAUTH::STATE::` |
+| `continew-starter.justauth.cache.timeout` | 缓存超时时长（仅 `REDIS` 生效） | 3 分钟 |
+
+<Callout type="info">
+`cache.type=REDIS` 时要求容器中存在 `RedissonClient` Bean（经缓存模块 Redisson 实现提供）；`CUSTOM` 时必须自行注册 `me.zhyd.oauth.cache.AuthStateCache` 实现 Bean，否则启动报错。
+</Callout>
+
+## 发起第三方登录
+
+注入 `AuthRequestFactory`，按平台名获取 `AuthRequest` 后走 JustAuth 标准流程。下面的示例前缀是 `/oauth`，回调路径为 `/oauth/callback/{source}`；`redirect-uri` 必须与这里暴露的回调路径一致，平台后台登记的回调地址也要填同一个值。
+
+```java
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/oauth")
+public class SocialAuthController {
+
+    private final AuthRequestFactory authRequestFactory;
+
+    /** 跳转授权页 */
+    @GetMapping("/{source}")
+    public void renderAuth(@PathVariable String source, HttpServletResponse response)
+        throws IOException {
+        AuthRequest authRequest = authRequestFactory.getAuthRequest(source);
+        response.sendRedirect(authRequest.authorize(AuthStateUtils.createState()));
+    }
+
+    /** 授权回调 */
+    @GetMapping("/callback/{source}")
+    public AuthCallback callback(@PathVariable String source, AuthCallback callback) {
+        AuthRequest authRequest = authRequestFactory.getAuthRequest(source);
+        return authRequest.login(callback);
+    }
+}
+```
+
+<Callout type="warn">
+上面示例的回调路径是 `/oauth/callback/{source}`。把它改成别的路径（例如 ContiNew Admin 使用的 `/social/callback?source=xxx`）完全没问题，但三处必须一致：本项目的 `redirect-uri`、Controller 实际暴露的路径、第三方平台后台登记的回调地址。三者任何一处不一致，授权完成后都会回调到 404。
+
+`redirect-uri` 里引用的应用地址变量是核心模块的 `application.url`（见 [核心模块](/docs/starter/modules/core)），写成 `${project.url}` 不会解析。
+</Callout>
+
+## 扩展自定义平台
+
+`type` 中的 key 未命中 JustAuth 内置 `AuthDefaultSource` 枚举时，会尝试按 `extend.enum-class` 指定的自定义 `AuthSource` 枚举解析，并用 `extend.config` 中对应平台的 `request-class` 反射创建 `AuthRequest`：
+
+```yaml
+continew-starter:
+  justauth:
+    extend:
+      # 自定义 AuthSource 枚举全路径
+      enum-class: com.example.enums.AuthExtendSource
+      config:
+        MY_PLATFORM:
+          client-id: xxx
+          client-secret: xxx
+          redirect-uri: https://example.com/callback
+          # 平台对应的 AuthRequest 实现类（需提供 (AuthConfig, AuthStateCache) 构造方法）
+          request-class: com.example.request.AuthMyPlatformRequest
+```
+
+## HTTP 代理
+
+需要经代理访问第三方平台时，可按平台配置代理（key 为平台名）：
+
+```yaml
+continew-starter:
+  justauth:
+    http:
+      # 超时时间（毫秒）
+      timeout: 10000
+      proxy:
+        GITHUB:
+          type: HTTP
+          hostname: 127.0.0.1
+          port: 7890
+```

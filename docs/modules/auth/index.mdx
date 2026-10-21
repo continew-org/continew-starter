@@ -1,0 +1,41 @@
+---
+title: 认证
+description: 认证模块汇总：Sa-Token 鉴权自动配置（拦截器、持久层、JWT）、JustAuth 第三方登录（State 缓存与扩展平台）、Refresh Token 可轮换双令牌登录会话。
+---
+
+ContiNew Starter 认证模块（`continew-starter-auth`）提供三类按需独立引入的认证能力：
+
+- **Sa-Token**（`continew-starter-auth-satoken`）：Sa-Token 框架的扩展集成，提供样板化配置、登录拦截器与可切换的持久层实现；
+- **JustAuth**（`continew-starter-auth-justauth`）：JustAuth 第三方登录的默认处理，内置 Redis State 缓存与自定义平台扩展机制；
+- **Refresh Token**（`continew-starter-auth-refresh-token`）：可轮换 Refresh Token 登录会话，为前后端分离系统提供「短期 Access Token + 长期 Refresh Token」双令牌体系。
+
+<Cards>
+  <Card title="Sa-Token" href="/docs/starter/modules/auth/satoken">
+    Sa-Token 鉴权扩展集成：登录拦截器、可切换持久层（内存 / Redisson / 自定义）、JWT 模式
+  </Card>
+  <Card title="JustAuth 第三方登录" href="/docs/starter/modules/auth/justauth">
+    JustAuth 第三方登录默认处理：State 缓存多实现、自定义平台扩展、HTTP 代理
+  </Card>
+  <Card title="Refresh Token" href="/docs/starter/modules/auth/refresh-token">
+    可轮换 Refresh Token 登录会话：双令牌体系、安全版本失效、统一撤销
+  </Card>
+</Cards>
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-cache-redisson`（optional） | 缓存模块 - Redisson（Sa-Token Redis 持久层、JustAuth Redis State 缓存、Refresh Session 存储的共同基础） |
+| `top.continew.starter:continew-starter-messaging-websocket` | 消息模块 - WebSocket（Refresh Token 模块：登录会话撤销后实时关闭对应连接） |
+| `cn.dev33:sa-token-spring-boot3-starter` | Sa-Token（轻量级 Java 权限认证框架） |
+| `cn.dev33:sa-token-jwt` | Sa-Token 整合 JWT（`sid` 会话声明的前置条件） |
+| `cn.dev33:sa-token-redisson` | Sa-Token 集成 Redisson 客户端 |
+| `me.zhyd.oauth:JustAuth` | JustAuth（整合第三方登录的开源组件） |
+| `com.xkcoding.justauth:justauth-spring-boot-starter` | JustAuth Spring Boot 集成 |
+
+## 参考资料
+
+- Sa-Token 官方文档：https://sa-token.cc/
+- JustAuth 官方文档：https://justauth.wiki/
+- RFC 6749 - OAuth 2.0（Refresh Token 语义来源）
+- ContiNew Admin 完整参考实现：`continew-auth-refresh` 模块与 `continew-system` 适配层

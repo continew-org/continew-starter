@@ -1,0 +1,11 @@
+{
+  "pages": [
+    "---介绍---",
+    "index",
+    "introduction",
+    "configuration",
+    "...modules",
+    "---参考---",
+    "...reference"
+  ]
+}

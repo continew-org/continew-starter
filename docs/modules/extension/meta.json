@@ -1,0 +1,4 @@
+{
+  "title": "扩展",
+  "pages": ["index", "crud", "data-permission", "tenant"]
+}

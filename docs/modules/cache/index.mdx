@@ -1,0 +1,64 @@
+---
+title: 缓存
+description: 缓存模块提供 Redisson、JetCache、Spring Cache 三种 Redis 缓存实现，覆盖工具类直连、多级缓存与声明式注解缓存场景。
+---
+
+缓存模块基于 Redis 提供三种缓存实现，按需引入其一即可。
+
+- **Redisson**：`continew-starter-cache-redisson`，Redis 客户端增强，提供 `RedisUtils`、`RedisLockUtils` 工具类与分布式锁、限流器等分布式工具，是另外两个实现的基础；
+- **JetCache**：`continew-starter-cache-jetcache`，多级缓存（本地 + 远程），注解原生支持 TTL、两级缓存与分布式自动刷新；
+- **Spring Cache**：`continew-starter-cache-springcache`，基于 Spring Cache 抽象的单级 Redis 缓存，解决 Jackson 序列化乱码问题，开箱即用。
+
+三种实现共用同一套 Redis 连接配置（Spring Boot 原生 `spring.data.redis.*`），并支持 Redisson 单机、集群、哨兵三种部署模式。
+
+<Cards>
+  <Card title="Redisson" href="/docs/starter/modules/cache/redisson">
+    Redis 客户端增强与分布式工具（`RedisUtils`、分布式锁、限流器等），不提供声明式缓存注解
+  </Card>
+  <Card title="JetCache" href="/docs/starter/modules/cache/jetcache">
+    多级缓存（本地 + 远程），注解能力更强，原生支持 TTL 与自动刷新
+  </Card>
+  <Card title="Spring Cache" href="/docs/starter/modules/cache/springcache">
+    基于 Spring Cache 抽象的单级 Redis 缓存，注解为 Spring 标准，团队上手成本最低
+  </Card>
+</Cards>
+
+## 公共配置：Redis 连接
+
+无论选择哪种实现，都需要可用的 Redis 环境。连接配置使用 Spring Boot 原生属性。
+
+```yaml
+spring:
+  data:
+    ## Redis 配置（单机模式）
+    redis:
+      # 地址
+      host: ${REDIS_HOST:127.0.0.1}
+      # 端口（默认 6379）
+      port: ${REDIS_PORT:6379}
+      # 密码（未设置密码时请注释掉）
+      password: ${REDIS_PWD:123456}
+      # 数据库索引
+      database: ${REDIS_DB:0}
+      # 连接超时时间
+      timeout: 10s
+      # 是否开启 SSL
+      ssl:
+        enabled: false
+```
+
+<Callout type="info">
+开启 SSL 后，模块会自动将 Redisson 的协议前缀切换为 `rediss://`（见 `RedissonAutoConfiguration`），无需额外配置。
+</Callout>
+
+## 如何选择
+
+| 实现 | 定位 |
+|:-----|:-----|
+| Redisson | Redis 客户端增强与分布式工具（`RedisUtils`、分布式锁、限流器等），不提供声明式缓存注解 |
+| JetCache | 多级缓存（本地 + 远程），注解能力更强，原生支持 TTL 与自动刷新 |
+| Spring Cache | 基于 Spring Cache 抽象的单级 Redis 缓存，注解为 Spring 标准，团队上手成本最低 |
+
+- 只需要操作 Redis 或使用分布式锁、限流器，引入 `continew-starter-cache-redisson`；
+- 热点数据需要本地 + 远程两级缓存、细粒度 TTL 控制，引入 `continew-starter-cache-jetcache`；
+- 习惯 Spring 标准注解、只需单级 Redis 缓存，引入 `continew-starter-cache-springcache`。

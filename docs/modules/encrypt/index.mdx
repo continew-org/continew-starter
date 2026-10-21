@@ -1,0 +1,28 @@
+---
+title: 加密
+description: ContiNew Starter 加密模块：基于 MyBatis 拦截器的数据库字段加解密、RSA + AES 信封加密的 API 报文加解密，以及基于 Spring Security Crypto 的密码编码器。
+---
+
+加密模块按能力拆分为三个独立 Starter，可按需引入：
+
+<Cards>
+  <Card title="字段加密" href="/docs/starter/modules/encrypt/field">
+    数据库字段加解密：MyBatis 拦截器自动加密写入、解密查询，业务代码零侵入。
+  </Card>
+  <Card title="API 加密" href="/docs/starter/modules/encrypt/api">
+    API 报文加解密：RSA + AES 信封加密，Servlet 过滤器自动解密请求体、加密响应体。
+  </Card>
+  <Card title="密码编码器" href="/docs/starter/modules/encrypt/password-encoder">
+    密码编码器：基于 Spring Security Crypto 的单向散列密码编码（BCrypt、SCrypt、PBKDF2、Argon2）。
+  </Card>
+</Cards>
+
+## 模块组成
+
+| 模块 | 能力 |
+|:-----|:-----|
+| `continew-starter-encrypt-field` | 数据库字段加解密：MyBatis 拦截器自动加密写入、解密查询，业务代码零侵入 |
+| `continew-starter-encrypt-api` | API 报文加解密：RSA + AES 信封加密，Servlet 过滤器自动解密请求体、加密响应体 |
+| `continew-starter-encrypt-password-encoder` | 密码编码器：基于 Spring Security Crypto 的单向散列密码编码（BCrypt、SCrypt、PBKDF2、Argon2） |
+
+三个模块均依赖核心模块 `continew-starter-encrypt-core`（提供 `IEncryptor` 加密器 SPI 与 `Algorithm` 算法枚举），随各自 Starter 自动引入。

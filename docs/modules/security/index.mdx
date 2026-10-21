@@ -1,0 +1,34 @@
+---
+title: 安全
+description: 安全模块汇总：JSON 数据脱敏（@JsonMask）、XSS 请求过滤（Servlet Filter）与敏感词检测（DFA 算法 + Bean Validation 校验注解）。
+---
+
+ContiNew Starter 安全模块（`continew-starter-security`）提供三类开箱即用的安全能力，均按需独立引入：
+
+- **JSON 数据脱敏**（`continew-starter-security-mask`）：基于 `@JsonMask` 注解，在 Jackson 序列化阶段对响应字段自动脱敏；
+- **XSS 过滤**（`continew-starter-security-xss`）：基于 Servlet Filter 对请求参数与请求体统一清理/转义，防止跨站脚本注入；
+- **敏感词**（`continew-starter-security-sensitivewords`）：基于 Hutool DFA 算法的敏感词检测，提供服务接口与 Bean Validation 校验注解。
+
+<Cards>
+  <Card title="数据脱敏" href="/docs/starter/modules/security/mask">
+    基于 `@JsonMask` 注解，在 Jackson 序列化阶段对响应字段自动脱敏
+  </Card>
+  <Card title="XSS 过滤" href="/docs/starter/modules/security/xss">
+    基于 Servlet Filter 对请求参数与请求体统一清理/转义，防止跨站脚本注入
+  </Card>
+  <Card title="敏感词" href="/docs/starter/modules/security/sensitivewords">
+    基于 Hutool DFA 算法的敏感词检测，提供服务接口与 Bean Validation 校验注解
+  </Card>
+</Cards>
+
+<Callout type="info">
+原 `continew-starter-security-crypto` 加解密能力已拆分为独立的加密模块系列：数据库字段加解密（`continew-starter-encrypt-field`）、API 报文加解密（`continew-starter-encrypt-api`）、密码编码器（`continew-starter-encrypt-password-encoder`），请移步[加密模块](/docs/starter/modules/encrypt)。
+</Callout>
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-core` | 核心模块 |
+| `cn.hutool:hutool-dfa` | Hutool DFA 模块（基于 DFA 的关键词查找，敏感词模块依赖） |
+| `org.springframework.boot:spring-boot-starter-validation` | Spring Boot 校验模块（敏感词模块依赖） |

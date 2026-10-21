@@ -1,0 +1,316 @@
+---
+title: Refresh Token
+description: 可轮换 Refresh Token 登录会话：为前后端分离系统提供「短期 Access Token + 长期 Refresh Token」双令牌体系，含轮换状态机、安全版本失效与统一撤销。
+---
+
+`continew-starter-auth-refresh-token` 是**可轮换 Refresh Token 登录会话**的落地实现，为前后端分离系统提供「短期 Access Token + 长期 Refresh Token」的双令牌体系。
+
+<Callout type="info">
+本模块与 Sa-Token 是**协作关系而非替代关系**：Sa-Token 继续负责短期 Access Token 的签发与请求鉴权；本模块接管长期凭证（Refresh Token）与登录会话（并发登录控制、顶人下线、最大登录数量、统一撤销）的管理。并发登录等策略**以 Refresh Session 为唯一事实源**，避免两个事实源产生跨端误淘汰。
+</Callout>
+
+## 为什么需要令牌轮换
+
+传统「30 天长效 Token」的困境在于，有效期太短则用户频繁重新登录，太长则一旦泄露危害窗口极长。令牌轮换是业界主流解法。
+
+- **Access Token** 有效期很短（如 15 分钟），泄露了也很快失效；
+- **Refresh Token** 有效期长（如 30 天），但**每次使用后立即作废并换取全新的一组令牌**（轮换）；
+- 被盗的旧 Refresh Token 在下一次合法轮换后即失效，宽限期外的重复使用会被判定为**重放攻击**，服务端直接撤销整个登录会话。
+
+## 核心概念
+
+1. **双令牌与 sid 绑定**：一次登录产生两个凭证，共享同一个会话 ID（`sid`）。Access Token 为 JWT（`sid` 写入扩展声明），由 Sa-Token 承载。Refresh Token 为 `sessionId.secret` 明文对，由本模块承载。服务端**只保存 secret 的 HMAC-SHA256 指纹**（指纹输入为完整令牌，与会话绑定），明文 secret 不落库。
+2. **Refresh Session（登录会话唯一事实源）**：一条 Redis 记录（`AUTH:REFRESH:V1:DATA:{sid}`）对应一次登录，保存主体快照、两个代际的令牌指纹与绝对过期时间。并发登录数量、顶人下线范围、最大登录数都基于会话计算。
+3. **轮换与宽限期**：宽限期（`rotation-grace-period`）内，携带旧令牌的并发/重试请求通过加密的轮换快照幂等拿到完全相同的新令牌。宽限期外仍携带旧令牌即明确重放，服务端撤销整个登录会话。轮换中途进程崩溃时，待恢复快照以更长的恢复窗口（`rotation-pending-period`）保存，另一节点可恢复出同一个新令牌继续完成签发。
+4. **安全版本**：每个会话创建时固化用户、客户端、租户三个维度的安全版本号，改密、禁用、配置变更等场景下递增对应版本，**全部受影响会话立即失效**，无需等待 Refresh Token 自然过期。
+5. **传输模式**分两种：`COOKIE`（浏览器，HttpOnly + Secure Cookie 承载，配合 SameSite 与 Origin 白名单防 CSRF）与 `BODY`（App、小程序，客户端安全存储后经请求体提交）。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-auth-refresh-token</artifactId>
+</dependency>
+```
+
+**前置条件**如下表。
+
+| 条件 | 说明 |
+|:-----|:-----|
+| **开启 Sa-Token JWT 模式** | Access Token 的 `sid` 会话声明依赖 Sa-Token 的 JWT 扩展参数能力，必须集成 `sa-token-jwt`（本模块已传递声明）并配置 `sa-token.jwt-secret-key`。未开启 JWT 模式时 `StpUtil.getExtra` 会抛出 `ApiDisabledException` |
+| **Redis** | 经 `continew-starter-cache-redisson` 传递依赖提供（自动配置以 `@ConditionalOnBean(RedissonClient.class)` 为条件），Refresh Session 与轮换快照均存储于 Redis |
+| **应用名** | 配置 `spring.application.name`，会话失效广播 Topic 默认按应用名隔离；多服务共享同一会话域时需显式覆盖 `access-session-invalid-topic` |
+| **任务调度（可选）** | 启用 `@EnableScheduling` 后 WebSocket 连接凭证周期校验生效；未启用时撤销广播与 Access Token 自然过期仍然兜底 |
+
+## 添加配置
+
+配置项定义在 `top.continew.starter.auth.refresh.token.autoconfigure.RefreshTokenProperties`，前缀为 `continew-starter.refresh-token`。
+
+```yaml
+--- ### Sa-Token 配置（JWT 模式为本模块前置条件）
+sa-token:
+  jwt-secret-key: ${SA_TOKEN_JWT_SECRET}
+
+--- ### Refresh Token 配置
+continew-starter:
+  refresh-token:
+    # 服务端密钥（必填，≥ 32 字符）：派生令牌指纹密钥与轮换快照加密密钥
+    # 生产环境必须通过环境变量注入高熵随机值，且禁止与 JWT 密钥复用
+    secret: ${REFRESH_TOKEN_SECRET}
+    # Cookie 传输（COOKIE 模式相关）
+    cookie-name: refresh_token
+    cookie-path: /
+    # 生产环境必须开启；关闭时启动告警，需显式设置 cookie-insecure-allowed=true 确认知情
+    cookie-secure: ${COOKIE_SECURE:false}
+    cookie-same-site: Lax
+    # 跨源前端 Origin 白名单（同源请求无需配置），支持 http[s]://*.example.com 子域通配符
+    cookie-allowed-origins:
+      - https://admin.example.com
+    # 轮换宽限期（幂等重放窗口，秒）与待恢复快照窗口（秒）
+    rotation-grace-period: 30
+    rotation-pending-period: 60
+    # 刷新限流：单个 IP / 单个会话在窗口内的最大请求数，0 表示交由网关限流
+    ip-rate-limit: 60
+    ip-rate-limit-period: 60
+    session-rate-limit: 10
+    session-rate-limit-period: 60
+    # 反向代理场景：可信代理地址与 X-Forwarded-For 跳数（0 表示不解析转发地址）
+    trusted-proxy-addresses: [ ]
+    trusted-proxy-hops: 0
+```
+
+<Callout type="warn">
+`secret` 是本模块安全性的根：生产环境使用**无默认值**的环境变量占位符（如 `${REFRESH_TOKEN_SECRET}`），未配置即启动失败；泄露该密钥等于泄露所有会话的伪造能力。
+</Callout>
+
+## 配置参考
+
+| 配置项 | 默认值 | 说明 |
+|:-------|:-------|:-----|
+| `enabled` | `true` | 是否启用 Refresh Token 登录会话自动配置 |
+| `secret` | 无（必填） | 服务端密钥，派生指纹密钥与快照加密密钥，≥ 32 字符，生产经环境变量注入 |
+| `cookie-name` | `refresh_token` | Refresh Token Cookie 名称，`__Host-` 前缀有 Secure + Path=/ 强制校验 |
+| `cookie-path` | `/` | Cookie 作用路径，前端经代理访问时不能设为 `/auth` |
+| `cookie-secure` | `false` | 生产必须开启；关闭且未确认知情时启动告警 |
+| `cookie-insecure-allowed` | `false` | 显式确认接受非 Secure Cookie（仅本地开发） |
+| `cookie-same-site` | `Lax` | `Strict` / `Lax` / `None`，`None` 必须配合 Secure |
+| `cookie-allowed-origins` | `[]` | 跨源 Origin 白名单，支持 `http[s]://*.example.com`，`*` 全通配被拒绝 |
+| `rotation-grace-period` | `30` | 轮换幂等宽限期（秒），1-120 |
+| `rotation-pending-period` | `60` | 待恢复快照保留时间（秒），需覆盖崩溃节点分布式锁残留，10-3600 |
+| `ip-rate-limit` / `ip-rate-limit-period` | `60` / `60` | 单 IP 限流次数 / 窗口（秒），0 表示交由网关 |
+| `session-rate-limit` / `session-rate-limit-period` | `10` / `60` | 单会话限流次数 / 窗口（秒），0 表示交由网关 |
+| `trusted-proxy-addresses` | `[]` | 可信反向代理地址，空列表始终使用连接对端地址 |
+| `trusted-proxy-hops` | `0` | 可信代理追加 X-Forwarded-For 的跳数（0-10），0 表示不解析转发地址 |
+| `access-session-cache-enabled` | `true` | 会话有效结论本地缓存（2 秒 TTL + 广播失效），关闭则逐请求实时校验 |
+| `access-session-invalid-topic` | 空 | 广播 Topic 覆盖，默认 `auth:access-session-invalid:{spring.application.name}` |
+| `websocket-validation-interval` | `60000` | WebSocket 连接凭证周期校验间隔（毫秒），1000-3600000 |
+
+## 集成指南
+
+本模块采用「引擎 + 适配点」设计，引擎（自动配置、轮换状态机、存储、守卫）开箱即用，业务系统只需提供 **3 个适配点**并按固定契约调用。以下示例取自 ContiNew Admin 的真实集成（`continew-auth-refresh` 模块 + `continew-system` 适配层），可作为完整参考实现。
+
+### 1. 登录主体快照：`RefreshSessionPrincipal`
+
+把已认证主体映射为本接口，随 Refresh Session 保存（用于会话管理展示与失效判定），模块不依赖任何用户实体。
+
+```java
+public class UserContext implements RefreshSessionPrincipal {
+
+    @Override
+    public Long getUserId() { return id; }
+
+    @Override
+    public String getUsername() { return username; }
+
+    @Override
+    public String getNickname() { return nickname; }
+
+    @Override
+    public Long getTenantId() { return tenantId; } // 无租户场景返回 null
+
+    @Override
+    public String getIp() { return ip; }
+
+    @Override
+    public String getAddress() { return address; }
+
+    @Override
+    public String getBrowser() { return browser; }
+
+    @Override
+    public String getOs() { return os; }
+}
+```
+
+### 2. 客户端令牌策略：`RefreshClientPolicy`
+
+从业务客户端配置映射，一次登录一条。
+
+```java
+new RefreshClientPolicy(
+    "web",                          // clientId：客户端 ID
+    "WEB",                          // clientType：客户端类型（同类型互斥登录的维度）
+    30 * 24 * 60 * 60L,             // refreshTokenTimeout：Refresh Token 有效期（秒）
+    RefreshTokenModeEnum.COOKIE,    // refreshTokenMode：COOKIE / BODY
+    true,                           // concurrent：是否允许并发登录
+    SessionReplacementScope.CURRENT_CLIENT_TYPE, // 顶人下线范围（另可选 ALL_CLIENT_TYPES）
+    5,                              // maxLoginCount：最大登录数量（-1 不限制）
+    LogoutReasonEnum.REPLACED       // overflowLogoutMode：被挤下线时的提示语
+);
+```
+
+### 3. 登录：`executeLoginPolicy` + `issue`
+
+登录签发必须包裹在 `executeLoginPolicy` 中。它在**固定顺序的作用域锁**（用户 → 租户 → 客户端）内完成「最终状态复查 → 并发策略执行 → 会话创建」，锁持有到数据库事务提交后释放。
+
+```java
+LoginResp loginResp = refreshTokenService.executeLoginPolicy(user.getId(),
+    client.getClientId(), tenantId, securityVersion -> {
+        // ① 锁内最终复查：重载用户/客户端状态、校验租户可用性
+        UserDO latestUser = userService.reloadAndCheck(user.getId());
+        // ② 组装登录尝试：携带当前请求的两类凭证（用于覆盖旧 Cookie 的会话清理）
+        return new LoginAttempt<>(latestUser.getId(), toClientPolicy(client),
+            StpUtil.getTokenValue(),                      // 当前 Access Token
+            refreshTokenService.resolve(null, request),   // 当前 Refresh Token（Cookie）
+            // ③ 新令牌签发函数：真正执行 StpUtil.login 并创建 Refresh Session
+            () -> doIssue(latestUser, client, tenantId, request, response, securityVersion));
+    });
+```
+
+```java
+/** 新令牌签发函数 */
+private LoginResp doIssue(UserDO user, ClientResp client, Long tenantId, /* ... */) {
+    String sessionId = refreshTokenService.newSessionId();
+    // Sa-Token 只管短期 Access Token；并发/顶人/最大登录数由本模块执行
+    SaLoginParameter param = new SaLoginParameter();
+    param.setTimeout(accessTokenTimeout);
+    // 关键：sid 必须写入 Access Token 的扩展声明，刷新时服务端据此核对两类凭证同源
+    param.setExtraData(Map.of(AuthSessionConstants.SESSION_ID_CLAIM, sessionId));
+    StpUtil.login(user.getId(), param);
+    String accessToken = StpUtil.getTokenValue();
+    // 创建 Refresh Session：COOKIE 模式写入 HttpOnly Cookie，BODY 模式返回明文给客户端
+    String refreshToken = refreshTokenService.issue(sessionId, userContext, clientPolicy,
+        securityVersion, response, accessToken, accessTokenTimeout);
+    return LoginResp.builder().accessToken(accessToken).build(); // BODY 模式补充 refreshToken
+}
+```
+
+<Callout type="warn">
+`StpUtil.login` 时务必通过 `setExtraData` 写入 `AuthSessionConstants.SESSION_ID_CLAIM`（值为 `sessionId`），且注意 `setExtraData` 会**整体替换** extra 数据，用户上下文要合并进同一个 Map 后再设置。缺失该声明的 Access Token 无法关联 Refresh Session，会被判定为无效。
+</Callout>
+
+### 4. 刷新端点：固定调用契约
+
+刷新端点必须按以下顺序串起安全钩子，**任意一步漏调用都会敞开对应攻击面**（限流绕过 / 跨站伪造刷新）。
+
+```java
+@SaIgnore
+@TenantIgnore
+@PostMapping("/refresh")
+public LoginResp refresh(@RequestBody(required = false) RefreshTokenReq req,
+    HttpServletRequest request, HttpServletResponse response) {
+    // ① 提取令牌：Cookie 与请求体同时出现时直接拒绝（传输边界）
+    String rawRefreshToken = refreshTokenService.resolve(req == null ? null
+        : req.getRefreshToken(), request);
+    // ② 按可信客户端地址限流（解析不可信 Token 之前执行，防锁争抢）
+    refreshTokenService.checkRequestRateLimit(request);
+    // ③ Cookie 模式校验请求 Origin（CSRF），并核对 UA 等请求一致性
+    refreshTokenService.validateRequest(rawRefreshToken, request);
+    // ④ 原子轮换：签发适配由业务方提供
+    return refreshTokenService.rotate(rawRefreshToken, response,
+        session -> refreshAccessTokenIssuer.issue(session, request, response));
+}
+```
+
+<Callout type="info">
+`RefreshTokenService` 还提供默认方法 `refresh(bodyRefreshToken, request, response, accessTokenIssuer)`，按 ① → ④ 的顺序串起上述调用；端点仅需一行委托，特殊场景（如需在中间插入业务校验）再展开为分步调用。
+</Callout>
+
+<Callout type="error">
+Refresh Token 是长期凭证，与密码同级。刷新/注销接口的访问日志**必须排除请求头与请求体**（参考 `@Log(excludes = {Include.REQUEST_HEADERS, Include.REQUEST_BODY, ...})`），否则凭证会进入日志采集链路。
+</Callout>
+
+### 5. 重新签发适配：`RefreshAccessTokenIssuer`
+
+轮换时由业务方重新装载主体状态并签发新 Access Token，这是刷新使用**最新权限与业务状态**的关键点。
+
+```java
+@Component
+@RequiredArgsConstructor
+public class RefreshAccessTokenIssuerImpl implements RefreshAccessTokenIssuer {
+
+    @Override
+    public IssuedAccessToken issue(RefreshSession session, HttpServletRequest request,
+        HttpServletResponse response) {
+        // 签发前复查：客户端/用户/租户是否仍可用（禁用、过期、凭证变更在此拦截）
+        ClientResp client = clientService.getByClientId(session.getClientId());
+        if (client == null || DisEnableStatusEnum.DISABLE.equals(client.getStatus())) {
+            throw RefreshTokenException.unauthorized("登录状态已失效，请重新登录");
+        }
+        // 按会话中固化的租户上下文重新登录 Sa-Token，生成新 Access Token
+        LoginResp resp = authTokenService.issueByRefreshSession(session, request, response);
+        return new IssuedAccessToken(resp.getAccessToken(), resp.getExpiresIn(),
+            resp.getTenantId());
+    }
+}
+```
+
+实现中抛出 `UNAUTHORIZED` 业务异常会触发会话撤销，其他异常（基础设施故障）则会保留待恢复状态，客户端用旧令牌重试可继续同一轮换。
+
+### 6. 注销
+
+```java
+// ① Cookie 模式先校验请求来源（防止跨站伪造注销）
+refreshTokenService.validateCookieOrigin(request);
+// ② 提取并校验令牌（失败时 clearCookie 清理残留 Cookie）
+String refreshToken = refreshTokenService.resolve(req.getRefreshToken(), request);
+refreshTokenService.validateRequest(refreshToken, request);
+// ③ 撤销 Refresh Session（含实时 WebSocket 下线通知）
+refreshTokenService.revokeCurrent(StpUtil.getTokenValue(), refreshToken);
+// ④ 注销 Sa-Token 侧的 Access Token 并清理 Cookie
+StpUtil.logoutByTokenValue(accessToken);
+refreshTokenService.clearCookie(response);
+```
+
+### 7. 会话管理与批量撤销
+
+供「在线会话管理」等系统功能使用，查询返回的 `SessionView` 是安全视图（不暴露指纹、安全版本与轮换快照）。
+
+```java
+// 查询：tenantId 为空时查询全部租户
+List<SessionView> sessions = sessionQueryService.listSessions(tenantId);
+sessionQueryService.getSession(sessionId);
+
+// 撤销：按用户 / 租户 / 客户端 / 会话 ID
+sessionInvalidationService.invalidateUser(userId);     // 改密、禁用后调用
+sessionInvalidationService.invalidateTenant(tenantId); // 租户禁用、套餐变更后调用
+sessionInvalidationService.invalidateClient(clientId); // 客户端配置变更后调用
+sessionInvalidationService.revokeSession(sessionId);   // 管理端强制下线
+```
+
+撤销会自动递增对应维度的安全版本并实时下线该会话的全部 WebSocket 连接。
+
+### 8. 策略变更加锁（可选，进阶）
+
+用户、租户等写操作与登录/轮换并发时，可用 `@AuthPolicyWriteLocked` 注解让业务方法在**数据库事务外**先取得策略锁，锁持有到事务提交后释放。
+
+```java
+@AuthPolicyWriteLocked(TenantArgumentPolicyLockTargetResolver.class)
+@CacheEvict(cacheNames = "TenantServiceImpl.update", key = "#req.id")
+public void update(UpdateTenantReq req, Long id) { /* ... */ }
+```
+
+锁目标由 `AuthPolicyLockTargetResolver` SPI 从方法参数解析（内置用户、租户维度两个约定实现），锁顺序与登录轮换共用同一组，杜绝死锁。该能力面向与认证会话存在数据竞争的写操作（如修改用户状态、变更租户套餐），普通业务无需使用。
+
+## 主要特性
+
+- **原子轮换**：指纹门禁完成旧→新令牌的原子切换，宽限期内幂等重放、只前进一代
+- **重放保护**：宽限期外的旧令牌触发整个会话撤销，且撤销不被刷新配额阻挡
+- **崩溃可恢复**：轮换快照 AES-256-GCM 加密，待恢复状态覆盖崩溃节点分布式锁残留窗口
+- **会话即策略**：并发登录、顶人范围、最大登录数、溢出提示语全部按客户端可配置
+- **安全版本失效**：用户/客户端/租户任一维度变更，相关会话即时全量失效
+- **统一撤销**：按用户、租户、客户端、会话 ID 四个粒度撤销，并实时联动 WebSocket 下线
+- **请求守卫**：IP/会话两级限流（Lua 脚本）、Cookie 来源校验（CSRF）、可信代理 XFF 解析
+- **多标签页**：同一 Access Token 的多条 WebSocket 连接互不覆盖，撤销时全量关闭（自动配置先于 WebSocket 自动配置执行，替换默认 `WebSocketSessionDao` 并接管 `WebSocketClientService`）
+- **热路径缓存**：会话有效结论本地缓存 2 秒 + Redis 广播失效，正常请求 0 次 Redis 往返

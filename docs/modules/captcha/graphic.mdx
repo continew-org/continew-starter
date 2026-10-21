@@ -1,0 +1,72 @@
+---
+title: 图形验证码
+description: 基于 Easy Captcha 的图形验证码实现，支持算术、中文、中文闪图、英文及英文闪图五种类型，可自定义图片尺寸、内容长度与字体。
+---
+
+`continew-starter-captcha-graphic` 底层基于 Easy Captcha，支持算术验证、中文验证、中文闪图验证、英文验证和英文闪图验证五种类型，可自定义图片尺寸、内容长度与字体。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-captcha-graphic</artifactId>
+</dependency>
+```
+
+模块会传递引入 `com.github.whvcse:easy-captcha`，无需额外配置即可使用。
+
+## 配置
+
+配置项位于 `continew-starter.captcha.graphic` 前缀下，完整定义见 `top.continew.starter.captcha.graphic.autoconfigure.GraphicCaptchaProperties`：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `enabled` | 是否启用（设为 `false` 可关闭自动配置） | `true` |
+| `type` | 验证码类型：`ARITHMETIC`（算术）、`CHINESE`（中文）、`CHINESE_GIF`（中文闪图）、`GIF`（英文闪图）、`SPEC`（英文） | `SPEC` |
+| `length` | 图片中内容长度 | `4` |
+| `width` | 图片宽度 | `111` |
+| `height` | 图片高度 | `36` |
+| `font-name` | 字体名称（不配置时使用 Easy Captcha 内置字体） | 无 |
+| `font-size` | 字体大小（仅当配置了 `font-name` 时生效） | `25` |
+
+```yaml
+continew-starter:
+  captcha:
+    graphic:
+      enabled: true
+      type: SPEC      # ARITHMETIC / CHINESE / CHINESE_GIF / GIF / SPEC
+      length: 4
+      width: 111
+      height: 36
+      font-size: 25
+```
+
+## 使用示例
+
+注入 `GraphicCaptchaService`，通过 `getCaptcha()` 获取验证码实例，再以 Base64 形式输出给前端：
+
+```java
+import com.wf.captcha.base.Captcha;
+import top.continew.starter.captcha.graphic.core.GraphicCaptchaService;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/captcha")
+public class CaptchaController {
+
+    private final GraphicCaptchaService graphicCaptchaService;
+
+    @GetMapping("/image")
+    public CaptchaResp getImageCaptcha() {
+        Captcha captcha = graphicCaptchaService.getCaptcha();
+        // captcha.text() 可获取验证码文本（用于后续校验，通常存入缓存）
+        // captcha.toBase64() 返回带图片格式前缀的 Base64，如 data:image/gif;base64,...
+        return CaptchaResp.of(captcha.toBase64());
+    }
+}
+```
+
+<Callout type="info">
+`getCaptcha()` 每次调用都会生成新的验证码实例，验证码文本通过 `captcha.text()` 获取。模块只负责生成验证码，文本的存储与比对需自行实现（一般存入缓存并设置过期时间，可配合缓存模块使用）。
+</Callout>

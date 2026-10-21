@@ -1,0 +1,86 @@
+---
+title: WebSocket
+description: WebSocket 服务端封装，自动注册端点（默认 /websocket）并管理客户端会话，支持定向、批量与广播推送，客户端身份与会话存储可插拔。
+---
+
+`continew-starter-messaging-websocket` 是 WebSocket 服务端封装：自动注册 WebSocket 端点（默认路径 `/websocket`）并管理客户端会话，支持定向推送与全体广播，客户端身份与会话存储均可插拔。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-messaging-websocket</artifactId>
+</dependency>
+```
+
+模块会传递引入 `spring-boot-starter-websocket`。
+
+## 配置
+
+配置项位于 `continew-starter.messaging.websocket` 前缀下，完整定义见 `top.continew.starter.messaging.websocket.autoconfigure.WebSocketProperties`：
+
+| 配置项 | 说明 | 默认值 |
+|:-------|:-----|:-------|
+| `enabled` | 是否启用（设为 `false` 可关闭自动配置） | `true` |
+| `path` | WebSocket 端点路径 | `/websocket` |
+| `allowed-origins` | 允许跨域的域名列表 | `['*']` |
+| `client-id-key` | 握手解析出的客户端 ID 存入会话 attributes 的键名 | `CLIENT_ID` |
+
+```yaml
+continew-starter:
+  messaging:
+    websocket:
+      enabled: true
+      path: /websocket
+      allowed-origins:
+        - '*'
+      client-id-key: CLIENT_ID
+```
+
+## 实现客户端身份接入
+
+必须提供 `top.continew.starter.messaging.websocket.core.WebSocketClientService` 实现并注册为 Bean，在握手阶段返回客户端 ID（例如当前登录用户 ID），客户端 ID 的语义决定了「定向推送」的粒度：
+
+```java
+@Component
+public class WebSocketClientServiceImpl implements WebSocketClientService {
+
+    @Override
+    public String getClientId(ServletServerHttpRequest request) {
+        // 可从握手请求参数/Header/会话中解析凭证，认证失败可抛出异常阻断握手
+        // 示例：解析 token 并校验，返回用户唯一标识
+        return ...;
+    }
+}
+```
+
+<Callout type="error">
+`WebSocketAutoConfiguration` 中 `WebSocketClientService` 的默认 Bean 会直接抛出 `NoSuchBeanDefinitionException`，即必须由业务方提供自己的实现，否则启动报错。
+</Callout>
+
+## 发送消息
+
+使用 `WebSocketUtils` 工具类推送消息：
+
+```java
+import top.continew.starter.messaging.websocket.util.WebSocketUtils;
+
+// 发送给指定客户端
+WebSocketUtils.sendMessage("10001", "hello");
+
+// 批量发送给多个客户端
+WebSocketUtils.sendMessage(List.of("10001", "10002"), "hello");
+
+// 广播给所有在线客户端
+WebSocketUtils.sendMessage("hello");
+
+// 发送给指定客户端的全部连接（多标签页场景，需会话 DAO 支持一键多会话）
+WebSocketUtils.sendMessageToAll("10001", "hello");
+```
+
+## 会话管理
+
+客户端 ID 与会话的对应关系由 `top.continew.starter.messaging.websocket.dao.WebSocketSessionDao` 管理，默认提供内存实现 `DefaultWebSocketSessionDao`（同一客户端 ID 仅保留一条会话）。接口方法包括 `add`、`delete`、`get`、`listAll`、`listAllSessionIds`，以及默认方法 `listByKey`（返回某客户端 ID 下的全部会话）。
+
+集群部署或需要支持「同一客户端多条连接」（多标签页）时，自行实现该接口并注册为 Bean 即可替换默认实现，例如鉴权模块（`continew-starter-auth-refresh-token`）提供的 `ConcurrentWebSocketSessionDao` 支持多连接登记。

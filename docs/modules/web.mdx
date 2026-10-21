@@ -1,0 +1,197 @@
+---
+title: Web 开发
+description: Web 开发基础模块：跨域（CORS）、基于 Graceful Response 的全局异常与统一响应封装、Query 参数转换器与 Undertow 服务器增强的自动配置。
+---
+
+`continew-starter-web` 是 ContiNew Starter 提供的 Web 开发基础模块，为 Spring Boot Web 应用提供常用能力的自动配置与最佳实践，主要包含以下内容。
+
+- **跨域支持**：通过配置快速启用和定制跨域过滤器 `CorsFilter`；
+- **统一响应处理**：基于 [Graceful Response](https://doc.feiniaojin.com/graceful-response/home.html) 实现响应数据封装、全局异常处理和错误码管理；
+- **Query 参数转换器**：`Date`、`LocalDate`、`LocalTime`、`LocalDateTime`、`BaseEnum` 类型参数自动转换；
+- **服务器增强**：默认使用 Undertow 替代 Tomcat，支持全局禁用不安全的 HTTP 请求方法。
+
+<Callout type="info">
+链路追踪（Trace）是独立模块 `continew-starter-trace`，不在本模块中，详见 [Trace 链路追踪](/docs/starter/modules/trace)。
+</Callout>
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-web</artifactId>
+</dependency>
+```
+
+## 跨域配置
+
+前后端分离开发时，跨域是避不开的配置。模块提供了跨域过滤器自动配置（`CorsAutoConfiguration`），配置项对应类为 `top.continew.starter.web.autoconfigure.cors.CorsProperties`，默认不启用。
+
+```yaml
+continew-starter:
+  web:
+    cors:
+      # 是否启用跨域配置（默认：false）
+      enabled: true
+      # 允许跨域的域名（Ant 风格通配符模式，与 allowed-origins 互斥，配置后仅本项生效）
+      allowed-origin-patterns:
+        - https://*.example.com
+      # 允许跨域的域名（默认：*）
+      allowed-origins: '*'
+      # 允许跨域的请求方式（默认：*）
+      allowed-methods: '*'
+      # 允许跨域的请求头（默认：*）
+      allowed-headers: '*'
+      # 允许跨域的响应头
+      exposed-headers: '*'
+```
+
+<Callout type="info">
+当需要携带 Cookie 等凭据信息时，CORS 规范不允许 `allowed-origins` 与 `allow-credentials` 同时为 `*`，此时推荐使用 `allowed-origin-patterns`（如 `https://*.example.com`）进行精确匹配。自动配置会在 `allowed-origin-patterns` 不含 `*`、或 `allowed-origins` 为具体域名时自动开启 `allowCredentials`；预检请求缓存时间（`maxAge`）固定为 1800 秒。
+</Callout>
+
+## 统一响应处理
+
+统一响应处理基于 Graceful Response 组件实现，本模块对其做了适配，包括覆盖自动配置、指定配置默认值、自定义响应风格类（`top.continew.starter.web.model.R`）、添加接口文档全局处理等。组件的完整能力请查阅 [Graceful Response 官方文档](https://doc.feiniaojin.com/graceful-response/home.html)。
+
+### 启用统一响应处理
+
+本模块覆盖了 Graceful Response 的自动配置，需要使用本模块提供的注解启用（代替原组件的 `@EnableGracefulResponse`）。
+
+```java
+@EnableGlobalResponse
+@SpringBootApplication
+public class ExampleApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ExampleApplication.class, args);
+    }
+}
+```
+
+### 全局配置
+
+配置项对应类为 `top.continew.starter.web.autoconfigure.response.GlobalResponseProperties`（继承自 Graceful Response 的 `GracefulResponseProperties`）。模块已内置一套默认值（见 `continew-starter-web/src/main/resources/default-response.yml`），常用配置如下。
+
+```yaml
+continew-starter:
+  web:
+    response:
+      # 是否开启国际化（默认：false）
+      i18n: false
+      # 响应类全名（配置后 response-style 将不再生效）
+      response-class-full-name: top.continew.starter.web.model.R
+      # 失败时的 HTTP 状态码（默认：200，建议业务状态码与通信状态码区分）
+      default-http-status-code-on-error: 200
+      # 成功响应码（默认：0）
+      default-success-code: 0
+      # 成功提示（默认：ok）
+      default-success-msg: ok
+      # 失败响应码（默认：1）
+      default-error-code: 1
+      # 失败提示（默认：error）
+      default-error-msg: error
+      # 是否打印异常日志（模块默认：true）
+      print-exception-in-global-advice: true
+      # 是否将原生异常错误信息填充到响应信息中（模块默认：true，组件默认为 false）
+      origin-exception-using-detail-message: true
+      # 例外包路径（支持数字、* 和 ** 通配符匹配），该包路径下的 Controller 将被忽略处理
+      exclude-packages:
+        - io.swagger.**
+        - org.springdoc.**
+        - org.springframework.boot.actuate.*
+```
+
+### 响应结构
+
+默认响应类 `top.continew.starter.web.model.R` 的结构如下。
+
+```json
+{
+  "code": "0",
+  "msg": "ok",
+  "success": true,
+  "timestamp": 1691453288000,
+  "data": {}
+}
+```
+
+如果默认结构不满足要求，可参考 `R` 类自定义响应类，并将 `response-class-full-name` 配置为自定义类的全限定名。
+
+### 排除统一封装
+
+默认情况下，统一响应处理会包装原始响应数据。文件下载等场景需要直接返回原始数据时，在接口方法或类上添加 `@ExcludeFromGracefulResponse` 注解即可排除统一封装。
+
+```java
+@ExcludeFromGracefulResponse
+@GetMapping("/download")
+public void download(HttpServletResponse response) {
+    // 直接输出文件流
+}
+```
+
+## Query 参数转换器
+
+默认情况下，Spring MVC 无法直接转换 Query 中的日期类型参数，需要使用 `@DateTimeFormat` 注解。
+
+模块内置了 Query 参数转换器（`WebMvcAutoConfiguration#addFormatters`），可自动转换以下类型。
+
+- `java.util.Date`（经 Hutool `DateUtil.parse` 解析，支持多种常见日期格式）
+- `LocalDateTime`（默认格式 `yyyy-MM-dd HH:mm:ss`）
+- `LocalDate`（默认格式 `yyyy-MM-dd`）
+- `LocalTime`（默认格式 `HH:mm:ss`）
+- `BaseEnum`（枚举参数自动按编码值匹配）
+
+如果默认格式无法满足要求，仍可使用 `@DateTimeFormat` 注解指定格式。
+
+## Undertow 服务器增强
+
+模块默认使用 Undertow 替代 Tomcat（依赖 `spring-boot-starter-undertow`），并做了两项增强。
+
+### 全局禁用不安全的 HTTP 方法
+
+配置项对应类为 `top.continew.starter.web.autoconfigure.server.ServerExtensionProperties`（配置前缀为 `server.extension`，非 `continew-starter` 前缀）。
+
+```yaml
+server:
+  extension:
+    # 是否启用（默认：true）
+    enabled: true
+    # 不允许的请求方式（默认禁用 CONNECT、TRACE、TRACK）
+    disallowed-methods:
+      - CONNECT
+      - TRACE
+      - TRACK
+```
+
+### Undertow 线程池默认配置
+
+模块内置了 Undertow 的部分默认配置（见 `continew-starter-web/src/main/resources/default-server.yml`），可按需在 `application.yml` 中覆盖。
+
+```yaml
+server:
+  undertow:
+    # HTTP POST 请求内容大小上限（-1 不限制）
+    max-http-post-size: -1
+    buffer-size: 512
+    direct-buffers: true
+    threads:
+      # IO 线程数
+      io: 8
+      # 阻塞任务线程池大小
+      worker: 256
+```
+
+<Callout type="warn">
+如果使用 Tomcat 而非 Undertow，「全局禁用不安全的 HTTP 方法」不会生效，因为该自动配置以 `Undertow` 类存在为生效条件（`@ConditionalOnClass(Undertow.class)`）。
+</Callout>
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-json-jackson` | JSON 模块（Jackson） |
+| `top.continew.starter:continew-starter-api-doc` | API 文档模块 |
+| `org.springframework.boot:spring-boot-starter-web` | Spring MVC Web 开发能力 |
+| `org.springframework.boot:spring-boot-starter-undertow` | 高性能 Web 服务器，替代默认的 Tomcat |
+| `com.feiniaojin:graceful-response` | 优雅响应处理组件：响应封装、异常处理、错误码填充 |

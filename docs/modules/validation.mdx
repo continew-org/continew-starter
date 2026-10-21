@@ -1,0 +1,145 @@
+---
+title: 参数校验
+description: continew-starter-validation 在 Spring Validation（Hibernate Validator）之上提供枚举、手机号、JSON 字符串等常用校验注解，并集成 SpEL Validator 支持基于表达式的复杂参数校验。
+---
+
+`continew-starter-validation` 基于 `spring-boot-starter-validation`（Hibernate Validator）扩展了常用校验场景：内置 `@EnumValue`、`@Mobile`、`@Phone`、`@JsonString` 等高频校验注解，并集成 [SpEL Validator](https://spel-validator.sticki.cn/guide/introduction.html)，可以用 SpEL 表达式描述「根据另一个字段的值决定是否校验当前字段」这类复杂校验逻辑，与 Spring Validation 的分组等能力完全兼容。
+
+<Callout type="info">
+模块自动配置 `ValidationAutoConfiguration` 会将全局 `Validator` 设置为 **快速失败（fail fast）** 模式：默认情况下 Hibernate Validator 会校验完所有字段再抛出异常，启用后遇到第一个校验失败即返回。
+</Callout>
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-validation</artifactId>
+</dependency>
+```
+
+模块会传递引入 `spring-boot-starter-validation` 与 `cn.sticki:spel-validator-jakarta`，无需额外配置即可使用。
+
+## 内置校验注解
+
+所有注解均可用于字段、方法参数等位置，支持 `groups` 分组校验；被校验值为 `null`（字符串为空白）时视为通过，非空校验请配合 `@NotNull` / `@NotBlank` 使用。
+
+### `@EnumValue`：枚举值校验
+
+校验参数值是否为指定枚举的有效值，支持三种用法：
+
+| 属性 | 说明 | 默认值 |
+|:-----|:-----|:-------|
+| `value` | 枚举类 | `Enum.class` |
+| `enumValues` | 直接限定允许的字面量列表（优先于 `value`） | `{}` |
+| `method` | 枚举类中获取枚举值的方法名，不指定时按枚举 `name()` 或 `BaseEnum#getValue()` 匹配 | `""` |
+| `message` | 校验失败提示 | `参数值无效` |
+
+<Tabs items={['枚举类匹配', '限定字面量', '数组/集合校验']}>
+<Tab value="枚举类匹配">
+
+```java
+public enum OptionCategoryEnum {
+    SITE, PASSWORD, MAIL, LOGIN
+}
+
+@EnumValue(value = OptionCategoryEnum.class, message = "类别无效")
+private String category;
+```
+
+</Tab>
+<Tab value="限定字面量">
+
+```java
+@EnumValue(enumValues = {"F", "M"}, message = "性别只允许为 F 或 M")
+private String gender;
+```
+
+</Tab>
+<Tab value="数组/集合校验">
+
+`@EnumValue` 的校验器同样支持数组与 `Iterable` 集合，会逐个校验其中的元素：
+
+```java
+@EnumValue(value = OptionCategoryEnum.class, message = "类别无效")
+private List<String> categories;
+```
+
+</Tab>
+</Tabs>
+
+### `@Mobile`：中国大陆手机号校验
+
+基于 Hutool `PhoneUtil.isMobile` 实现，仅校验**中国大陆**手机号码。
+
+```java
+@Mobile(message = "手机号格式不正确")
+private String mobile;
+```
+
+### `@Phone`：座机/手机号校验
+
+基于 Hutool `PhoneUtil.isPhone` 实现，校验座机号码、手机号码（中国大陆、中国香港、中国台湾、中国澳门）。
+
+```java
+@Phone(message = "手机号格式不正确")
+private String phone;
+```
+
+### `@JsonString`：JSON 字符串校验
+
+校验字符串是否为合法的 JSON 格式（基于 Hutool `JSONUtil.isTypeJSON`），默认提示为 `必须为有效的 JSON 格式`。
+
+```java
+@JsonString(message = "必须为有效的 JSON 格式")
+private String metaInfo;
+```
+
+## SpEL 表达式校验
+
+模块集成了 SpEL Validator，可通过 SpEL 表达式描述字段间的联动校验，典型场景如「公告勾选定时发送时，发布时间不能为空」。
+
+不使用表达式时，这类逻辑只能手写：
+
+```java
+if (Boolean.TRUE.equals(req.getIsTiming())) {
+    ValidationUtils.throwIfNull(req.getPublishTime(), "定时发布时间不能为空");
+    ValidationUtils.throwIf(req.getPublishTime().isBefore(LocalDateTime.now()),
+        "定时发布时间不能早于当前时间");
+}
+```
+
+使用 SpEL Validator 后，直接以注解声明，与其他 Bean Validation 注解（如 `@Future`）自然组合：
+
+```java
+@Data
+@SpelValid
+public class NoticeReq implements Serializable {
+
+    /**
+     * 是否定时
+     */
+    @NotNull(message = "是否定时不能为空")
+    private Boolean isTiming;
+
+    /**
+     * 发布时间
+     */
+    @SpelNotNull(condition = "#this.isTiming == true", message = "定时发布时间不能为空")
+    @Future(message = "定时发布时间不能早于当前时间")
+    private LocalDateTime publishTime;
+}
+```
+
+要点：
+
+- 类上标注 `@SpelValid` 启用 SpEL 校验；
+- 字段上使用 `@SpelNotNull`、`@SpelNotBlank`、`@SpelAssert` 等注解，`condition` 为 SpEL 表达式，`#this` 指向当前校验对象；
+- 触发方式与常规校验一致，配合 `@Validated` / `@Valid` 使用。
+
+更多注解与用法请参阅 [SpEL Validator 官方文档](https://spel-validator.sticki.cn/guide/introduction.html)。
+
+## 注意事项
+
+- `@EnumValue` 校验未实现 `BaseEnum` 接口的普通枚举时，按枚举常量的 `toString()`（即 `name()`）做忽略大小写比较；实现 `BaseEnum` 的枚举则按 `getValue()` 精确匹配。若枚举字段较多，可通过 `method` 属性指定取值方法（如 `getCode`）。
+- 模块默认开启快速失败模式，若业务需要一次性收集全部字段错误，请自行覆盖 `Validator` Bean。

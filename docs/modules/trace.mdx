@@ -1,0 +1,131 @@
+---
+title: 链路追踪
+description: 基于 TLog 实现分布式调用链路追踪，自动生成并透传 TraceId、写入响应头，配合日志框架实现全链路日志关联。
+---
+
+`continew-starter-trace` 是 ContiNew Starter 的链路追踪模块，底层基于 [TLog](https://tlog.yomahub.com/) 实现分布式系统的调用链路追踪。通过 Servlet 过滤器自动生成和透传 TraceId，并将 TraceId 写入响应头，帮助开发者快速定位跨服务调用问题，提升系统可观测性。
+
+主要特性：
+
+- 自动生成全局唯一 TraceId（默认基于雪花算法），支持跨服务传递
+- 将 TraceId 写入响应头，便于前端获取整条链路的标识
+- 集成日志框架 MDC，实现全链路日志关联
+- 支持自定义 TraceId 生成策略
+- 低侵入式设计，通过过滤器自动拦截请求
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-trace</artifactId>
+</dependency>
+```
+
+## 配置
+
+```yaml
+continew-starter:
+  trace:
+    # 是否启用链路追踪（默认 false）
+    enabled: true
+    # 写入响应头的 TraceId 名称（默认 traceId）
+    trace-id-name: X-Trace-Id
+    # TLog 配置
+    tlog:
+      # 日志标签模板，自动拼接到日志输出中
+      pattern: '[$spanId][$traceId]'
+      # 是否自动打印调用参数和时间（默认 false）
+      enable-invoke-time-print: false
+      # 是否启用 MDC 模式（默认 false）
+      mdc-enable: false
+```
+
+配置项说明（前缀均为 `continew-starter.trace`）：
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `enabled` | `boolean` | `false` | 是否启用链路追踪，设为 `true` 后自动装配生效 |
+| `trace-id-name` | `String` | `traceId` | 写入响应头的 TraceId 名称，留空则不写入 |
+| `tlog.pattern` | `String` | 无 | 日志标签模板，如 `[$spanId][$traceId]` |
+| `tlog.enable-invoke-time-print` | `Boolean` | 无 | 是否自动打印调用参数和时间 |
+| `tlog.mdc-enable` | `Boolean` | 无 | 是否启用 MDC 模式 |
+
+<Callout type="info">
+启用后，模块会注册一个优先级最高的 Servlet 过滤器，拦截所有请求：从请求头中读取上游透传的链路信息（不存在则生成新的 TraceId），并将当前 TraceId 以 `trace-id-name` 指定的名称写入响应头。
+</Callout>
+
+## 日志输出 TraceId
+
+如需在日志输出中打印 TraceId，需将日志配置中的 encoder / appender 替换为 TLog 提供的增强实现（以 Logback 为例）：
+
+- `ch.qos.logback.core.ConsoleAppender` 的 encoder 改为 `com.yomahub.tlog.core.enhance.logback.AspectLogbackEncoder`
+- `RollingFileAppender` 的 encoder 同样改为 `AspectLogbackEncoder`
+- 异步 appender 改用 `com.yomahub.tlog.core.enhance.logback.async.AspectLogbackAsyncAppender`
+
+```xml
+<!-- logback-spring.xml -->
+<configuration>
+    <!-- 控制台输出 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="com.yomahub.tlog.core.enhance.logback.AspectLogbackEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{50} - %msg%n</pattern>
+            <charset>utf-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 异步文件输出 -->
+    <appender name="ASYNC_FILE" class="com.yomahub.tlog.core.enhance.logback.async.AspectLogbackAsyncAppender">
+        <!-- 不丢失日志，默认：队列 80% 已满时丢弃 TRACE、DEBUG、INFO 级别日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 队列深度，默认 256 -->
+        <queueSize>512</queueSize>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>
+```
+
+配合 `tlog.pattern` 配置的标签模板（如 `[$spanId][$traceId]`），TLog 会自动将链路标签拼接到每条日志中。
+
+## 自定义 TraceId 生成器
+
+默认使用 `TraceIdGenerator`，基于 TLog 雪花算法（`UniqueIdGenerator`）生成 TraceId。如需自定义，注册一个 `TLogIdGenerator` 类型的 Bean 即可（模块的默认 Bean 标注了 `@ConditionalOnMissingBean`，会被你的实现覆盖）：
+
+```java
+public class CustomTraceIdGenerator extends TLogIdGenerator {
+
+    @Override
+    public String generateTraceId() {
+        // 自定义 TraceId 生成逻辑
+        return UUID.randomUUID().toString().replace("-", "");
+    }
+}
+```
+
+```java
+@Configuration
+public class TraceConfig {
+
+    @Bean
+    public TLogIdGenerator customTraceIdGenerator() {
+        return new CustomTraceIdGenerator();
+    }
+}
+```
+
+## 注意事项
+
+<Callout type="warn">
+`continew-starter.trace.tlog` 下的 `id-generator` 配置项在当前自动装配中未被读取，自定义 TraceId 生成器请通过注册 `TLogIdGenerator` Bean 的方式实现。
+</Callout>
+
+- 链路追踪仅在 Web 应用（Servlet 环境）中生效。
+- 若开启 `tlog.mdc-enable`，日志框架中可直接通过 MDC 获取链路标签，此时无需再依赖 `pattern` 的自动拼接，二者按需选择其一即可。MDC 相关进阶用法请参考 TLog 官方文档。
+
+## 参考资料
+
+- [TLog 官方文档](https://tlog.yomahub.com/)

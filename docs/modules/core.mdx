@@ -1,0 +1,192 @@
+---
+title: 核心
+description: continew-starter-core 提供应用信息配置、线程池自动优化、常量与 PropertiesConstants、通用工具类及可重复读请求/响应包装器，是其他所有模块的基础。
+---
+
+`continew-starter-core` 是 ContiNew Starter 的核心模块，为其他所有模块提供基础支持：应用信息自动配置、线程池（`@Async` / `@Scheduled`）自动优化、通用常量、扩展工具类、基础枚举与异常体系、可重复读取的请求/响应包装器等。引入任一 ContiNew Starter 模块时它都会被间接带入，通常无需单独引入。
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-core</artifactId>
+</dependency>
+```
+
+## 应用信息配置
+
+应用开发中经常需要用到应用名称、版本、基础包等基础信息，硬编码不利于维护。核心模块通过 `ApplicationAutoConfiguration` 自动装配 `ApplicationProperties`，同时自动导入 Hutool 的 `SpringUtil`（`cn.hutool.extra.spring`）工具类。
+
+### 配置示例
+
+配置项详见 `top.continew.starter.core.autoconfigure.application.ApplicationProperties`，前缀为 `application`：
+
+```yaml
+application:
+  id: continew-admin
+  # 名称
+  name: ContiNew Admin
+  # 描述
+  description: 持续迭代优化的前后端分离中后台管理系统框架
+  # 版本
+  version: 4.0.0
+  # URL
+  url: https://continew.top
+  # 基础包
+  base-package: top.continew.admin
+  # 是否为生产环境（默认 false）
+  production: false
+  # 联系人信息
+  contact:
+    name: Charles7c
+    email: charles7c@126.com
+    url: https://charles7c.top
+  # 许可协议信息
+  license:
+    name: Apache-2.0
+    url: https://github.com/continew-org/continew-admin/blob/dev/LICENSE
+```
+
+### 使用示例
+
+```java
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.RestController;
+import top.continew.starter.core.autoconfigure.application.ApplicationProperties;
+
+@RestController
+@RequiredArgsConstructor
+public class TestController {
+
+    private final ApplicationProperties applicationProperties;
+
+}
+```
+
+## 线程池自动配置
+
+核心模块在 Spring Boot 的 `TaskExecutionAutoConfiguration`、`TaskSchedulingAutoConfiguration` 之前生效，通过 `ThreadPoolTaskExecutorCustomizer` / `ThreadPoolTaskSchedulerCustomizer` 优化 `ThreadPoolTaskExecutor`（异步任务）和 `ThreadPoolTaskScheduler`（定时任务）：
+
+- **动态计算线程池参数**：未显式指定 `spring.task.execution.pool.core-size` 等参数时，按 CPU 核数动态计算：核心线程数为 `CPU 核数 + 1`，最大线程数为 `CPU 核数 × 2`，队列容量为 `CPU 核数 × 200`；
+- **可配置拒绝策略**：通过 `spring.task.execution.rejected-policy` / `spring.task.scheduling.rejected-policy` 设置，默认 `CALLER_RUNS`（由提交任务的线程执行），可选 `ABORT`（抛异常）、`DISCARD`（静默丢弃）、`DISCARD_OLDEST`（丢弃队列中最老任务）；
+- **支持 `@Async`**：自动装配 `AsyncConfigurer`，将 `@Async` 异步方法指向优化后的 `ThreadPoolTaskExecutor`，并默认提供未捕获异常处理器。
+
+配置项详见 `top.continew.starter.core.autoconfigure.threadpool.ThreadPoolExtensionProperties`，前缀为 `spring.task`。
+
+### 配置示例
+
+```yaml
+spring:
+  task:
+    # 异步任务
+    execution:
+      # 关闭扩展优化后，ThreadPoolTaskExecutor 与 AsyncConfigurer 优化不生效（默认启用）
+      extension:
+        enabled: true
+      thread-name-prefix: task-pool
+      # 拒绝策略，默认 CALLER_RUNS；可选 ABORT / DISCARD / DISCARD_OLDEST
+      rejected-policy: CALLER_RUNS
+      pool:
+        keep-alive: 300s
+      shutdown:
+        # 关闭时是否等待任务执行完成（默认 false）
+        await-termination: true
+        await-termination-period: 30s
+    # 定时任务
+    scheduling:
+      # 关闭扩展优化后，ThreadPoolTaskScheduler 优化不生效（默认启用）
+      extension:
+        enabled: true
+      thread-name-prefix: schedule-pool
+      rejected-policy: CALLER_RUNS
+      shutdown:
+        await-termination: true
+        await-termination-period: 30s
+```
+
+其中 `extension.enabled`、`rejected-policy` 为 ContiNew Starter 扩展的配置项；`thread-name-prefix`、`pool`、`shutdown` 等为 Spring Boot 原生配置项，详见 Spring Boot 文档。
+
+### 使用示例
+
+```java
+import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequiredArgsConstructor
+public class TestController {
+
+    private final ThreadPoolTaskExecutor threadPoolTaskExecutor;
+
+}
+```
+
+<Callout type="warn">
+核心模块**不会**自动启用 `@EnableAsync` 和 `@EnableScheduling`。如果业务中使用了 `@Async` 异步方法或 `@Scheduled` 定时任务，请在启动类（或配置类）上自行添加对应注解：
+
+```java
+@EnableAsync
+@EnableScheduling
+@SpringBootApplication
+public class ExampleApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(ExampleApplication.class, args);
+    }
+}
+```
+</Callout>
+
+## 常量
+
+核心模块在 `top.continew.starter.core.constant` 包下提供常用常量，避免在业务代码中散布魔法值：
+
+- **`StringConstants`**：常用字符串常量，如 `EMPTY`、`DOT`、`COMMA`、`SLASH`、`PATH_PATTERN`（`"/**"`）等；
+- **`CharConstants`**：常用字符常量，如 `SPACE`、`DOT`、`COMMA`、`SLASH` 等；
+- **`OrderedConstants`**：各模块 Filter、Interceptor 的统一排序值，如 `Filter.TRACE_FILTER`、`Filter.LOG_FILTER`、`Interceptor.AUTH_INTERCEPTOR` 等，自定义过滤器/拦截器时可参照这些值定位执行顺序；
+- **`PropertiesConstants`**：各模块配置前缀常量，均以 `continew-starter` 开头（如 `WEB`、`ENCRYPT`、`SECURITY_XSS`、`RATE_LIMITER`、`TENANT` 等），以及通用开关属性名 `ENABLED`。自定义模块或条件装配时可直接引用，避免手写配置前缀字符串。
+
+```java
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import top.continew.starter.core.constant.PropertiesConstants;
+
+@ConditionalOnProperty(prefix = PropertiesConstants.WEB_CORS,
+    name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
+public class CustomCorsConfiguration {
+}
+```
+
+## 通用工具与基础组件
+
+核心模块内置了一系列高频使用的工具类与基础组件，以下为常用部分：
+
+| 组件 | 说明 |
+|:-----|:-----|
+| `SpringUtils` | Spring 相关工具：获取 Bean / 代理对象、URL 路径匹配（`isMatch`、`isMatchAnt`）、动态注册/注销资源处理器、获取 `HandlerMethod` 等 |
+| `ServletUtils` | Servlet 相关工具：获取当前 Request/Response/Session、请求头 Map、浏览器与操作系统解析、写出 JSON、判断请求体类型等 |
+| `IpUtils` | IP 工具：`getIpv4Address` 基于 ip2region 离线库查询归属地、`isInnerIpv4` 判断内网 IP |
+| `TreeUtils` | 树结构构建：`build`、`buildMultiRoot`、`getLeafNodes` 等 |
+| `CollUtils` / `MapUtils` / `StrUtils` | 集合、Map、字符串的扩展操作（如 `mapToList`、`blankToDefault`） |
+| `ReflectUtils` / `ClassUtils` | 反射操作、类信息读取（非静态字段、方法引用等） |
+| `ValidationUtils` / `CheckUtils` | 校验工具：`throwIfNull`、`throwIfBlank` 等，校验失败分别抛出 `BadRequestException`、`BusinessException` |
+| `BaseEnum` | 枚举接口：约定 `getValue()` / `getDescription()` / `getColor()`，并提供 `getByValue` 按值反查枚举 |
+| `BaseException` / `BusinessException` / `BadRequestException` | 异常体系基类与常用业务异常 |
+
+<Callout type="info">
+这些工具类多基于 Hutool 扩展（核心模块已传递引入 `hutool-core`、`hutool-json`、`hutool-extra`、`hutool-http`），业务中可直接混用 Hutool 原生工具类。
+</Callout>
+
+## 请求/响应包装器
+
+`top.continew.starter.core.wrapper` 包下提供 `RepeatReadRequestWrapper` 与 `RepeatReadResponseWrapper`，用于在过滤器链中**重复读取**请求体/响应体内容（Servlet 流默认只能读取一次），常用于日志记录、加解密、签名校验等场景。
+
+## 版本日志打印
+
+应用启动时，核心模块会通过 `ContiNewStarterVersionLogger` 在 Debug 级别打印当前使用的 ContiNew Starter 版本号（如 `Running with ContiNew Starter vX.Y.Z`）。该日志遵循 `spring.main.log-startup-info` 配置，设为 `false` 时不再打印。
+
+## 注意事项
+
+- 核心模块自带的 `spring-web`、`spring-webmvc`、`jakarta.servlet-api` 等依赖以传递方式引入；若项目本身未引入 `spring-boot-starter-web`，请确认运行环境满足需要。
+- `IpUtils.getIpv4Address` 依赖容器中存在 `Ip2regionSearcher` Bean（由 `mica-ip2region` 自动装配提供），在非 Web 或未启用相关自动配置的环境下调用可能失败。

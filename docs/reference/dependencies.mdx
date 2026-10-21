@@ -1,0 +1,125 @@
+---
+title: 依赖与版本
+description: 说明 ContiNew Starter 如何通过 BOM 统一管理第三方依赖与各功能模块版本，如何查看锁定版本，以及需要覆盖版本时的两种做法。
+---
+
+ContiNew Starter 通过两个 POM 模块统一供给版本：
+
+- `continew-starter-dependencies`（第三方依赖 BOM）：集中锁定 Spring Boot、Spring Cloud 及主要第三方库版本，并导入 `continew-starter-bom`；
+- `continew-starter-bom`（模块 BOM）：统一管理全部 `continew-starter-*` 功能模块的版本。
+
+引入依赖管理后，使用任何 Starter 模块或被锁定的第三方库都**无需指定版本号**，从根本上避免版本冲突与漂移。本页只讲机制，不重复罗列版本号；具体版本以下方「查看锁定版本」的方式为准。
+
+## 引入依赖
+
+在 `pom.xml` 的 `dependencyManagement` 中以 `import` 方式导入（也可改用 parent 方式，见[快速开始](/docs/starter)）：
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <!-- ContiNew Starter Dependencies -->
+        <dependency>
+            <groupId>top.continew.starter</groupId>
+            <artifactId>continew-starter-dependencies</artifactId>
+            <version>2.17.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+引入后即可直接使用，版本由 BOM 统一供给：
+
+```xml
+<dependencies>
+    <!-- Web 模块 -->
+    <dependency>
+        <groupId>top.continew.starter</groupId>
+        <artifactId>continew-starter-web</artifactId>
+    </dependency>
+
+    <!-- 被 Starter 锁定的第三方库同样免写版本 -->
+    <dependency>
+        <groupId>org.redisson</groupId>
+        <artifactId>redisson-spring-boot-starter</artifactId>
+    </dependency>
+</dependencies>
+```
+
+<Callout type="info">
+`2.17.0` 为当前版本，升级时替换为 [Maven Central](https://central.sonatype.com/search?namespace=top.continew.starter) 上的目标版本即可。
+</Callout>
+
+## 查看锁定版本
+
+不要从文档抄版本号，用下面三种方式查当前实际生效的版本：
+
+1. **看源码 POM**：`continew-starter-dependencies/pom.xml` 的 `properties` 是唯一数据源（文档不复制这份清单，避免两处漂移）；
+2. **看依赖树**：`mvn dependency:tree` 查项目里实际解析到的版本，排查冲突时最直接；
+3. **看 Maven Central**：发布坐标与版本在 [top.continew.starter](https://central.sonatype.com/search?namespace=top.continew.starter) 查询。
+
+各功能模块的 artifactId 与能力说明见[模块总览](/docs/starter/introduction#模块总览)及其子页面，Starter 自研配置项见[配置参考](/docs/starter/reference/properties)。
+
+<Callout type="info">
+除单独声明的构件外，Spring Boot、Spring Cloud、JetCache、Sa-Token、MyBatis Plus、MyBatis Flex、CosId、AWS SDK v2、Hutool、NextDoc4j 等均以 BOM 形式整体导入，其生态内构件版本随各自 BOM 统一供给。
+</Callout>
+
+## 覆盖依赖版本
+
+原则上不建议修改 Starter 锁定的版本，集中管理的意义就在于保证兼容性。确有需要时（紧急修复漏洞、对齐公司统一版本）用下面两种方式。
+
+<Callout type="warn">
+覆盖版本可能引入兼容性问题，调整后请充分测试；覆盖用的属性名必须与 `continew-starter-dependencies` 中定义的完全一致。
+</Callout>
+
+### 方式一：覆盖 properties（parent 引入时推荐）
+
+以 parent 方式引入 ContiNew Starter 时：
+
+```xml
+<parent>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter</artifactId>
+    <version>2.17.0</version>
+</parent>
+```
+
+利用 Maven 继承特性，在项目 `pom.xml` 的 `properties` 中覆盖同名版本属性。例如把 Spring Boot 调整为 `3.4.7`（示例值；2.17.0 实际锁定 `3.5.16`）：
+
+```xml
+<properties>
+    <!-- 覆盖 Spring Boot 版本 -->
+    <spring-boot.version>3.4.7</spring-boot.version>
+</properties>
+```
+
+### 方式二：通过 dependencyManagement 声明
+
+基于 Maven 依赖解析原则（路径最近者优先、第一声明者优先），直接在项目 `pom.xml` 的 `dependencyManagement` 中声明目标版本，且声明位置需**先于** `continew-starter-dependencies` 的导入：
+
+```xml
+<dependencyManagement>
+    <dependencies>
+        <!-- 先声明要覆盖的依赖版本（示例值；2.17.0 实际锁定 5.8.47） -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+            <version>5.8.40</version>
+        </dependency>
+        <!-- 再导入 ContiNew Starter Dependencies -->
+        <dependency>
+            <groupId>top.continew.starter</groupId>
+            <artifactId>continew-starter-dependencies</artifactId>
+            <version>2.17.0</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    </dependencies>
+</dependencyManagement>
+```
+
+## 相关源码
+
+- [continew-starter-dependencies/pom.xml](https://github.com/continew-org/continew-starter/blob/dev/continew-starter-dependencies/pom.xml)：第三方版本唯一数据源
+- [continew-starter-bom/pom.xml](https://github.com/continew-org/continew-starter/blob/dev/continew-starter-bom/pom.xml)：功能模块坐标清单
