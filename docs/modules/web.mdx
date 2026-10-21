@@ -1,6 +1,6 @@
 ---
 title: Web 开发
-description: Web 开发基础模块：跨域（CORS）、基于 Graceful Response 的全局异常与统一响应封装、Query 参数转换器与 Undertow 服务器增强的自动配置。
+description: Web 开发基础模块：跨域（CORS）、基于 Graceful Response 的全局异常与统一响应封装、Query 参数转换器与 Tomcat 服务器增强的自动配置。
 ---
 
 `continew-starter-web` 是 ContiNew Starter 提供的 Web 开发基础模块，为 Spring Boot Web 应用提供常用能力的自动配置与最佳实践，主要包含以下内容。
@@ -8,7 +8,7 @@ description: Web 开发基础模块：跨域（CORS）、基于 Graceful Respons
 - **跨域支持**：通过配置快速启用和定制跨域过滤器 `CorsFilter`；
 - **统一响应处理**：基于 [Graceful Response](https://doc.feiniaojin.com/graceful-response/home.html) 实现响应数据封装、全局异常处理和错误码管理；
 - **Query 参数转换器**：`Date`、`LocalDate`、`LocalTime`、`LocalDateTime`、`BaseEnum` 类型参数自动转换；
-- **服务器增强**：默认使用 Undertow 替代 Tomcat，支持全局禁用不安全的 HTTP 请求方法。
+- **服务器增强**：基于 Tomcat 服务器，支持全局禁用不安全的 HTTP 请求方法。
 
 <Callout type="info">
 链路追踪（Trace）是独立模块 `continew-starter-trace`，不在本模块中，详见 [Trace 链路追踪](/docs/starter/modules/trace)。
@@ -144,9 +144,9 @@ public void download(HttpServletResponse response) {
 
 如果默认格式无法满足要求，仍可使用 `@DateTimeFormat` 注解指定格式。
 
-## Undertow 服务器增强
+## Tomcat 服务器增强
 
-模块默认使用 Undertow 替代 Tomcat（依赖 `spring-boot-starter-undertow`），并做了两项增强。
+模块使用 Spring Boot 默认的 Tomcat 服务器（依赖 `spring-boot-starter-webmvc`），并做了两项增强。
 
 ### 全局禁用不安全的 HTTP 方法
 
@@ -164,26 +164,22 @@ server:
       - TRACK
 ```
 
-### Undertow 线程池默认配置
+### Tomcat 线程池默认配置
 
-模块内置了 Undertow 的部分默认配置（见 `continew-starter-web/src/main/resources/default-server.yml`），可按需在 `application.yml` 中覆盖。
+模块内置了 Tomcat 的部分默认配置（见 `continew-starter-web/src/main/resources/default-server.yml`），可按需在 `application.yml` 中覆盖。
 
 ```yaml
 server:
-  undertow:
+  tomcat:
     # HTTP POST 请求内容大小上限（-1 不限制）
-    max-http-post-size: -1
-    buffer-size: 512
-    direct-buffers: true
+    max-http-form-post-size: -1
     threads:
-      # IO 线程数
-      io: 8
-      # 阻塞任务线程池大小
-      worker: 256
+      # 最大工作线程数
+      max: 256
 ```
 
-<Callout type="warn">
-如果使用 Tomcat 而非 Undertow，「全局禁用不安全的 HTTP 方法」不会生效，因为该自动配置以 `Undertow` 类存在为生效条件（`@ConditionalOnClass(Undertow.class)`）。
+<Callout type="info">
+「全局禁用不安全的 HTTP 方法」由 Servlet 过滤器（`DisallowedMethodsFilter`）实现，不依赖具体容器，Tomcat、Jetty 等 Servlet 容器均生效。
 </Callout>
 
 ## 核心依赖
@@ -192,6 +188,5 @@ server:
 |:-----|:-----|
 | `top.continew.starter:continew-starter-json-jackson` | JSON 模块（Jackson） |
 | `top.continew.starter:continew-starter-api-doc` | API 文档模块 |
-| `org.springframework.boot:spring-boot-starter-web` | Spring MVC Web 开发能力 |
-| `org.springframework.boot:spring-boot-starter-undertow` | 高性能 Web 服务器，替代默认的 Tomcat |
+| `org.springframework.boot:spring-boot-starter-webmvc` | Spring MVC Web 开发能力（内置 Tomcat 服务器） |
 | `com.feiniaojin:graceful-response` | 优雅响应处理组件：响应封装、异常处理、错误码填充 |

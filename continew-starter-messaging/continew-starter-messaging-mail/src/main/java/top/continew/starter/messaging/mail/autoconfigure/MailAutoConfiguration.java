@@ -20,8 +20,8 @@ import cn.hutool.core.map.MapUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.mail.autoconfigure.MailProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -29,6 +29,7 @@ import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.continew.starter.core.util.MapUtils;
 
 import jakarta.annotation.PostConstruct;
+import java.util.Objects;
 
 /**
  * 邮件自动配置
@@ -59,16 +60,15 @@ public class MailAutoConfiguration {
      */
     private void applyProperties(MailProperties properties, JavaMailSenderImpl sender) {
         sender.setHost(properties.getHost());
-        if (properties.getPort() != null) {
-            sender.setPort(properties.getPort());
+        Integer port = properties.getPort();
+        if (port != null) {
+            sender.setPort(Objects.requireNonNull(port));
         }
 
         sender.setUsername(properties.getUsername());
         sender.setPassword(properties.getPassword());
         sender.setProtocol(properties.getProtocol());
-        if (properties.getDefaultEncoding() != null) {
-            sender.setDefaultEncoding(properties.getDefaultEncoding().name());
-        }
+        sender.setDefaultEncoding(properties.getDefaultEncoding().name());
 
         if (MapUtil.isNotEmpty(properties.getProperties())) {
             sender.setJavaMailProperties(MapUtils.toProperties(properties.getProperties()));

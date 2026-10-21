@@ -16,10 +16,10 @@
     <description>ContiNew Starter JSON 模块 - Jackson</description>
 
     <dependencies>
-        <!-- Spring Boot JSON 模块 -->
+        <!-- Spring Boot Jackson 2 支持（Boot 4 默认 Jackson 3，过渡期保留 Jackson 2 行为） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-json</artifactId>
+            <artifactId>spring-boot-jackson2</artifactId>
         </dependency>
 
         <dependency>

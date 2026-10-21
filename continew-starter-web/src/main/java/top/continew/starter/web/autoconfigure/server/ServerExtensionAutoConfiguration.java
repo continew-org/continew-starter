@@ -16,59 +16,57 @@
 
 package top.continew.starter.web.autoconfigure.server;
 
-import io.undertow.Undertow;
-import io.undertow.server.handlers.DisallowedMethodsHandler;
-import io.undertow.util.HttpString;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.web.embedded.undertow.UndertowServletWebServerFactory;
-import org.springframework.boot.web.server.WebServerFactoryCustomizer;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.Ordered;
 import top.continew.starter.core.constant.PropertiesConstants;
-import top.continew.starter.core.util.CollUtils;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 
 /**
- * Undertow 自动配置
+ * 服务器扩展自动配置
  *
  * @author Jasmine
  * @author Charles7c
- * @since 2.11.0
+ * @since 3.0.0
  */
 @AutoConfiguration
-@ConditionalOnWebApplication
-@ConditionalOnClass(Undertow.class)
+@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 @EnableConfigurationProperties(ServerExtensionProperties.class)
 @PropertySource(value = "classpath:default-server.yml",
     factory = GeneralPropertySourceFactory.class)
 @ConditionalOnProperty(prefix = "server.extension", name = PropertiesConstants.ENABLED,
     havingValue = "true")
-public class UndertowAutoConfiguration {
+public class ServerExtensionAutoConfiguration {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UndertowAutoConfiguration.class);
+    private static final Logger LOGGER =
+        LoggerFactory.getLogger(ServerExtensionAutoConfiguration.class);
 
     /**
-     * Undertow 自定义配置
+     * 禁止不安全的 HTTP 方法
+     *
+     * @param properties 服务器扩展配置
+     * @return 过滤器注册对象
      */
     @Bean
-    public WebServerFactoryCustomizer<UndertowServletWebServerFactory> customize(
+    public FilterRegistrationBean<DisallowedMethodsFilter> disallowedMethodsFilter(
         ServerExtensionProperties properties) {
-        return factory -> {
-            factory.addDeploymentInfoCustomizers(deploymentInfo -> deploymentInfo
-                .addInitialHandlerChainWrapper(
-                    handler -> new DisallowedMethodsHandler(handler, CollUtils
-                        .mapToSet(properties.getDisallowedMethods(), HttpString::tryFromString))));
-            LOGGER.debug("[ContiNew Starter] - Disallowed HTTP methods on Server Undertow: {}.",
-                properties
-                    .getDisallowedMethods());
-            LOGGER.debug(
-                "[ContiNew Starter] - Auto Configuration 'Web-Server Undertow' completed initialization.");
-        };
+        FilterRegistrationBean<DisallowedMethodsFilter> registrationBean =
+            new FilterRegistrationBean<>();
+        registrationBean.setFilter(new DisallowedMethodsFilter(properties.getDisallowedMethods()));
+        registrationBean.addUrlPatterns("/*");
+        registrationBean.setName("disallowedMethodsFilter");
+        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        LOGGER.debug("[ContiNew Starter] - Disallowed HTTP methods on Server: {}.",
+            properties.getDisallowedMethods());
+        LOGGER.debug(
+            "[ContiNew Starter] - Auto Configuration 'Web-Server' completed initialization.");
+        return registrationBean;
     }
 }

@@ -17,7 +17,7 @@
 package top.continew.starter.storage.processor.preprocess.impl;
 
 import cn.hutool.core.io.FileUtil;
-import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
+import org.springframework.boot.servlet.autoconfigure.MultipartProperties;
 import top.continew.starter.storage.common.constant.StorageConstant;
 import top.continew.starter.storage.common.exception.StorageException;
 import top.continew.starter.storage.domain.model.context.UploadContext;

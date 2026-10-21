@@ -5,8 +5,8 @@ spring:
     format:
       # 日期格式化（针对 java.util.Date）
       date-time: yyyy-MM-dd HH:mm:ss
-  ## Jackson 配置
-  jackson:
+  ## Jackson 2 配置
+  jackson2:
     # 时区配置
     time-zone: GMT+8
     # 日期格式化（针对 java.util.Date）

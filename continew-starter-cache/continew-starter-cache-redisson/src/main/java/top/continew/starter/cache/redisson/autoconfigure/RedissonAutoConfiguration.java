@@ -30,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties;
 import org.springframework.context.annotation.Bean;
 import top.continew.starter.cache.redisson.handler.NameMapperHandler;
 import top.continew.starter.core.constant.PropertiesConstants;
@@ -54,13 +54,13 @@ public class RedissonAutoConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RedissonAutoConfiguration.class);
     private final RedissonProperties properties;
-    private final RedisProperties redisProperties;
+    private final DataRedisProperties redisProperties;
     private final ObjectMapper objectMapper;
     private static final String REDIS_PROTOCOL_PREFIX = "redis://";
     private static final String REDISS_PROTOCOL_PREFIX = "rediss://";
 
     public RedissonAutoConfiguration(RedissonProperties properties,
-        RedisProperties redisProperties,
+        DataRedisProperties redisProperties,
         ObjectMapper objectMapper) {
         this.properties = properties;
         this.redisProperties = redisProperties;

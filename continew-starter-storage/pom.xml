@@ -28,6 +28,12 @@
             <artifactId>s3</artifactId>
         </dependency>
 
+        <!-- Spring Boot Servlet（Spring Boot 4 起 MultipartProperties 迁移至独立模块） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-servlet</artifactId>
+        </dependency>
+
         <!-- 缩略图生成库 -->
         <dependency>
             <groupId>net.coobird</groupId>

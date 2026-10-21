@@ -25,7 +25,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.cache.CacheProperties;
+import org.springframework.boot.cache.autoconfigure.CacheProperties;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
@@ -37,7 +37,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import jakarta.annotation.PostConstruct;
+import java.time.Duration;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Spring Cache 自动配置
@@ -65,6 +67,7 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
      * <p>解决 Spring Cache（@Cacheable）Jackson 解析缓存乱码问题</p>
      */
     @Bean
+    @SuppressWarnings({"deprecation", "removal"})
     public RedisCacheConfiguration redisCacheConfiguration(CacheProperties cacheProperties) {
         ObjectMapper objectMapperCopy = objectMapper.copy();
         objectMapperCopy.activateDefaultTyping(objectMapperCopy
@@ -77,9 +80,10 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
                 .serializeValuesWith(RedisSerializationContext.SerializationPair
                     .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapperCopy)));
         CacheProperties.Redis redisCacheProperties = cacheProperties.getRedis();
-        if (redisCacheProperties.getTimeToLive() != null) {
+        Duration timeToLive = redisCacheProperties.getTimeToLive();
+        if (timeToLive != null) {
             redisCacheConfiguration =
-                redisCacheConfiguration.entryTtl(redisCacheProperties.getTimeToLive());
+                redisCacheConfiguration.entryTtl(Objects.requireNonNull(timeToLive));
         }
         if (!redisCacheProperties.isCacheNullValues()) {
             redisCacheConfiguration = redisCacheConfiguration.disableCachingNullValues();

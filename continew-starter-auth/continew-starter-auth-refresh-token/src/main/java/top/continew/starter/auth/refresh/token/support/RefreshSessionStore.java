@@ -386,7 +386,7 @@ public class RefreshSessionStore {
      */
     public boolean tryAcquireRateLimit(String key, int limit, Duration period) {
         Long current = redissonClient.getScript(StringCodec.INSTANCE)
-            .eval(RScript.Mode.READ_WRITE, RATE_LIMIT_SCRIPT, RScript.ReturnType.INTEGER,
+            .eval(RScript.Mode.READ_WRITE, RATE_LIMIT_SCRIPT, RScript.ReturnType.LONG,
                 List.<Object>of(key), period.toMillis());
         return current != null && current <= limit;
     }

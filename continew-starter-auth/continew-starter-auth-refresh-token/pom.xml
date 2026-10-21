@@ -31,7 +31,7 @@
         <!-- Sa-Token（轻量级 Java 权限认证框架，让鉴权变得简单、优雅） -->
         <dependency>
             <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-spring-boot3-starter</artifactId>
+            <artifactId>sa-token-spring-boot4-starter</artifactId>
         </dependency>
 
         <!-- Sa-Token 整合 JWT（Access Token 的 sid 会话声明依赖 JWT 扩展参数能力） -->
@@ -40,16 +40,16 @@
             <artifactId>sa-token-jwt</artifactId>
         </dependency>
 
-        <!-- Spring Web（Refresh Token Cookie 写入、请求来源校验与 Servlet 上下文） -->
+        <!-- Spring Web MVC（Refresh Token Cookie 写入、请求来源校验与 Servlet 上下文） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
 
-        <!-- Spring AOP（认证策略写锁切面） -->
+        <!-- Spring AspectJ（认证策略写锁切面） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-aop</artifactId>
+            <artifactId>spring-boot-starter-aspectj</artifactId>
         </dependency>
 
         <!-- Spring 参数校验（配置属性启动期校验） -->
