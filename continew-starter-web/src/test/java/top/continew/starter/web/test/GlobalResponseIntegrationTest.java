@@ -120,7 +120,7 @@ class GlobalResponseIntegrationTest {
         mockMvc.perform(get("/test/exception"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value("1"))
-            .andExpect(jsonPath("$.msg").value("boom"))
+            .andExpect(jsonPath("$.msg").value("error"))
             .andExpect(jsonPath("$.success").value(false));
     }
 
@@ -139,6 +139,14 @@ class GlobalResponseIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value("1"))
             .andExpect(jsonPath("$.msg").value("param must not be blank"));
+    }
+
+    @Test
+    void shouldHandleHandlerMethodValidationException() throws Exception {
+        mockMvc.perform(get("/built-in/validation").param("name", ""))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value("1"))
+            .andExpect(jsonPath("$.msg").value("built-in param must not be blank"));
     }
 
     @Test

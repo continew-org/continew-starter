@@ -19,18 +19,13 @@ package top.continew.starter.web.autoconfigure.response;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.support.ResourceBundleMessageSource;
-import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
-import top.continew.starter.web.model.ResponseConfig;
-
-import java.util.Locale;
+import top.continew.starter.web.model.DefaultGlobalResponseFactory;
 
 /**
  * 全局响应自动配置
@@ -44,21 +39,16 @@ import java.util.Locale;
     factory = GeneralPropertySourceFactory.class)
 public class GlobalResponseAutoConfiguration {
 
-    /**
-     * 构造方法
-     *
-     * @param properties 全局响应配置属性
-     */
-    public GlobalResponseAutoConfiguration(GlobalResponseProperties properties) {
-        ResponseConfig.configure(properties.getDefaultSuccessCode(), properties
-            .getDefaultSuccessMsg(), properties.getDefaultErrorCode(),
-            properties.getDefaultErrorMsg());
-    }
-
     @Bean
     @ConditionalOnMissingBean
     public ExceptionAliasRegister exceptionAliasRegister() {
         return new ExceptionAliasRegister();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public GlobalResponseFactory globalResponseFactory(GlobalResponseProperties properties) {
+        return new DefaultGlobalResponseFactory(properties);
     }
 
     @Bean
@@ -71,30 +61,22 @@ public class GlobalResponseAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public GlobalResponseBodyAdvice globalResponseBodyAdvice(GlobalResponseProperties properties,
+        GlobalResponseFactory globalResponseFactory,
         ObjectProvider<MessageSource> messageSourceProvider) {
-        return new GlobalResponseBodyAdvice(properties, messageSourceProvider.getIfAvailable());
+        return new GlobalResponseBodyAdvice(properties, globalResponseFactory, messageSourceProvider
+            .getIfUnique());
     }
 
     @Bean
     @ConditionalOnMissingBean
     public GlobalExceptionHandler globalExceptionHandler(GlobalResponseProperties properties,
+        GlobalResponseFactory globalResponseFactory,
         ExceptionAliasRegister exceptionAliasRegister,
         BeforeControllerAdviceProcess beforeControllerAdviceProcess) {
-        return new GlobalExceptionHandler(properties, exceptionAliasRegister,
+        return new GlobalExceptionHandler(properties,
+            globalResponseFactory,
+            exceptionAliasRegister,
             beforeControllerAdviceProcess);
-    }
-
-    @Bean
-    @ConditionalOnMissingBean
-    @ConditionalOnProperty(prefix = PropertiesConstants.WEB_RESPONSE,
-        name = "i18n",
-        havingValue = "true")
-    public MessageSource messageSource() {
-        ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasenames("i18n", "i18n/messages");
-        messageSource.setDefaultEncoding("UTF-8");
-        messageSource.setDefaultLocale(Locale.CHINA);
-        return messageSource;
     }
 
     @Configuration(proxyBeanMethods = false)
@@ -105,9 +87,11 @@ public class GlobalResponseAutoConfiguration {
         @ConditionalOnMissingBean
         public ConstraintViolationExceptionHandler constraintViolationExceptionHandler(
             GlobalResponseProperties properties,
+            GlobalResponseFactory globalResponseFactory,
             ExceptionAliasRegister exceptionAliasRegister,
             BeforeControllerAdviceProcess beforeControllerAdviceProcess) {
             return new ConstraintViolationExceptionHandler(properties,
+                globalResponseFactory,
                 exceptionAliasRegister,
                 beforeControllerAdviceProcess);
         }

@@ -13,9 +13,9 @@ continew-starter.web.response:
   # 自定义失败提示（默认：error）
   default-error-msg: error
   # 是否打印异常日志（默认：false）
-  print-exception-in-global-advice: true
+  print-exception-in-global-advice: false
   # 是否将原生异常错误信息填充到状态信息中（默认：false）
-  origin-exception-using-detail-message: true
+  origin-exception-using-detail-message: false
   # 例外包路径（支持数字, * 和 ** 通配符匹配），该包路径下的 Controller 将被忽略处理
   exclude-packages:
     - io.swagger.**

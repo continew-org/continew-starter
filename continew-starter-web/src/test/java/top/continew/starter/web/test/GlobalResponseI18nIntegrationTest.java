@@ -36,6 +36,7 @@ import top.continew.starter.web.test.config.GlobalResponseTestConfiguration;
  * @since 3.0.0
  */
 @SpringBootTest(properties = {"continew-starter.web.response.i18n=true",
+    "spring.messages.basename=i18n/messages",
     "continew-starter.web.response.print-exception-in-global-advice=false"})
 @AutoConfigureMockMvc
 @Import(GlobalResponseTestConfiguration.class)
@@ -50,5 +51,21 @@ class GlobalResponseI18nIntegrationTest {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.code").value("0"))
             .andExpect(jsonPath("$.msg").value("操作成功"));
+    }
+
+    @Test
+    void shouldRenderI18nMessageForFailure() throws Exception {
+        mockMvc.perform(get("/test/exception").header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value("1"))
+            .andExpect(jsonPath("$.msg").value("服务器异常，请联系管理员"));
+    }
+
+    @Test
+    void shouldKeepOriginalMessageWhenCodeMissing() throws Exception {
+        mockMvc.perform(get("/test/alias").header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN"))
+            .andExpect(status().is(418))
+            .andExpect(jsonPath("$.code").value("4001"))
+            .andExpect(jsonPath("$.msg").value("别名异常"));
     }
 }

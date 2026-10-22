@@ -59,17 +59,22 @@ public class GlobalResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     private final GlobalResponseProperties properties;
 
+    private final GlobalResponseFactory responseFactory;
+
     private final MessageSource messageSource;
 
     /**
      * 构造方法
      *
-     * @param properties    全局响应配置属性
-     * @param messageSource 国际化消息源
+     * @param properties      全局响应配置属性
+     * @param responseFactory 全局响应工厂
+     * @param messageSource   国际化消息源
      */
     public GlobalResponseBodyAdvice(GlobalResponseProperties properties,
+        GlobalResponseFactory responseFactory,
         @Nullable MessageSource messageSource) {
         this.properties = properties;
+        this.responseFactory = responseFactory;
         this.messageSource = messageSource;
     }
 
@@ -92,15 +97,15 @@ public class GlobalResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         Class<? extends HttpMessageConverter<?>> selectedConverterType,
         ServerHttpRequest request,
         ServerHttpResponse response) {
-        if (body instanceof R<?> r) {
-            renderMessage(r);
-            return r;
+        if (responseFactory.isResponse(body)) {
+            renderMessage(body);
+            return body;
         }
         Method method = returnType.getMethod();
         if (method == null || !shouldWrap(method)) {
             return body;
         }
-        R<?> result = body == null ? R.ok() : R.ok(body);
+        Object result = responseFactory.newSuccess(body);
         renderMessage(result);
         return result;
     }
@@ -170,20 +175,20 @@ public class GlobalResponseBodyAdvice implements ResponseBodyAdvice<Object> {
     /**
      * 按响应码渲染国际化信息
      *
-     * @param r 响应信息
+     * @param body 响应对象
      */
-    private void renderMessage(R<?> r) {
+    private void renderMessage(Object body) {
         if (!properties.isI18n() || messageSource == null) {
             return;
         }
-        String code = r.getCode();
+        String code = responseFactory.getCode(body);
         if (!StringUtils.hasText(code)) {
             return;
         }
         String message = messageSource.getMessage(code, null, null, LocaleContextHolder
             .getLocale());
         if (StringUtils.hasText(message)) {
-            r.setMsg(message);
+            responseFactory.setMessage(body, message);
         }
     }
 }

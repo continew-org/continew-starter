@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import top.continew.starter.web.model.R;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintViolation;
@@ -44,19 +43,24 @@ public class ConstraintViolationExceptionHandler {
 
     private final GlobalResponseProperties properties;
 
+    private final GlobalResponseFactory responseFactory;
+
     private final GlobalExceptionResolver exceptionResolver;
 
     /**
      * 构造方法
      *
      * @param properties                    全局响应配置属性
+     * @param responseFactory               全局响应工厂
      * @param exceptionAliasRegister        异常别名注册器
      * @param beforeControllerAdviceProcess 异常处理前回调
      */
     public ConstraintViolationExceptionHandler(GlobalResponseProperties properties,
+        GlobalResponseFactory responseFactory,
         ExceptionAliasRegister exceptionAliasRegister,
         BeforeControllerAdviceProcess beforeControllerAdviceProcess) {
         this.properties = properties;
+        this.responseFactory = responseFactory;
         this.exceptionResolver = new GlobalExceptionResolver(properties, exceptionAliasRegister,
             beforeControllerAdviceProcess);
     }
@@ -71,7 +75,7 @@ public class ConstraintViolationExceptionHandler {
      */
     @ExceptionHandler(ConstraintViolationException.class)
     @SuppressWarnings("java:S112")
-    public ResponseEntity<R> handleConstraintViolationException(ConstraintViolationException e,
+    public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException e,
         HttpServletRequest request) throws Exception {
         exceptionResolver.before(request, e);
         if (exceptionResolver.isExcluded(e)) {
@@ -86,6 +90,6 @@ public class ConstraintViolationExceptionHandler {
             msg = properties.getDefaultErrorMsg();
         }
         return ResponseEntity.status(exceptionResolver.resolveValidationHttpStatus())
-            .body(R.fail(exceptionResolver.resolveValidationCode(), msg));
+            .body(responseFactory.newFailure(exceptionResolver.resolveValidationCode(), msg));
     }
 }
