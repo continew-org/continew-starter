@@ -16,34 +16,42 @@
 
 package top.continew.starter.web.autoconfigure.response;
 
-import com.feiniaojin.gracefulresponse.advice.lifecycle.exception.BeforeControllerAdviceProcess;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.lang.Nullable;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * 默认回调处理器实现
+ * 默认异常处理前回调实现
  *
  * @author Charles7c
  * @since 2.6.0
  */
 public class DefaultBeforeControllerAdviceProcess implements BeforeControllerAdviceProcess {
 
-    private final Logger log = LoggerFactory.getLogger(DefaultBeforeControllerAdviceProcess.class);
-    private final GlobalResponseProperties globalResponseProperties;
+    private static final Logger LOGGER = LoggerFactory
+        .getLogger(DefaultBeforeControllerAdviceProcess.class);
 
-    public DefaultBeforeControllerAdviceProcess(GlobalResponseProperties globalResponseProperties) {
-        this.globalResponseProperties = globalResponseProperties;
+    private final GlobalResponseProperties properties;
+
+    /**
+     * 构造方法
+     *
+     * @param properties 全局响应配置属性
+     */
+    public DefaultBeforeControllerAdviceProcess(GlobalResponseProperties properties) {
+        this.properties = properties;
     }
 
     @Override
-    public void call(HttpServletRequest request, HttpServletResponse response,
-        @Nullable Object handler, Exception e) {
-        if (globalResponseProperties.isPrintExceptionInGlobalAdvice()) {
-            log.error("[{}] {}", request.getMethod(), request.getRequestURI(), e);
+    public void call(HttpServletRequest request,
+        @Nullable HttpServletResponse response,
+        @Nullable Object handler,
+        Exception e) {
+        if (properties.isPrintExceptionInGlobalAdvice()) {
+            LOGGER.error("[{}] {}", request.getMethod(), request.getRequestURI(), e);
         }
     }
 }

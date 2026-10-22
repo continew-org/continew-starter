@@ -57,7 +57,6 @@
         <thumbnails.version>0.4.21</thumbnails.version>
 
         <!-- Validation and Response Processing Versions -->
-        <graceful-response.version>5.0.5-boot3</graceful-response.version>
         <spel-validator.version>0.7.0</spel-validator.version>
         <crane4j.version>2.10.0</crane4j.version>
 
@@ -301,13 +300,6 @@
                 <groupId>net.coobird</groupId>
                 <artifactId>thumbnailator</artifactId>
                 <version>${thumbnails.version}</version>
-            </dependency>
-
-            <!-- Graceful Response（Spring Boot技术栈下的优雅响应处理组件，可以帮助开发者完成响应数据封装、异常处理、错误码填充等过程，提高开发效率，提高代码质量） -->
-            <dependency>
-                <groupId>com.feiniaojin</groupId>
-                <artifactId>graceful-response</artifactId>
-                <version>${graceful-response.version}</version>
             </dependency>
 
             <!-- SpEL Validator（基于 SpEL 的 jakarta.validation-api 扩展增强包） -->

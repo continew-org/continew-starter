@@ -16,12 +16,6 @@
 
 package top.continew.starter.web.model;
 
-import cn.hutool.extra.spring.SpringUtil;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.feiniaojin.gracefulresponse.api.ResponseStatusFactory;
-import com.feiniaojin.gracefulresponse.data.Response;
-import com.feiniaojin.gracefulresponse.data.ResponseStatus;
-import com.feiniaojin.gracefulresponse.defaults.DefaultResponseStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.Objects;
@@ -34,10 +28,7 @@ import java.util.Objects;
  * @since 1.0.0
  */
 @Schema(description = "响应信息")
-public class R<T> implements Response {
-
-    private static final ResponseStatusFactory RESPONSE_STATUS_FACTORY = SpringUtil
-        .getBean(ResponseStatusFactory.class);
+public class R<T> {
 
     /**
      * 状态码
@@ -52,90 +43,71 @@ public class R<T> implements Response {
     private String msg;
 
     /**
-     * 是否成功
-     */
-    @Schema(description = "是否成功", example = "true")
-    private boolean success;
-
-    /**
-     * 时间戳
-     */
-    @Schema(description = "时间戳", example = "1691453288000")
-    private Long timestamp;
-
-    /**
      * 响应数据
      */
     @Schema(description = "响应数据")
     private T data;
 
-    /**
-     * 状态信息
-     */
-    private ResponseStatus status = new DefaultResponseStatus();
-
     public R() {
     }
 
-    public R(ResponseStatus status) {
-        this.status = status;
-    }
-
+    /**
+     * 构造方法
+     *
+     * @param code 状态码
+     * @param msg  状态信息
+     */
     public R(String code, String msg) {
-        this.setCode(code);
-        this.setMsg(msg);
+        this.code = code;
+        this.msg = msg;
     }
 
-    public R(ResponseStatus status, T data) {
-        this(status);
-        this.setData(data);
-    }
-
+    /**
+     * 构造方法
+     *
+     * @param code 状态码
+     * @param msg  状态信息
+     * @param data 响应数据
+     */
     public R(String code, String msg, T data) {
         this(code, msg);
-        this.setData(data);
-    }
-
-    @Override
-    public void setStatus(ResponseStatus status) {
-        this.status = status;
-    }
-
-    @Override
-    @JsonIgnore
-    public ResponseStatus getStatus() {
-        return status;
-    }
-
-    @Override
-    public void setPayload(Object payload) {
-        this.data = (T) payload;
-    }
-
-    @Override
-    @JsonIgnore
-    public Object getPayload() {
-        return data;
+        this.data = data;
     }
 
     public String getCode() {
-        return status.getCode();
+        return code;
     }
 
     public void setCode(String code) {
-        status.setCode(code);
+        this.code = code;
     }
 
     public String getMsg() {
-        return status.getMsg();
+        return msg;
     }
 
     public void setMsg(String msg) {
-        status.setMsg(msg);
+        this.msg = msg;
     }
 
-    // 与 getPayload() 实现相同，但 getData 供 Jackson 序列化 data 字段，getPayload 为 GracefulResponse 接口实现（已 @JsonIgnore）
-    @SuppressWarnings("java:S4144")
+    /**
+     * 是否成功
+     *
+     * @return 是否成功
+     */
+    public boolean isSuccess() {
+        return Objects.equals(ResponseConfig.getSuccessCode(), code);
+    }
+
+    /**
+     * 时间戳
+     *
+     * @return 当前时间戳
+     */
+    public Long getTimestamp() {
+        return System.currentTimeMillis();
+    }
+
     public T getData() {
         return data;
     }
@@ -144,39 +116,31 @@ public class R<T> implements Response {
         this.data = data;
     }
 
-    public boolean isSuccess() {
-        return Objects.equals(RESPONSE_STATUS_FACTORY.defaultSuccess().getCode(), status.getCode());
-    }
-
-    public Long getTimestamp() {
-        return System.currentTimeMillis();
-    }
-
     /**
      * 操作成功
      *
-     * @return R /
+     * @return 响应信息
      */
     public static R ok() {
-        return new R(RESPONSE_STATUS_FACTORY.defaultSuccess());
+        return new R(ResponseConfig.getSuccessCode(), ResponseConfig.getSuccessMsg());
     }
 
     /**
      * 操作成功
      *
      * @param data 响应数据
-     * @return R /
+     * @return 响应信息
      */
     public static R ok(Object data) {
-        return new R(RESPONSE_STATUS_FACTORY.defaultSuccess(), data);
+        return new R(ResponseConfig.getSuccessCode(), ResponseConfig.getSuccessMsg(), data);
     }
 
     /**
      * 操作成功
      *
-     * @param msg  业务状态信息
+     * @param msg  状态信息
      * @param data 响应数据
-     * @return R /
+     * @return 响应信息
      */
     public static R ok(String msg, Object data) {
         R r = ok(data);
@@ -187,18 +151,18 @@ public class R<T> implements Response {
     /**
      * 操作失败
      *
-     * @return R /
+     * @return 响应信息
      */
     public static R fail() {
-        return new R(RESPONSE_STATUS_FACTORY.defaultError());
+        return new R(ResponseConfig.getErrorCode(), ResponseConfig.getErrorMsg());
     }
 
     /**
      * 操作失败
      *
-     * @param code 业务状态码
-     * @param msg  业务状态信息
-     * @return R /
+     * @param code 状态码
+     * @param msg  状态信息
+     * @return 响应信息
      */
     public static R fail(String code, String msg) {
         return new R(code, msg);

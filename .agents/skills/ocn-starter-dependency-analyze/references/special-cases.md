@@ -53,8 +53,7 @@ metadata 路径里 artifactId **大小写敏感、点号原样**：`me.zhyd.oaut
 
 部分坐标版本号带语义后缀，须区分是「预发布 qualifier」还是「发布支线（lineage）」：
 
-- **lineage（本身是 GA）**：`graceful-response` `5.0.5-boot3` 的 `-boot3` 是 Boot 3 支线标记；Guava 的 `-jre`/
-  `-android` 同理。
+- **lineage（本身是 GA）**：Guava 的 `-jre`/`-android` 后缀属于发布支线标记。
 - **预发布（不能当目标）**：`-M1`/`-RC1`/`-Beta`/`-SNAPSHOT`。
 
 `scan.py` 用 `PRERELEASE_RE` 白名单识别预发布，其余 `-<word>` 后缀按 lineage 处理，**只在同 lineage 内比较版本**

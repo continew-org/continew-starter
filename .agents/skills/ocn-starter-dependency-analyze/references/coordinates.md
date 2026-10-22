@@ -173,13 +173,6 @@
 
 ## Web / API 增强
 
-### graceful-response
-- property: `graceful-response.version` · 坐标: `com.feiniaojin:graceful-response`
-- metadata: `com/feiniaojin/graceful-response/maven-metadata.xml`
-- **约束（版本编号异常）**：`5.x-boot3` 是 Boot 3 专用线，`3.x` 是另一条线，且 `5.0.5-boot3` 比 Central release
-  还新。`scan.py` 标为 `downgrade`（锁定比 release 新），报告单独提示「疑似项目重新编号或坐标指向不同分支」，**不
-  当升级处理、不给应用按钮**。人工核验该坐标是否需要换 artifact 再决定。
-
 ### spel-validator
 - property: `spel-validator.version` · 坐标: `cn.sticki:spel-validator-jakarta`
 - metadata: `cn/sticki/spel-validator-jakarta/maven-metadata.xml`

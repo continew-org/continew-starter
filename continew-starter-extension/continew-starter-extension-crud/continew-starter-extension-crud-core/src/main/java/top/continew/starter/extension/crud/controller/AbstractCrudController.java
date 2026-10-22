@@ -17,7 +17,6 @@
 package top.continew.starter.extension.crud.controller;
 
 import cn.hutool.core.lang.tree.Tree;
-import com.feiniaojin.gracefulresponse.api.ExcludeFromGracefulResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.enums.ParameterIn;
@@ -41,6 +40,7 @@ import top.continew.starter.extension.crud.model.resp.IdResp;
 import top.continew.starter.extension.crud.model.resp.LabelValueResp;
 import top.continew.starter.extension.crud.service.CrudService;
 import top.continew.starter.extension.crud.validation.CrudValidationGroup;
+import top.continew.starter.web.annotation.ExcludeFromGlobalResponse;
 
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -191,7 +191,7 @@ public abstract class AbstractCrudController<S extends CrudService<L, D, Q, C>, 
      * @param response  响应对象
      */
     @CrudApi(Api.EXPORT)
-    @ExcludeFromGracefulResponse
+    @ExcludeFromGlobalResponse
     @Operation(summary = "导出数据", description = "导出数据")
     @GetMapping("/export")
     public void export(@Valid Q query, @Valid SortQuery sortQuery, HttpServletResponse response) {
