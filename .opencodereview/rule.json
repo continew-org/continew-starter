@@ -1,0 +1,37 @@
+{
+  "include": [
+    "**/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports",
+    "**/META-INF/spring.factories",
+    "**/src/test/java/**/*.java"
+  ],
+  "exclude": [
+    "docs/**",
+    "**/*.md",
+    "**/*.mdx",
+    "**/target/**",
+    "**/.flattened-pom.xml",
+    "**/src/test/resources/**"
+  ],
+  "rules": [
+    {
+      "path": "**/src/main/java/**/*.java",
+      "rule": "本项目是 ContiNew Starter 多模块 Starter 库。格式、License Header、@author、内联全限定名等已由 Spotless/Checkstyle 强制，不要重复报告。重点检查只有语义审查能发现的问题：\n1. 配置属性前缀必须定义在 PropertiesConstants 中并引用常量，禁止在 @ConfigurationProperties / @ConditionalOnProperty 中内联字符串字面量。\n2. 新增自动配置类必须注册到 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports，否则不会被加载。\n3. 类级 Javadoc 的 @since 必须取该形态首次发布的版本号（如 3.0.0），禁止写日期。\n4. 条件注解是否正确（@ConditionalOnMissingBean 是否缺失、条件之间是否冲突）、线程安全隐患、API 兼容性变更、@Deprecated 标注是否规范。",
+      "merge_system_rule": true
+    },
+    {
+      "path": "**/src/test/java/**/*.java",
+      "rule": "这是单元测试代码。重点检查测试本身是否可信：断言是否与预期行为一致（反向断言、缺少断言、断言了错误的对象）、是否 Mock 了被测对象本身、异常分支是否真正被验证、是否依赖执行顺序或共享可变状态、边界条件是否覆盖。格式与命名问题无需报告。",
+      "merge_system_rule": true
+    },
+    {
+      "path": "**/pom.xml",
+      "rule": "这是 ContiNew Starter 的 Maven POM。重点检查：\n1. 依赖版本只能修改 continew-starter-dependencies/pom.xml 中的版本属性，模块 POM 中硬编码 <version> 属于缺陷。\n2. 内部模块依赖的 groupId 必须写 ${project.groupId}，模块 POM 不写 version（由 BOM 通过 ${revision} 供给）；<parent> 与项目自身坐标保持字面量。\n3. 新增模块必须在 continew-starter-bom/pom.xml 与聚合 pom.xml 的 <modules> 中同时注册，缺一即模块不会被构建或发布。",
+      "merge_system_rule": true
+    },
+    {
+      "path": "**/src/main/resources/**",
+      "rule": "这是 Starter 模块的运行时资源。重点检查 META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports：每行必须是一个自动配置类的全限定名，新增配置类漏登记会导致其不被加载。",
+      "merge_system_rule": true
+    }
+  ]
+}
