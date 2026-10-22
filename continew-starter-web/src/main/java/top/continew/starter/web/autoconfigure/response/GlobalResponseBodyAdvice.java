@@ -122,11 +122,7 @@ public class GlobalResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         if (R.class.isAssignableFrom(returnType) || HttpEntity.class.isAssignableFrom(returnType)) {
             return false;
         }
-        if (isExcludedReturnType(returnType) || isExcludedPackage(method)
-            || isExcludedUrl()) {
-            return false;
-        }
-        return true;
+        return !isExcludedReturnType(returnType) && !isExcludedPackage(method) && !isExcludedUrl();
     }
 
     private boolean isExcluded(Method method) {

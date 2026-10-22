@@ -61,6 +61,7 @@ public class GlobalResponseTestController {
      */
     @GetMapping("/void")
     public void voidMethod() {
+        // 空实现，用于验证 void 返回值仍被统一响应包装
     }
 
     /**

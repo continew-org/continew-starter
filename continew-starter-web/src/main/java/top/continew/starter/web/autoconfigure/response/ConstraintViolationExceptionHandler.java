@@ -70,6 +70,7 @@ public class ConstraintViolationExceptionHandler {
      * @throws Exception 异常命中例外配置时原样抛出
      */
     @ExceptionHandler(ConstraintViolationException.class)
+    @SuppressWarnings("java:S112")
     public ResponseEntity<R> handleConstraintViolationException(ConstraintViolationException e,
         HttpServletRequest request) throws Exception {
         exceptionResolver.before(request, e);

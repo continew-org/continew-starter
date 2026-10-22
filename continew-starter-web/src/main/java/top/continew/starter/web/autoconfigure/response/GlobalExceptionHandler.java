@@ -70,6 +70,7 @@ public class GlobalExceptionHandler {
      * @throws Exception 异常命中例外配置时原样抛出
      */
     @ExceptionHandler(BindException.class)
+    @SuppressWarnings("java:S112")
     public ResponseEntity<R> handleBindException(BindException e,
         HttpServletRequest request) throws Exception {
         exceptionResolver.before(request, e);
@@ -98,6 +99,7 @@ public class GlobalExceptionHandler {
      * @throws Exception 异常命中例外配置时原样抛出
      */
     @ExceptionHandler(Exception.class)
+    @SuppressWarnings("java:S112")
     public ResponseEntity<R> handleException(Exception e,
         HttpServletRequest request) throws Exception {
         exceptionResolver.before(request, e);
