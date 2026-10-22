@@ -27,29 +27,29 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 
 关键模块及其职责：
 
-- **continew-starter-dependencies**：根父 POM——全部第三方依赖版本（约 40 个坐标）的唯一数据源
-- **continew-starter-bom**：项目 BOM——管理全部内部模块的版本
-- **continew-starter**：聚合 POM——继承 `continew-starter-dependencies`，聚合所有业务模块的构建，自身不含业务代码
-- **core**：核心模块——常量、`PropertiesConstants`、通用工具（线程池等自动配置）
-- **json**：JSON——jackson
-- **api-doc**：接口文档——Spring Doc + NextDoc4j
-- **validation**：参数校验——Hibernate Validator
-- **web**：Web 开发——跨域、全局异常 + 响应、链路追踪等自动配置
-- **cache**：缓存——redisson / jetcache（多级缓存）/ springcache 三种实现
-- **auth**：认证——satoken（国产轻量认证鉴权）/ justauth（第三方登录）/ refresh-token（可轮换的 Refresh Token 登录会话：轮换、重放保护、统一撤销与 WebSocket 联动）
-- **data**：数据访问——core + mp（MyBatis Plus）/ mf（MyBatis Flex）双 ORM 实现
-- **encrypt**：加密——core / field（字段加密）/ api（API 加密）/ password-encoder（密码编码器）
-- **security**：安全——mask（JSON 数据脱敏）/ xss（XSS 过滤）/ sensitivewords（敏感词）
+- **continew-starter-dependencies**：第三方依赖版本（约 40 个坐标）的唯一数据源
+- **continew-starter-bom**：管理全部内部模块版本
+- **continew-starter**：聚合 POM，继承 `continew-starter-dependencies`，自身不含业务代码
+- **core**：常量、`PropertiesConstants`、通用工具（线程池等自动配置）
+- **json**：Jackson 封装
+- **api-doc**：Spring Doc + NextDoc4j
+- **validation**：Hibernate Validator
+- **web**：跨域、全局异常与响应、链路追踪等自动配置
+- **cache**：redisson / jetcache（多级缓存）/ springcache
+- **auth**：satoken / justauth / refresh-token（轮换、重放保护、统一撤销、WebSocket 联动）
+- **data**：core + mp（MyBatis-Plus）/ mf（MyBatis-Flex）
+- **encrypt**：core / field（字段加密）/ api（API 加密）/ password-encoder
+- **security**：mask（脱敏）/ xss / sensitivewords
 - **ratelimiter**：限流
 - **idempotent**：幂等
 - **trace**：链路追踪
-- **captcha**：验证码——graphic（静态）/ behavior（动态）
-- **messaging**：消息——mail（邮件）/ websocket / mqtt
-- **log**：日志——core / aop（基于 AOP）/ interceptor（拦截器实现）
-- **excel**：Excel 处理——core / fastexcel / poi
-- **storage**：存储——本地存储 & 对象存储（S3 协议，兼容主流云厂商）
-- **license**：License——core / generator（生成器）/ verifier（校验器）
-- **extension**：扩展——crud / datapermission（数据权限）/ tenant（租户），各含 `-core` 与 `-mp`/`-mf`
+- **captcha**：graphic（静态）/ behavior（动态）
+- **messaging**：mail / websocket / mqtt
+- **log**：core / aop / interceptor
+- **excel**：core / fastexcel / poi
+- **storage**：本地存储与 S3 对象存储（兼容主流云厂商）
+- **license**：core / generator / verifier
+- **extension**：crud / datapermission / tenant，各含 `-core` 与 `-mp`/`-mf`
 
 聚合模块的组织约定：`-core` 子模块定义接口与通用逻辑，`-mp`/`-mf` 提供特定 ORM 实现，使用方按需选择。
 
@@ -61,7 +61,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 # 完整构建（validate 阶段 Enforcer -> Spotless -> Checkstyle，编译 + 单元测试，verify 阶段 SpotBugs）
 ./mvnw verify
 
-# 仅编译（含 validate 阶段三道门禁，不含 SpotBugs）——仅用于快速迭代，不可作为提交前自检
+# 仅编译（含 validate 阶段三道门禁，不含 SpotBugs），仅用于快速迭代，不可作为提交前自检
 ./mvnw compile
 
 # 编译单个模块（含依赖模块）
@@ -79,7 +79,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 
 单元测试随模块维护（如 `continew-starter-auth-refresh-token` 内置 67 个用例，无外部依赖，本地与 CI 自动执行）。代码改动的验证方式是执行 `./mvnw verify` 确保四道静态门禁与全部单元测试通过。
 
-版本管理：`${revision}` 属性定义在 `continew-starter-dependencies` 与 `continew-starter-bom` 中，`flatten-maven-plugin` 在 `process-resources` 阶段将其解析为实际版本并生成用于发布的简化 `.flattened-pom.xml`——修改版本只需改一处。
+版本管理：`${revision}` 属性定义在 `continew-starter-dependencies` 与 `continew-starter-bom` 中，`flatten-maven-plugin` 在 `process-resources` 阶段将其解析为实际版本并生成用于发布的简化 `.flattened-pom.xml`，修改版本只需改一处。
 
 ### 提交前门禁（必须通过）
 
@@ -89,11 +89,14 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 2. 若被 Spotless 拦截，执行 `./mvnw compile -Pformat` 自动修复，然后再执行一次 `./mvnw verify` 确认通过。
 3. 全部门禁与单元测试通过后才能提交。
 
-> **非 Java 改动**：仅改普通文档或运行时配置时可不执行完整 `./mvnw verify`；但修改 `docs/reference/properties.mdx` 或任何 `@ConfigurationProperties` 类时，必须先执行 `./mvnw compile -DskipTests` 生成 metadata，再执行 `python scripts/check-doc-properties.py`，确保配置参考没有失效键或漏项。CI 对文档改动同样执行完整构建与此漂移检查。
+> **非 Java 改动**：
+> - 仅改文档或运行时配置，无需执行 `./mvnw verify`。
+> - 改 `docs/reference/properties.mdx` 或 `@ConfigurationProperties` 类，先执行 `./mvnw compile -DskipTests` 生成 metadata，再执行 `python scripts/check-doc-properties.py`。
+> - CI 对文档改动同样执行完整构建与漂移检查。
 
-构建过程**不会修改任何源码文件**；`-Pformat` 是唯一会修改源码的 profile。不要用 IDE 格式化或 `git diff --check` 替代 Spotless 门禁——IDE 格式化引擎是另一套实现，可能放行项目格式化器拒绝的代码。
+构建过程**不会修改任何源码文件**；`-Pformat` 是唯一会修改源码的 profile。不要用 IDE 格式化或 `git diff --check` 替代 Spotless 门禁。IDE 格式化引擎是另一套实现，可能放行项目格式化器拒绝的代码。
 
-**Sonar 覆盖率**：`./mvnw verify -Psonar` 会激活 JaCoCo（prepare-agent + report），Sonar 分析自动读取各模块 `target/site/jacoco/jacoco.xml`；日常 `./mvnw verify` 不激活该 profile，无额外开销。
+Sonar 分析使用 `./mvnw verify -Psonar`（激活 JaCoCo），日常 `./mvnw verify` 不激活。
 
 ## 代码风格
 
@@ -115,13 +118,21 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 | import 顺序 | 静态导入置顶，第三方组居中，JDK 平台组（java/javax/jakarta）收尾；组内按字典序（不含尾部分隔符比较，短前缀在前）、组间空行分隔（`CustomImportOrder` 强制，Spotless 不做排序） |
 | 大括号 | `if/else/for/while/do-while` 必须加大括号（`NeedBraces`） |
 | 空行 | 连续空行最多保留 1 行（`EmptyLineSeparator`） |
-| 类注释 | 必须包含 `@author` 与 `@since` 标签（`@author` 由 `JavadocType(authorFormat=\S)` 门禁强制；`@since` 保持约定。嵌套类型按行业惯例不强制 `@author`/`@since`） |
-| @since 取值 | 标注**当前形态首次发布的版本**，禁止日期；新类取当前开发版本（如 `3.0.0`）；类发布后新增的 public/protected 方法在方法 Javadoc 补方法级 `@since`（存量不补，private 不标）；迁移或删除后重加的类按"宁新勿旧"取最新形态的版本 |
-| @author 署名 | 类级必填：创建者一行在前，实质贡献者按贡献顺序追加；**方法级禁止**（第三方改编代码的来源署名除外，如 Hutool 的 `Looly`/`looly`/`echo` 及社区文章致谢，保留以示出处）；AI 辅助创建或重写的类，`@author` 仍署**使用该 AI 的用户**（提交作者本人），AI 辅助信息只体现在 commit trailer `Assisted-by`，不进入源码署名 |
-| Javadoc | **禁止单行 Javadoc**：注释一律展开为多行（`RegexpSingleline` 强制）；方法注释需写全 `@param`（含类型参数）/`@return`，接口方法按 P3C【强制】必须写全 |
+| 类注释 | 必须包含 `@author` 与 `@since`；嵌套类型不强制。`@author` 由 `JavadocType(authorFormat=\S)` 强制，`@since` 为约定 |
+| @since 取值 | 取当前形态首次发布的版本号（如 `3.0.0`），禁止日期；发布后新增的 public/protected 方法补方法级 `@since`，存量不补、private 不标；迁移或重加按"宁新勿旧"取最新版本 |
+| @author 署名 | 类级必填，创建者在前、实质贡献者按顺序追加；方法级禁止（第三方来源署名除外）；AI 辅助的类署使用者本人，AI 信息只进 commit trailer |
+| Javadoc | 禁止单行（`RegexpSingleline` 强制）；方法注释写全 `@param`（含类型参数）与 `@return`，接口方法必须写全 |
 | 内联全限定名 | **禁止**（`InlineFullyQualifiedName`：与依赖库同名时应调整类名，而非内联全限定名绕过） |
 | 格式化豁免 | `// @formatter:off` 与 `// @formatter:on` 之间的代码不参与格式化 |
 | 命名 | `style/` 配置文件与 agent 技能统一使用 `ocn-` 前缀（OCN = OpenContiNew） |
+
+### 注释风格
+
+注释解释意图、约束与权衡，不复述实现。
+
+- 不写变更痕迹（"新增""原逻辑"）和对话腔（"我们""这里"）。
+- 不为自解释代码加注释，密度与周围代码一致。
+- 公共 API 用 Javadoc 写契约，实现内部只解释非显然决策。
 
 ### License Header
 
@@ -151,7 +162,7 @@ ContiNew Starter 各模块遵循严格约定。AI 智能体生成 Starter 代码
 
 ### 配置属性前缀
 
-所有配置属性统一使用 `continew-starter` 前缀，格式为 `continew-starter.<module>[.<sub-feature>]`。前缀常量**必须**定义在 [`PropertiesConstants`](continew-starter-core/src/main/java/top/continew/starter/core/constant/PropertiesConstants.java) 中——基于 `CONTINEW_STARTER` 基础常量拼接——并在 `@ConfigurationProperties` 与 `@ConditionalOnProperty` 中引用，禁止内联字符串字面量。
+所有配置属性统一使用 `continew-starter` 前缀，格式为 `continew-starter.<module>[.<sub-feature>]`。前缀常量**必须**定义在 [`PropertiesConstants`](continew-starter-core/src/main/java/top/continew/starter/core/constant/PropertiesConstants.java) 中（基于 `CONTINEW_STARTER` 基础常量拼接），并在 `@ConfigurationProperties` 与 `@ConditionalOnProperty` 中引用，禁止内联字符串字面量。
 
 ```java
 public static final String CONTINEW_STARTER = "continew-starter";
@@ -162,7 +173,7 @@ public static final String ENCRYPT_FIELD = ENCRYPT + StringConstants.DOT + "fiel
 
 ### 自动配置注册
 
-每个自动配置类**必须**注册到所属模块的 `src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 文件中——每行一个全限定类名——否则不会被加载。
+每个自动配置类**必须**注册到所属模块的 `src/main/resources/META-INF/spring/org.springframework.boot.autoconfigure.AutoConfiguration.imports` 文件中（每行一个全限定类名），否则不会被加载。
 
 ### 包结构
 
@@ -211,7 +222,7 @@ public class XxxAutoConfiguration {
 
 ## 安全漏洞
 
-不得通过 GitHub Issue 报告安全漏洞。请使用 GitHub 私有漏洞报告——详见 [SECURITY.md](./SECURITY.md)。
+不得通过 GitHub Issue 报告安全漏洞。请使用 GitHub 私有漏洞报告，详见 [SECURITY.md](./SECURITY.md)。
 
 ## 文档（docs/）
 
@@ -246,4 +257,4 @@ public class XxxAutoConfiguration {
 
 ## Agent Skills
 
-各 agent 工具（DeepSeek Harness / Claude Code / Codex）共用的技能统一存放在 `.agents/skills/` 作为唯一事实源——每个技能一个目录、含 `SKILL.md`。新增技能沿用 `ocn-` 命名前缀。
+各 agent 工具（DeepSeek Harness / Claude Code / Codex）共用的技能统一存放在 `.agents/skills/` 作为唯一事实源，每个技能一个目录、含 `SKILL.md`。新增技能沿用 `ocn-` 命名前缀。
