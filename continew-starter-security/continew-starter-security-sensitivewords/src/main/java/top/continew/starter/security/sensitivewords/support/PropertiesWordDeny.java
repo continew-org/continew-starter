@@ -14,32 +14,43 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.sensitivewords.service;
+package top.continew.starter.security.sensitivewords.support;
 
+import com.github.houbb.sensitive.word.api.IWordDeny;
+import org.springframework.util.StringUtils;
 import top.continew.starter.security.sensitivewords.autoconfigure.SensitiveWordsProperties;
 
 import java.util.List;
 
 /**
- * 默认敏感词配置
+ * 配置敏感词提供者
  *
  * @author luoqiz
- * @author Charles7c
- * @since 2.9.0
+ * @since 3.0.0
  */
-public class DefaultSensitiveWordsConfig implements SensitiveWordsConfig {
+public class PropertiesWordDeny implements IWordDeny {
 
     private final SensitiveWordsProperties properties;
 
-    public DefaultSensitiveWordsConfig(SensitiveWordsProperties properties) {
+    public PropertiesWordDeny(SensitiveWordsProperties properties) {
         this.properties = properties;
     }
 
     @Override
-    public List<String> getWords() {
-        if (properties.getValues() != null) {
-            return properties.getValues();
+    public List<String> deny() {
+        return filter(properties.getDenyWords());
+    }
+
+    /**
+     * 过滤空白词
+     *
+     * @param words 原始词列表
+     * @return 过滤后的词列表
+     */
+    static List<String> filter(List<String> words) {
+        if (words == null || words.isEmpty()) {
+            return List.of();
         }
-        return List.of();
+        return words.stream().filter(StringUtils::hasText).map(String::trim).toList();
     }
 }

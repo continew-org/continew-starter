@@ -16,10 +16,16 @@
 
 package top.continew.starter.security.sensitivewords.validation;
 
+import static java.lang.annotation.ElementType.ANNOTATION_TYPE;
+import static java.lang.annotation.ElementType.CONSTRUCTOR;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.METHOD;
+import static java.lang.annotation.ElementType.PARAMETER;
+import static java.lang.annotation.ElementType.TYPE_USE;
+
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -29,9 +35,9 @@ import java.lang.annotation.Target;
  *
  * @author luoqiz
  * @author Charles7c
- * @since 2.9.0
+ * @since 3.0.0
  */
-@Target({ElementType.FIELD, ElementType.CONSTRUCTOR, ElementType.PARAMETER, ElementType.TYPE_USE})
+@Target({METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Constraint(validatedBy = {SensitiveWordsValidator.class})
@@ -43,6 +49,13 @@ public @interface SensitiveWords {
      * @return 提示消息
      */
     String message() default "内容包含敏感词汇";
+
+    /**
+     * 是否快速失败（命中第一个敏感词即返回）
+     *
+     * @return 是否快速失败
+     */
+    boolean failFast() default false;
 
     /**
      * 分组

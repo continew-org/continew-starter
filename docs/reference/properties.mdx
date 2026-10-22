@@ -248,7 +248,14 @@ JetCache 与 Spring Cache 两种实现未定义独立的 `@ConfigurationProperti
 
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-------|:-----|:-------|:-----|
-| `continew-starter.security.sensitive-words.values` | `List<String>` | — | 敏感词列表 |
+| `continew-starter.security.sensitive-words.enabled` | `boolean` | `true` | 是否启用检测 |
+| `continew-starter.security.sensitive-words.use-default-deny` | `boolean` | `true` | 是否加载内置词库（黑名单与白名单） |
+| `continew-starter.security.sensitive-words.deny-words` | `List<String>` | `[]` | 追加敏感词 |
+| `continew-starter.security.sensitive-words.allow-words` | `List<String>` | `[]` | 白名单 |
+| `continew-starter.security.sensitive-words.ignore-repeat` | `boolean` | `false` | 是否忽略重复字符 |
+| `continew-starter.security.sensitive-words.num-check` | `boolean` | `false` | 是否检测数字（8 位及以上连续数字，如手机号） |
+| `continew-starter.security.sensitive-words.email-check` | `boolean` | `false` | 是否检测邮箱 |
+| `continew-starter.security.sensitive-words.url-check` | `boolean` | `false` | 是否检测网址 |
 
 ## 限流模块（Rate Limiter）
 

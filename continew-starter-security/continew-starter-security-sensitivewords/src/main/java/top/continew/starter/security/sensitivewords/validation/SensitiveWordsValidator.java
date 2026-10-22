@@ -16,6 +16,7 @@
 
 package top.continew.starter.security.sensitivewords.validation;
 
+import org.springframework.util.StringUtils;
 import top.continew.starter.security.sensitivewords.service.SensitiveWordsService;
 
 import jakarta.annotation.Resource;
@@ -28,24 +29,41 @@ import java.util.List;
  *
  * @author luoqiz
  * @author Charles7c
- * @since 2.9.0
+ * @since 3.0.0
  */
 public class SensitiveWordsValidator implements ConstraintValidator<SensitiveWords, String> {
 
     @Resource
     private SensitiveWordsService sensitiveWordsService;
 
+    private boolean failFast;
+
+    @Override
+    public void initialize(SensitiveWords annotation) {
+        this.failFast = annotation.failFast();
+    }
+
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        List<String> res = sensitiveWordsService.check(value);
-        if (!res.isEmpty()) {
-            // 禁用默认消息
-            context.disableDefaultConstraintViolation();
-            // 动态设置错误消息
-            context.buildConstraintViolationWithTemplate("内容包含敏感词汇: " + String.join(",", res))
-                .addConstraintViolation();
-            return false;
+        if (!StringUtils.hasText(value)) {
+            return true;
         }
-        return true;
+        List<String> hits;
+        if (failFast) {
+            String first = sensitiveWordsService.findFirst(value);
+            hits = first == null ? List.of() : List.of(first);
+        } else {
+            hits = sensitiveWordsService.findAll(value);
+        }
+        if (hits.isEmpty()) {
+            return true;
+        }
+        // 禁用默认消息，改为拼接命中词的动态消息
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(
+            context.getDefaultConstraintMessageTemplate() + ": " + String
+                .join(",", hits))
+            .addConstraintViolation();
+        return false;
     }
 }

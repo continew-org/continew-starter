@@ -7,7 +7,7 @@ ContiNew Starter 安全模块（`continew-starter-security`）提供三类开箱
 
 - **JSON 数据脱敏**（`continew-starter-security-mask`）：基于 `@JsonMask` 注解，在 Jackson 序列化阶段对响应字段自动脱敏；
 - **XSS 过滤**（`continew-starter-security-xss`）：基于 Servlet Filter 对请求参数与请求体统一清理/转义，防止跨站脚本注入；
-- **敏感词**（`continew-starter-security-sensitivewords`）：基于 Hutool DFA 算法的敏感词检测，提供服务接口与 Bean Validation 校验注解。
+- **敏感词**（`continew-starter-security-sensitivewords`）：基于 sensitive-word（DFA）的敏感词检测，提供服务接口与 Bean Validation 校验注解。
 
 <Cards>
   <Card title="数据脱敏" href="/docs/starter/modules/security/mask">
@@ -17,7 +17,7 @@ ContiNew Starter 安全模块（`continew-starter-security`）提供三类开箱
     基于 Servlet Filter 对请求参数与请求体统一清理/转义，防止跨站脚本注入
   </Card>
   <Card title="敏感词" href="/docs/starter/modules/security/sensitivewords">
-    基于 Hutool DFA 算法的敏感词检测，提供服务接口与 Bean Validation 校验注解
+    基于 sensitive-word（DFA）的敏感词检测，提供服务接口与 Bean Validation 校验注解
   </Card>
 </Cards>
 
@@ -30,5 +30,5 @@ ContiNew Starter 安全模块（`continew-starter-security`）提供三类开箱
 | 依赖 | 描述 |
 |:-----|:-----|
 | `top.continew.starter:continew-starter-core` | 核心模块 |
-| `cn.hutool:hutool-dfa` | Hutool DFA 模块（基于 DFA 的关键词查找，敏感词模块依赖） |
+| `com.github.houbb:sensitive-word` | 敏感词工具（基于 DFA，默认支持全半角、大小写归一化，重复字符归一化可配置，敏感词模块依赖） |
 | `org.springframework.boot:spring-boot-starter-validation` | Spring Boot 校验模块（敏感词模块依赖） |
