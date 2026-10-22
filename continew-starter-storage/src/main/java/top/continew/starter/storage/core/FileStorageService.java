@@ -47,11 +47,15 @@ import top.continew.starter.storage.service.FileRecorder;
 import top.continew.starter.storage.strategy.StorageStrategy;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -636,15 +640,29 @@ public class FileStorageService {
         String bucket = StrUtil.blankToDefault(req.getBucket(), getDefaultBucket(platform));
         String parentPath = normalizeParentPath(req.getParentPath());
         String path = buildMultipartPath(parentPath, req.getFileName());
+        // 空白值统一按未传入处理，避免 null 与空串被识别成不同的上传维度
+        String originalFileName = normalizeOriginalFileName(req.getOriginalFileName());
+        // fileName 仅决定存储路径，不参与复用键：旧调用方不传 originalFileName，且续传时可能重新生成 fileName；
+        // 复用命中时返回的 fileName/path 以已存在会话为准（见 MultipartInitResp 的类注释）。
+        String sessionKey = null;
 
         // 基于文件 MD5 复用已有上传会话
         if (fileRecorder != null && StrUtil.isNotBlank(req.getFileMd5())) {
-            String cachedUploadId = fileRecorder.getUploadIdByMd5(req.getFileMd5());
+            sessionKey = buildSessionKey(platform, bucket, req.getFileMd5(), originalFileName,
+                parentPath);
+            String cachedUploadId = fileRecorder.getUploadIdBySessionKey(sessionKey);
             if (StrUtil.isNotBlank(cachedUploadId)) {
                 MultipartInitResp cachedSession = fileRecorder.getMultipartSession(cachedUploadId);
+                // 原始文件名或上级目录不一致时不能复用：会话共用同一个存储对象与路径，复用会让后一次上传
+                // 落进先一次上传的目录。未传原始文件名（旧调用方）时双方都为空，仍按旧行为复用；此时返回的
+                // fileName/path 以已有会话为准，调用方必须使用返回的 path。并发初始化同一维度时可能各自创建
+                // 会话，映射以最后写入者为准；清理时会按 uploadId 条件删除，避免误删其他会话的映射。
                 if (cachedSession != null && StrUtil.equals(platform, cachedSession.getPlatform())
-                    && StrUtil
-                        .equals(bucket, cachedSession.getBucket())) {
+                    && StrUtil.equals(bucket, cachedSession.getBucket())
+                    && StrUtil.equals(originalFileName, normalizeOriginalFileName(cachedSession
+                        .getOriginalFileName()))
+                    && StrUtil.equals(parentPath, normalizeParentPath(cachedSession
+                        .getParentPath()))) {
                     List<FilePartInfo> fileParts = fileRecorder.getFileParts(cachedUploadId);
                     cachedSession.setUploadedPartNumbers(fileParts.stream()
                         .map(FilePartInfo::getPartNumber)
@@ -657,6 +675,7 @@ public class FileStorageService {
         MultipartInitResp result =
             initMultipartUpload(bucket, platform, path, req.getContentType(), req.getMetadata());
         result.setFileName(req.getFileName());
+        result.setOriginalFileName(originalFileName);
         result.setFileMd5(req.getFileMd5());
         result.setFileSize(req.getFileSize());
         result.setContentType(req.getContentType());
@@ -666,8 +685,8 @@ public class FileStorageService {
 
         if (fileRecorder != null) {
             fileRecorder.saveMultipartSession(result.getUploadId(), result, req.getMetadata());
-            if (StrUtil.isNotBlank(req.getFileMd5())) {
-                fileRecorder.setMd5Mapping(req.getFileMd5(), result.getUploadId());
+            if (sessionKey != null) {
+                fileRecorder.setSessionKeyMapping(sessionKey, result.getUploadId());
             }
         }
         return result;
@@ -761,8 +780,9 @@ public class FileStorageService {
             }
             MultipartInitResp session = fileRecorder.getMultipartSession(uploadId);
             if (session != null) {
-                fileInfo.setOriginalFileName(StrUtil.blankToDefault(session.getFileName(), fileInfo
-                    .getOriginalFileName()));
+                // 优先使用会话中记录的原始文件名；未指定时沿用旧行为（会话文件名即展示名）
+                fileInfo.setOriginalFileName(StrUtil
+                    .blankToDefault(resolveDisplayName(session), fileInfo.getOriginalFileName()));
                 fileInfo.getMetadata()
                     .put("fileMd5",
                         StrUtil.blankToDefault(session.getFileMd5(), StringConstants.EMPTY));
@@ -1192,11 +1212,92 @@ public class FileStorageService {
         fileRecorder.deleteFileParts(uploadId);
         fileRecorder.deleteMultipartSession(uploadId);
         if (session != null && StrUtil.isNotBlank(session.getFileMd5())) {
-            fileRecorder.deleteMd5Mapping(session.getFileMd5());
+            String sessionKey = buildSessionKey(session.getPlatform(), session.getBucket(), session
+                .getFileMd5(), session.getOriginalFileName(), session.getParentPath());
+            // 由记录器做「键 + uploadId」条件删除：映射可能已被并发初始化的新会话覆盖，无条件删除会误删他人的映射
+            fileRecorder.deleteSessionKeyMapping(sessionKey, uploadId);
         }
     }
 
-    private String normalizeParentPath(String parentPath) {
+    /**
+     * 归一化原始文件名
+     *
+     * <p>
+     * 空白值统一视为未传入（null），避免 null 与空串在会话键、复用校验之间不一致。
+     * </p>
+     *
+     * @param originalFileName 原始文件名
+     * @return 归一化后的原始文件名
+     */
+    private static String normalizeOriginalFileName(String originalFileName) {
+        return StrUtil.isBlank(originalFileName) ? null : originalFileName;
+    }
+
+    /**
+     * 解析会话展示名
+     *
+     * <p>
+     * 优先使用会话中记录的原始文件名，未提供时回退为存储文件名。
+     * </p>
+     *
+     * @param session 分片上传会话
+     * @return 展示名
+     */
+    private static String resolveDisplayName(MultipartInitResp session) {
+        return StrUtil.blankToDefault(session.getOriginalFileName(), session.getFileName());
+    }
+
+    /**
+     * 构建会话复用键
+     *
+     * <p>
+     * 键包含存储平台、存储桶、文件 MD5、原始文件名与上级目录，取 SHA-256 摘要以控制长度；空值按空串参与计算，
+     * 上级目录按同一规则归一，保证写入与删除时键一致。存储文件名不参与键（续传时可能重新生成）。
+     * </p>
+     *
+     * @param platform         存储平台
+     * @param bucket           存储桶
+     * @param fileMd5          文件 MD5
+     * @param originalFileName 原始文件名（可能为空）
+     * @param parentPath       上级目录
+     * @return 会话复用键
+     */
+    static String buildSessionKey(String platform,
+        String bucket,
+        String fileMd5,
+        String originalFileName,
+        String parentPath) {
+        StringBuilder dimension = new StringBuilder();
+        appendKeyPart(dimension, platform);
+        appendKeyPart(dimension, bucket);
+        appendKeyPart(dimension, fileMd5);
+        appendKeyPart(dimension, normalizeOriginalFileName(originalFileName));
+        appendKeyPart(dimension, normalizeParentPath(parentPath));
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            return HexFormat.of().formatHex(digest.digest(dimension.toString()
+                .getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("当前 JDK 不支持 SHA-256", e);
+        }
+    }
+
+    /**
+     * 追加会话复用键的组成部分
+     *
+     * <p>
+     * 使用「长度 + 冒号 + 原值」拼接，避免字段本身包含分隔符时产生键冲突。
+     * </p>
+     *
+     * @param builder 键构建器
+     * @param value   字段值
+     */
+    private static void appendKeyPart(StringBuilder builder, String value) {
+        String part = StrUtil.blankToDefault(value, StringConstants.EMPTY);
+        builder.append(part.length()).append(StringConstants.COLON).append(part);
+    }
+
+    private static String normalizeParentPath(String parentPath) {
         if (StrUtil.isBlank(parentPath) || StringConstants.SLASH.equals(parentPath)) {
             return StringConstants.SLASH;
         }

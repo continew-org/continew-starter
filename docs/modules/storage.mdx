@@ -175,7 +175,7 @@ String uploadUrl = fileStorageService.generateUploadPresignedUrl("minio", bucket
 
 ### 分片上传
 
-超过分片阈值的文件可手动走分片上传，基于 `FileRecorder` 记录的会话与分片信息可实现断点续传（按文件 MD5 复用已有上传会话）：
+超过分片阈值的文件可手动走分片上传，基于 `FileRecorder` 记录的会话与分片信息可实现断点续传（按文件 MD5、平台、桶、原始文件名与上级目录复用已有上传会话）：
 
 ```java
 import top.continew.starter.storage.domain.model.req.MultipartUploadInitReq;
@@ -184,7 +184,8 @@ import top.continew.starter.storage.domain.model.resp.MultipartUploadResp;
 
 // 1. 初始化分片上传
 MultipartUploadInitReq req = new MultipartUploadInitReq();
-req.setFileName("big-video.mp4");
+req.setFileName("big-video-8f3c.mp4");     // 存储文件名，可自行生成唯一名
+req.setOriginalFileName("big-video.mp4");  // 原始文件名，参与会话复用并作为展示名
 req.setFileSize(fileSize);
 req.setFileMd5(fileMd5);
 req.setContentType("video/mp4");
@@ -199,6 +200,8 @@ MultipartUploadResp partResp = fileStorageService.uploadPart(
 FileInfo fileInfo = fileStorageService.completeMultipartUpload(initResp.getUploadId(), null);
 // fileStorageService.abortMultipartUpload(initResp.getUploadId());
 ```
+
+> **说明**：未传入 `originalFileName` 时，会话按 MD5 + 平台 + 桶 + 上级目录复用（与旧版本一致）；传入后，不同原始文件名不会共用会话。复用命中时返回的 `fileName`、`path` 来自已有会话，后续上传分片、完成上传请使用返回的 `path`。
 
 ## 扩展点
 
@@ -217,7 +220,7 @@ FileInfo fileInfo = fileStorageService.completeMultipartUpload(initResp.getUploa
 
 ## 注意事项
 
-- **生产环境建议自行实现 `FileRecorder`** 并注册为 Spring Bean（如落库到业务文件表）。内置的 `DefaultFileRecorder` 所有方法均为空实现（不保存任何记录），因此「根据 URL 删除文件」与分片断点续传的 MD5 会话复用能力依赖自定义实现。
+- **生产环境建议自行实现 `FileRecorder`** 并注册为 Spring Bean（如落库到业务文件表）。内置的 `DefaultFileRecorder` 所有方法均为空实现（不保存任何记录），因此「根据 URL 删除文件」与分片断点续传的会话复用能力依赖自定义实现。
 - 上传单文件大小同时受 Spring Boot 的 `spring.servlet.multipart.max-file-size` / `max-request-size` 限制，超出会被容器拒绝；模块内置的 `FileSizeValidator` 也基于该配置校验。
 - 本地存储的 `endpoint` 会注册为静态资源映射前缀，文件 URL 形如 `endpoint + 存储路径 + 文件名`；请确保应用已对外暴露该路径。
 - 对接 MinIO 等自建 S3 服务时，通常需要开启 `path-style-access-enabled`；对接云厂商（阿里云 OSS、腾讯云 COS、Amazon S3）时按需配置 `region`。
