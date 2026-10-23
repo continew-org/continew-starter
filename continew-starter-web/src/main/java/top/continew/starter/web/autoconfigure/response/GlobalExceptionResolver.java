@@ -77,6 +77,7 @@ public class GlobalExceptionResolver {
      * @param e       当前异常
      * @throws Exception 异常命中例外配置时原样抛出
      */
+    @SuppressWarnings("java:S112")
     public void beforeHandle(HttpServletRequest request, Exception e) throws Exception {
         before(request, e);
         if (isExcluded(e)) {
