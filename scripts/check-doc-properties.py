@@ -18,7 +18,6 @@ UPSTREAM_SOURCE_TYPES = {
     "org.redisson.config.SingleServerConfig",
     "org.redisson.config.ClusterServersConfig",
     "org.redisson.config.SentinelServersConfig",
-    "top.continew.starter.web.autoconfigure.response.GlobalResponseProperties",
 }
 
 # Conditions read properties directly and therefore do not appear in generated metadata.

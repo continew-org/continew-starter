@@ -1,12 +1,12 @@
 ---
 title: Web 开发
-description: Web 开发基础模块：跨域（CORS）、基于 Graceful Response 的全局异常与统一响应封装、Query 参数转换器与 Tomcat 服务器增强的自动配置。
+description: Web 开发基础模块：跨域（CORS）、全局异常与统一响应封装、Query 参数转换器与 Tomcat 服务器增强的自动配置。
 ---
 
 `continew-starter-web` 是 ContiNew Starter 提供的 Web 开发基础模块，为 Spring Boot Web 应用提供常用能力的自动配置与最佳实践，主要包含以下内容。
 
 - **跨域支持**：通过配置快速启用和定制跨域过滤器 `CorsFilter`；
-- **统一响应处理**：基于 [Graceful Response](https://doc.feiniaojin.com/graceful-response/home.html) 实现响应数据封装、全局异常处理和错误码管理；
+- **统一响应处理**：内置响应数据封装、全局异常处理、异常别名与国际化，无第三方响应组件依赖；
 - **Query 参数转换器**：`Date`、`LocalDate`、`LocalTime`、`LocalDateTime`、`BaseEnum` 类型参数自动转换；
 - **服务器增强**：基于 Tomcat 服务器，支持全局禁用不安全的 HTTP 请求方法。
 
@@ -52,11 +52,11 @@ continew-starter:
 
 ## 统一响应处理
 
-统一响应处理基于 Graceful Response 组件实现，本模块对其做了适配，包括覆盖自动配置、指定配置默认值、自定义响应风格类（`top.continew.starter.web.model.R`）、添加接口文档全局处理等。组件的完整能力请查阅 [Graceful Response 官方文档](https://doc.feiniaojin.com/graceful-response/home.html)。
+统一响应处理由本模块内置实现，包含响应数据封装、全局异常处理、异常别名与国际化。3.0 起不再依赖 Graceful Response，默认响应类为 `top.continew.starter.web.model.R`，可通过 `GlobalResponseFactory` 替换。
 
 ### 启用统一响应处理
 
-本模块覆盖了 Graceful Response 的自动配置，需要使用本模块提供的注解启用（代替原组件的 `@EnableGracefulResponse`）。
+统一响应处理不参与自动配置扫描，必须通过 `@EnableGlobalResponse` 显式启用。
 
 ```java
 @EnableGlobalResponse
@@ -71,7 +71,7 @@ public class ExampleApplication {
 
 ### 全局配置
 
-配置项对应类为 `top.continew.starter.web.autoconfigure.response.GlobalResponseProperties`（继承自 Graceful Response 的 `GracefulResponseProperties`）。模块已内置一套默认值（见 `continew-starter-web/src/main/resources/default-response.yml`），常用配置如下。
+配置项对应类为 `top.continew.starter.web.autoconfigure.response.GlobalResponseProperties`。模块已内置一套默认值（见 `continew-starter-web/src/main/resources/default-response.yml`），常用配置如下。
 
 ```yaml
 continew-starter:
@@ -79,8 +79,6 @@ continew-starter:
     response:
       # 是否开启国际化（默认：false）
       i18n: false
-      # 响应类全名（配置后 response-style 将不再生效）
-      response-class-full-name: top.continew.starter.web.model.R
       # 失败时的 HTTP 状态码（默认：200，建议业务状态码与通信状态码区分）
       default-http-status-code-on-error: 200
       # 成功响应码（默认：0）
@@ -91,10 +89,12 @@ continew-starter:
       default-error-code: 1
       # 失败提示（默认：error）
       default-error-msg: error
-      # 是否打印异常日志（模块默认：true）
-      print-exception-in-global-advice: true
-      # 是否将原生异常错误信息填充到响应信息中（模块默认：true，组件默认为 false）
-      origin-exception-using-detail-message: true
+      # 参数校验失败响应码（默认取 default-error-code）
+      default-validate-error-code:
+      # 是否打印异常日志（默认：false）
+      print-exception-in-global-advice: false
+      # 是否将原生异常错误信息填充到响应信息中（默认：false）
+      origin-exception-using-detail-message: false
       # 例外包路径（支持数字、* 和 ** 通配符匹配），该包路径下的 Controller 将被忽略处理
       exclude-packages:
         - io.swagger.**
@@ -104,7 +104,7 @@ continew-starter:
 
 ### 响应结构
 
-默认响应类 `top.continew.starter.web.model.R` 的结构如下。
+响应类 `top.continew.starter.web.model.R` 的结构如下。
 
 ```json
 {
@@ -116,19 +116,118 @@ continew-starter:
 }
 ```
 
-如果默认结构不满足要求，可参考 `R` 类自定义响应类，并将 `response-class-full-name` 配置为自定义类的全限定名。
+`success` 由响应码与 `default-success-code` 比较得出，`timestamp` 取序列化时刻。控制器直接返回 `R` 时不会被二次包装。
+
+### 自定义响应结构
+
+响应对象的创建、识别与信息改写都通过 `GlobalResponseFactory` 完成。需要不同字段结构时，声明一个该接口的 Bean 即可，无需修改 Starter 代码。
+
+```java
+@Bean
+public GlobalResponseFactory globalResponseFactory() {
+    return new GlobalResponseFactory() {
+
+        @Override
+        public Object newSuccess(Object data) {
+            return new CustomResponse(200, data, null);
+        }
+
+        @Override
+        public Object newFailure(String code, String msg) {
+            return new CustomResponse(code, null, msg);
+        }
+
+        @Override
+        public boolean isResponse(Object body) {
+            return body instanceof CustomResponse;
+        }
+
+        @Override
+        public String getCode(Object body) {
+            return String.valueOf(((CustomResponse) body).getStatus());
+        }
+
+        @Override
+        public void setMessage(Object body, String message) {
+            ((CustomResponse) body).setMessage(message);
+        }
+    };
+}
+```
+
+自定义响应用于包装控制器返回值时，应与控制器声明的返回类型是不同的类（例如自定义 `CustomResponse`），避免 JSON 序列化引擎按控制器的泛型声明做强制类型转换。
 
 ### 排除统一封装
 
-默认情况下，统一响应处理会包装原始响应数据。文件下载等场景需要直接返回原始数据时，在接口方法或类上添加 `@ExcludeFromGracefulResponse` 注解即可排除统一封装。
+文件下载等场景需要直接返回原始数据时，在接口方法、控制器类或返回类型上添加 `@ExcludeFromGlobalResponse` 注解即可排除统一封装。
 
 ```java
-@ExcludeFromGracefulResponse
+@ExcludeFromGlobalResponse
 @GetMapping("/download")
 public void download(HttpServletResponse response) {
     // 直接输出文件流
 }
 ```
+
+也可以通过 `exclude-packages`、`exclude-urls`、`exclude-return-types` 按包路径、请求 URL 或返回类型批量排除。返回 `ResponseEntity`、文件流等非 JSON 响应同样不会被包装。
+
+### 异常别名
+
+需要把第三方异常映射为固定响应码时，可使用配置方式：
+
+```yaml
+continew-starter:
+  web:
+    response:
+      exception-alias-config-map:
+        "[java.lang.IllegalStateException]":
+          code: 4001
+          msg: 状态异常
+          http-status-code: 418
+```
+
+也可以在异常类上标注 `@ExceptionAliasFor`，并通过 `ExceptionAliasRegister` 注册：
+
+```java
+@ExceptionAliasFor(aliasFor = IllegalStateAliasException.class, code = "4001", msg = "状态异常")
+public class IllegalStateAliasException extends RuntimeException {
+}
+```
+
+```java
+@Bean
+public ExceptionAliasRegister exceptionAliasRegister() {
+    return new ExceptionAliasRegister().doRegisterExceptionAlias(IllegalStateAliasException.class);
+}
+```
+
+`aliasFor` 指定该别名配置生效的异常类型（可列多个，注册后这些类型及其子类生效），需要把自定义异常自身也列进去。
+
+业务方自定义的 `@RestControllerAdvice` 处理器优先于全局异常处理器，二者不会产生重复包装。注意 Starter 的全局异常处理器为 `@Order(200)`（约束校验处理器为 `@Order(190)`），业务方 advice 需声明小于对应值的 `@Order` 才会优先；未声明 `@Order` 时按 `LOWEST_PRECEDENCE` 处理，会被 Starter 的处理器抢先。
+
+### 国际化
+
+国际化沿用 Spring Boot 的标准方案，Starter 不自建 `MessageSource`，只读取应用已有的 `MessageSource` Bean。开启 `i18n` 后，仅当响应信息为空或等于默认成功/失败提示（如 `ok`、`error`）时，才按 `code` 查找并替换；参数校验的字段级提示与异常明细信息不会被覆盖，未匹配到消息时保留原信息。
+
+```yaml
+spring:
+  messages:
+    # 消息文件基名，同时也是参数校验消息的基名
+    basename: i18n/messages
+    encoding: UTF-8
+
+continew-starter:
+  web:
+    response:
+      i18n: true
+```
+
+```properties
+0=操作成功
+1=服务器异常，请联系管理员
+```
+
+语言环境由应用配置的 `LocaleResolver` 决定，默认使用 `AcceptHeaderLocaleResolver`（读取 `Accept-Language`）。参数校验消息、业务异常消息同样通过该 `MessageSource` 与 `LocaleContextHolder` 解析，不需要 Starter 额外适配。
 
 ## Query 参数转换器
 
@@ -189,4 +288,3 @@ server:
 | `top.continew.starter:continew-starter-json-jackson` | JSON 模块（Jackson） |
 | `top.continew.starter:continew-starter-api-doc` | API 文档模块 |
 | `org.springframework.boot:spring-boot-starter-webmvc` | Spring MVC Web 开发能力（内置 Tomcat 服务器） |
-| `com.feiniaojin:graceful-response` | 优雅响应处理组件：响应封装、异常处理、错误码填充 |

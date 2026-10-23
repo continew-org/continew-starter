@@ -63,7 +63,27 @@ description: ContiNew Starter 各模块配置项一览表：配置前缀、配�
 
 ### `continew-starter.web.response`（全局响应，`GlobalResponseProperties`）
 
-`GlobalResponseProperties` 直接继承 Graceful Response 的 `GracefulResponseProperties`，除前缀由 `graceful-response` 替换为 `continew-starter.web.response` 外，配置项与 Graceful Response 官方文档一致，此处不再罗列。
+默认值由 `continew-starter-web/src/main/resources/default-response.yml` 提供，表中「默认值」列为模块生效值。
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.web.response.i18n` | `boolean` | `false` | 是否开启国际化 |
+| `continew-starter.web.response.default-success-code` | `String` | `0` | 默认成功响应码 |
+| `continew-starter.web.response.default-success-msg` | `String` | `ok` | 默认成功响应信息 |
+| `continew-starter.web.response.default-error-code` | `String` | `1` | 默认失败响应码 |
+| `continew-starter.web.response.default-error-msg` | `String` | `error` | 默认失败响应信息 |
+| `continew-starter.web.response.default-validate-error-code` | `String` | 取 `default-error-code` | 参数校验失败响应码 |
+| `continew-starter.web.response.print-exception-in-global-advice` | `boolean` | `false` | 是否打印全局异常处理器捕获的异常日志 |
+| `continew-starter.web.response.origin-exception-using-detail-message` | `boolean` | `false` | 是否将原生异常信息填充到响应信息中 |
+| `continew-starter.web.response.default-http-status-code-on-error` | `Integer` | `200` | 默认失败 HTTP 状态码 |
+| `continew-starter.web.response.default-http-status-code-on-validation-error` | `Integer` | 取 `default-http-status-code-on-error` | 参数校验失败 HTTP 状态码 |
+| `continew-starter.web.response.exclude-packages` | `List<String>` | 见 `default-response.yml` | 例外包路径 |
+| `continew-starter.web.response.exclude-urls` | `List<String>` | 无 | 例外 URL |
+| `continew-starter.web.response.exclude-return-types` | `Set<Class<?>>` | 无 | 例外返回类型 |
+| `continew-starter.web.response.exclude-exception-types` | `Set<Class<?>>` | 无 | 例外异常类型 |
+| `continew-starter.web.response.exclude-exception-packages` | `List<String>` | 无 | 例外异常包路径 |
+| `continew-starter.web.response.exception-alias-config-map` | `Map<Class<?>, ExceptionAliasConfig>` | 无 | 异常别名配置 |
+| `continew-starter.web.response.json-http-message-converter` | `String` | 无 | 自定义 JSON 消息转换器类名 |
 
 ### `server.extension`（服务器增强，`ServerExtensionProperties`）
 

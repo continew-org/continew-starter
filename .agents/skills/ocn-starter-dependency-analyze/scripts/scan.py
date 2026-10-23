@@ -108,8 +108,6 @@ COORDINATES = {
     'easy-captcha.version': dict(group_id='com.github.whvcse', artifact_id='easy-captcha',
         family='验证码'),
     # --- web / api ---
-    'graceful-response.version': dict(group_id='com.feiniaojin', artifact_id='graceful-response',
-        family='Web/API', constraints='版本号带 -boot3 后缀（Boot3 分支标记，非预发布）'),
     'spel-validator.version': dict(group_id='cn.sticki', artifact_id='spel-validator-jakarta',
         family='Web/API'),
     'crane4j.version': dict(group_id='cn.crane4j', artifact_id='crane4j-spring-boot-starter',
@@ -219,7 +217,6 @@ CHANGELOG = {
     'paho-mqttv3.version': 'https://github.com/eclipse-paho/paho.mqtt.java/releases',
     'aj-captcha.version': 'https://gitee.com/anji-plus/captcha/releases',
     'easy-captcha.version': 'https://github.com/whvcse/EasyCaptcha/releases',
-    'graceful-response.version': 'https://github.com/feiniaojin/graceful-response/releases',
     'spel-validator.version': 'https://github.com/stickicn/spel-validator/releases',
     'crane4j.version': 'https://github.com/opengoofy/crane4j/releases',
     'swagger.version': 'https://github.com/swagger-api/swagger-core/releases/tag/v{v}',
@@ -286,7 +283,7 @@ def compare_url(prop, from_ver, to_ver):
 # True pre-release qualifiers. A hyphen suffix is only a pre-release when it
 # matches one of these; suffixes like '-boot3' / '-jre' / '-jakarta' are LINEAGE
 # markers (a parallel GA release line), not pre-releases. Treating them as
-# pre-releases used to make every graceful-response version non-GA, which is why
+# pre-releases made versions with such suffixes look non-GA, which is why
 # absolute_release() fell back to the stale <release> field and reported a
 # bogus "downgrade".
 PRERELEASE_RE = re.compile(
