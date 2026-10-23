@@ -96,6 +96,11 @@ class GlobalResponseCustomFactoryIntegrationTest {
         }
 
         @Override
+        public String getMessage(Object body) {
+            return body instanceof CustomResponse response ? response.getMessage() : null;
+        }
+
+        @Override
         public void setMessage(Object body, String message) {
             if (body instanceof CustomResponse response) {
                 response.setMessage(message);

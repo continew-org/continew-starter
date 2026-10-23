@@ -17,8 +17,11 @@
 package top.continew.starter.web.autoconfigure.response;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
 import top.continew.starter.core.constant.PropertiesConstants;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,6 +32,7 @@ import java.util.Set;
  * @author Charles7c
  * @since 2.5.0
  */
+@Validated
 @ConfigurationProperties(PropertiesConstants.WEB_RESPONSE)
 public class GlobalResponseProperties {
 
@@ -75,11 +79,15 @@ public class GlobalResponseProperties {
     /**
      * 默认失败 HTTP 状态码
      */
+    @Min(100)
+    @Max(599)
     private Integer defaultHttpStatusCodeOnError = 200;
 
     /**
      * 参数校验失败 HTTP 状态码，未配置时使用默认失败 HTTP 状态码
      */
+    @Min(100)
+    @Max(599)
     private Integer defaultHttpStatusCodeOnValidationError;
 
     /**

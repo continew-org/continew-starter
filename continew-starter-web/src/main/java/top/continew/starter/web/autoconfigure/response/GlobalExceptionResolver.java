@@ -40,7 +40,7 @@ import java.util.Set;
  * @author Charles7c
  * @since 3.0.0
  */
-final class GlobalExceptionResolver {
+public class GlobalExceptionResolver {
 
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
 
@@ -50,12 +50,38 @@ final class GlobalExceptionResolver {
 
     private final BeforeControllerAdviceProcess beforeControllerAdviceProcess;
 
-    GlobalExceptionResolver(GlobalResponseProperties properties,
+    /**
+     * 构造方法
+     *
+     * @param properties                    全局响应配置属性
+     * @param exceptionAliasRegister        异常别名注册器
+     * @param beforeControllerAdviceProcess 异常处理前回调
+     */
+    public GlobalExceptionResolver(GlobalResponseProperties properties,
         ExceptionAliasRegister exceptionAliasRegister,
         BeforeControllerAdviceProcess beforeControllerAdviceProcess) {
         this.properties = properties;
         this.exceptionAliasRegister = exceptionAliasRegister;
         this.beforeControllerAdviceProcess = beforeControllerAdviceProcess;
+    }
+
+    /**
+     * 异常处理前回调，并在命中例外配置时原样抛出
+     * <p>
+     * 原样抛出后由 {@code ExceptionHandlerExceptionResolver} 记录一条 WARN 并返回 {@code null}，
+     * 后续的 {@code ResponseStatusExceptionResolver} / {@code DefaultHandlerExceptionResolver}
+     * 继续处理，从而保留框架默认语义（如 400/405）。这是有意的放行方式，WARN 属预期输出。
+     * </p>
+     *
+     * @param request 当前请求
+     * @param e       当前异常
+     * @throws Exception 异常命中例外配置时原样抛出
+     */
+    public void beforeHandle(HttpServletRequest request, Exception e) throws Exception {
+        before(request, e);
+        if (isExcluded(e)) {
+            throw e;
+        }
     }
 
     /**

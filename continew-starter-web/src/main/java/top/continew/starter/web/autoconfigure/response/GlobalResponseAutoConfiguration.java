@@ -26,6 +26,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.continew.starter.web.model.DefaultGlobalResponseFactory;
+import top.continew.starter.web.model.ResponseConfigInitializer;
 
 /**
  * 全局响应自动配置
@@ -47,8 +48,24 @@ public class GlobalResponseAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public GlobalResponseFactory globalResponseFactory(GlobalResponseProperties properties) {
-        return new DefaultGlobalResponseFactory(properties);
+    public GlobalResponseFactory globalResponseFactory() {
+        return new DefaultGlobalResponseFactory();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public ResponseConfigInitializer responseConfigInitializer(
+        GlobalResponseProperties properties) {
+        return new ResponseConfigInitializer(properties);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public GlobalExceptionResolver globalExceptionResolver(GlobalResponseProperties properties,
+        ExceptionAliasRegister exceptionAliasRegister,
+        BeforeControllerAdviceProcess beforeControllerAdviceProcess) {
+        return new GlobalExceptionResolver(properties, exceptionAliasRegister,
+            beforeControllerAdviceProcess);
     }
 
     @Bean
@@ -71,12 +88,9 @@ public class GlobalResponseAutoConfiguration {
     @ConditionalOnMissingBean
     public GlobalExceptionHandler globalExceptionHandler(GlobalResponseProperties properties,
         GlobalResponseFactory globalResponseFactory,
-        ExceptionAliasRegister exceptionAliasRegister,
-        BeforeControllerAdviceProcess beforeControllerAdviceProcess) {
-        return new GlobalExceptionHandler(properties,
-            globalResponseFactory,
-            exceptionAliasRegister,
-            beforeControllerAdviceProcess);
+        GlobalExceptionResolver globalExceptionResolver) {
+        return new GlobalExceptionHandler(properties, globalResponseFactory,
+            globalExceptionResolver);
     }
 
     @Configuration(proxyBeanMethods = false)
@@ -88,12 +102,10 @@ public class GlobalResponseAutoConfiguration {
         public ConstraintViolationExceptionHandler constraintViolationExceptionHandler(
             GlobalResponseProperties properties,
             GlobalResponseFactory globalResponseFactory,
-            ExceptionAliasRegister exceptionAliasRegister,
-            BeforeControllerAdviceProcess beforeControllerAdviceProcess) {
+            GlobalExceptionResolver globalExceptionResolver) {
             return new ConstraintViolationExceptionHandler(properties,
                 globalResponseFactory,
-                exceptionAliasRegister,
-                beforeControllerAdviceProcess);
+                globalExceptionResolver);
         }
     }
 }

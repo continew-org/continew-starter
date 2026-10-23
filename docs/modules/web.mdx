@@ -189,7 +189,7 @@ continew-starter:
 也可以在异常类上标注 `@ExceptionAliasFor`，并通过 `ExceptionAliasRegister` 注册：
 
 ```java
-@ExceptionAliasFor(aliasFor = IllegalStateException.class, code = "4001", msg = "状态异常")
+@ExceptionAliasFor(aliasFor = IllegalStateAliasException.class, code = "4001", msg = "状态异常")
 public class IllegalStateAliasException extends RuntimeException {
 }
 ```
@@ -201,11 +201,13 @@ public ExceptionAliasRegister exceptionAliasRegister() {
 }
 ```
 
-业务方自定义的 `@RestControllerAdvice` 处理器优先于全局异常处理器，二者不会产生重复包装。
+`aliasFor` 指定该别名配置生效的异常类型（可列多个，注册后这些类型及其子类生效），需要把自定义异常自身也列进去。
+
+业务方自定义的 `@RestControllerAdvice` 处理器优先于全局异常处理器，二者不会产生重复包装。注意 Starter 的全局异常处理器为 `@Order(200)`（约束校验处理器为 `@Order(190)`），业务方 advice 需声明小于对应值的 `@Order` 才会优先；未声明 `@Order` 时按 `LOWEST_PRECEDENCE` 处理，会被 Starter 的处理器抢先。
 
 ### 国际化
 
-国际化沿用 Spring Boot 的标准方案，Starter 不自建 `MessageSource`，只读取应用已有的 `MessageSource` Bean。开启 `i18n` 后，响应信息会按 `code` 查找并替换，未匹配时保留原信息。
+国际化沿用 Spring Boot 的标准方案，Starter 不自建 `MessageSource`，只读取应用已有的 `MessageSource` Bean。开启 `i18n` 后，仅当响应信息为空或等于默认成功/失败提示（如 `ok`、`error`）时，才按 `code` 查找并替换；参数校验的字段级提示与异常明细信息不会被覆盖，未匹配到消息时保留原信息。
 
 ```yaml
 spring:
@@ -226,7 +228,6 @@ continew-starter:
 ```
 
 语言环境由应用配置的 `LocaleResolver` 决定，默认使用 `AcceptHeaderLocaleResolver`（读取 `Accept-Language`）。参数校验消息、业务异常消息同样通过该 `MessageSource` 与 `LocaleContextHolder` 解析，不需要 Starter 额外适配。
-
 
 ## Query 参数转换器
 

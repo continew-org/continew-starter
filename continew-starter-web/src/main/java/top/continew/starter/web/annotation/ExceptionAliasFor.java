@@ -38,7 +38,7 @@ import java.lang.annotation.Target;
 public @interface ExceptionAliasFor {
 
     /**
-     * 被别名的异常类型
+     * 该别名配置生效的异常类型（可列多个，注册后这些类型及其子类生效）
      *
      * @return 异常类型数组
      */

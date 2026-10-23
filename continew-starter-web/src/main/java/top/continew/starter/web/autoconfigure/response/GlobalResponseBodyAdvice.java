@@ -40,7 +40,10 @@ import top.continew.starter.web.model.R;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 全局响应体处理
@@ -56,6 +59,11 @@ import java.util.Set;
 public class GlobalResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     private static final AntPathMatcher PATH_MATCHER = new AntPathMatcher();
+
+    /**
+     * 包装判定缓存（不含依赖当前请求 URL 的例外判断）
+     */
+    private final Map<Method, Boolean> wrapCache = new ConcurrentHashMap<>();
 
     private final GlobalResponseProperties properties;
 
@@ -117,6 +125,13 @@ public class GlobalResponseBodyAdvice implements ResponseBodyAdvice<Object> {
      * @return 是否需要包装响应
      */
     private boolean shouldWrap(Method method) {
+        if (isExcludedUrl()) {
+            return false;
+        }
+        return wrapCache.computeIfAbsent(method, this::shouldWrapByMethod);
+    }
+
+    private boolean shouldWrapByMethod(Method method) {
         if (isExcluded(method)) {
             return false;
         }
@@ -127,7 +142,7 @@ public class GlobalResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         if (R.class.isAssignableFrom(returnType) || HttpEntity.class.isAssignableFrom(returnType)) {
             return false;
         }
-        return !isExcludedReturnType(returnType) && !isExcludedPackage(method) && !isExcludedUrl();
+        return !isExcludedReturnType(returnType) && !isExcludedPackage(method);
     }
 
     private boolean isExcluded(Method method) {
@@ -174,6 +189,9 @@ public class GlobalResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     /**
      * 按响应码渲染国际化信息
+     * <p>
+     * 仅在响应信息为空或等于默认占位文案时替换，避免覆盖参数校验的字段级提示与异常的明细信息。
+     * </p>
      *
      * @param body 响应对象
      */
@@ -185,10 +203,19 @@ public class GlobalResponseBodyAdvice implements ResponseBodyAdvice<Object> {
         if (!StringUtils.hasText(code)) {
             return;
         }
+        if (!isDefaultMessage(responseFactory.getMessage(body))) {
+            return;
+        }
         String message = messageSource.getMessage(code, null, null, LocaleContextHolder
             .getLocale());
         if (StringUtils.hasText(message)) {
             responseFactory.setMessage(body, message);
         }
+    }
+
+    private boolean isDefaultMessage(@Nullable String message) {
+        return !StringUtils.hasText(message)
+            || Objects.equals(message, properties.getDefaultSuccessMsg())
+            || Objects.equals(message, properties.getDefaultErrorMsg());
     }
 }

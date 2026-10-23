@@ -39,7 +39,7 @@ public class ExceptionAliasRegister {
     /**
      * 注册异常别名
      *
-     * @param throwableClass 被别名的异常类型，需标注 {@link ExceptionAliasFor}
+     * @param throwableClass 标注 {@link ExceptionAliasFor} 的异常类型，生效范围为注解中的 {@code aliasFor}
      * @return 当前注册器
      */
     public ExceptionAliasRegister doRegisterExceptionAlias(

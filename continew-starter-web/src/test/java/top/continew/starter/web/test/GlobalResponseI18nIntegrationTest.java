@@ -17,6 +17,7 @@
 package top.continew.starter.web.test;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -26,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import top.continew.starter.web.test.config.GlobalResponseTestConfiguration;
 
@@ -67,5 +69,15 @@ class GlobalResponseI18nIntegrationTest {
             .andExpect(status().is(418))
             .andExpect(jsonPath("$.code").value("4001"))
             .andExpect(jsonPath("$.msg").value("别名异常"));
+    }
+
+    @Test
+    void shouldKeepValidationMessage() throws Exception {
+        mockMvc.perform(post("/test/validation").contentType(MediaType.APPLICATION_JSON)
+            .content("{\"name\":\"\"}")
+            .header(HttpHeaders.ACCEPT_LANGUAGE, "zh-CN"))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.code").value("1"))
+            .andExpect(jsonPath("$.msg").value("name must not be blank"));
     }
 }

@@ -18,29 +18,18 @@ package top.continew.starter.web.model;
 
 import org.jspecify.annotations.Nullable;
 import top.continew.starter.web.autoconfigure.response.GlobalResponseFactory;
-import top.continew.starter.web.autoconfigure.response.GlobalResponseProperties;
 
 /**
  * 默认全局响应工厂
  * <p>
- * 返回 {@link R}，并在创建时把配置默认值写入 {@link R} 的静态状态。
+ * 返回 {@link R}。{@link R} 的默认状态码与提示由
+ * {@link ResponseConfigInitializer} 在容器启动时统一写入。
  * </p>
  *
  * @author Charles7c
  * @since 3.0.0
  */
 public class DefaultGlobalResponseFactory implements GlobalResponseFactory {
-
-    /**
-     * 构造方法
-     *
-     * @param properties 全局响应配置属性
-     */
-    public DefaultGlobalResponseFactory(GlobalResponseProperties properties) {
-        ResponseConfig.configure(properties.getDefaultSuccessCode(), properties
-            .getDefaultSuccessMsg(), properties.getDefaultErrorCode(),
-            properties.getDefaultErrorMsg());
-    }
 
     @Override
     public Object newSuccess(@Nullable Object data) {
@@ -60,6 +49,11 @@ public class DefaultGlobalResponseFactory implements GlobalResponseFactory {
     @Override
     public String getCode(Object body) {
         return body instanceof R<?> r ? r.getCode() : null;
+    }
+
+    @Override
+    public String getMessage(Object body) {
+        return body instanceof R<?> r ? r.getMsg() : null;
     }
 
     @Override

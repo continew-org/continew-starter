@@ -66,6 +66,15 @@ public interface GlobalResponseFactory {
     String getCode(Object body);
 
     /**
+     * 获取响应信息
+     *
+     * @param body 响应对象
+     * @return 响应信息，无法获取时返回 {@code null}
+     */
+    @Nullable
+    String getMessage(Object body);
+
+    /**
      * 改写响应信息
      *
      * @param body    响应对象

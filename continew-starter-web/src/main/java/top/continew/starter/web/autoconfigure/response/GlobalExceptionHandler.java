@@ -34,7 +34,8 @@ import java.util.stream.Stream;
  * 全局异常处理器
  * <p>
  * 未匹配到业务方自定义异常处理器的异常由本处理器兜底。若异常命中例外配置，则原样抛出，
- * 继续交由框架或错误页处理。
+ * 继续交由框架或错误页处理。本处理器为 {@code @Order(200)}，业务方的
+ * {@code @RestControllerAdvice} 需声明小于 200 的 {@code @Order} 才会优先处理。
  * </p>
  *
  * @author Charles7c
@@ -53,19 +54,16 @@ public class GlobalExceptionHandler {
     /**
      * 构造方法
      *
-     * @param properties                    全局响应配置属性
-     * @param responseFactory               全局响应工厂
-     * @param exceptionAliasRegister        异常别名注册器
-     * @param beforeControllerAdviceProcess 异常处理前回调
+     * @param properties        全局响应配置属性
+     * @param responseFactory   全局响应工厂
+     * @param exceptionResolver 全局异常响应解析器
      */
     public GlobalExceptionHandler(GlobalResponseProperties properties,
         GlobalResponseFactory responseFactory,
-        ExceptionAliasRegister exceptionAliasRegister,
-        BeforeControllerAdviceProcess beforeControllerAdviceProcess) {
+        GlobalExceptionResolver exceptionResolver) {
         this.properties = properties;
         this.responseFactory = responseFactory;
-        this.exceptionResolver = new GlobalExceptionResolver(properties, exceptionAliasRegister,
-            beforeControllerAdviceProcess);
+        this.exceptionResolver = exceptionResolver;
     }
 
     /**
@@ -80,10 +78,7 @@ public class GlobalExceptionHandler {
     @SuppressWarnings("java:S112")
     public ResponseEntity<Object> handleBindException(BindException e,
         HttpServletRequest request) throws Exception {
-        exceptionResolver.before(request, e);
-        if (exceptionResolver.isExcluded(e)) {
-            throw e;
-        }
+        exceptionResolver.beforeHandle(request, e);
         String msg = e.getBindingResult()
             .getAllErrors()
             .stream()
@@ -113,10 +108,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleHandlerMethodValidationException(
         HandlerMethodValidationException e,
         HttpServletRequest request) throws Exception {
-        exceptionResolver.before(request, e);
-        if (exceptionResolver.isExcluded(e)) {
-            throw e;
-        }
+        exceptionResolver.beforeHandle(request, e);
         String msg = Stream.concat(e.getParameterValidationResults()
             .stream()
             .flatMap(result -> result.getResolvableErrors().stream()),
@@ -145,10 +137,7 @@ public class GlobalExceptionHandler {
     @SuppressWarnings("java:S112")
     public ResponseEntity<Object> handleException(Exception e,
         HttpServletRequest request) throws Exception {
-        exceptionResolver.before(request, e);
-        if (exceptionResolver.isExcluded(e)) {
-            throw e;
-        }
+        exceptionResolver.beforeHandle(request, e);
         GlobalExceptionResolver.ResponseInfo responseInfo = exceptionResolver
             .resolveResponseInfo(e);
         return ResponseEntity.status(exceptionResolver.resolveHttpStatus(e))

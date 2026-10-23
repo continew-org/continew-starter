@@ -64,8 +64,11 @@ public class WebMvcAutoConfiguration implements WebMvcConfigurer {
      */
     @Bean
     public ServerHttpMessageConvertersCustomizer continewServerHttpMessageConvertersCustomizer() {
-        return builder -> builder.configureMessageConvertersList(converters -> converters.add(0,
-            new ByteArrayHttpMessageConverter()));
+        return builder -> builder.configureMessageConvertersList(converters -> {
+            if (converters.stream().noneMatch(ByteArrayHttpMessageConverter.class::isInstance)) {
+                converters.add(0, new ByteArrayHttpMessageConverter());
+            }
+        });
     }
 
     @PostConstruct

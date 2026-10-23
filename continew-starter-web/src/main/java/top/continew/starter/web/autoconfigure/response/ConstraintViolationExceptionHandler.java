@@ -31,7 +31,8 @@ import java.util.stream.Collectors;
  * 参数校验异常处理器
  * <p>
  * 处理 {@code @Validated} 标注的类或方法上的约束校验异常。仅当类路径存在 Bean Validation API
- * 时由自动配置注册。
+ * 时由自动配置注册。本处理器为 {@code @Order(190)}，业务方的 {@code @RestControllerAdvice}
+ * 需声明小于 190 的 {@code @Order} 才会优先处理。
  * </p>
  *
  * @author Charles7c
@@ -50,19 +51,16 @@ public class ConstraintViolationExceptionHandler {
     /**
      * 构造方法
      *
-     * @param properties                    全局响应配置属性
-     * @param responseFactory               全局响应工厂
-     * @param exceptionAliasRegister        异常别名注册器
-     * @param beforeControllerAdviceProcess 异常处理前回调
+     * @param properties        全局响应配置属性
+     * @param responseFactory   全局响应工厂
+     * @param exceptionResolver 全局异常响应解析器
      */
     public ConstraintViolationExceptionHandler(GlobalResponseProperties properties,
         GlobalResponseFactory responseFactory,
-        ExceptionAliasRegister exceptionAliasRegister,
-        BeforeControllerAdviceProcess beforeControllerAdviceProcess) {
+        GlobalExceptionResolver exceptionResolver) {
         this.properties = properties;
         this.responseFactory = responseFactory;
-        this.exceptionResolver = new GlobalExceptionResolver(properties, exceptionAliasRegister,
-            beforeControllerAdviceProcess);
+        this.exceptionResolver = exceptionResolver;
     }
 
     /**
@@ -77,10 +75,7 @@ public class ConstraintViolationExceptionHandler {
     @SuppressWarnings("java:S112")
     public ResponseEntity<Object> handleConstraintViolationException(ConstraintViolationException e,
         HttpServletRequest request) throws Exception {
-        exceptionResolver.before(request, e);
-        if (exceptionResolver.isExcluded(e)) {
-            throw e;
-        }
+        exceptionResolver.beforeHandle(request, e);
         String msg = e.getConstraintViolations()
             .stream()
             .map(ConstraintViolation::getMessage)

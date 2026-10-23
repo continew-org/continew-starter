@@ -48,6 +48,12 @@ public class R<T> {
     @Schema(description = "响应数据")
     private T data;
 
+    /**
+     * 构造方法
+     * <p>
+     * 仅供反序列化等场景使用，创建后 {@code code}/{@code msg} 保持未设置。
+     * </p>
+     */
     public R() {
     }
 
