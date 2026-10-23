@@ -35,6 +35,18 @@
             <artifactId>sa-token-jwt</artifactId>
         </dependency>
 
+        <!-- Sa-Token 整合 Jackson 3（Sa-Token 内部 JSON 操作切换至 Jackson 3，经 SPI 自动加载） -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-jackson3</artifactId>
+        </dependency>
+
+        <!-- Jackson 3 数据绑定（sa-token-jackson3 对其依赖为 optional，若缺失会导致插件 SPI 加载失败） -->
+        <dependency>
+            <groupId>tools.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
         <!-- Sa-Token 集成 Redisson 客户端 -->
         <dependency>
             <groupId>cn.dev33</groupId>

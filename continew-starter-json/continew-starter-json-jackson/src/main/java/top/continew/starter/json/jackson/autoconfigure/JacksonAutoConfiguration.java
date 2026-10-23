@@ -17,26 +17,25 @@
 package top.continew.starter.json.jackson.autoconfigure;
 
 import cn.hutool.core.date.DatePattern;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.DurationDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.InstantDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.DurationSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.InstantSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.boot.jackson2.autoconfigure.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
+import tools.jackson.databind.ext.javatime.deser.DurationDeserializer;
+import tools.jackson.databind.ext.javatime.deser.InstantDeserializer;
+import tools.jackson.databind.ext.javatime.deser.LocalDateDeserializer;
+import tools.jackson.databind.ext.javatime.deser.LocalDateTimeDeserializer;
+import tools.jackson.databind.ext.javatime.deser.LocalTimeDeserializer;
+import tools.jackson.databind.ext.javatime.ser.DurationSerializer;
+import tools.jackson.databind.ext.javatime.ser.InstantSerializer;
+import tools.jackson.databind.ext.javatime.ser.LocalDateSerializer;
+import tools.jackson.databind.ext.javatime.ser.LocalDateTimeSerializer;
+import tools.jackson.databind.ext.javatime.ser.LocalTimeSerializer;
+import tools.jackson.databind.module.SimpleModule;
+import tools.jackson.databind.ser.std.ToStringSerializer;
 import top.continew.starter.core.enums.BaseEnum;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 import top.continew.starter.json.jackson.serializer.BaseEnumDeserializer;
@@ -74,15 +73,13 @@ public class JacksonAutoConfiguration {
     }
 
     @Bean
-    @SuppressWarnings({"deprecation", "removal"})
-    public Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
+    public JsonMapperBuilderCustomizer jsonMapperBuilderCustomizer() {
         return builder -> {
-            JavaTimeModule javaTimeModule = this.javaTimeModule();
-            SimpleModule baseEnumModule = this.baseEnumModule();
-            SimpleModule bigNumberModule = this.bigNumberModule();
-
-            builder.timeZone(TimeZone.getDefault());
-            builder.modules(javaTimeModule, baseEnumModule, bigNumberModule);
+            // 时区跟随 JVM 默认值（优先级高于 spring.jackson.time-zone 配置），与 2.x 行为保持一致
+            builder.defaultTimeZone(TimeZone.getDefault());
+            builder.addModule(javaTimeModule());
+            builder.addModule(baseEnumModule());
+            builder.addModule(bigNumberModule());
             LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'Jackson' completed initialization.");
         };
@@ -91,11 +88,11 @@ public class JacksonAutoConfiguration {
     /**
      * 日期时间序列化及反序列化配置
      *
-     * @return {@link JavaTimeModule}
+     * @return {@link SimpleModule}
      * @since 1.0.0
      */
-    private JavaTimeModule javaTimeModule() {
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
+    private SimpleModule javaTimeModule() {
+        SimpleModule javaTimeModule = new SimpleModule();
         // 针对时间类型：LocalDateTime 的序列化和反序列化处理
         DateTimeFormatter dateTimeFormatter =
             DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN);

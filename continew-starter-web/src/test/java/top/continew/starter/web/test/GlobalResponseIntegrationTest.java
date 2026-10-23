@@ -16,7 +16,6 @@
 
 package top.continew.starter.web.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -28,13 +27,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import top.continew.starter.web.test.config.GlobalResponseTestConfiguration;
 
 /**
- * 全局响应集成测试（Jackson 2）
+ * 全局响应集成测试
  *
  * @author Charles7c
  * @since 3.0.0
@@ -48,15 +46,6 @@ class GlobalResponseIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private Environment environment;
-
-    @Test
-    void shouldPreferJackson2JsonMapper() {
-        assertEquals("jackson2", environment
-            .getProperty("spring.http.converters.preferred-json-mapper"));
-    }
 
     @Test
     void shouldWrapJsonResponse() throws Exception {

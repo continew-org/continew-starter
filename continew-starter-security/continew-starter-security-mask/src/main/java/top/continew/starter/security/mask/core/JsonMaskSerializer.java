@@ -19,17 +19,14 @@ package top.continew.starter.security.mask.core;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.ser.ContextualSerializer;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.security.mask.annotation.JsonMask;
 import top.continew.starter.security.mask.strategy.IMaskStrategy;
 
-import java.io.IOException;
 import java.util.Objects;
 
 /**
@@ -38,7 +35,7 @@ import java.util.Objects;
  * @author Charles7c
  * @since 1.4.0
  */
-public class JsonMaskSerializer extends JsonSerializer<String> implements ContextualSerializer {
+public class JsonMaskSerializer extends ValueSerializer<String> {
 
     private JsonMask jsonMask;
 
@@ -50,9 +47,7 @@ public class JsonMaskSerializer extends JsonSerializer<String> implements Contex
     }
 
     @Override
-    public void serialize(String str,
-        JsonGenerator jsonGenerator,
-        SerializerProvider serializerProvider) throws IOException {
+    public void serialize(String str, JsonGenerator jsonGenerator, SerializationContext context) {
         if (CharSequenceUtil.isBlank(str)) {
             jsonGenerator.writeString(StringConstants.EMPTY);
             return;
@@ -62,24 +57,24 @@ public class JsonMaskSerializer extends JsonSerializer<String> implements Contex
         IMaskStrategy maskStrategy = strategyClass != IMaskStrategy.class
             ? SpringUtil.getBean(strategyClass)
             : jsonMask.value();
-        jsonGenerator.writeString(
-            maskStrategy.mask(str, jsonMask.character(), jsonMask.left(), jsonMask.right()));
+        jsonGenerator.writeString(maskStrategy
+            .mask(str, jsonMask.character(), jsonMask.left(), jsonMask.right()));
     }
 
     @Override
-    public JsonSerializer<?> createContextual(SerializerProvider serializerProvider,
-        BeanProperty beanProperty) throws JsonMappingException {
+    public ValueSerializer<?> createContextual(SerializationContext context,
+        BeanProperty beanProperty) {
         if (beanProperty == null) {
-            return serializerProvider.findNullValueSerializer(null);
+            return context.findNullValueSerializer(beanProperty);
         }
         if (!Objects.equals(beanProperty.getType().getRawClass(), String.class)) {
-            return serializerProvider.findValueSerializer(beanProperty.getType(), beanProperty);
+            return context.findValueSerializer(beanProperty.getType());
         }
         JsonMask jsonMaskAnnotation =
             ObjectUtil.defaultIfNull(beanProperty.getAnnotation(JsonMask.class), beanProperty
                 .getContextAnnotation(JsonMask.class));
         if (jsonMaskAnnotation == null) {
-            return serializerProvider.findValueSerializer(beanProperty.getType(), beanProperty);
+            return context.findValueSerializer(beanProperty.getType());
         }
         return new JsonMaskSerializer(jsonMaskAnnotation);
     }

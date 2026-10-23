@@ -19,8 +19,7 @@ package top.continew.starter.cache.redisson.autoconfigure;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.CharSequenceUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.redisson.codec.JsonJacksonCodec;
+import org.redisson.codec.JsonJackson3Codec;
 import org.redisson.config.ClusterServersConfig;
 import org.redisson.config.Config;
 import org.redisson.config.SentinelServersConfig;
@@ -33,6 +32,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties;
 import org.springframework.context.annotation.Bean;
+import tools.jackson.databind.ObjectMapper;
 import top.continew.starter.cache.redisson.handler.NameMapperHandler;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.constant.StringConstants;
@@ -80,7 +80,7 @@ public class RedissonAutoConfiguration {
                 default -> this.buildSingleModeConfig(config, protocolPrefix);
             }
             // Jackson 处理
-            config.setCodec(new JsonJacksonCodec(objectMapper));
+            config.setCodec(new JsonJackson3Codec(objectMapper));
             LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'Redisson' completed initialization.");
         };

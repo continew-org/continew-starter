@@ -35,7 +35,7 @@ spring:
 
 ## 使用 Spring Cache 注解
 
-引入依赖后，直接使用 Spring Cache 标准注解即可，缓存值以 Jackson JSON 序列化存入 Redis（`SpringCacheAutoConfiguration` 中配置了 `StringRedisSerializer` 序列化 Key、`GenericJackson2JsonRedisSerializer` 序列化 Value，解决了 Jackson 解析缓存乱码问题）。
+引入依赖后，直接使用 Spring Cache 标准注解即可，缓存值以 Jackson JSON 序列化存入 Redis（`SpringCacheAutoConfiguration` 中配置了 `StringRedisSerializer` 序列化 Key、`GenericJacksonJsonRedisSerializer`（Jackson 3）序列化 Value，解决了 Jackson 解析缓存乱码问题）。
 
 ```java
 @Service

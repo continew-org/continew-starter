@@ -29,13 +29,13 @@ import org.springframework.test.web.servlet.MockMvc;
 import top.continew.starter.web.test.config.GlobalResponseTestConfiguration;
 
 /**
- * 全局响应集成测试（Jackson 3）
+ * 全局响应集成测试（默认 Jackson 3 场景，不配置 preferred-json-mapper）
  *
  * @author Charles7c
  * @since 3.0.0
  */
-@SpringBootTest(properties = {"spring.http.converters.preferred-json-mapper=jackson3",
-    "continew-starter.web.response.print-exception-in-global-advice=false"})
+@SpringBootTest(
+    properties = {"continew-starter.web.response.print-exception-in-global-advice=false"})
 @AutoConfigureMockMvc
 @Import(GlobalResponseTestConfiguration.class)
 class GlobalResponseJackson3IntegrationTest {

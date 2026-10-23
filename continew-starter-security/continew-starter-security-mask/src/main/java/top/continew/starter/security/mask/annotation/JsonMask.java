@@ -17,7 +17,7 @@
 package top.continew.starter.security.mask.annotation;
 
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 import top.continew.starter.core.constant.CharConstants;
 import top.continew.starter.security.mask.core.JsonMaskSerializer;
 import top.continew.starter.security.mask.enums.MaskType;

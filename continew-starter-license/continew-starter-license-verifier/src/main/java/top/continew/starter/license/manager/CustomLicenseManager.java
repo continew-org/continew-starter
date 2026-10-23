@@ -16,7 +16,6 @@
 
 package top.continew.starter.license.manager;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.schlichtherle.license.CipherParam;
 import de.schlichtherle.license.DefaultCipherParam;
 import de.schlichtherle.license.DefaultLicenseParam;
@@ -31,6 +30,8 @@ import de.schlichtherle.xml.GenericCertificate;
 import net.lingala.zip4j.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.json.JsonMapper;
 import top.continew.starter.license.autoconfigure.LicenseVerifyProperties;
 import top.continew.starter.license.bean.LicenseInstallerBean;
 import top.continew.starter.license.exception.LicenseException;
@@ -133,9 +134,9 @@ public class CustomLicenseManager extends LicenseManager {
         }
 
         try (InputStream inputStream = Files.newInputStream(configPath)) {
-            ObjectMapper mapper = new ObjectMapper();
+            JsonMapper mapper = new JsonMapper();
             return mapper.readValue(inputStream, ConfigParam.class);
-        } catch (IOException e) {
+        } catch (IOException | JacksonException e) {
             LOGGER.error("读取配置文件失败: {}", e.getMessage(), e);
             return null;
         }

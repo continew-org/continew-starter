@@ -16,15 +16,16 @@
     <description>ContiNew Starter JSON 模块 - Jackson</description>
 
     <dependencies>
-        <!-- Spring Boot Jackson 2 支持（Boot 4 默认 Jackson 3，过渡期保留 Jackson 2 行为） -->
+        <!-- Spring Boot Jackson 支持（Jackson 3，Boot 4 默认 JSON 映射器） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-jackson2</artifactId>
+            <artifactId>spring-boot-jackson</artifactId>
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
