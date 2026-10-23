@@ -33,6 +33,7 @@ import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializ
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import jakarta.annotation.PostConstruct;
@@ -70,7 +71,9 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
         // 基于容器 ObjectMapper 重建并启用默认多态类型信息，与 2.x GenericJackson2JsonRedisSerializer 行为保持一致
         GenericJacksonJsonRedisSerializer serializer = GenericJacksonJsonRedisSerializer
             .builder(objectMapper::rebuild)
-            .enableUnsafeDefaultTyping()
+            .enableDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(Object.class)
+                .build())
             .build();
         RedisCacheConfiguration redisCacheConfiguration =
             RedisCacheConfiguration.defaultCacheConfig()

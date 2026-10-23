@@ -138,7 +138,7 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.convertValue(jsonNode, OBJECT_MAPPER.getTypeFactory()
                 .constructCollectionType(List.class, elementType));
-        } catch (JacksonException e) {
+        } catch (JacksonException | IllegalArgumentException e) {
             throw new JsonException("Failed to convert JSON to list", e);
         }
     }

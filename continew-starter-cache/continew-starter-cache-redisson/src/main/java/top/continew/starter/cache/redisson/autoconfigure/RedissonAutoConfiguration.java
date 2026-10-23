@@ -32,7 +32,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.data.redis.autoconfigure.DataRedisProperties;
 import org.springframework.context.annotation.Bean;
+import tools.jackson.databind.DefaultTyping;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import top.continew.starter.cache.redisson.handler.NameMapperHandler;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.constant.StringConstants;
@@ -79,8 +81,15 @@ public class RedissonAutoConfiguration {
                 case SENTINEL -> this.buildSentinelModeConfig(config, protocolPrefix);
                 default -> this.buildSingleModeConfig(config, protocolPrefix);
             }
-            // Jackson 处理
-            config.setCodec(new JsonJackson3Codec(objectMapper));
+            // Jackson 处理：JsonJackson3Codec 对传入的 ObjectMapper 不会追加多态类型信息（与 2.x
+            // JsonJacksonCodec 行为不同），需基于容器 mapper 重建并显式开启 @class 类型，
+            // 否则对象值序列化丢失类型、读回变为 LinkedHashMap
+            ObjectMapper codecMapper = objectMapper.rebuild()
+                .activateDefaultTypingAsProperty(BasicPolymorphicTypeValidator.builder()
+                    .allowIfBaseType(Object.class)
+                    .build(), DefaultTyping.NON_FINAL, "@class")
+                .build();
+            config.setCodec(new JsonJackson3Codec(codecMapper));
             LOGGER.debug(
                 "[ContiNew Starter] - Auto Configuration 'Redisson' completed initialization.");
         };
