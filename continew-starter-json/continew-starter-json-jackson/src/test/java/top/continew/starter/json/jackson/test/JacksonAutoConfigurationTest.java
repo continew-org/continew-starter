@@ -150,10 +150,10 @@ class JacksonAutoConfigurationTest {
     }
 
     @Test
-    @DisplayName("时区配置生效（GMT+8）")
-    void shouldApplyConfiguredTimeZone() {
+    @DisplayName("时区跟随 JVM 默认值（与运行环境时区无关）")
+    void shouldApplyJvmDefaultTimeZone() {
         java.util.Date date = java.util.Date.from(LocalDateTime.of(2026, 10, 23, 8, 0, 0)
-            .atZone(java.time.ZoneId.of("GMT+8"))
+            .atZone(java.time.ZoneId.systemDefault())
             .toInstant());
         String json = jsonMapper.writeValueAsString(date);
         assertTrue(json.contains("\"2026-10-23 08:00:00\""), json);
