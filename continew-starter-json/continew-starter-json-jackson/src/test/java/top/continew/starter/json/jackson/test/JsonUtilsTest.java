@@ -138,6 +138,7 @@ class JsonUtilsTest {
     @Test
     @DisplayName("JsonBuilder 空键抛出 NullPointerException")
     void jsonBuilderShouldThrowOnNullKey() {
-        assertThrows(NullPointerException.class, () -> JsonBuilder.builder().add(null, "v"));
+        JsonBuilder builder = JsonBuilder.builder();
+        assertThrows(NullPointerException.class, () -> builder.add(null, "v"));
     }
 }
