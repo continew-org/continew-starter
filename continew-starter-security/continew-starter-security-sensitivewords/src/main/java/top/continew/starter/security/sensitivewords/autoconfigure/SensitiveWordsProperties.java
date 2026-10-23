@@ -19,6 +19,7 @@ package top.continew.starter.security.sensitivewords.autoconfigure;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import top.continew.starter.core.constant.PropertiesConstants;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,21 +27,112 @@ import java.util.List;
  *
  * @author luoqiz
  * @author Charles7c
- * @since 2.9.0
+ * @since 3.0.0
  */
 @ConfigurationProperties(PropertiesConstants.SECURITY_SENSITIVE_WORDS)
 public class SensitiveWordsProperties {
 
     /**
-     * 敏感词列表
+     * 是否启用检测
      */
-    private List<String> values;
+    private boolean enabled = true;
 
-    public List<String> getValues() {
-        return values;
+    /**
+     * 是否加载内置词库（黑名单与白名单）
+     */
+    private boolean useDefaultDeny = true;
+
+    /**
+     * 追加敏感词
+     */
+    private List<String> denyWords = new ArrayList<>();
+
+    /**
+     * 白名单
+     */
+    private List<String> allowWords = new ArrayList<>();
+
+    /**
+     * 是否忽略重复字符
+     */
+    private boolean ignoreRepeat = false;
+
+    /**
+     * 是否检测数字（8 位及以上连续数字，如手机号）
+     */
+    private boolean numCheck = false;
+
+    /**
+     * 是否检测邮箱
+     */
+    private boolean emailCheck = false;
+
+    /**
+     * 是否检测网址
+     */
+    private boolean urlCheck = false;
+
+    public boolean isEnabled() {
+        return enabled;
     }
 
-    public void setValues(List<String> values) {
-        this.values = values;
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isUseDefaultDeny() {
+        return useDefaultDeny;
+    }
+
+    public void setUseDefaultDeny(boolean useDefaultDeny) {
+        this.useDefaultDeny = useDefaultDeny;
+    }
+
+    public List<String> getDenyWords() {
+        return denyWords;
+    }
+
+    public void setDenyWords(List<String> denyWords) {
+        this.denyWords = denyWords;
+    }
+
+    public List<String> getAllowWords() {
+        return allowWords;
+    }
+
+    public void setAllowWords(List<String> allowWords) {
+        this.allowWords = allowWords;
+    }
+
+    public boolean isIgnoreRepeat() {
+        return ignoreRepeat;
+    }
+
+    public void setIgnoreRepeat(boolean ignoreRepeat) {
+        this.ignoreRepeat = ignoreRepeat;
+    }
+
+    public boolean isNumCheck() {
+        return numCheck;
+    }
+
+    public void setNumCheck(boolean numCheck) {
+        this.numCheck = numCheck;
+    }
+
+    public boolean isEmailCheck() {
+        return emailCheck;
+    }
+
+    public void setEmailCheck(boolean emailCheck) {
+        this.emailCheck = emailCheck;
+    }
+
+    public boolean isUrlCheck() {
+        return urlCheck;
+    }
+
+    public void setUrlCheck(boolean urlCheck) {
+        this.urlCheck = urlCheck;
     }
 }

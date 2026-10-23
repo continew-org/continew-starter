@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-package top.continew.starter.security.sensitivewords.service;
-
-import java.util.List;
+package top.continew.starter.security.sensitivewords.model;
 
 /**
- * 敏感词配置接口
+ * 敏感词命中结果
  *
+ * <p>
+ * {@code word} 为原文片段而非词库标准词形，便于前端直接定位高亮。
+ * </p>
+ *
+ * @param word       命中的原文片段
+ * @param startIndex 起始下标（包含）
+ * @param endIndex   结束下标（不包含）
  * @author luoqiz
- * @author Charles7c
- * @since 2.9.0
+ * @since 3.0.0
  */
-public interface SensitiveWordsConfig {
-
-    /**
-     * 获取敏感词列表
-     *
-     * @return 敏感词列表
-     */
-    List<String> getWords();
+public record SensitiveWordHit(String word, int startIndex, int endIndex) {
 }

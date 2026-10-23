@@ -16,16 +16,23 @@
     <description>ContiNew Starter 安全模块 - 敏感词</description>
 
     <dependencies>
-        <!-- Hutool DFA 模块（基于 DFA 的关键词查找） -->
+        <!-- sensitive-word（基于 DFA 的敏感词工具，默认支持全半角、大小写归一化，重复字符归一化可配置） -->
         <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-dfa</artifactId>
+            <groupId>com.github.houbb</groupId>
+            <artifactId>sensitive-word</artifactId>
         </dependency>
 
         <!-- Spring Boot 校验模块（Hibernate Validator） -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>

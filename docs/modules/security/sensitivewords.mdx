@@ -1,9 +1,9 @@
 ---
 title: 敏感词
-description: 基于 Hutool DFA 算法的敏感词检测，提供编程式检测服务 SensitiveWordsService 与 Bean Validation 校验注解 @SensitiveWords。
+description: 基于 sensitive-word（DFA）的敏感词检测，提供编程式检测服务 SensitiveWordsService、Bean Validation 校验注解 @SensitiveWords，支持黑白名单与运行时增删词。
 ---
 
-`continew-starter-security-sensitivewords` 基于 Hutool DFA 算法实现敏感词匹配，提供编程式检测服务 `SensitiveWordsService` 与 Bean Validation 校验注解 `@SensitiveWords`。
+`continew-starter-security-sensitivewords` 基于 [sensitive-word](https://github.com/houbb/sensitive-word) 的 DFA 实现敏感词检测，默认对全半角与大小写差异做归一化，重复字符归一化通过 `ignore-repeat` 配置开启。模块提供编程式检测服务 `SensitiveWordsService` 与 Bean Validation 校验注解 `@SensitiveWords`。
 
 ### 引入依赖
 
@@ -16,29 +16,52 @@ description: 基于 Hutool DFA 算法的敏感词检测，提供编程式检测�
 
 ### 配置
 
-配置项定义在 `top.continew.starter.security.sensitivewords.autoconfigure.SensitiveWordsProperties` 中。模块**不内置词库文件**，默认词库即配置项 `values`：
+配置项定义在 `top.continew.starter.security.sensitivewords.autoconfigure.SensitiveWordsProperties` 中。
 
 ```yaml
 continew-starter:
   security:
     sensitive-words:
-      # 敏感词列表
-      values:
+      enabled: true
+      # 是否加载内置词库（黑名单与白名单）
+      use-default-deny: true
+      # 追加敏感词
+      deny-words:
         - 敏感词一
         - 敏感词二
+      # 白名单
+      allow-words:
+        - 允许词
+      # 忽略重复字符（法法轮功 视为 法轮功）
+      ignore-repeat: false
+      # 长数字（8 位及以上）、邮箱、网址检测
+      num-check: false
+      email-check: false
+      url-check: false
 ```
 
 | 配置项 | 说明 | 默认值 |
 |:-------|:-----|:-------|
-| `continew-starter.security.sensitive-words.values` | 敏感词列表 | 无 |
+| `enabled` | 是否启用检测 | `true` |
+| `use-default-deny` | 是否加载内置词库（黑名单与白名单） | `true` |
+| `deny-words` | 追加敏感词 | 空 |
+| `allow-words` | 白名单 | 空 |
+| `ignore-repeat` | 是否忽略重复字符 | `false` |
+| `num-check` | 是否将 8 位及以上连续数字视为敏感内容（如手机号） | `false` |
+| `email-check` | 是否检测邮箱 | `false` |
+| `url-check` | 是否检测网址 | `false` |
+
+<Callout type="warning">
+`use-default-deny` 为 `true` 时，sensitive-word 自带的 6 万余条黑名单词全部生效，商业文案存在被误拦的可能；建树也会让启动多花约一两百毫秒。新项目建议先设为 `false`，用自有词库起步。
+</Callout>
 
 <Callout type="info">
-需要从数据库等外部来源加载词库时，实现 `SensitiveWordsConfig` 接口（返回词列表的 `getWords()` 方法）并注册为 Bean 即可，自动配置提供的默认实现 `DefaultSensitiveWordsConfig`（`@ConditionalOnMissingBean`）会自动让位。
+`deny-words` 里配置的数字、邮箱、网址属于显式词库词，走词库匹配，不受 `num-check`、`email-check`、`url-check` 控制。三个开关只决定是否把「未显式配置的」8 位及以上数字、邮箱、网址自动视为敏感内容，关掉它们不会让已配置的词失效。
 </Callout>
 
 ### 编程式检测
 
-注入 `SensitiveWordsService`，调用 `check(String content)`，返回命中的敏感词列表（未命中返回空列表）：
+注入 `SensitiveWordsService`。
 
 ```java
 @RequiredArgsConstructor
@@ -47,16 +70,35 @@ public class DemoService {
 
     private final SensitiveWordsService sensitiveWordsService;
 
-    public void check(String content) {
-        List<String> hitWords = sensitiveWordsService.check(content);
-        // ...
+    public void check(String text) {
+        // 是否包含敏感词
+        boolean contains = sensitiveWordsService.contains(text);
+
+        // 去重后的命中片段（片段取自原文）
+        List<String> words = sensitiveWordsService.findAll(text);
+
+        // 第一个命中的词
+        String first = sensitiveWordsService.findFirst(text);
+
+        // 命中片段与位置，适合前端高亮
+        List<SensitiveWordHit> hits = sensitiveWordsService.match(text);
+
+        // 替换，默认字符为 *
+        String masked = sensitiveWordsService.replace(text);
+
+        // 替换为指定字符
+        String maskedCustom = sensitiveWordsService.replace(text, '#');
     }
 }
 ```
 
+`findAll` 返回去重后的命中片段，片段取自原文，全半角、大小写等归一化只影响匹配、不改变返回形态，因此同一个词的不同写法（如「abc」与「ａｂｃ」）会分别返回。需要每个命中的位置或未去重的全部命中时用 `match`。
+
+词库同时存在长短两个词（如「敏感」与「敏感词」）时按最长匹配命中，文本「敏感词」只返回「敏感词」，不会额外返回「敏感」。`findFirst` 返回文本中最靠左命中的片段，与词库中的声明顺序无关。
+
 ### 使用 @SensitiveWords 注解校验
 
-在 `String` 类型的字段/参数上标注 `@SensitiveWords`（默认消息：`内容包含敏感词汇`），命中时校验消息动态拼接为：`内容包含敏感词汇: 命中词1,命中词2`（见 `SensitiveWordsValidator`）：
+在 `String` 类型的字段、方法返回值或参数上标注 `@SensitiveWords`，命中时校验消息会拼接命中词。
 
 ```java
 @Data
@@ -64,9 +106,105 @@ public class CommentReq {
 
     @SensitiveWords
     private String content;
+
+    // 自定义提示语，命中后消息为「昵称不合规: 命中词」
+    @SensitiveWords(message = "昵称不合规")
+    private String nickname;
+
+    // 命中第一个词即返回，不做全量扫描
+    @SensitiveWords(failFast = true)
+    private String title;
 }
 ```
 
+空值和空白串会直接通过校验，是否必填交给 `@NotBlank` 处理。
+
+### 黑白名单
+
+白名单与黑名单按最长匹配长度比较，长度相同时白名单优先。需要注意的是，只有能在文本中完整匹配的白名单词才会参与比较。三条确定性行为：
+
+| 情况 | 结果 |
+|:-----|:-----|
+| 同一个词同时出现在黑白名单 | 不命中 |
+| 白名单比黑名单短 | 命中长词（白名单「法轮」不会放行「法轮功」） |
+| 白名单比黑名单长 | 文本完整出现该白名单词时不命中；文本只出现较短的敏感词时仍然命中（白名单「法轮功啊」挡不住文本「法轮功」） |
+
+白名单词同样参与 `num-check`、`email-check`、`url-check` 的比较，完整匹配时放行对应检测结果，可用于放行特定的手机号、邮箱或网址。
+
+白名单是全局的，没有上下文感知。同一个词在所有文本里都会放行。需要按业务或字段区分的，可以定义多个 `SensitiveWordBs` Bean 自行注入使用；但自动配置的 `SensitiveWordsService` 只会选用其中一个，注册了多个自定义引擎时需用 `@Primary` 指定，否则容器启动会因 Bean 歧义失败。
+
+<Callout type="warning">
+白名单命中后，引擎会按白名单长度跳过字符。白名单词如果跨过某个敏感词的起始位置，那个敏感词会被漏检。例如白名单有「ABC」、黑名单有「BCD」，文本「ABCD」检测不到「BCD」。白名单只应添加确定整体不需要检测的片段，不要加超长片段。
+</Callout>
+
+<Callout type="info">
+自定义 `SensitiveWordBs` Bean 属于高级逃生舱。此时 `refresh()` 的差量统计与静态词快照仍以默认责任链（内置词库、配置词、`IWordDeny` Bean）为基准，与自定义引擎的实际词集可能不一致：配置的 `deny-words`、`allow-words` 不会进入自定义引擎；`addWord` 要添加的词若已在静态快照中，则不会调用引擎增量接口（该过滤对默认引擎同样如此）。组合使用自定义引擎与配置词库时需要留意。
+</Callout>
+
+### 运行时增删词
+
+`SensitiveWordsService` 提供四个方法，调用后立即生效，不需要重启或刷新。
+
+```java
+// 临时封禁一个词
+sensitiveWordsService.addWord("待封禁词");
+
+// 撤销临时封禁
+sensitiveWordsService.removeWord("待封禁词");
+
+// 临时放行（可覆盖已存在的黑名单词）
+sensitiveWordsService.addWordAllow("待放行词");
+
+// 撤销临时放行
+sensitiveWordsService.removeWordAllow("待放行词");
+```
+
+运行时词只在当前进程有效，重启后丢失，多实例部署时也只影响当前节点。需要长期保存的词请写入数据库，由自定义词库提供，再调用 `refresh()`。
+
+检测方法与增删、刷新可以并发调用，写入操作之间由锁串行；进行中的 `refresh()` 对并发检测可见的时机为最终一致，即刷新完成后的检测一定使用新词库，刷新过程中的检测可能短暂沿用旧词库。变更自定义词库时请返回新的列表或替换整个 `List` 引用，不要原地修改原列表，否则刷新遍历时可能遇到 `ConcurrentModificationException`。
+
+`removeWord` 只能删除通过 `addWord` 添加的词。内置词库和配置词库中的词删不掉，会打印 warn 日志提示改用 `addWordAllow`。
+
+### 自定义词库
+
+实现 sensitive-word 的 `IWordDeny` / `IWordAllow` 并注册为 Bean，自动配置会把它们串联进责任链。
+
+```java
+@Configuration
+public class SensitiveWordsConfig {
+
+    @Bean
+    public IWordDeny dbWordDeny(SensitiveWordRepository repository) {
+        return () -> repository.selectAllWords();
+    }
+}
+```
+
+词库变更后调用 `refresh()` 同步，返回值为差量统计。
+
+```java
+SensitiveWordsRefreshResult result = sensitiveWordsService.refresh();
+// 黑名单静态词数、运行时词数、本次新增与移除数量
+```
+
+`refresh()` 幂等，可以重复调用。它只同步来自配置与 `IWordDeny` 的词，不影响运行时词。内置词库开启时，每次 `refresh()` 都会重新读取词库文件（上游无缓存，6 万余条约十几毫秒），高频刷新场景建议关闭 `use-default-deny`。
+
+<Callout type="info">
+`IWordDeny#deny()` 在启动阶段会被调用两次（引擎初始化一次，服务建立差量基线一次）。直接查库的实现请留意这一点。
+</Callout>
+
+### 关闭检测
+
+`enabled` 设为 `false` 时，容器仍会注册 `SensitiveWordsService`，但返回空实现，所有检测方法都视为未命中，`@SensitiveWords` 校验也会全部通过。这样处理是为了避免关闭检测后，仍在使用 `@SensitiveWords` 的项目在运行时抛出校验器注入异常。
+
+需要完全接管检测逻辑时，注册自己的 `SensitiveWordsService` Bean 即可，自动配置会让位。
+
+### 误伤排查
+
+1. 注入 `SensitiveWordsService`，对报错文案调用 `findAll()` 拿到命中词
+2. 如果命中词来自内置词库，把 `use-default-deny` 设为 `false` 验证
+3. 确认后把该词加入 `allow-words`
+
 ## 参考资料
 
-- Hutool DFA 模块文档：https://hutool.cn/docs/#/dfa/概述
+- sensitive-word 仓库：https://github.com/houbb/sensitive-word
