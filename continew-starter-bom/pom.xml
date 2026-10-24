@@ -65,10 +65,10 @@
                 <artifactId>continew-starter-cache-springcache</artifactId>
                 <version>${revision}</version>
             </dependency>
-            <!-- 缓存模块 - JetCache -->
+            <!-- 缓存模块 - 多级缓存（Caffeine L1 + Redis L2） -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>continew-starter-cache-jetcache</artifactId>
+                <artifactId>continew-starter-cache-multicache</artifactId>
                 <version>${revision}</version>
             </dependency>
 

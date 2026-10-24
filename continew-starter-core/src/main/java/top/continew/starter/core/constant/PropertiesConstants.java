@@ -104,6 +104,16 @@ public class PropertiesConstants {
         CONTINEW_STARTER + StringConstants.DOT + "rate-limiter";
 
     /**
+     * 缓存配置
+     */
+    public static final String CACHE = CONTINEW_STARTER + StringConstants.DOT + "cache";
+
+    /**
+     * 缓存-多级缓存配置
+     */
+    public static final String CACHE_MULTI = CACHE + StringConstants.DOT + "multi";
+
+    /**
      * 幂等配置
      */
     public static final String IDEMPOTENT = CONTINEW_STARTER + StringConstants.DOT + "idempotent";

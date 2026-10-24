@@ -17,8 +17,8 @@
 package top.continew.starter.auth.refresh.token.support;
 
 import cn.hutool.core.util.StrUtil;
-import com.alicp.jetcache.Cache;
-import com.alicp.jetcache.embedded.CaffeineCacheBuilder;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.slf4j.Logger;
@@ -80,10 +80,10 @@ public class AccessSessionCache {
 
     @PostConstruct
     void init() {
-        this.validCache = CaffeineCacheBuilder.createCaffeineCacheBuilder()
+        this.validCache = Caffeine.newBuilder()
             .expireAfterWrite(CACHE_TTL_SECONDS, TimeUnit.SECONDS)
-            .limit(LOCAL_LIMIT)
-            .buildCache();
+            .maximumSize(LOCAL_LIMIT)
+            .build();
         if (properties.isAccessSessionCacheEnabled()) {
             this.invalidTopic = redissonClient.getTopic(this.topicName);
             this.invalidTopic.addListener(String.class, (channel, sessionId) -> {
@@ -91,7 +91,7 @@ public class AccessSessionCache {
                 if (StrUtil.isBlank(sessionId)) {
                     return;
                 }
-                validCache.remove(sessionId);
+                validCache.invalidate(sessionId);
                 LOGGER.debug("收到会话 [{}] 失效广播，已清除本地缓存", sessionId);
             });
         }
@@ -105,7 +105,7 @@ public class AccessSessionCache {
      */
     public boolean isValid(String sessionId) {
         return properties.isAccessSessionCacheEnabled() && StrUtil.isNotBlank(sessionId)
-            && Boolean.TRUE.equals(validCache.get(sessionId));
+            && Boolean.TRUE.equals(validCache.getIfPresent(sessionId));
     }
 
     /**
@@ -128,7 +128,7 @@ public class AccessSessionCache {
         if (!properties.isAccessSessionCacheEnabled() || StrUtil.isBlank(sessionId)) {
             return;
         }
-        validCache.remove(sessionId);
+        validCache.invalidate(sessionId);
         try {
             invalidTopic.publish(sessionId);
         } catch (RuntimeException e) {
