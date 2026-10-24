@@ -113,8 +113,8 @@ class JsonCodecCompatibilityTest {
         org.redisson.codec.JsonJacksonCodec legacyCodec = legacyCodec();
         JsonJackson3Codec newCodec = productionCodec();
         ByteBuf legacyBytes = legacyCodec.getValueEncoder().encode(new Payload());
-        assertThrows(JacksonException.class, () -> newCodec
-            .getValueDecoder()
+        var decoder = newCodec.getValueDecoder();
+        assertThrows(JacksonException.class, () -> decoder
             .decode(Unpooled.wrappedBuffer(ByteBufUtil.getBytes(legacyBytes)), new State()));
     }
 
