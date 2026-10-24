@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>top.continew.starter</groupId>
+        <artifactId>continew-starter-cache</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>continew-starter-cache-multicache</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>ContiNew Starter 缓存模块 - 多级缓存（Caffeine L1 + Redis L2）</description>
+
+    <dependencies>
+        <!-- 缓存模块 - Spring Cache（复用其 RedisCacheConfiguration 序列化/连接配置作为 L2） -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-cache-springcache</artifactId>
+        </dependency>
+
+        <!-- Caffeine（本地一级缓存） -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+        </dependency>
+
+        <!-- Spring AOP（@MultiCacheRefresh 切面） -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+        </dependency>
+
+        <!-- 测试 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,8 +1,0 @@
---- ### JetCache 配置（https://github.com/alibaba/jetcache/blob/master/docs/CN/Config.md）
-jetcache:
-  # 统计间隔（默认 0，表示不统计）
-  statIntervalMinutes: 0
-  # jetcache-anno 把 cacheName 作为远程缓存key前缀，
-  # 2.4.3 以前的版本总是把 areaName 加在 cacheName 中，因此 areaName 也出现在 key 前缀中，
-  # 2.4.4 以后可以配置，为了保持远程 key 兼容默认值为 true，但是新项目的话 false 更合理些，2.7 默认值已改为 false。
-  areaInCacheName: false
