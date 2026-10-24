@@ -304,10 +304,12 @@ JetCache 与 Spring Cache 两种实现未定义独立的 `@ConfigurationProperti
 |:-------|:-----|:-------|:-----|
 | `continew-starter.trace.enabled` | `boolean` | `false` | 是否启用 |
 | `continew-starter.trace.trace-id-name` | `String` | `traceId` | 链路 ID 名称 |
-| `continew-starter.trace.tlog.pattern` | `String` | — | TLog 日志标签模板 |
-| `continew-starter.trace.tlog.enable-invoke-time-print` | `Boolean` | — | TLog 自动打印调用参数和时间 |
-| `continew-starter.trace.tlog.id-generator` | `String` | — | 自定义 TraceId 生成器 |
-| `continew-starter.trace.tlog.mdc-enable` | `Boolean` | — | MDC 模式 |
+| `continew-starter.trace.tlog.pattern` | `String` | — | 已移除（3.0.0 起底层为 Micrometer Tracing），保留绑定兼容旧 YAML |
+| `continew-starter.trace.tlog.enable-invoke-time-print` | `Boolean` | — | 已移除，保留绑定兼容旧 YAML |
+| `continew-starter.trace.tlog.id-generator` | `String` | — | 已移除，保留绑定兼容旧 YAML |
+| `continew-starter.trace.tlog.mdc-enable` | `Boolean` | — | 已移除，MDC 关联由 Spring Boot 默认提供 |
+
+采样率与传播格式由 Spring Boot 标准键管理（`management.tracing.sampling.probability` 等），不在本模块的绑定属性中。链路追踪模块同步提供 `TraceEnvironmentPostProcessor`，启用且未显式配置采样率时把 `management.tracing.sampling.probability` 补为 `1.0`。
 
 ## 日志模块（Log）
 

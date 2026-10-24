@@ -17,9 +17,9 @@
 package top.continew.starter.trace.filter;
 
 import cn.hutool.core.text.CharSequenceUtil;
-import com.yomahub.tlog.context.TLogContext;
+import io.micrometer.tracing.Tracer;
 import top.continew.starter.trace.autoconfigure.TraceProperties;
-import top.continew.starter.trace.handler.TLogWebCommon;
+import top.continew.starter.trace.util.TraceUtils;
 
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
@@ -31,23 +31,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * TLog 过滤器
+ * 链路追踪响应过滤器
  *
  * <p>
- * 重写 TLog 配置以适配 Spring Boot 3.x
+ * 将当前请求的链路 ID 写入响应头，便于前端获取整条链路的标识。
  * </p>
  *
- * @see com.yomahub.tlog.web.filter.TLogServletFilter
- *
- * @author Bryan.Zhang
- * @author Jasmine
- * @since 1.3.0
+ * @author Charles7c
+ * @since 3.0.0
  */
-public class TLogServletFilter implements Filter {
+public class TraceResponseFilter implements Filter {
+
+    private final Tracer tracer;
 
     private final TraceProperties traceProperties;
 
-    public TLogServletFilter(TraceProperties traceProperties) {
+    public TraceResponseFilter(Tracer tracer, TraceProperties traceProperties) {
+        this.tracer = tracer;
         this.traceProperties = traceProperties;
     }
 
@@ -55,20 +55,13 @@ public class TLogServletFilter implements Filter {
     public void doFilter(ServletRequest request,
         ServletResponse response,
         FilterChain chain) throws IOException, ServletException {
-        if (request instanceof HttpServletRequest httpServletRequest
+        if (request instanceof HttpServletRequest
             && response instanceof HttpServletResponse httpServletResponse) {
-            try {
-                TLogWebCommon.loadInstance().preHandle(httpServletRequest);
-                // 把 traceId 放入 response 的 header，为了方便有些人有这样的需求，从前端拿整条链路的 traceId
-                String traceIdName = traceProperties.getTraceIdName();
-                if (CharSequenceUtil.isNotBlank(traceIdName)) {
-                    httpServletResponse.addHeader(traceIdName, TLogContext.getTraceId());
-                }
-                chain.doFilter(request, response);
-            } finally {
-                TLogWebCommon.loadInstance().afterCompletion();
+            String traceIdName = traceProperties.getTraceIdName();
+            String traceId = TraceUtils.getTraceId(tracer);
+            if (CharSequenceUtil.isNotBlank(traceIdName) && CharSequenceUtil.isNotBlank(traceId)) {
+                httpServletResponse.addHeader(traceIdName, traceId);
             }
-            return;
         }
         chain.doFilter(request, response);
     }

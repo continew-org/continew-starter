@@ -22,10 +22,23 @@
             <artifactId>continew-starter-core</artifactId>
         </dependency>
 
-        <!-- TLog（轻量级的分布式日志标记追踪神器） -->
+        <!-- Micrometer Tracing Brave（Spring Boot 官方 Brave 自动装配模块，版本由 Spring Boot BOM 管理） -->
         <dependency>
-            <groupId>com.yomahub</groupId>
-            <artifactId>tlog-web-spring-boot-starter</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-micrometer-tracing-brave</artifactId>
+        </dependency>
+
+        <!-- Micrometer Tracing 与 Brave 的桥接实现（版本由 micrometer-tracing-bom 管理） -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+        </dependency>
+
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 </project>
