@@ -25,7 +25,7 @@
         <jetcache.version>2.7.9</jetcache.version>
 
         <!-- Security and Authentication Versions -->
-        <sa-token.version>1.45.0</sa-token.version>
+        <sa-token.version>1.46.0</sa-token.version>
         <justauth.version>1.16.7</justauth.version>
 
         <!-- Database and ORM Versions -->
@@ -142,13 +142,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-            <!-- Sa-Token Spring Boot 4 适配（1.45.0 的 BOM 尚未托管该坐标，显式声明） -->
-            <dependency>
-                <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-spring-boot4-starter</artifactId>
-                <version>${sa-token.version}</version>
-            </dependency>
-
             <!-- Just Auth（开箱即用的整合第三方登录的开源组件，脱离繁琐的第三方登录 SDK，让登录变得 So easy!） -->
             <dependency>
                 <groupId>me.zhyd.oauth</groupId>

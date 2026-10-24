@@ -17,7 +17,7 @@ description: Sa-Token 框架的扩展集成：登录拦截器样板化注册、�
 模块自动配置以 `sa-token.extension.enabled=true` 为生效条件（见 `SaTokenAutoConfiguration`），开启后完成以下样板化处理：
 
 - 注册全局登录拦截器 `SaInterceptor`：对全部请求执行 `StpUtil.checkLogin()`，放行路径由 `sa-token.extension.security.excludes` 配置；
-- 引入 `sa-token-jackson3` 使 Sa-Token 内部 JSON 操作基于 Jackson 3（经 SPI 自动加载）。注意不要同时引入 Jackson 2 侧的 `sa-token-jackson` 插件：Sa-Token 1.45.0 起会把 SPI 目录下的插件全部加载，实际生效哪一个取决于 classpath 顺序；
+- 引入 `sa-token-jackson3` 使 Sa-Token 内部 JSON 操作基于 Jackson 3（经 SPI 自动加载）。注意不要同时引入 Jackson 2 侧的 `sa-token-jackson` 插件：Sa-Token 1.45.0 起会把 SPI 目录下的插件全部加载，实际生效哪一个取决于 classpath 顺序。1.46.0 起 Session 对象反序列化还受全局类型白名单约束，见下方「1.45 → 1.46 升级须知」；
 - 提供可切换的持久层（内存 / Redisson / 自定义），见下文「持久层」；
 - 提供内置默认配置（`default-auth-satoken.yml`）：`token-prefix: Bearer`、`is-read-body: true`、`is-read-header: true`、`is-read-cookie: false`（适合前后端分离模式），如需修改直接在自己的配置中覆盖同名键即可。
 
@@ -120,3 +120,13 @@ public SaInterceptor saInterceptor(SaTokenExtensionProperties properties) {
         .check(r -> StpUtil.checkLogin()));
 }
 ```
+
+## 1.45 → 1.46 升级须知
+
+Sa-Token 1.46.0 修复了 Jackson 反序列化 RCE 漏洞，升级后有三处使用方须知：
+
+- **Session 对象反序列化白名单（最重要）**：1.46.0 起，Session/缓存中自定义对象的反序列化由 `cn.dev33.satoken.strategy.SaJsonStrategy` 的全局类型白名单控制，未注册的类型会被拒绝。往 SaSession 存自定义对象的系统需要注册类型（如 `SaJsonStrategy.instance.registerAllowType(UserContext.class)`），JDK 内置类型已在默认白名单，也支持 SPI 文件扩展。典型场景是经 `SaSession.getModel` 读取的登录上下文对象，Redis 持久层下每次请求都会走到。
+- **loginId 禁止包含冒号**：1.46.0 新增 `sa-token.allow-login-id-colon` 配置且默认 `false`，loginId 含冒号的系统升级后登录会直接报错，确有需要时配置 `sa-token.allow-login-id-colon: true` 放开。以数值 ID 作为 loginId 的系统（如 ContiNew Admin）不受影响。
+- **Redisson 持久层行为优化**：`SaTokenDaoForRedisson` 的 `update` 改用 `setAndKeepTTL` 原子保留原过期时间（修复 TTL 偏移），并新增可指定 Codec 的构造器（默认 StringCodec 不变）。属修复方向的变化，无需使用方处理。
+
+跨版本升级建议通知用户重新登录，避免存量会话数据带来的边界问题。
