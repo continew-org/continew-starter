@@ -19,18 +19,21 @@ package top.continew.starter.cache.springcache.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.cache.autoconfigure.CacheProperties;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import top.continew.starter.cache.springcache.autoconfigure.SpringCacheAutoConfiguration;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * Spring Cache 序列化器存量数据兼容测试
@@ -46,7 +49,9 @@ import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
  * @since 3.0.0
  */
 @SuppressWarnings({"deprecation", "removal"})
-@SpringBootTest
+@SpringBootTest(classes = {SpringCacheSerializerCompatibilityTest.TestConfig.class,
+    JacksonAutoConfiguration.class,
+    SpringCacheAutoConfiguration.class})
 class SpringCacheSerializerCompatibilityTest {
 
     @Autowired
@@ -150,5 +155,15 @@ class SpringCacheSerializerCompatibilityTest {
         byte[] bytes = serializer.serialize(sample());
         Object decoded = serializer.deserialize(bytes);
         assertSameValue(decoded, sample());
+    }
+    /**
+     * 最小测试装配：提供生产自动配置所需的 CacheProperties（无 Redis 环境）
+     */
+    static class TestConfig {
+
+        @Bean
+        CacheProperties cacheProperties() {
+            return new CacheProperties();
+        }
     }
 }

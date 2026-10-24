@@ -46,6 +46,13 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Spring Boot Jackson 支持（仅测试使用：为容器提供 Jackson 3 ObjectMapper Bean，供自动配置装配） -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-jackson</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Jackson 2 数据绑定（仅测试使用：模拟 2.x 存量缓存数据） -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
