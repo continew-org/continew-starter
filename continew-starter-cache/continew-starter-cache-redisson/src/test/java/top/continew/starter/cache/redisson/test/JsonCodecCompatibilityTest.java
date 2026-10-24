@@ -114,8 +114,9 @@ class JsonCodecCompatibilityTest {
         JsonJackson3Codec newCodec = productionCodec();
         ByteBuf legacyBytes = legacyCodec.getValueEncoder().encode(new Payload());
         var decoder = newCodec.getValueDecoder();
-        assertThrows(JacksonException.class, () -> decoder
-            .decode(Unpooled.wrappedBuffer(ByteBufUtil.getBytes(legacyBytes)), new State()));
+        ByteBuf legacyBuf = Unpooled.wrappedBuffer(ByteBufUtil.getBytes(legacyBytes));
+        State state = new State();
+        assertThrows(JacksonException.class, () -> decoder.decode(legacyBuf, state));
     }
 
     /**
