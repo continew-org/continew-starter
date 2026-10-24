@@ -65,9 +65,6 @@
         <springdoc.version>3.1.1</springdoc.version>
         <swagger.version>2.2.55</swagger.version>
 
-        <!-- Tracing and Logging Versions -->
-        <tlog.version>1.5.2</tlog.version>
-
         <!-- License and Compression Versions -->
         <truelicense.version>1.33</truelicense.version>
         <zip4j.version>2.11.6</zip4j.version>
@@ -336,13 +333,6 @@
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-annotations-jakarta</artifactId>
                 <version>${swagger.version}</version>
-            </dependency>
-
-            <!-- TLog（轻量级的分布式日志标记追踪神器） -->
-            <dependency>
-                <groupId>com.yomahub</groupId>
-                <artifactId>tlog-web-spring-boot-starter</artifactId>
-                <version>${tlog.version}</version>
             </dependency>
 
             <!-- TrueLicense (开源的证书管理引擎) -->

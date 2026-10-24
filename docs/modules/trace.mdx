@@ -1,17 +1,17 @@
 ---
 title: 链路追踪
-description: 基于 TLog 实现分布式调用链路追踪，自动生成并透传 TraceId、写入响应头，配合日志框架实现全链路日志关联。
+description: 基于 Micrometer Tracing 实现分布式调用链路追踪，自动透传 TraceId、写入响应头，并通过 MDC 关联日志。
 ---
 
-`continew-starter-trace` 是 ContiNew Starter 的链路追踪模块，底层基于 [TLog](https://tlog.yomahub.com/) 实现分布式系统的调用链路追踪。通过 Servlet 过滤器自动生成和透传 TraceId，并将 TraceId 写入响应头，帮助开发者快速定位跨服务调用问题，提升系统可观测性。
+`continew-starter-trace` 是 ContiNew Starter 的链路追踪模块，底层基于 Spring Boot 官方追踪门面 [Micrometer Tracing](https://micrometer.io/docs/tracing) 实现。模块内置 Brave 桥（`micrometer-tracing-bridge-brave`），使用方引入后即可获得请求级链路 ID、W3C 标准传播头与 MDC 日志关联，无需再自行选型桥接实现。
 
 主要特性：
 
-- 自动生成全局唯一 TraceId（默认基于雪花算法），支持跨服务传递
-- 将 TraceId 写入响应头，便于前端获取整条链路的标识
-- 集成日志框架 MDC，实现全链路日志关联
-- 支持自定义 TraceId 生成策略
-- 低侵入式设计，通过过滤器自动拦截请求
+- 自动为 Web 请求创建或透传链路上下文，传播格式为 W3C `traceparent`
+- 将当前链路 ID 写入响应头，便于前端获取整条链路的标识
+- 通过 MDC 提供 `traceId`、`spanId`，日志框架按需引用即可关联全链路
+- 桥缺失时启动即失败，不会静默丢失链路信息
+- 采样率默认全采样，可按需覆盖
 
 ## 引入依赖
 
@@ -29,16 +29,14 @@ continew-starter:
   trace:
     # 是否启用链路追踪（默认 false）
     enabled: true
-    # 写入响应头的 TraceId 名称（默认 traceId）
+    # 写入响应头的链路 ID 名称（默认 traceId）
     trace-id-name: X-Trace-Id
-    # TLog 配置
-    tlog:
-      # 日志标签模板，自动拼接到日志输出中
-      pattern: '[$spanId][$traceId]'
-      # 是否自动打印调用参数和时间（默认 false）
-      enable-invoke-time-print: false
-      # 是否启用 MDC 模式（默认 false）
-      mdc-enable: false
+
+# 采样率由 Spring Boot 管理，未显式配置时模块补为 1.0（全采样）
+management:
+  tracing:
+    sampling:
+      probability: 1.0
 ```
 
 配置项说明（前缀均为 `continew-starter.trace`）：
@@ -46,41 +44,26 @@ continew-starter:
 | 配置项 | 类型 | 默认值 | 说明 |
 |:-------|:-----|:-------|:-----|
 | `enabled` | `boolean` | `false` | 是否启用链路追踪，设为 `true` 后自动装配生效 |
-| `trace-id-name` | `String` | `traceId` | 写入响应头的 TraceId 名称，留空则不写入 |
-| `tlog.pattern` | `String` | 无 | 日志标签模板，如 `[$spanId][$traceId]` |
-| `tlog.enable-invoke-time-print` | `Boolean` | 无 | 是否自动打印调用参数和时间 |
-| `tlog.mdc-enable` | `Boolean` | 无 | 是否启用 MDC 模式 |
+| `trace-id-name` | `String` | `traceId` | 写入响应头的链路 ID 名称，留空则不写入 |
+
+采样率、传播格式等进阶配置使用 Spring Boot 标准键 `management.tracing.*`，见 [Spring Boot 链路追踪配置](https://docs.spring.io/spring-boot/reference/actuator/tracing.html)。其中 `management.tracing.sampling.probability` 默认为 `0.1`，而本模块在启用且使用方未显式配置该键时补为 `1.0`。
 
 <Callout type="info">
-启用后，模块会注册一个优先级最高的 Servlet 过滤器，拦截所有请求：从请求头中读取上游透传的链路信息（不存在则生成新的 TraceId），并将当前 TraceId 以 `trace-id-name` 指定的名称写入响应头。
+启用后，模块注册一个优先级高于常规业务过滤器的 Servlet 过滤器（`TraceResponseFilter`），在当前请求的 Span 上下文中取出链路 ID，以 `trace-id-name` 指定的名称写入响应头。链路上下文本身由 Spring Boot 的观测机制创建，模块不重复生成。
 </Callout>
 
-## 日志输出 TraceId
+## 日志输出链路 ID
 
-如需在日志输出中打印 TraceId，需将日志配置中的 encoder / appender 替换为 TLog 提供的增强实现（以 Logback 为例）：
-
-- `ch.qos.logback.core.ConsoleAppender` 的 encoder 改为 `com.yomahub.tlog.core.enhance.logback.AspectLogbackEncoder`
-- `RollingFileAppender` 的 encoder 同样改为 `AspectLogbackEncoder`
-- 异步 appender 改用 `com.yomahub.tlog.core.enhance.logback.async.AspectLogbackAsyncAppender`
+Micrometer Tracing 会把链路标识写入 MDC，键名为 `traceId` 与 `spanId`。日志配置中直接引用即可，不需要替换 appender 或 encoder 实现：
 
 ```xml
 <!-- logback-spring.xml -->
 <configuration>
-    <!-- 控制台输出 -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="com.yomahub.tlog.core.enhance.logback.AspectLogbackEncoder">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{50} - %msg%n</pattern>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] [%X{traceId}] %logger{50} - %msg%n</pattern>
             <charset>utf-8</charset>
         </encoder>
-    </appender>
-
-    <!-- 异步文件输出 -->
-    <appender name="ASYNC_FILE" class="com.yomahub.tlog.core.enhance.logback.async.AspectLogbackAsyncAppender">
-        <!-- 不丢失日志，默认：队列 80% 已满时丢弃 TRACE、DEBUG、INFO 级别日志 -->
-        <discardingThreshold>0</discardingThreshold>
-        <!-- 队列深度，默认 256 -->
-        <queueSize>512</queueSize>
-        <appender-ref ref="FILE"/>
     </appender>
 
     <root level="INFO">
@@ -89,43 +72,76 @@ continew-starter:
 </configuration>
 ```
 
-配合 `tlog.pattern` 配置的标签模板（如 `[$spanId][$traceId]`），TLog 会自动将链路标签拼接到每条日志中。
-
-## 自定义 TraceId 生成器
-
-默认使用 `TraceIdGenerator`，基于 TLog 雪花算法（`UniqueIdGenerator`）生成 TraceId。如需自定义，注册一个 `TLogIdGenerator` 类型的 Bean 即可（模块的默认 Bean 标注了 `@ConditionalOnMissingBean`，会被你的实现覆盖）：
+代码中获取链路 ID 有两种方式：
 
 ```java
-public class CustomTraceIdGenerator extends TLogIdGenerator {
+// 从 MDC 获取（当前线程处于请求上下文时可用）
+String traceId = TraceUtils.getTraceId();
 
-    @Override
-    public String generateTraceId() {
-        // 自定义 TraceId 生成逻辑
-        return UUID.randomUUID().toString().replace("-", "");
-    }
-}
+// 从 Tracer 获取（不依赖 MDC）
+String traceId = TraceUtils.getTraceId(tracer);
 ```
+
+## 跨服务传播
+
+出站请求头由 Spring Boot 自动配置的 `RestClient`、`RestTemplate`、`WebClient` 构建器注入，使用 W3C `traceparent`。手工创建 HTTP 客户端（如 `HttpURLConnection`、自建 OkHttp 实例）不会自动注入传播头，需要自行透传。
+
+入站消费格式默认兼容 `W3C`、`B3`、`B3_MULTI`，出站默认只产生 `W3C`，可通过 `management.tracing.propagation.produce` 与 `management.tracing.propagation.consume` 调整。
+
+## 线程池与异步场景
+
+Micrometer Tracing 的上下文不会自动跨线程传递。`@Async` 或自定义线程池需要显式装饰任务，Boot 提供 `ContextPropagatingTaskDecorator`：
 
 ```java
 @Configuration
 public class TraceConfig {
 
     @Bean
-    public TLogIdGenerator customTraceIdGenerator() {
-        return new CustomTraceIdGenerator();
+    public TaskDecorator contextPropagatingTaskDecorator() {
+        return new ContextPropagatingTaskDecorator();
     }
 }
 ```
 
+```java
+@Bean
+public ThreadPoolTaskExecutor threadPoolTaskExecutor(TaskDecorator contextPropagatingTaskDecorator) {
+    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+    executor.setTaskDecorator(contextPropagatingTaskDecorator);
+    return executor;
+}
+```
+
+## 从 2.x 升级
+
+模块在 3.0.0 起移除 TLog，替换为 Micrometer Tracing，有四处行为变化：
+
+- 传播头从 `tlogTraceId`、`tlogSpanId` 改为 W3C `traceparent`，与旧版本服务混跑时链路会中断，全家桶需同版本发布
+- 日志 MDC 键从 TLog 的 `tl` 改为 `traceId`、`spanId`
+- `TLogIdGenerator` 扩展点删除，自定义链路 ID 生成改用 Micrometer 的 `Sampling`、`Propagator` 或桥实现配置
+- 引入本模块依赖后 Boot 的 tracing 自动装配即生效，MDC 中会出现 `traceId`、`spanId`，采样率默认 10%；2.x 中引入依赖但不设 `enabled: true` 时不会产生任何链路效果，升级后需要按需调整
+
+Boot 4 已移除 `management.tracing.enabled`（该键在配置元数据中标记为 deprecated 且 level=error，替代键为 `management.tracing.export.enabled`），旧版 YAML 中配置过该键不会导致启动失败，但已无任何效果，建议删除避免误导。彻底关闭追踪可以排除 `spring-boot-micrometer-tracing-brave` 依赖，此时本模块也会因缺少桥而启动失败，因此更推荐保留依赖并接受 MDC 字段存在。
+
+旧版 `continew-starter.trace.tlog.*` 配置项仍可绑定（避免升级后启动失败），但自 3.0.0 起不再生效，启用时启动日志会输出一条 WARN 提示移除。下表保留这些键仅为升级参考。
+
+| 配置项 | 类型 | 说明 |
+|:-------|:-----|:-----|
+| `tlog.pattern` | `String` | 已移除，改用日志 pattern 中的 `%X{traceId}` |
+| `tlog.enable-invoke-time-print` | `Boolean` | 已移除 |
+| `tlog.mdc-enable` | `Boolean` | 已移除，MDC 关联由 Boot 默认提供 |
+| `tlog.id-generator` | `String` | 已移除，原配置项在 2.x 中也未被读取 |
+
 ## 注意事项
 
-<Callout type="warn">
-`continew-starter.trace.tlog` 下的 `id-generator` 配置项在当前自动装配中未被读取，自定义 TraceId 生成器请通过注册 `TLogIdGenerator` Bean 的方式实现。
-</Callout>
-
-- 链路追踪仅在 Web 应用（Servlet 环境）中生效。
-- 若开启 `tlog.mdc-enable`，日志框架中可直接通过 MDC 获取链路标签，此时无需再依赖 `pattern` 的自动拼接，二者按需选择其一即可。MDC 相关进阶用法请参考 TLog 官方文档。
+- 模块只在 Web 应用（Servlet 环境）中生效，非 Web 应用不注册过滤器。
+- `enabled: true` 但类路径缺少可用桥时启动直接失败，报错信息会指明检查 `micrometer-tracing-bridge-brave`。这是为避免链路能力静默失效。
+- 模块自动装配不依赖 `spring-boot-starter-actuator`，也不默认上报任何后端；需要接入 Zipkin 或 OTLP 时按 Spring Boot 文档追加对应依赖。
+- 引入本模块后，Micrometer Tracing 的自动装配即随依赖生效，`continew-starter.trace.enabled` 控制的是响应头写入与采样率默认值，不控制 Boot 侧追踪装配的开关。要彻底关闭追踪需排除 `spring-boot-micrometer-tracing-brave`，同时本模块的 `enabled` 需保持 `false`，否则会因缺少桥而启动失败。
+- 模块固定使用 Brave 桥。不要同时引入 OTel 桥（`spring-boot-micrometer-tracing-opentelemetry` 与 `micrometer-tracing-bridge-otel`），Boot 对同时存在多套桥实现会报不兼容配置。
+- 响应头依赖容器内已存在当前 Span。Boot 的 `ServerHttpObservationFilter` 顺序为 `HIGHEST_PRECEDENCE + 1`，早于本模块过滤器的 `HIGHEST_PRECEDENCE + 100`，正常 Servlet 应用中进入过滤器时 Span 已就绪；若使用方关闭了观测（`management.observations.enabled=false`）则不会写入该响应头。
 
 ## 参考资料
 
-- [TLog 官方文档](https://tlog.yomahub.com/)
+- [Micrometer Tracing 官方文档](https://micrometer.io/docs/tracing)
+- [Spring Boot 链路追踪](https://docs.spring.io/spring-boot/reference/actuator/tracing.html)

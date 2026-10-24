@@ -16,24 +16,20 @@
 
 package top.continew.starter.trace.autoconfigure;
 
-import com.yomahub.tlog.id.TLogIdGenerator;
-import com.yomahub.tlog.id.TLogIdGeneratorLoader;
-import com.yomahub.tlog.spring.TLogPropertyInit;
+import io.micrometer.tracing.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
 import top.continew.starter.core.constant.OrderedConstants;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.core.constant.StringConstants;
-import top.continew.starter.trace.filter.TLogServletFilter;
-import top.continew.starter.trace.handler.TraceIdGenerator;
+import top.continew.starter.trace.filter.TraceResponseFilter;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.DispatcherType;
@@ -60,43 +56,44 @@ public class TraceAutoConfiguration {
         this.traceProperties = traceProperties;
     }
 
-    @Bean
-    @Primary
-    public TLogPropertyInit tLogPropertyInit(TLogIdGenerator tLogIdGenerator) {
-        TLogProperties tLogProperties = traceProperties.getTlog();
-        TLogPropertyInit tLogPropertyInit = new TLogPropertyInit();
-        tLogPropertyInit.setPattern(tLogProperties.getPattern());
-        tLogPropertyInit.setEnableInvokeTimePrint(tLogProperties.getEnableInvokeTimePrint());
-        tLogPropertyInit.setMdcEnable(tLogProperties.getMdcEnable());
-        // 设置自定义 TraceId 生成器
-        TLogIdGeneratorLoader.setIdGenerator(tLogIdGenerator);
-        return tLogPropertyInit;
-    }
-
     /**
-     * TLog 过滤器
+     * 链路追踪响应过滤器
+     *
+     * <p>
+     * Tracer 不可用时启动即失败，避免追踪能力静默失效。
+     * </p>
+     *
+     * @param tracerProvider Tracer 提供者
+     * @return 过滤器注册信息
      */
     @Bean
-    public FilterRegistrationBean<TLogServletFilter> tLogServletFilter() {
-        FilterRegistrationBean<TLogServletFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new TLogServletFilter(traceProperties));
+    public FilterRegistrationBean<TraceResponseFilter> traceResponseFilter(
+        ObjectProvider<Tracer> tracerProvider) {
+        Tracer tracer = tracerProvider.getIfAvailable();
+        if (tracer == null || tracer == Tracer.NOOP) {
+            String tracerType = tracer == null ? "缺失" : tracer.getClass().getName();
+            throw new IllegalStateException(
+                "[ContiNew Starter] - 已启用链路追踪，但未检测到可用的 Micrometer Tracing 桥（当前 Tracer: "
+                    + tracerType
+                    + "）。请确认 micrometer-tracing-bridge-brave 在类路径中且未被排除，"
+                    + "spring-boot-micrometer-tracing-brave 也未被 spring.autoconfigure.exclude 排除");
+        }
+        FilterRegistrationBean<TraceResponseFilter> registrationBean =
+            new FilterRegistrationBean<>();
+        registrationBean.setFilter(new TraceResponseFilter(tracer, traceProperties));
         registrationBean.setOrder(OrderedConstants.Filter.TRACE_FILTER);
         registrationBean.addUrlPatterns(StringConstants.PATH_PATTERN_CURRENT_DIR);
         registrationBean.setDispatcherTypes(DispatcherType.REQUEST);
         return registrationBean;
     }
 
-    /**
-     * 自定义 Trace ID 生成器配置
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public TLogIdGenerator tLogIdGenerator() {
-        return new TraceIdGenerator();
-    }
-
     @PostConstruct
     public void postConstruct() {
+        TLogProperties tlogProperties = traceProperties.getTlog();
+        if (tlogProperties != null && tlogProperties.isConfigured()) {
+            LOGGER.warn(
+                "[ContiNew Starter] - 检测到已移除的 continew-starter.trace.tlog 配置，自 3.0.0 起该配置不再生效，请移除");
+        }
         LOGGER.debug("[ContiNew Starter] - Auto Configuration 'Trace' completed initialization.");
     }
 }

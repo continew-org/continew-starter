@@ -40,10 +40,10 @@ public class TraceProperties {
     private String traceIdName = "traceId";
 
     /**
-     * TLog 配置
+     * 旧版 TLog 配置（底层已替换为 Micrometer Tracing，仅保留配置项用于兼容旧 YAML 绑定并告警）
      */
     @NestedConfigurationProperty
-    private TLogProperties tlog;
+    private TLogProperties tlog = new TLogProperties();
 
     public boolean isEnabled() {
         return enabled;

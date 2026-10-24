@@ -17,13 +17,12 @@
 package top.continew.starter.trace.autoconfigure;
 
 /**
- * TLog 配置属性
+ * 旧版 TLog 配置属性
  *
  * <p>
- * 重写 TLog 配置以适配 Spring Boot 3.x
+ * 链路追踪底层已替换为 Micrometer Tracing，TLog 配置项自 3.0.0 起不再生效。
+ * 保留该配置类仅为兼容旧版 YAML 绑定，避免使用方升级后启动失败。
  * </p>
- *
- * @see com.yomahub.tlog.springboot.property.TLogProperty
  *
  * @author Bryan.Zhang
  * @author Jasmine
@@ -81,5 +80,15 @@ public class TLogProperties {
 
     public void setMdcEnable(Boolean mdcEnable) {
         this.mdcEnable = mdcEnable;
+    }
+
+    /**
+     * 是否配置了任意旧版 TLog 属性
+     *
+     * @return 配置了任意属性时返回 true
+     */
+    public boolean isConfigured() {
+        return pattern != null || enableInvokeTimePrint != null || idGenerator != null
+            || mdcEnable != null;
     }
 }
