@@ -189,7 +189,7 @@ public class RefreshTokenProperties {
      * <p>留空（默认）时使用 {@code auth:access-session-invalid:{spring.application.name}}：
      * 同一服务多副本共用 Topic、不同服务天然隔离。仅当多个服务有意共享同一认证会话域
      * （例如网关与资源服务拆分、共用同一套 Refresh Session）时才显式配置为公共 Topic。
-     * 必须与 JetCache 的 broadcastChannel 取值不同，二者消息载荷不兼容。</p>
+     * 取值需与多级缓存等其他 Redis Pub/Sub 广播通道不同，避免消息串扰。</p>
      */
     private String accessSessionInvalidTopic = "";
 

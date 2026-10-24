@@ -1,0 +1,29 @@
+--- ### 多级缓存配置（Caffeine L1 + Redis L2）
+continew-starter:
+  cache:
+    multi:
+      # 是否启用多级缓存（默认 true）
+      enabled: true
+      # 是否启用集群 L1 失效广播（多节点部署时开启）
+      broadcast-enabled: true
+      # L1 失效广播 topic（默认按应用名隔离，多应用共用同一 Redis 时互不干扰；支持占位符）
+      broadcast-topic: continew:cache:evict:${spring.application.name:default}
+      # Redis（L2）不可用时是否降级为仅本地缓存（默认 true）
+      degrade-on-redis-failure: true
+      # 本地（L1）缓存全局配置
+      local:
+        # 写入后过期时长（默认 2h）
+        expire-after-write: 2h
+        # 最大缓存元素数（<=0 表示不启用本地缓存，退化为纯 Redis 缓存）
+        limit: 1000
+      # 远程（L2）缓存全局配置
+      remote:
+        # 写入后过期时长（默认不设置，沿用 spring.cache.redis.time-to-live；显式设置后覆盖）
+        # expire-after-write: 2h
+        # 是否缓存空值（缓存空值可防止缓存穿透，默认 true）
+        cache-null-values: true
+      # 按 cacheName 单独覆盖配置（示例）：
+      # specs:
+      #   "USER:":
+      #     local: { expire-after-write: 30m, limit: 5000 }
+      #     remote: { expire-after-write: 2h }
