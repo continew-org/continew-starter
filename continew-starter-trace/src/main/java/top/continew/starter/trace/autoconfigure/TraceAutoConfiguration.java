@@ -71,9 +71,12 @@ public class TraceAutoConfiguration {
         ObjectProvider<Tracer> tracerProvider) {
         Tracer tracer = tracerProvider.getIfAvailable();
         if (tracer == null || tracer == Tracer.NOOP) {
+            String tracerType = tracer == null ? "缺失" : tracer.getClass().getName();
             throw new IllegalStateException(
-                "[ContiNew Starter] - 已启用链路追踪，但未检测到可用的 Micrometer Tracing 桥"
-                    + "（当前 Tracer 为 NOOP）。请确认 micrometer-tracing-bridge-brave 在类路径中且未被排除");
+                "[ContiNew Starter] - 已启用链路追踪，但未检测到可用的 Micrometer Tracing 桥（当前 Tracer: "
+                    + tracerType
+                    + "）。请确认 micrometer-tracing-bridge-brave 在类路径中且未被排除，"
+                    + "spring-boot-micrometer-tracing-brave 也未被 spring.autoconfigure.exclude 排除");
         }
         FilterRegistrationBean<TraceResponseFilter> registrationBean =
             new FilterRegistrationBean<>();

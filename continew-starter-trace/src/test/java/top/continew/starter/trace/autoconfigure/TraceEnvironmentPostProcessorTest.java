@@ -20,12 +20,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.Banner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mock.env.MockEnvironment;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * 链路追踪环境后置处理器测试
@@ -96,6 +101,26 @@ class TraceEnvironmentPostProcessorTest {
 
         try (ConfigurableApplicationContext context = application
             .run("--continew-starter.trace.enabled=true")) {
+            assertThat(context.getEnvironment()
+                .getProperty(TraceEnvironmentPostProcessor.SAMPLING_PROBABILITY, Float.class))
+                .isEqualTo(1.0F);
+        }
+    }
+
+    /**
+     * application.yml 中启用时同样补采样率
+     */
+    @Test
+    @DisplayName("application.yml 中启用时同样补采样率")
+    void shouldConfigureSamplingFromConfigFile(@TempDir Path tempDir) throws IOException {
+        Path configFile = tempDir.resolve("application.yml");
+        Files.writeString(configFile, "continew-starter:\n  trace:\n    enabled: true\n");
+        SpringApplication application = new SpringApplication(TestConfiguration.class);
+        application.setWebApplicationType(WebApplicationType.NONE);
+        application.setBannerMode(Banner.Mode.OFF);
+
+        try (ConfigurableApplicationContext context = application
+            .run("--spring.config.location=file:" + configFile)) {
             assertThat(context.getEnvironment()
                 .getProperty(TraceEnvironmentPostProcessor.SAMPLING_PROBABILITY, Float.class))
                 .isEqualTo(1.0F);

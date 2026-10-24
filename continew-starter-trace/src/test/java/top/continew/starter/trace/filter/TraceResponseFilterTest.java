@@ -43,7 +43,7 @@ class TraceResponseFilterTest {
 
     private final MockHttpServletResponse response = new MockHttpServletResponse();
 
-    private final FilterChain chain = (request, response) -> {
+    private final FilterChain chain = (servletRequest, servletResponse) -> {
     };
 
     /**
@@ -59,6 +59,20 @@ class TraceResponseFilterTest {
         new TraceResponseFilter(tracer, traceProperties).doFilter(request, response, chain);
 
         assertThat(response.getHeader("X-Trace-Id")).isEqualTo("4bf92f3577b34da6a3ce929d0e0e4736");
+    }
+
+    /**
+     * 默认响应头名称为 traceId
+     */
+    @Test
+    @DisplayName("默认响应头名称为 traceId")
+    void shouldWriteDefaultHeaderName() throws Exception {
+        Tracer tracer = mockTracer("4bf92f3577b34da6a3ce929d0e0e4736");
+        TraceProperties traceProperties = new TraceProperties();
+
+        new TraceResponseFilter(tracer, traceProperties).doFilter(request, response, chain);
+
+        assertThat(response.getHeader("traceId")).isEqualTo("4bf92f3577b34da6a3ce929d0e0e4736");
     }
 
     /**

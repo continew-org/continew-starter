@@ -52,7 +52,9 @@ public class TraceEnvironmentPostProcessor implements EnvironmentPostProcessor, 
         SpringApplication application) {
         String enabledKey =
             PropertiesConstants.TRACE + StringConstants.DOT + PropertiesConstants.ENABLED;
-        if (!environment.getProperty(enabledKey, Boolean.class, false)) {
+        boolean enabled =
+            Boolean.TRUE.equals(environment.getProperty(enabledKey, Boolean.class, false));
+        if (!enabled) {
             return;
         }
         if (environment.getProperty(SAMPLING_PROBABILITY) != null) {
