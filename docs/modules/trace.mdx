@@ -114,11 +114,14 @@ public ThreadPoolTaskExecutor threadPoolTaskExecutor(TaskDecorator contextPropag
 
 ## 从 2.x 升级
 
-模块在 3.0.0 起移除 TLog，替换为 Micrometer Tracing，有三处行为变化：
+模块在 3.0.0 起移除 TLog，替换为 Micrometer Tracing，有四处行为变化：
 
 - 传播头从 `tlogTraceId`、`tlogSpanId` 改为 W3C `traceparent`，与旧版本服务混跑时链路会中断，全家桶需同版本发布
 - 日志 MDC 键从 TLog 的 `tl` 改为 `traceId`、`spanId`
 - `TLogIdGenerator` 扩展点删除，自定义链路 ID 生成改用 Micrometer 的 `Sampling`、`Propagator` 或桥实现配置
+- 引入本模块依赖后 Boot 的 tracing 自动装配即生效，MDC 中会出现 `traceId`、`spanId`，采样率默认 10%；2.x 中引入依赖但不设 `enabled: true` 时不会产生任何链路效果，升级后需要按需调整
+
+Boot 4 已移除 `management.tracing.enabled`（该键标记为 deprecated 且 level=error），旧版 YAML 中若配置过需删除，否则启动会报不兼容配置。彻底关闭追踪可以排除 `spring-boot-micrometer-tracing-brave` 依赖，此时本模块也会因缺少桥而启动失败，因此更推荐保留依赖并接受 MDC 字段存在。
 
 旧版 `continew-starter.trace.tlog.*` 配置项仍可绑定（避免升级后启动失败），但自 3.0.0 起不再生效，启用时启动日志会输出一条 WARN 提示移除。下表保留这些键仅为升级参考。
 
@@ -134,7 +137,9 @@ public ThreadPoolTaskExecutor threadPoolTaskExecutor(TaskDecorator contextPropag
 - 模块只在 Web 应用（Servlet 环境）中生效，非 Web 应用不注册过滤器。
 - `enabled: true` 但类路径缺少可用桥时启动直接失败，报错信息会指明检查 `micrometer-tracing-bridge-brave`。这是为避免链路能力静默失效。
 - 模块自动装配不依赖 `spring-boot-starter-actuator`，也不默认上报任何后端；需要接入 Zipkin 或 OTLP 时按 Spring Boot 文档追加对应依赖。
-- 引入本模块后，Micrometer Tracing 的自动装配即随依赖生效，`continew-starter.trace.enabled` 控制的是响应头写入与采样率默认值。
+- 引入本模块后，Micrometer Tracing 的自动装配即随依赖生效，`continew-starter.trace.enabled` 控制的是响应头写入与采样率默认值，不控制 Boot 侧追踪装配的开关。要彻底关闭追踪需排除 `spring-boot-micrometer-tracing-brave`，同时本模块的 `enabled` 需保持 `false`，否则会因缺少桥而启动失败。
+- 模块固定使用 Brave 桥。不要同时引入 OTel 桥（`spring-boot-micrometer-tracing-opentelemetry` 与 `micrometer-tracing-bridge-otel`），Boot 对同时存在多套桥实现会报不兼容配置。
+- 响应头依赖容器内已存在当前 Span。Boot 的 `ServerHttpObservationFilter` 顺序为 `HIGHEST_PRECEDENCE + 1`，早于本模块过滤器的 `HIGHEST_PRECEDENCE + 100`，正常 Servlet 应用中进入过滤器时 Span 已就绪；若使用方关闭了观测（`management.observations.enabled=false`）则不会写入该响应头。
 
 ## 参考资料
 
