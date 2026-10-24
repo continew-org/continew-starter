@@ -16,13 +16,11 @@
 
 package top.continew.starter.json.jackson.serializer;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.core.JsonGenerator;
+import tools.jackson.databind.SerializationContext;
+import tools.jackson.databind.ValueSerializer;
+import tools.jackson.databind.annotation.JacksonStdImpl;
 import top.continew.starter.core.enums.BaseEnum;
-
-import java.io.IOException;
 
 /**
  * 枚举接口 BaseEnum 序列化器
@@ -33,7 +31,7 @@ import java.io.IOException;
  * @since 2.4.0
  */
 @JacksonStdImpl
-public class BaseEnumSerializer extends JsonSerializer<BaseEnum> {
+public class BaseEnumSerializer extends ValueSerializer<BaseEnum> {
 
     /**
      * 静态实例
@@ -41,8 +39,7 @@ public class BaseEnumSerializer extends JsonSerializer<BaseEnum> {
     public static final BaseEnumSerializer SERIALIZER_INSTANCE = new BaseEnumSerializer();
 
     @Override
-    public void serialize(BaseEnum value, JsonGenerator generator, SerializerProvider serializers)
-        throws IOException {
-        generator.writeObject(value.getValue());
+    public void serialize(BaseEnum value, JsonGenerator generator, SerializationContext context) {
+        generator.writePOJO(value.getValue());
     }
 }

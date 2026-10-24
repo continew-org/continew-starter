@@ -5,19 +5,25 @@ spring:
     format:
       # 日期格式化（针对 java.util.Date）
       date-time: yyyy-MM-dd HH:mm:ss
-  ## Jackson 2 配置
-  jackson2:
-    # 时区配置
-    time-zone: GMT+8
+  ## Jackson 配置
+  jackson:
     # 日期格式化（针对 java.util.Date）
     date-format: yyyy-MM-dd HH:mm:ss
     # 序列化配置（Bean -> JSON）
     serialization:
-      # 不允许序列化日期时以 timestamps 输出（默认：true）
-      write-dates-as-timestamps: false
       # 允许序列化无属性的 Bean
       fail-on-empty-beans: false
     # 反序列化配置（JSON -> Bean）
     deserialization:
       # 允许反序列化不存在的属性
       fail-on-unknown-properties: false
+    # 数据类型配置
+    datatype:
+      # 日期时间类型配置
+      datetime:
+        # 不允许序列化日期时以 timestamps 输出（Jackson 3 默认：false）
+        write-dates-as-timestamps: false
+    # 映射配置
+    mapper:
+      # 保持属性按声明顺序输出（Jackson 3 默认按字母序，与 2.x 行为不一致）
+      sort-properties-alphabetically: false

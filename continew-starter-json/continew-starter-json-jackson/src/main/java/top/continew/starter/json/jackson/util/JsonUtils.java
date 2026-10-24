@@ -18,12 +18,11 @@ package top.continew.starter.json.jackson.util;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
 import top.continew.starter.json.jackson.exception.JsonException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +77,7 @@ public class JsonUtils {
         }
         try {
             return OBJECT_MAPPER.writeValueAsString(obj);
-        } catch (JsonProcessingException e) {
+        } catch (JacksonException e) {
             throw new JsonException(e);
         }
     }
@@ -97,7 +96,7 @@ public class JsonUtils {
         }
         try {
             return OBJECT_MAPPER.readValue(jsonString, beanClass);
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JsonException(e);
         }
     }
@@ -118,7 +117,7 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.readValue(jsonStr, OBJECT_MAPPER.getTypeFactory()
                 .constructCollectionType(List.class, elementType));
-        } catch (IOException e) {
+        } catch (JacksonException e) {
             throw new JsonException("Failed to parse JSON string to list", e);
         }
     }
@@ -139,7 +138,7 @@ public class JsonUtils {
         try {
             return OBJECT_MAPPER.convertValue(jsonNode, OBJECT_MAPPER.getTypeFactory()
                 .constructCollectionType(List.class, elementType));
-        } catch (IllegalArgumentException e) {
+        } catch (JacksonException | IllegalArgumentException e) {
             throw new JsonException("Failed to convert JSON to list", e);
         }
     }
@@ -161,7 +160,7 @@ public class JsonUtils {
      * 是否为JSONObject类型字符串，首尾都为大括号判定为JSONObject字符串
      *
      * @param str 字符串
-     * @return 是否为JSON字符串
+     * @return 是否为JSON类型字符串
      * @since 2.13.2
      * @see cn.hutool.json.JSONUtil#isTypeJsonObject(String)
      * @author Looly（<a href="https://gitee.com/dromara/hutool">Hutool</a>）
@@ -177,7 +176,7 @@ public class JsonUtils {
      * 是否为JSONArray类型的字符串，首尾都为中括号判定为JSONArray字符串
      *
      * @param str 字符串
-     * @return 是否为JSONArray类型字符串
+     * @return 是否为JSON类型字符串
      * @since 2.13.2
      * @see cn.hutool.json.JSONUtil#isTypeJsonArray(String)
      * @author Looly（<a href="https://gitee.com/dromara/hutool">Hutool</a>）

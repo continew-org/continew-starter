@@ -1,0 +1,169 @@
+/*
+ * Copyright (c) 2022-present Charles7c Authors. All Rights Reserved.
+ * <p>
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE 3.0;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.gnu.org/licenses/lgpl.html
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package top.continew.starter.cache.springcache.test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.cache.autoconfigure.CacheProperties;
+import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import top.continew.starter.cache.springcache.autoconfigure.SpringCacheAutoConfiguration;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * Spring Cache 序列化器存量数据兼容测试
+ *
+ * <p>
+ * 3.0.0 起缓存值序列化由 Jackson 2 的 {@code GenericJackson2JsonRedisSerializer}（已废弃）切换为
+ * Jackson 3 的 {@code GenericJacksonJsonRedisSerializer}。两个版本的多态类型信息均以
+ * {@code @class} 属性编码，本测试按生产构造（容器 ObjectMapper 经 rebuild + 默认类型信息）
+ * 验证升级后可正常读取 2.x 时期写入的存量缓存。
+ * </p>
+ *
+ * @author Charles7c
+ * @since 3.0.0
+ */
+@SuppressWarnings({"deprecation", "removal"})
+@SpringBootTest(classes = {SpringCacheSerializerCompatibilityTest.TestConfig.class,
+    JacksonAutoConfiguration.class,
+    SpringCacheAutoConfiguration.class})
+class SpringCacheSerializerCompatibilityTest {
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    /**
+     * 模拟 @Cacheable 缓存值的样本模型
+     */
+    static class CachedValue {
+
+        private String username;
+        private Long userId;
+        private LocalDateTime createTime;
+        private List<String> roles;
+
+        CachedValue() {
+        }
+
+        CachedValue(String username, Long userId, LocalDateTime createTime, List<String> roles) {
+            this.username = username;
+            this.userId = userId;
+            this.createTime = createTime;
+            this.roles = roles;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public Long getUserId() {
+            return userId;
+        }
+
+        public LocalDateTime getCreateTime() {
+            return createTime;
+        }
+
+        public List<String> getRoles() {
+            return roles;
+        }
+    }
+
+    private static CachedValue sample() {
+        return new CachedValue("admin", 1L, LocalDateTime.of(2026, 10, 23, 8, 0, 0), List
+            .of("admin", "user"));
+    }
+
+    /**
+     * 构建 2.x 版本的缓存值序列化器（模拟 SpringCacheAutoConfiguration 旧实现）
+     *
+     * @return Jackson 2 序列化器
+     */
+    private static com.fasterxml.jackson.databind.ObjectMapper legacyMapper() {
+        com.fasterxml.jackson.databind.ObjectMapper mapper =
+            new com.fasterxml.jackson.databind.ObjectMapper();
+        mapper.registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        mapper
+            .disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.activateDefaultTyping(mapper.getPolymorphicTypeValidator(),
+            com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping.NON_FINAL,
+            com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY);
+        return mapper;
+    }
+
+    /**
+     * 按生产构造构建 3.0.0 版本的缓存值序列化器（与 SpringCacheAutoConfiguration 保持一致）
+     *
+     * @return Jackson 3 序列化器
+     */
+    private GenericJacksonJsonRedisSerializer productionSerializer() {
+        return GenericJacksonJsonRedisSerializer
+            .builder(objectMapper::rebuild)
+            .enableDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(Object.class)
+                .build())
+            .build();
+    }
+
+    private static void assertSameValue(Object actual, CachedValue expected) {
+        CachedValue value = assertInstanceOf(CachedValue.class, actual);
+        assertEquals(expected.username, value.username);
+        assertEquals(expected.userId, value.userId);
+        assertEquals(expected.roles, value.roles);
+        assertEquals(expected.createTime, value.createTime);
+    }
+
+    @Test
+    @DisplayName("生产构造序列化器可读取 Jackson 2 写入的存量缓存")
+    void shouldReadLegacyCacheValue() {
+        GenericJackson2JsonRedisSerializer legacy =
+            new GenericJackson2JsonRedisSerializer(legacyMapper());
+        byte[] legacyBytes = legacy.serialize(sample());
+        Object decoded = productionSerializer().deserialize(legacyBytes);
+        assertSameValue(decoded, sample());
+    }
+
+    @Test
+    @DisplayName("生产构造序列化器序列化与反序列化自洽")
+    void shouldRoundTripWithProductionSerializer() {
+        GenericJacksonJsonRedisSerializer serializer = productionSerializer();
+        byte[] bytes = serializer.serialize(sample());
+        Object decoded = serializer.deserialize(bytes);
+        assertSameValue(decoded, sample());
+    }
+    /**
+     * 最小测试装配：提供生产自动配置所需的 CacheProperties（无 Redis 环境）
+     */
+    static class TestConfig {
+
+        @Bean
+        CacheProperties cacheProperties() {
+            return new CacheProperties();
+        }
+    }
+}

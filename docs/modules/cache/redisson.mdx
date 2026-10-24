@@ -101,6 +101,14 @@ try (RedisLockUtils lock = RedisLockUtils.tryLockWithWatchdog("lock:order:" + or
 未启用看门狗时，默认锁过期时间为 10 秒、获取锁超时时间为 5 秒（见 `RedisLockUtils` 中的 `DEFAULT_EXPIRE_TIME` 与 `DEFAULT_TIMEOUT`）。业务执行时间可能超过 10 秒时，请使用 `tryLock(key, expireTime, timeout)` 显式指定过期时间，或改用 `tryLockWithWatchdog`。
 </Callout>
 
+## 序列化
+
+3.0.0 起 Redis 值的 JSON 序列化基于 Jackson 3（`JsonJackson3Codec`），其 `ObjectMapper` 与 `json-jackson` 模块的配置同源（时间格式、`BaseEnum`、大数值等定制对 Redis 值同样生效）。
+
+<Callout type="warn">
+2.x 使用 Jackson 2 序列化，两个版本对多态类型信息的编码方式不同，Jackson 3 无法读取 2.x 写入的存量值（如 Sa-Token 会话、经 `RBucket` 等存储的 Java 对象），主因是 Jackson 2 为防 long/int 精度问题将 `Long` 值写为 `["java.lang.Long",7]` 形式的类型数组。从 2.x 升级到 3.0.0 时，需要清空 Redis 中的存量业务键（或等待其过期），认证会话失效表现为用户重新登录。Spring Cache 的缓存值序列化已切换为 Jackson 3 的 `GenericJacksonJsonRedisSerializer`，其存量数据格式与 3.0.0 兼容，无需清理。
+</Callout>
+
 ## 核心依赖
 
 | 依赖 | 描述 |

@@ -17,16 +17,14 @@
 package top.continew.starter.json.jackson.serializer;
 
 import cn.hutool.core.util.StrUtil;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.BeanProperty;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.annotation.JacksonStdImpl;
-import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.BeanProperty;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.annotation.JacksonStdImpl;
+import tools.jackson.databind.exc.InvalidFormatException;
 import top.continew.starter.core.enums.BaseEnum;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,8 +38,7 @@ import java.util.stream.Collectors;
  * @since 2.4.0
  */
 @JacksonStdImpl
-public class BaseEnumDeserializer extends JsonDeserializer<BaseEnum>
-    implements ContextualDeserializer {
+public class BaseEnumDeserializer extends ValueDeserializer<BaseEnum> {
 
     private final Class<? extends BaseEnum> fieldTypeClass;
     private final Map<String, BaseEnum> valueMap;
@@ -56,7 +53,7 @@ public class BaseEnumDeserializer extends JsonDeserializer<BaseEnum>
     }
 
     @Override
-    public JsonDeserializer<?> createContextual(DeserializationContext deserializationContext,
+    public ValueDeserializer<?> createContextual(DeserializationContext deserializationContext,
         BeanProperty beanProperty) {
         // 获取字段类型
         Class<?> fieldType = null;
@@ -73,7 +70,7 @@ public class BaseEnumDeserializer extends JsonDeserializer<BaseEnum>
 
     @Override
     public BaseEnum deserialize(JsonParser jsonParser,
-        DeserializationContext deserializationContext) throws IOException {
+        DeserializationContext deserializationContext) {
         if (fieldTypeClass == null || valueMap.isEmpty()) {
             return null;
         }

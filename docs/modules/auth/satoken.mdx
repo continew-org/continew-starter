@@ -17,6 +17,7 @@ description: Sa-Token 框架的扩展集成：登录拦截器样板化注册、�
 模块自动配置以 `sa-token.extension.enabled=true` 为生效条件（见 `SaTokenAutoConfiguration`），开启后完成以下样板化处理：
 
 - 注册全局登录拦截器 `SaInterceptor`：对全部请求执行 `StpUtil.checkLogin()`，放行路径由 `sa-token.extension.security.excludes` 配置；
+- 引入 `sa-token-jackson3` 使 Sa-Token 内部 JSON 操作基于 Jackson 3（经 SPI 自动加载）。注意不要同时引入 Jackson 2 侧的 `sa-token-jackson` 插件：Sa-Token 1.45.0 起会把 SPI 目录下的插件全部加载，实际生效哪一个取决于 classpath 顺序；
 - 提供可切换的持久层（内存 / Redisson / 自定义），见下文「持久层」；
 - 提供内置默认配置（`default-auth-satoken.yml`）：`token-prefix: Bearer`、`is-read-body: true`、`is-read-header: true`、`is-read-cookie: false`（适合前后端分离模式），如需修改直接在自己的配置中覆盖同名键即可。
 

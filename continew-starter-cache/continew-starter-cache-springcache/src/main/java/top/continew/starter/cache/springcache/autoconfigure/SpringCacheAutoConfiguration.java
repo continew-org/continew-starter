@@ -20,8 +20,6 @@ import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 import cn.hutool.json.JSONUtil;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
@@ -31,9 +29,11 @@ import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.data.redis.cache.RedisCacheConfiguration;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import top.continew.starter.core.util.GeneralPropertySourceFactory;
 
 import jakarta.annotation.PostConstruct;
@@ -67,18 +67,20 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
      * <p>解决 Spring Cache（@Cacheable）Jackson 解析缓存乱码问题</p>
      */
     @Bean
-    @SuppressWarnings({"deprecation", "removal"})
     public RedisCacheConfiguration redisCacheConfiguration(CacheProperties cacheProperties) {
-        ObjectMapper objectMapperCopy = objectMapper.copy();
-        objectMapperCopy.activateDefaultTyping(objectMapperCopy
-            .getPolymorphicTypeValidator(), ObjectMapper.DefaultTyping.NON_FINAL,
-            JsonTypeInfo.As.PROPERTY);
+        // 基于容器 ObjectMapper 重建并启用默认多态类型信息，与 2.x GenericJackson2JsonRedisSerializer 行为保持一致
+        GenericJacksonJsonRedisSerializer serializer = GenericJacksonJsonRedisSerializer
+            .builder(objectMapper::rebuild)
+            .enableDefaultTyping(BasicPolymorphicTypeValidator.builder()
+                .allowIfBaseType(Object.class)
+                .build())
+            .build();
         RedisCacheConfiguration redisCacheConfiguration =
             RedisCacheConfiguration.defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair
                     .fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair
-                    .fromSerializer(new GenericJackson2JsonRedisSerializer(objectMapperCopy)));
+                    .fromSerializer(serializer));
         CacheProperties.Redis redisCacheProperties = cacheProperties.getRedis();
         Duration timeToLive = redisCacheProperties.getTimeToLive();
         if (timeToLive != null) {

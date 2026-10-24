@@ -17,7 +17,6 @@
 package top.continew.starter.license.service;
 
 import cn.hutool.core.util.IdUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import de.schlichtherle.license.CipherParam;
 import de.schlichtherle.license.DefaultCipherParam;
 import de.schlichtherle.license.DefaultLicenseParam;
@@ -28,6 +27,7 @@ import de.schlichtherle.license.LicenseParam;
 import net.lingala.zip4j.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.databind.json.JsonMapper;
 import top.continew.starter.license.exception.LicenseException;
 import top.continew.starter.license.manager.ServerLicenseManager;
 import top.continew.starter.license.model.BuildCreatorResp;
@@ -209,7 +209,7 @@ public class LicenseCreateService {
         configParam.setPublicAlias(publicAlias);
         configParam.setStorePass(param.getStorePass());
         configParam.setSubject(param.getSubject());
-        ObjectMapper mapper = new ObjectMapper();
+        JsonMapper mapper = new JsonMapper();
         String json = mapper.writeValueAsString(configParam);
         try (FileOutputStream out = new FileOutputStream(config)) {
             out.write(json.getBytes(StandardCharsets.UTF_8));

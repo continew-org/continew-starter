@@ -64,11 +64,11 @@ mvn dependency:tree -Dverbose
 
 **Q：自己定义了同名 Bean 后启动报 Bean 冲突？**
 
-Starter 的可覆盖 Bean 大多标注了 `@ConditionalOnMissingBean`，你自定义的同类型 Bean 会优先生效、自动配置自动退让。如果仍报冲突，说明该 Bean 不属于可覆盖设计，请改用 Starter 提供的扩展点（如 Jackson 模块通过 `Jackson2ObjectMapperBuilderCustomizer` 扩展，而非直接替换 `ObjectMapper`）。
+Starter 的可覆盖 Bean 大多标注了 `@ConditionalOnMissingBean`，你自定义的同类型 Bean 会优先生效、自动配置自动退让。如果仍报冲突，说明该 Bean 不属于可覆盖设计，请改用 Starter 提供的扩展点（如 Jackson 模块通过 `JsonMapperBuilderCustomizer` 扩展，而非直接替换 `JsonMapper`）。
 
 **Q：Spring Boot 默认时区/日期格式被改了？**
 
-`json-jackson` 模块通过 `@PropertySource` 加载了内置的 `default-json-jackson.yml`，默认将 `spring.jackson2.time-zone` 设为 `GMT+8`、日期格式设为 `yyyy-MM-dd HH:mm:ss`。如需调整，在你的 `application.yml` 中显式配置同名项即可覆盖（应用配置优先级高于 Starter 内置默认值）。
+`json-jackson` 模块通过 `@PropertySource` 加载了内置的 `default-json-jackson.yml`，默认将日期格式设为 `yyyy-MM-dd HH:mm:ss`；时区则跟随 JVM 默认值（自动配置的设置优先于 `spring.jackson.time-zone`）。如需调整时区，请设置 JVM 参数（如 `-Duser.timezone=Asia/Shanghai`）；调整日期格式在你的 `application.yml` 中配置同名项即可。
 
 ## 序列化与 JSON
 
