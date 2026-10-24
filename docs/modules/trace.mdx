@@ -121,7 +121,7 @@ public ThreadPoolTaskExecutor threadPoolTaskExecutor(TaskDecorator contextPropag
 - `TLogIdGenerator` 扩展点删除，自定义链路 ID 生成改用 Micrometer 的 `Sampling`、`Propagator` 或桥实现配置
 - 引入本模块依赖后 Boot 的 tracing 自动装配即生效，MDC 中会出现 `traceId`、`spanId`，采样率默认 10%；2.x 中引入依赖但不设 `enabled: true` 时不会产生任何链路效果，升级后需要按需调整
 
-Boot 4 已移除 `management.tracing.enabled`（该键标记为 deprecated 且 level=error），旧版 YAML 中若配置过需删除，否则启动会报不兼容配置。彻底关闭追踪可以排除 `spring-boot-micrometer-tracing-brave` 依赖，此时本模块也会因缺少桥而启动失败，因此更推荐保留依赖并接受 MDC 字段存在。
+Boot 4 已移除 `management.tracing.enabled`（该键在配置元数据中标记为 deprecated 且 level=error，替代键为 `management.tracing.export.enabled`），旧版 YAML 中配置过该键不会导致启动失败，但已无任何效果，建议删除避免误导。彻底关闭追踪可以排除 `spring-boot-micrometer-tracing-brave` 依赖，此时本模块也会因缺少桥而启动失败，因此更推荐保留依赖并接受 MDC 字段存在。
 
 旧版 `continew-starter.trace.tlog.*` 配置项仍可绑定（避免升级后启动失败），但自 3.0.0 起不再生效，启用时启动日志会输出一条 WARN 提示移除。下表保留这些键仅为升级参考。
 
