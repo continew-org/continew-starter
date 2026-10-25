@@ -179,6 +179,15 @@ public class DemoServiceImpl extends ServiceImpl<DemoMapper, DemoDO> implements 
 - **P6Spy SQL 分析**：内置 `spy.properties`，默认输出 SQL 到控制台、记录超过 2 秒的慢 SQL（`outagedetectioninterval=2`），并排除 `SELECT 1` 等心跳语句；配合 `log-impl: NoLoggingImpl` 可避免 MyBatis 日志与 P6Spy 重复输出。
 - **ID 生成器**：`type` 为 `COSID` 时需自行引入 `cosid-spring-boot-starter`；为 `CUSTOM` 时必须自行提供 `IdentifierGenerator` Bean，否则启动时报 `NoSuchBeanDefinitionException`（`MyBatisPlusIdGeneratorConfiguration.java:84-109`）。
 
+## 2.13 → 4.0 升级须知
+
+本模块传递的 CosId 版本已随 3.0.0 升至 4.0.2。`type: COSID` 的装配行为不变（仍注入内置共享 Bean `__share__SnowflakeId` 生成分布式 ID），使用方须知集中在机器号分配：
+
+- **容器部署建议配置固定 instance-id**：CosId 4.0 起会检测容器环境，未配置 `cosid.machine.instance-id` 时输出 WARN 并建议在容器内配置 `cosid.machine.instance-id: ${HOSTNAME}` 与 `cosid.machine.stable: true`，避免每次重启占用新的机器号（10bit 机器号上限 1024）。虚拟机部署不受影响，默认行为（进程 ID 参与实例标识）与 2.x 一致。
+- **provider API 编码形态**：`IdGeneratorProvider.get(String)`/`getRequired(String)` 的返回类型从 `IdGenerator` 收窄为父接口 `StringIdGenerator`，链式调用 `generateAsString()` 与 `getShare()` 不受影响，但不要再把返回值赋回 `IdGenerator` 类型变量后调用 `generate()`，该写法 4.0 编译不过。
+
+机器号分配机制本身由 CosId starter 承担，本模块无相关配置键。开启机器号守护（`cosid.machine.guarder.enabled: true`）的系统升级后无需清理 Redis 中的机器号记录。
+
 <Callout type="warn">
 请通过 `@MapperScan` 注解在启动类（或配置类）上显式指定 Mapper 接口扫描包路径：
 
