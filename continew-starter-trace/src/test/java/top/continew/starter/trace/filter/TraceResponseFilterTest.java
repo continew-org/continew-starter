@@ -18,6 +18,7 @@ package top.continew.starter.trace.filter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.micrometer.tracing.Span;
@@ -30,6 +31,8 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import top.continew.starter.trace.autoconfigure.TraceProperties;
 
 import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 
 /**
  * 链路追踪响应过滤器测试
@@ -43,14 +46,13 @@ class TraceResponseFilterTest {
 
     private final MockHttpServletResponse response = new MockHttpServletResponse();
 
-    private final FilterChain chain = (servletRequest, servletResponse) -> {
-    };
+    private final FilterChain chain = mock(FilterChain.class);
 
     /**
-     * 存在当前 Span 时写入响应头
+     * 存在当前 Span 时写入响应头并放行请求
      */
     @Test
-    @DisplayName("存在当前 Span 时写入链路 ID 响应头")
+    @DisplayName("存在当前 Span 时写入链路 ID 响应头并放行请求")
     void shouldWriteTraceIdHeader() throws Exception {
         Tracer tracer = mockTracer("4bf92f3577b34da6a3ce929d0e0e4736");
         TraceProperties traceProperties = new TraceProperties();
@@ -59,6 +61,7 @@ class TraceResponseFilterTest {
         new TraceResponseFilter(tracer, traceProperties).doFilter(request, response, chain);
 
         assertThat(response.getHeader("X-Trace-Id")).isEqualTo("4bf92f3577b34da6a3ce929d0e0e4736");
+        verify(chain).doFilter(request, response);
     }
 
     /**
@@ -73,13 +76,14 @@ class TraceResponseFilterTest {
         new TraceResponseFilter(tracer, traceProperties).doFilter(request, response, chain);
 
         assertThat(response.getHeader("traceId")).isEqualTo("4bf92f3577b34da6a3ce929d0e0e4736");
+        verify(chain).doFilter(request, response);
     }
 
     /**
-     * 无当前 Span 时不写入响应头
+     * 无当前 Span 时不写入响应头但仍放行请求
      */
     @Test
-    @DisplayName("无当前 Span 时不写入响应头")
+    @DisplayName("无当前 Span 时不写入响应头但仍放行请求")
     void shouldNotWriteHeaderWithoutSpan() throws Exception {
         Tracer tracer = mock(Tracer.class);
         TraceProperties traceProperties = new TraceProperties();
@@ -88,13 +92,14 @@ class TraceResponseFilterTest {
         new TraceResponseFilter(tracer, traceProperties).doFilter(request, response, chain);
 
         assertThat(response.getHeader("X-Trace-Id")).isNull();
+        verify(chain).doFilter(request, response);
     }
 
     /**
-     * 链路 ID 名称留空时不写入响应头
+     * 链路 ID 名称留空时不写入响应头但仍放行请求
      */
     @Test
-    @DisplayName("链路 ID 名称留空时不写入响应头")
+    @DisplayName("链路 ID 名称留空时不写入响应头但仍放行请求")
     void shouldNotWriteHeaderWhenNameBlank() throws Exception {
         Tracer tracer = mockTracer("4bf92f3577b34da6a3ce929d0e0e4736");
         TraceProperties traceProperties = new TraceProperties();
@@ -103,6 +108,25 @@ class TraceResponseFilterTest {
         new TraceResponseFilter(tracer, traceProperties).doFilter(request, response, chain);
 
         assertThat(response.getHeaderNames()).isEmpty();
+        verify(chain).doFilter(request, response);
+    }
+
+    /**
+     * 非 HTTP 请求旁路时不写响应头，直接放行
+     */
+    @Test
+    @DisplayName("非 HTTP 请求旁路时不写响应头，直接放行")
+    void shouldBypassNonHttpRequest() throws Exception {
+        Tracer tracer = mockTracer("4bf92f3577b34da6a3ce929d0e0e4736");
+        TraceProperties traceProperties = new TraceProperties();
+        traceProperties.setTraceIdName("X-Trace-Id");
+        ServletRequest nonHttpRequest = mock(ServletRequest.class);
+        ServletResponse nonHttpResponse = mock(ServletResponse.class);
+
+        new TraceResponseFilter(tracer, traceProperties).doFilter(nonHttpRequest, nonHttpResponse,
+            chain);
+
+        verify(chain).doFilter(nonHttpRequest, nonHttpResponse);
     }
 
     private static Tracer mockTracer(String traceId) {
