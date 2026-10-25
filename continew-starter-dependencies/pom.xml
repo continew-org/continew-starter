@@ -142,6 +142,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
             <!-- Just Auth（开箱即用的整合第三方登录的开源组件，脱离繁琐的第三方登录 SDK，让登录变得 So easy!） -->
             <dependency>
                 <groupId>me.zhyd.oauth</groupId>
