@@ -37,7 +37,7 @@ ContiNew 系列项目采用清晰的分支策略，确保开发与维护有序�
 
 | 要求 | 说明 |
 |:-----|:-----|
-| JDK 21+（推荐 JDK 25） | 构建基线为 JDK 25，产物字节码为 Java 17（与 Spring Boot 4 官方基线对齐） |
+| JDK 21+（推荐 JDK 25） | 构建需要 JDK 21 及以上（Enforcer `requireJavaVersion [21,)`，`continew-starter-dependencies/pom.xml:581`），产物字节码为 Java 17（与 Spring Boot 4 官方基线对齐） |
 | Maven 3.9+ | 推荐直接使用仓库内置的 `./mvnw`（Windows 为 `mvnw.cmd`），无需单独安装 |
 | IDE（可选） | IntelliJ IDEA，可导入项目提供的代码风格配置（见下） |
 
