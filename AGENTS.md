@@ -21,7 +21,7 @@
 
 ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级 Starter 库。它遵循"约定优于配置"理念，将一系列经过企业实践验证的第三方库（MyBatis-Plus、Sa-Token、Redisson、JetCache 等）封装为开箱即用的 Starter，供 Spring Boot Web 应用集成。**这不是一个应用项目**，而是发布到 Maven Central 的多模块 Starter 库，groupId 为 `top.continew.starter`，全部模块版本通过 `${revision}` 属性统一管理。
 
-**当前版本**：3.0.0-SNAPSHOT | **主分支**：`dev` | **Java**：JDK 25 | **构建**：Maven 3.9.16（`./mvnw`，Windows 为 `mvnw.cmd`）
+**当前版本**：3.0.0-SNAPSHOT | **主分支**：`dev` | **构建 JDK**：21+（推荐 25） | **产物字节码**：Java 17 | **构建**：Maven 3.9.16（`./mvnw`，Windows 为 `mvnw.cmd`）
 
 ## 核心架构
 
@@ -206,7 +206,8 @@ public class XxxAutoConfiguration {
 
 ## Java 版本
 
-- **全部模块**：Java 17（全项目统一，无向后兼容目标）
+- **构建 JDK**：JDK 21 及以上（推荐 25；Enforcer `requireJavaVersion [21,)`，`continew-starter-dependencies/pom.xml:581`），低于 21 会在编译前失败
+- **产物字节码**：Java 17（全项目统一，无向后兼容目标；`java.version=17` → `maven.compiler.release`，`pom.xml:26`）。`java.version=17` 描述的是字节码目标，不表示用 JDK 17 构建
 
 ## PR 约定
 

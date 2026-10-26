@@ -224,6 +224,20 @@ continew-starter
       └─ continew-starter-extension-crud-mf（MyBatis Flex）
 ```
 
+## 环境要求
+
+「构建 JDK」与「产物字节码」是两个独立门槛，不要混为一谈：
+
+| 维度 | 要求 | 声明位置 |
+|:-----|:-----|:---------|
+| 构建 JDK | **JDK 21 及以上**（推荐 JDK 25） | `continew-starter-dependencies/pom.xml:581`（Enforcer `requireJavaVersion [21,)`） |
+| 产物字节码 | **Java 17** | `pom.xml:26`（`java.version=17`）→ `pom.xml:27`（`maven.compiler.release`） |
+
+- 构建需要 **JDK 21 及以上**：Enforcer 的 `requireJavaVersion [21,)` 规则在 `validate` 阶段校验，低于 21 会在编译前直接失败。
+- 产出的字节码目标仍是 **Java 17**（`maven.compiler.release=17`），对外承诺的运行时门槛不变。
+
+> `pom.xml` 中的 `java.version=17` 只描述产物字节码，**不表示需要用 JDK 17 构建**。CI 实际使用 Temurin 25（`.github/workflows/ci.yml:30`）。
+
 ## 参与贡献
 
 ContiNew（Continue New）系列项目致力于通过持续迭代，为开发者提供舒适的开发体验。作为 OpenContiNew 开源社区，我们的初衷是希望通过开源协作模式，提升技术透明度、放大集体智慧、共创优秀实践，源源不断地为企业级项目开发提供助力。
