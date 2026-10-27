@@ -16,43 +16,41 @@
 
 package top.continew.starter.extension.crud.autoconfigure;
 
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.webmvc.autoconfigure.WebMvcRegistrations;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.format.support.FormattingConversionService;
-import org.springframework.web.accept.ApiVersionStrategy;
-import org.springframework.web.accept.ContentNegotiationManager;
-import org.springframework.web.servlet.config.annotation.DelegatingWebMvcConfiguration;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
-import org.springframework.web.servlet.resource.ResourceUrlProvider;
 
 /**
  * CRUD Request Mapping 自动配置
+ * <p>
+ * 通过 {@link WebMvcRegistrations} 替换默认的 RequestMappingHandlerMapping，而非继承 WebMvcConfigurationSupport：
+ * 后者会让 Boot 的 WebMvcAutoConfiguration 因 @ConditionalOnMissingBean(WebMvcConfigurationSupport) 整体失效，
+ * 导致 mvcApiVersionStrategy 等 MVC 基础设施缺失，消费方启动失败
  *
  * @author Charles7c
  * @since 1.0.0
  */
 @Configuration
-public class CrudRequestMappingAutoConfiguration extends DelegatingWebMvcConfiguration {
+public class CrudRequestMappingAutoConfiguration {
 
     /**
-     * CRUD 请求映射器处理器映射器（覆盖默认 RequestMappingHandlerMapping）
+     * CRUD 请求映射器注册（覆盖 Boot 默认 RequestMappingHandlerMapping）
+     * <p>
+     * Boot 通过 ObjectProvider#getIfUnique 获取该类型，标注 @Primary 以保证同时存在自定义注册时仍取本实现
      */
-    @Override
-    public RequestMappingHandlerMapping createRequestMappingHandlerMapping() {
-        return new CrudRequestMappingHandlerMapping();
-    }
-
     @Bean
     @Primary
-    @Override
-    public RequestMappingHandlerMapping requestMappingHandlerMapping(
-        @Qualifier("mvcContentNegotiationManager") ContentNegotiationManager contentNegotiationManager,
-        @Qualifier("mvcApiVersionStrategy") ApiVersionStrategy apiVersionStrategy,
-        @Qualifier("mvcConversionService") FormattingConversionService conversionService,
-        @Qualifier("mvcResourceUrlProvider") ResourceUrlProvider resourceUrlProvider) {
-        return super.requestMappingHandlerMapping(contentNegotiationManager, apiVersionStrategy,
-            conversionService, resourceUrlProvider);
+    public WebMvcRegistrations crudWebMvcRegistrations() {
+        return new CrudWebMvcRegistrations();
+    }
+
+    static class CrudWebMvcRegistrations implements WebMvcRegistrations {
+
+        @Override
+        public RequestMappingHandlerMapping getRequestMappingHandlerMapping() {
+            return new CrudRequestMappingHandlerMapping();
+        }
     }
 }
