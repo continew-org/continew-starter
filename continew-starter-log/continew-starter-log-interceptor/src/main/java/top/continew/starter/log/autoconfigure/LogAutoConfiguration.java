@@ -24,6 +24,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.env.Environment;
 import top.continew.starter.core.constant.OrderedConstants;
 import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.log.annotation.ConditionalOnEnabledLog;
@@ -59,11 +60,14 @@ public class LogAutoConfiguration {
 
     /**
      * 日志过滤器
+     *
+     * @param environment 环境
+     * @return {@link FilterRegistrationBean }
      */
     @Bean
-    public FilterRegistrationBean<LogFilter> logFilter() {
+    public FilterRegistrationBean<LogFilter> logFilter(Environment environment) {
         FilterRegistrationBean<LogFilter> registrationBean = new FilterRegistrationBean<>();
-        registrationBean.setFilter(new LogFilter(properties));
+        registrationBean.setFilter(new LogFilter(properties, environment));
         registrationBean.setOrder(OrderedConstants.Filter.LOG_FILTER);
         registrationBean.addUrlPatterns(StringConstants.PATH_PATTERN_CURRENT_DIR);
         registrationBean.setDispatcherTypes(DispatcherType.REQUEST);

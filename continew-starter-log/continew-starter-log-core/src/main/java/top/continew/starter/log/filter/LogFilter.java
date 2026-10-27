@@ -16,8 +16,7 @@
 
 package top.continew.starter.log.filter;
 
-import cn.hutool.extra.spring.SpringUtil;
-import org.springframework.boot.autoconfigure.web.ErrorProperties;
+import org.springframework.core.env.Environment;
 import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 import top.continew.starter.core.wrapper.RepeatReadRequestWrapper;
@@ -41,10 +40,19 @@ import java.net.URISyntaxException;
  */
 public class LogFilter extends OncePerRequestFilter {
 
+    private static final String ERROR_PATH_PROPERTY = "spring.web.error.path";
+
+    private static final String DEFAULT_ERROR_PATH = "/error";
+
     private final LogProperties logProperties;
 
-    public LogFilter(LogProperties logProperties) {
+    private final String errorPath;
+
+    public LogFilter(LogProperties logProperties, Environment environment) {
         this.logProperties = logProperties;
+        // Spring Boot 4 不再将 ErrorProperties 注册为 bean（已改为 WebProperties 的嵌套属性），
+        // 只能在启动时按配置项解析错误路径，避免请求期因缺少 bean 抛 NoSuchBeanDefinitionException
+        this.errorPath = environment.getProperty(ERROR_PATH_PROPERTY, DEFAULT_ERROR_PATH);
     }
 
     @Override
@@ -77,13 +85,12 @@ public class LogFilter extends OncePerRequestFilter {
      * @param request 请求对象
      * @return true: 不过滤; false: 过滤
      */
-    private boolean isNotFilter(HttpServletRequest request) {
+    boolean isNotFilter(HttpServletRequest request) {
         if (!isRequestValid(request)) {
             return true;
         }
-        // 不拦截 /error
-        ErrorProperties errorProperties = SpringUtil.getBean(ErrorProperties.class);
-        if (request.getRequestURI().equals(errorProperties.getPath())) {
+        // 不拦截错误页
+        if (request.getRequestURI().equals(errorPath)) {
             return true;
         }
         // 放行路径
