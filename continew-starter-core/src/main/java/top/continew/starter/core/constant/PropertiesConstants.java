@@ -20,6 +20,7 @@ package top.continew.starter.core.constant;
  * 配置属性相关常量
  *
  * @author Charles7c
+ * @author KAI
  * @since 1.1.1
  */
 public class PropertiesConstants {
@@ -102,6 +103,16 @@ public class PropertiesConstants {
      */
     public static final String RATE_LIMITER =
         CONTINEW_STARTER + StringConstants.DOT + "rate-limiter";
+
+    /**
+     * 缓存配置
+     */
+    public static final String CACHE = CONTINEW_STARTER + StringConstants.DOT + "cache";
+
+    /**
+     * 缓存-多级缓存配置
+     */
+    public static final String CACHE_MULTI = CACHE + StringConstants.DOT + "multi";
 
     /**
      * 幂等配置

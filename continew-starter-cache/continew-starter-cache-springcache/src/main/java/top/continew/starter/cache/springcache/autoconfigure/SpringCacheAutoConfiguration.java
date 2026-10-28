@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.cache.autoconfigure.CacheProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cache.annotation.CachingConfigurer;
 import org.springframework.cache.interceptor.KeyGenerator;
 import org.springframework.context.annotation.Bean;
@@ -45,9 +46,11 @@ import java.util.Objects;
  * Spring Cache 自动配置
  *
  * @author Charles7c
+ * @author KAI
  * @since 1.2.0
  */
 @AutoConfiguration
+@EnableConfigurationProperties(CacheProperties.class)
 @PropertySource(value = "classpath:default-cache-springcache.yml",
     factory = GeneralPropertySourceFactory.class)
 public class SpringCacheAutoConfiguration implements CachingConfigurer {

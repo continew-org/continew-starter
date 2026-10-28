@@ -1,0 +1,106 @@
+---
+title: 多级缓存
+description: continew-starter-cache-multicache 提供多级缓存（Caffeine L1 + Redis L2）解决方案，原生 Spring Cache 注解，支持集群 L1 失效广播、防击穿、空值缓存与 Redis 故障降级，L2 复用 Spring Cache 序列化配置。
+---
+
+`continew-starter-cache-multicache` 提供多级缓存（Caffeine L1 + Redis L2）解决方案。在 Spring Cache 标准注解（`@Cacheable` / `@CacheEvict` / `@CachePut`）之上叠加本地缓存层：读路径 L1 命中直接返回、未命中查 L2 后回填；写路径先写 L2 再写 L1（L1 TTL 不超过 L2）；多节点部署时通过 Redis 广播 L1 失效消息保持各节点最终一致。引入依赖即自动装配。
+
+<Callout type="info">
+本模块依赖 `continew-starter-cache-springcache`，L2（Redis）复用 Spring Cache 的序列化与连接配置（见模块 `pom.xml`），Redis 连接使用 `spring.data.redis.*` 原生配置。
+</Callout>
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-cache-multicache</artifactId>
+</dependency>
+```
+
+## 配置
+
+配置前缀 `continew-starter.cache.multi`，默认值由模块内置的 `default-cache-multicache.yml` 提供。
+
+```yaml
+continew-starter:
+  cache:
+    multi:
+      # 是否启用多级缓存（默认 true）
+      enabled: true
+      # 是否启用集群 L1 失效广播（多节点部署时保持各节点 L1 最终一致）
+      broadcast-enabled: true
+      # L1 失效广播 topic（默认按应用名隔离，多应用共用同一 Redis 时互不串扰；支持占位符）
+      broadcast-topic: continew:cache:evict:${spring.application.name:default}
+      # Redis（L2）不可用时是否降级为仅本地缓存（记录 WARN，不中断业务）
+      degrade-on-redis-failure: true
+      # 本地（L1）缓存全局配置
+      local:
+        # 写入后过期时长（默认 2h）
+        expire-after-write: 2h
+        # 最大缓存元素数（<=0 表示不启用本地缓存，退化为纯 Redis 缓存）
+        limit: 1000
+      # 远程（L2）缓存全局配置
+      remote:
+        # 写入后过期时长（默认不设置，沿用 spring.cache.redis.time-to-live；显式设置后覆盖）
+        # expire-after-write: 2h
+        # 是否缓存空值（缓存空值可防止缓存穿透，默认 true）
+        cache-null-values: true
+      # 按 cacheName 单独覆盖配置（示例）：
+      # specs:
+      #   "USER:":
+      #     local: { expire-after-write: 30m, limit: 5000 }
+      #     remote: { expire-after-write: 2h }
+```
+
+## 使用 Spring Cache 注解
+
+引入依赖后，直接使用 Spring Cache 标准注解即可，无需 `@EnableCaching`（自动配置已开启）。热路径读多写少的场景效果最好：L1 命中时全程零 Redis 访问。
+
+```java
+@Service
+public class DemoService {
+
+    @Cacheable(cacheNames = "user", key = "#id")
+    public UserVO get(Long id) {
+        return ...;
+    }
+
+    @CacheEvict(cacheNames = "user", key = "#req.id")
+    public void update(UserReq req) {
+        // ...
+    }
+}
+```
+
+## 定时刷新：@MultiCacheRefresh
+
+`@MultiCacheRefresh` 标注在 `@Cacheable` 方法上，方法首次正常调用后按设定周期在后台线程自动刷新缓存：刷新时先失效该键，再经 Spring 代理重放方法完成回源与写回（等效 JetCache 的 `@CacheRefresh`）。同一方法 + 同一参数组合只注册一个刷新任务，任务总数上限 1024。
+
+```java
+@Cacheable(cacheNames = "config", key = "'latest'")
+@MultiCacheRefresh(refresh = 5, timeUnit = TimeUnit.MINUTES, retryAfterFailure = 30)
+public ConfigVO getLatest() {
+    return ...;
+}
+```
+
+<Callout type="warn">
+`@MultiCacheRefresh` 仅支持 `@Cacheable` 使用默认键生成器或显式 `keyGenerator` 的场景，不支持 SpEL `key`。使用 SpEL key 时任务不注册并输出 WARN（切面无法解析自定义键）。
+</Callout>
+
+## 防击穿与降级
+
+- **防击穿**：`get(key, valueLoader)` 路径使用分段锁（32 段）+ 双重检查，同一键的并发回源只放行一个线程，其余等待后读缓存；
+- **空值缓存**：默认开启，空值包装为 `NullValue` 存入两级缓存，防止缓存穿透；
+- **Redis 故障降级**：`degrade-on-redis-failure: true`（默认）时，L2 读写失败仅记录 WARN 并降级为仅本地缓存，不中断业务；设为 `false` 时异常向上抛出。
+
+## 核心依赖
+
+| 依赖 | 描述 |
+|:-----|:-----|
+| `top.continew.starter:continew-starter-cache-springcache` | Spring Cache 抽象与 L2 序列化配置 |
+| `com.github.ben-manes.caffeine:caffeine` | 高性能本地缓存（L1） |
+| `org.springframework:spring-aop` + `org.aspectj:aspectjweaver` | `@MultiCacheRefresh` 切面支持 |
+
+更多配置项说明见 [配置项一览](../../reference/properties#cache-multi)。

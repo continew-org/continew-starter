@@ -105,8 +105,22 @@ description: ContiNew Starter 各模块配置项一览表：配置前缀、配�
 | `spring.data.redisson.cluster-servers-config` | `ClusterServersConfig` | — | 集群服务配置（Redisson 原生配置对象） |
 | `spring.data.redisson.sentinel-servers-config` | `SentinelServersConfig` | — | 哨兵服务配置（Redisson 原生配置对象） |
 
-<Callout type="warn">
-JetCache 与 Spring Cache 两种实现未定义独立的 `@ConfigurationProperties` 类：JetCache 直接使用 `jetcache.*` 原生配置，Spring Cache 直接使用 `spring.cache.*` 原生配置，请分别参考对应框架官方文档。
+### `continew-starter.cache.multi`（多级缓存，`MultiLevelCacheProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.cache.multi.enabled` | `boolean` | `true` | 是否启用 |
+| `continew-starter.cache.multi.broadcast-enabled` | `boolean` | `true` | 是否启用集群 L1 失效广播（多节点部署保持各节点 L1 最终一致） |
+| `continew-starter.cache.multi.broadcast-topic` | `String` | `continew:cache:evict:${spring.application.name:default}` | L1 失效广播 topic（默认按应用名隔离，支持占位符） |
+| `continew-starter.cache.multi.degrade-on-redis-failure` | `boolean` | `true` | Redis（L2）不可用时是否降级为仅本地缓存（记录 WARN，不中断业务） |
+| `continew-starter.cache.multi.local.expire-after-write` | `Duration` | `2h` | L1（Caffeine）写入后过期时长（实际取 L1 与 L2 TTL 较小值） |
+| `continew-starter.cache.multi.local.limit` | `long` | `1000` | L1 最大缓存元素数（`<=0` 不启用 L1，退化为纯 Redis 缓存） |
+| `continew-starter.cache.multi.remote.expire-after-write` | `Duration` | —（沿用 Spring Cache 的 Redis TTL 配置） | L2（Redis）写入后过期时长，显式设置后覆盖 Spring Cache 配置 |
+| `continew-starter.cache.multi.remote.cache-null-values` | `boolean` | `true` | L2 是否缓存空值（防缓存穿透） |
+| `continew-starter.cache.multi.specs` | `Map<String, CacheSpec>` | —（空） | 按 cacheName 覆盖 `local`/`remote` 配置（未设置的项继承全局配置） |
+
+<Callout type="info">
+Spring Cache 实现未定义独立的 `@ConfigurationProperties` 类，直接使用 `spring.cache.*` 原生配置（如 spring.cache.redis.time-to-live），请参考 Spring Boot 官方文档；多级缓存的 L2 默认复用该配置。
 </Callout>
 
 ## 加密模块（Encrypt）
