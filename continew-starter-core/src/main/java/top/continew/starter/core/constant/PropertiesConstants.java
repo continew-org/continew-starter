@@ -20,6 +20,7 @@ package top.continew.starter.core.constant;
  * 配置属性相关常量
  *
  * @author Charles7c
+ * @author KAI
  * @since 1.1.1
  */
 public class PropertiesConstants {

@@ -46,6 +46,7 @@ import java.util.Objects;
  * Spring Cache 自动配置
  *
  * @author Charles7c
+ * @author KAI
  * @since 1.2.0
  */
 @AutoConfiguration

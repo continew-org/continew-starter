@@ -64,7 +64,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 仅支持 @Cacheable 使用默认键生成器或显式 keyGenerator 的场景，SpEL key 不支持。
  * </p>
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 @Aspect

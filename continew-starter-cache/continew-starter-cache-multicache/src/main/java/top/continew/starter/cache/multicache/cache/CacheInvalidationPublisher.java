@@ -34,7 +34,7 @@ import java.util.UUID;
  * 消息体格式：{@code nodeId|allEntries|cacheName|key}（key 为 String 化后的缓存键）。
  * </p>
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 public class CacheInvalidationPublisher implements MessageListener {

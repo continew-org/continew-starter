@@ -36,7 +36,7 @@ import top.continew.starter.cache.springcache.autoconfigure.SpringCacheAutoConfi
 /**
  * 多级缓存自动配置测试（验证与 Spring Boot 内置缓存自动配置的装配顺序）
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 class MultiCacheAutoConfigurationTest {

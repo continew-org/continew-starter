@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 多级缓存单元测试（内存版 L2，验证 L1/L2 回填、evict 广播、空值缓存、击穿保护、降级）
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 class MultiLevelCacheTest {

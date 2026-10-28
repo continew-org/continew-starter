@@ -42,6 +42,7 @@ import java.util.concurrent.TimeUnit;
  * 显式覆盖为公共 Topic。</p>
  *
  * @author luoqiz
+ * @author KAI
  * @since 2.17.0
  */
 public class AccessSessionCache {

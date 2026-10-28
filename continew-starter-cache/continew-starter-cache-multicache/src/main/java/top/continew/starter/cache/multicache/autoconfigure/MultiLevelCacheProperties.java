@@ -26,7 +26,7 @@ import java.util.Map;
 /**
  * 多级缓存配置属性
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 @ConfigurationProperties(prefix = PropertiesConstants.CACHE_MULTI)

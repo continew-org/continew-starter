@@ -26,7 +26,7 @@ import java.util.List;
  * 避免首次访问的懒创建竞态，也让 specs 配置有校验对象）。
  * </p>
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 public interface MultiLevelCacheConfigurer {

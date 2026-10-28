@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * 内存版 RedisCacheWriter（可模拟宕机，记录最近一次写入 TTL），供多级缓存相关测试共用
  *
- * @author Charles7c
+ * @author KAI
  */
 public class FakeRedisCacheWriter implements RedisCacheWriter {
 

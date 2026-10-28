@@ -47,7 +47,7 @@ import jakarta.annotation.PostConstruct;
 /**
  * 多级缓存自动配置（Caffeine L1 + Redis L2）
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 @EnableCaching

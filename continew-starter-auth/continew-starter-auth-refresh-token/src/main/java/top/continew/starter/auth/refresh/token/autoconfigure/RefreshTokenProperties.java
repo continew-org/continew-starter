@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
  *
  * @author luoqiz
  * @author Charles7c
+ * @author KAI
  * @since 2.17.0
  */
 @Validated

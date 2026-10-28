@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * 模拟 Redis Message（广播失效消息），供多级缓存相关测试共用
  *
- * @author Charles7c
+ * @author KAI
  */
 class FakeMessage implements Message {
 

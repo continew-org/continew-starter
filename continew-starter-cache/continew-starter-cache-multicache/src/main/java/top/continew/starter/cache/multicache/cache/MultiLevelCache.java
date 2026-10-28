@@ -39,7 +39,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * 失效：清除 L1、L2 并向集群广播 L1 失效消息。
  * </p>
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 public class MultiLevelCache extends AbstractValueAdaptingCache {

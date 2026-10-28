@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * 多级缓存定时刷新切面测试（验证刷新真实回源并更新缓存，而不是被 @Cacheable 命中短路）
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 class MultiCacheRefreshAspectTest {

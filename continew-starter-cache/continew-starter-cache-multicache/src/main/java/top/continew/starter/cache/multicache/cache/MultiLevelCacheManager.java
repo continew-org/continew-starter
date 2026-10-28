@@ -38,7 +38,7 @@ import java.util.Collections;
  * 支持预声明 cacheNames（启动即建好缓存）和按 cacheName 覆盖配置（specs）。
  * </p>
  *
- * @author Charles7c
+ * @author KAI
  * @since 3.0.0
  */
 public class MultiLevelCacheManager extends AbstractCacheManager {
