@@ -59,9 +59,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  * 若不先失效，重放会被 @Cacheable 命中短路而无法真正刷新。
  * </p>
  * <p>
- * 同一方法 + 同一参数组合只注册一个刷新任务（任务数有上限，防止动态参数方法无界注册）；
+ * 同一方法 + 同一参数组合只注册一个刷新任务。任务按方法限流（每方法 {@code MAX_TASKS_PER_METHOD} 个、
+ * 全局 {@code MAX_TASKS} 个），达到上限时淘汰最近最少使用的任务而不是丢弃新任务，
+ * 因此某个动态参数方法刷屏不会让参数固定的正常方法静默失效。
  * 刷新执行期间设置线程标记，防止刷新调用再次进入本切面造成任务重复注册。
  * 仅支持 @Cacheable 使用默认键生成器或显式 keyGenerator 的场景，SpEL key 不支持。
+ * 仅支持 CGLIB 代理（默认）：JDK 动态代理下无法在代理类上定位目标方法，任务不会注册并输出 WARN。
  * </p>
  *
  * @author KAI
@@ -73,9 +76,14 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultiCacheRefreshAspect.class);
 
     /**
-     * 刷新任务数上限：任务按“方法 + 实参”注册，动态参数方法需封顶防止无界增长
+     * 刷新任务全局上限：任务按“方法 + 实参”注册，防止动态参数方法无界增长
      */
     private static final int MAX_TASKS = 1024;
+
+    /**
+     * 单个方法的刷新任务上限：动态参数方法只影响自己，不会挤占其他方法的名额
+     */
+    private static final int MAX_TASKS_PER_METHOD = 64;
 
     /**
      * 刷新执行标记：刷新线程重放方法时不再注册新任务
@@ -83,17 +91,48 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
     private static final ThreadLocal<Boolean> REFRESHING = ThreadLocal.withInitial(() -> false);
 
     private final CacheManager cacheManager;
-    private final ScheduledExecutorService scheduler = Executors
-        .newScheduledThreadPool(1, new RefreshThreadFactory());
+    private final ScheduledExecutorService scheduler;
+    private final int maxTasks;
+    private final int maxTasksPerMethod;
 
     /**
-     * 已注册的刷新任务（方法签名 + 参数摘要 → 任务），防止重复注册
+     * 已注册的刷新任务（方法签名 → (任务键 → 任务)），按方法分组便于按方法限流与淘汰
      */
-    private final Map<String, RefreshTask> refreshTasks = new ConcurrentHashMap<>();
+    private final Map<String, Map<String, RefreshTask>> refreshTasks = new ConcurrentHashMap<>();
+
+    /**
+     * 已注册任务总数（与 {@link #refreshTasks} 同步维护，避免每次调用遍历统计）
+     */
+    private final AtomicInteger taskCount = new AtomicInteger();
     private BeanFactory beanFactory;
 
     public MultiCacheRefreshAspect(CacheManager cacheManager) {
+        this(cacheManager, Executors.newScheduledThreadPool(1, new RefreshThreadFactory()),
+            MAX_TASKS,
+            MAX_TASKS_PER_METHOD);
+    }
+
+    MultiCacheRefreshAspect(CacheManager cacheManager, int maxTasks, int maxTasksPerMethod) {
+        this(cacheManager, Executors.newScheduledThreadPool(1, new RefreshThreadFactory()),
+            maxTasks,
+            maxTasksPerMethod);
+    }
+
+    /**
+     * 可指定上限与调度器的构造器（仅供测试缩小上限或注入调度器，业务请使用
+     * {@link #MultiCacheRefreshAspect(CacheManager)}）
+     *
+     * @param cacheManager      缓存管理器
+     * @param scheduler         刷新调度器
+     * @param maxTasks          刷新任务全局上限
+     * @param maxTasksPerMethod 单个方法的刷新任务上限
+     */
+    MultiCacheRefreshAspect(CacheManager cacheManager, ScheduledExecutorService scheduler,
+        int maxTasks, int maxTasksPerMethod) {
         this.cacheManager = cacheManager;
+        this.scheduler = scheduler;
+        this.maxTasks = maxTasks;
+        this.maxTasksPerMethod = maxTasksPerMethod;
     }
 
     @Override
@@ -120,11 +159,6 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
     }
 
     private void registerRefreshTask(ProceedingJoinPoint joinPoint, MultiCacheRefresh annotation) {
-        if (refreshTasks.size() >= MAX_TASKS) {
-            LOGGER.warn("[ContiNew Starter] - Cache refresh task limit ({}) reached, no more tasks "
-                + "will be registered.", MAX_TASKS);
-            return;
-        }
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         Cacheable cacheable = AnnotatedElementUtils.findMergedAnnotation(method, Cacheable.class);
         if (cacheable == null) {
@@ -146,7 +180,18 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
         String[] cacheNames = cacheable.cacheNames().length > 0
             ? cacheable.cacheNames()
             : cacheable.value();
+        String methodKey = joinPoint.getSignature().toLongString();
         Object[] args = joinPoint.getArgs();
+        String taskKey = methodKey + "#" + Arrays.deepHashCode(args);
+        Map<String, RefreshTask> existingTasks = refreshTasks.get(methodKey);
+        if (existingTasks != null) {
+            RefreshTask registered = existingTasks.get(taskKey);
+            if (registered != null) {
+                // 热路径：已有任务只更新时间戳，作为达到上限时的淘汰依据
+                registered.lastAccessNanos = System.nanoTime();
+                return;
+            }
+        }
         Object cacheKey = resolveKeyGenerator(cacheable.keyGenerator())
             .generate(joinPoint.getTarget(), method, args);
         Object proxy = joinPoint.getThis();
@@ -156,19 +201,92 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
         Method proxyMethod = ReflectionUtils.findMethod(proxy.getClass(), method.getName(),
             method.getParameterTypes());
         if (proxyMethod == null) {
-            LOGGER.warn("[ContiNew Starter] - Cannot resolve proxy method for cache refresh: {}",
-                method);
+            LOGGER.warn("[ContiNew Starter] - Cannot resolve proxy method for cache refresh, "
+                + "JDK dynamic proxy is not supported: {}", method);
             return;
         }
-        RefreshTask task =
-            new RefreshTask(proxy, proxyMethod, args, cacheNames, cacheKey, period, Math
-                .max(annotation.timeUnit().toMillis(annotation.retryAfterFailure()), 1L));
-        String taskKey = joinPoint.getSignature().toLongString() + "#" + Arrays.deepHashCode(args);
-        if (refreshTasks.putIfAbsent(taskKey, task) == null) {
+        RefreshTask task = new RefreshTask(methodKey, taskKey, proxy, proxyMethod, args, cacheNames,
+            cacheKey, period, Math.max(annotation.timeUnit().toMillis(annotation
+                .retryAfterFailure()), 1L));
+        synchronized (this) {
+            // 任务组在确认注册成功后才创建，JDK 动态代理等提前返回的路径不留空分组
+            Map<String, RefreshTask> methodTasks =
+                refreshTasks.computeIfAbsent(methodKey, key -> new ConcurrentHashMap<>());
+            if (methodTasks.get(taskKey) != null) {
+                return;
+            }
+            if (methodTasks.size() >= maxTasksPerMethod) {
+                evictLeastRecentlyUsed(methodTasks);
+            }
+            if (taskCount.get() >= maxTasks) {
+                evictGlobalLeastRecentlyUsed();
+            }
+            methodTasks.put(taskKey, task);
+            taskCount.incrementAndGet();
             schedule(task, task.period);
-            LOGGER.debug("[ContiNew Starter] - Registered cache refresh task: {}, period: {}ms",
-                joinPoint.getSignature().toShortString(), task.period);
         }
+        LOGGER.debug("[ContiNew Starter] - Registered cache refresh task: {}, period: {}ms",
+            joinPoint.getSignature().toShortString(), task.period);
+    }
+
+    /**
+     * 淘汰同一方法内最近最少使用的任务（达到按方法上限时调用），保证该方法的新任务仍能注册
+     *
+     * @param methodTasks 该方法的任务表
+     */
+    private void evictLeastRecentlyUsed(Map<String, RefreshTask> methodTasks) {
+        RefreshTask victim = null;
+        for (RefreshTask task : methodTasks.values()) {
+            if (victim == null || task.lastAccessNanos < victim.lastAccessNanos) {
+                victim = task;
+            }
+        }
+        if (victim == null || methodTasks.remove(victim.taskKey) == null) {
+            return;
+        }
+        cancelTask(victim);
+        LOGGER.warn("[ContiNew Starter] - Cache refresh task limit per method ({}) reached, "
+            + "evicted least recently used task: {}, period: {}ms", maxTasksPerMethod,
+            victim.taskKey,
+            victim.period);
+    }
+
+    /**
+     * 淘汰全局最近最少使用的任务（达到全局上限时调用），保证新任务仍能注册
+     */
+    private void evictGlobalLeastRecentlyUsed() {
+        RefreshTask victim = null;
+        for (Map<String, RefreshTask> methodTasks : refreshTasks.values()) {
+            for (RefreshTask task : methodTasks.values()) {
+                if (victim == null || task.lastAccessNanos < victim.lastAccessNanos) {
+                    victim = task;
+                }
+            }
+        }
+        if (victim == null) {
+            return;
+        }
+        Map<String, RefreshTask> methodTasks = refreshTasks.get(victim.methodKey);
+        if (methodTasks == null || methodTasks.remove(victim.taskKey) == null) {
+            return;
+        }
+        cancelTask(victim);
+        LOGGER.warn("[ContiNew Starter] - Cache refresh task limit ({}) reached, evicted least "
+            + "recently used task: {}, method: {}", maxTasks, victim.taskKey, victim.methodKey);
+    }
+
+    /**
+     * 注销任务：标记取消并撤销后续调度
+     *
+     * @param task 待注销的任务
+     */
+    private void cancelTask(RefreshTask task) {
+        task.cancelled = true;
+        ScheduledFuture<?> future = task.currentFuture;
+        if (future != null) {
+            future.cancel(false);
+        }
+        taskCount.decrementAndGet();
     }
 
     /**
@@ -206,10 +324,16 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
         if (task.cancelled) {
             return;
         }
-        task.currentFuture = scheduler.schedule(() -> {
+        ScheduledFuture<?> future = scheduler.schedule(() -> {
             boolean success = executeRefresh(task);
             schedule(task, success ? task.period : task.retryDelay);
         }, delayMillis, TimeUnit.MILLISECONDS);
+        task.currentFuture = future;
+        // 复查取消：cancelTask 可能恰在上面的 cancelled 检查后、本行赋值前执行，
+        // 彼时它读到旧的（或空的）currentFuture，新提交的 future 由这里兜住取消
+        if (task.cancelled) {
+            future.cancel(false);
+        }
     }
 
     /**
@@ -219,6 +343,9 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
      * @return 刷新是否成功（失败后按重试间隔续期）
      */
     private boolean executeRefresh(RefreshTask task) {
+        if (task.cancelled) {
+            return true;
+        }
         REFRESHING.set(true);
         try {
             for (String cacheName : task.cacheNames) {
@@ -247,14 +374,15 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
      */
     @PreDestroy
     public void destroy() {
-        refreshTasks.values().forEach(task -> {
+        refreshTasks.values().forEach(methodTasks -> methodTasks.values().forEach(task -> {
             task.cancelled = true;
             ScheduledFuture<?> future = task.currentFuture;
             if (future != null) {
                 future.cancel(false);
             }
-        });
+        }));
         refreshTasks.clear();
+        taskCount.set(0);
         scheduler.shutdownNow();
     }
 
@@ -264,7 +392,7 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
      * @return 已注册的刷新任务数
      */
     public int getRefreshTaskCount() {
-        return refreshTasks.size();
+        return taskCount.get();
     }
 
     /**
@@ -272,6 +400,8 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
      */
     private static final class RefreshTask {
 
+        final String methodKey;
+        final String taskKey;
         final Object proxy;
         final Method method;
         final Object[] args;
@@ -282,9 +412,22 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
         volatile ScheduledFuture<?> currentFuture;
         volatile boolean cancelled;
 
-        RefreshTask(Object proxy, Method method, Object[] args, String[] cacheNames,
+        /**
+         * 最近一次注册/命中时间（纳秒），达到上限时据此淘汰
+         */
+        volatile long lastAccessNanos;
+
+        RefreshTask(String methodKey,
+            String taskKey,
+            Object proxy,
+            Method method,
+            Object[] args,
+            String[] cacheNames,
             Object cacheKey,
-            long period, long retryDelay) {
+            long period,
+            long retryDelay) {
+            this.methodKey = methodKey;
+            this.taskKey = taskKey;
             this.proxy = proxy;
             this.method = method;
             this.args = args;
@@ -292,6 +435,7 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
             this.cacheKey = cacheKey;
             this.period = period;
             this.retryDelay = retryDelay;
+            this.lastAccessNanos = System.nanoTime();
         }
     }
 

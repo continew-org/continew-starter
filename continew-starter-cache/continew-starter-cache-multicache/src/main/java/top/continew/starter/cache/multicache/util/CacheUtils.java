@@ -80,7 +80,7 @@ public class CacheUtils {
     }
 
     /**
-     * 写入缓存（同时写 L1 与 L2）
+     * 写入缓存（同时写 L1 与 L2，并向集群广播 L1 失效）
      *
      * @param cacheName 缓存名称
      * @param key       缓存键

@@ -35,8 +35,10 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * <p>
  * 读取：L1 命中直接返回；L1 未命中查询 L2，命中则回填 L1。
- * 写入：先写 L2 再写 L1（L1 过期时间不超过 L2）。
+ * 写入：先写 L2 再写 L1（L1 过期时间不超过 L2），写成后广播 L1 失效消息。
  * 失效：清除 L1、L2 并向集群广播 L1 失效消息。
+ * 降级：L2 故障时读、写、失效降级为仅本地缓存；但 putIfAbsent 的跨节点互斥无法在本地实现，
+ * 降级期间一律抛出异常（见 {@link #putIfAbsent(Object, Object)}）。
  * </p>
  *
  * @author KAI
@@ -208,29 +210,38 @@ public class MultiLevelCache extends AbstractValueAdaptingCache {
 
     @Override
     public void put(Object key, Object value) {
+        // 值转换在写 L2 之前完成：空值策略不满足时直接抛出，不当作 L2 故障降级
+        Object storeValue = toStoreValue(value);
+        boolean remoteWritten = false;
         try {
-            redisCache.put(key, toStoreValue(value));
+            redisCache.put(key, storeValue);
+            remoteWritten = true;
         } catch (RuntimeException e) {
             handleRemoteFailure("put", key, e);
         }
         putLocal(key, value);
+        if (remoteWritten) {
+            // L2 已变更，其他节点 L1 立即失效，避免最长 min(L1 TTL, L2 TTL) 的脏读窗口
+            publishInvalidation(key, false);
+        }
     }
 
     @Override
     public ValueWrapper putIfAbsent(Object key, Object value) {
+        Object storeValue = toStoreValue(value);
         ValueWrapper existing;
         try {
             // 委托 L2 的原子 SETNX，保证跨节点语义
-            existing = redisCache.putIfAbsent(key, toStoreValue(value));
+            existing = redisCache.putIfAbsent(key, storeValue);
         } catch (RuntimeException e) {
-            handleRemoteFailure("putIfAbsent", key, e);
-            existing = null;
+            throw putIfAbsentFailure(key, e);
         }
         if (existing == null) {
             putLocal(key, value);
+            publishInvalidation(key, false);
             return null;
         }
-        // 已有值时回填 L1，避免后续读全部落到 L2
+        // 已有值时回填 L1，避免后续读全部落到 L2；L2 未变更，无需广播
         putLocal(key, existing.get());
         return existing;
     }
@@ -324,14 +335,23 @@ public class MultiLevelCache extends AbstractValueAdaptingCache {
     }
 
     /**
-     * 转换为存储值（null 包装为 NullValue，与 Spring Cache 空值缓存语义一致）
+     * putIfAbsent 的 L2 故障处理：降级只能保证本地语义，无法保证跨节点互斥，因此一律失败
      *
-     * @param userValue 用户值
-     * @return 存储值
+     * <p>
+     * 降级期间若返回「写入成功」，多个节点会各自认为自己抢到了键，分布式互斥静默丢失。
+     * 这里明确抛出异常，由调用方决定是否中止业务。
+     * </p>
+     *
+     * @param key   缓存键
+     * @param cause L2 抛出的异常
+     * @return 待调用方抛出的异常（降级关闭时原样透传 L2 异常）
      */
-    @Override
-    protected Object toStoreValue(Object userValue) {
-        Object storeValue = super.toStoreValue(userValue);
-        return storeValue == null ? userValue : storeValue;
+    private RuntimeException putIfAbsentFailure(Object key, RuntimeException cause) {
+        if (!degradeOnRedisFailure) {
+            return cause;
+        }
+        return new IllegalStateException(("Multi-level cache putIfAbsent requires the atomic "
+            + "set-if-absent of L2 (Redis), degraded mode cannot guarantee cluster-wide mutual "
+            + "exclusion. cacheName: %s, key: %s").formatted(name, key), cause);
     }
 }

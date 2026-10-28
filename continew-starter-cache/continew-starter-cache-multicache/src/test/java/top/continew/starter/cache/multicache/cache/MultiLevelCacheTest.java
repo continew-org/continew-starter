@@ -111,8 +111,9 @@ class MultiLevelCacheTest {
         // L2 也已清除（另一节点读不到）
         MultiLevelCacheManager otherManager = newManager(new RecordingPublisher());
         assertNull(otherManager.getCache(CACHE_NAME).get("k1"));
-        assertEquals(1, publisher.messages.size());
-        assertTrue(publisher.messages.get(0).contains(CACHE_NAME));
+        // put 与 evict 各广播一次
+        assertEquals(2, publisher.messages.size());
+        assertTrue(publisher.messages.get(1).contains(CACHE_NAME));
     }
 
     @Test
@@ -128,7 +129,8 @@ class MultiLevelCacheTest {
         otherManager.getCache(CACHE_NAME).get("k1");
         // 本节点 evict → 广播消息由"另一节点"的 publisher 处理（替换 nodeId 模拟非本节点）
         cache.evict("k1");
-        String message = publisher.messages.get(0).replaceFirst("^[^|]+", "other-node");
+        String message = publisher.messages.get(publisher.messages.size() - 1)
+            .replaceFirst("^[^|]+", "other-node");
         otherPublisher.onMessage(new FakeMessage(message), null);
         // 另一节点 L1 已清，重新 get 回源 L2（L2 也已清，应为 miss）
         assertNull(otherManager.getCache(CACHE_NAME).get("k1"));
@@ -182,6 +184,63 @@ class MultiLevelCacheTest {
         // 另一节点（L1 为空）读到的也是首写值，说明 L2 语义正确
         MultiLevelCacheManager otherManager = newManager(new RecordingPublisher());
         assertEquals("v1", otherManager.getCache(CACHE_NAME).get("k1").get());
+    }
+
+    @Test
+    @DisplayName("put 写入成功后广播 L1 失效")
+    void testPutBroadcastsInvalidation() {
+        cacheManager.getCache(CACHE_NAME).put("k1", "v1");
+        assertEquals(List.of("node|false|" + CACHE_NAME + "|k1"), publisher.messages);
+    }
+
+    @Test
+    @DisplayName("另一节点 put 的广播使本节点 L1 失效，读到新值而非脏值")
+    void testPutBroadcastClearsOtherNodeL1() {
+        RecordingPublisher otherPublisher = new RecordingPublisher();
+        MultiLevelCacheManager otherManager = newManager(otherPublisher);
+        otherPublisher.setCacheManager(otherManager);
+        Cache other = otherManager.getCache(CACHE_NAME);
+        Cache cache = cacheManager.getCache(CACHE_NAME);
+        other.put("k1", "v1");
+        assertEquals("v1", cache.get("k1").get());
+        // 另一节点更新 L2 并广播，本节点回填的 L1 必须失效
+        other.put("k1", "v2");
+        String message = otherPublisher.messages.get(1).replaceFirst("^[^|]+", "other-node");
+        publisher.onMessage(new FakeMessage(message), null);
+        assertEquals("v2", cache.get("k1").get());
+    }
+
+    @Test
+    @DisplayName("putIfAbsent 仅在实际写入 L2 时广播")
+    void testPutIfAbsentBroadcastsOnlyWhenWritten() {
+        Cache cache = cacheManager.getCache(CACHE_NAME);
+        assertNull(cache.putIfAbsent("k1", "v1"));
+        assertEquals(1, publisher.messages.size());
+        assertNotNull(cache.putIfAbsent("k1", "v2"));
+        assertEquals(1, publisher.messages.size(), "L2 未变更时无需广播");
+    }
+
+    @Test
+    @DisplayName("降级模式下 putIfAbsent 明确失败，不伪装成写入成功")
+    void testPutIfAbsentFailsWhenDegraded() {
+        cacheWriter.setAvailable(false);
+        Cache cache = cacheManager.getCache(CACHE_NAME);
+        IllegalStateException exception = assertThrows(IllegalStateException.class, () -> cache
+            .putIfAbsent("k1", "v1"));
+        assertTrue(exception.getMessage().contains("mutual exclusion"));
+        assertNull(cache.get("k1"), "失败时不应写入本地 L1");
+    }
+
+    @Test
+    @DisplayName("关闭降级时 putIfAbsent 透传 L2 异常")
+    void testPutIfAbsentPropagatesRemoteFailure() {
+        properties.setDegradeOnRedisFailure(false);
+        cacheManager = newManager(publisher);
+        cacheWriter.setAvailable(false);
+        Cache cache = cacheManager.getCache(CACHE_NAME);
+        RuntimeException exception = assertThrows(RuntimeException.class, () -> cache
+            .putIfAbsent("k1", "v1"));
+        assertEquals("Redis is down", exception.getMessage());
     }
 
     @Test
