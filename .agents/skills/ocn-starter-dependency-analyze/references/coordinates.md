@@ -73,13 +73,15 @@
 ### redisson
 - property: `redisson.version` · 坐标: `org.redisson:redisson-spring-boot-starter`
 - metadata: `org/redisson/redisson-spring-boot-starter/maven-metadata.xml`
-- **约束**：缓存层地基，Spring Cache 和 JetCache 都建在它上面。升 Redisson 看 `RedissonAutoConfiguration` 的 bean
+- **约束**：缓存层地基，Spring Cache 和 multicache（Caffeine L1 + Redis L2，L2 复用 springcache 的 RedisCache
+  配置）都建在它上面。升 Redisson 看 `RedissonAutoConfiguration` 的 bean
   是否被 data/web 模块 `@ConditionalOnMissingBean` 依赖。
 
-### jetcache
-- property: `jetcache.version` · 坐标: `com.alicp.jetcache:jetcache-bom`（BOM）
-- metadata: `com/alicp/jetcache/jetcache-bom/maven-metadata.xml`
-- **约束**：建在 redisson starter 之上，与 Spring Cache 互补。
+### caffeine
+- property: `caffeine.version` · 坐标: `com.github.ben-manes.caffeine:caffeine`
+- metadata: `com/github/ben-manes/caffeine/caffeine/maven-metadata.xml`
+- **约束**：单构件直锁（无 BOM）。消费方为 `cache-multicache`（L1 本地缓存）与 `auth-refresh-token`
+  （Access Token 会话有效结论的本地缓存），升级影响面集中在这两处。
 
 ---
 

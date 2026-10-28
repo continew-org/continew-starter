@@ -24,7 +24,7 @@ ALIASES = {
     'spring-cloud': 'spring-cloud.version', 'mybatis-plus': 'mybatis-plus.version',
     'mybatis-flex': 'mybatis-flex.version', 'dynamic-datasource': 'dynamic-datasource.version',
     'p6spy': 'p6spy.version', 'sa-token': 'sa-token.version', 'justauth': 'justauth.version',
-    'redisson': 'redisson.version', 'jetcache': 'jetcache.version',
+    'redisson': 'redisson.version', 'caffeine': 'caffeine.version',
     'fastexcel': 'fastexcel.version', 'poi': 'poi.version', 'nextdoc4j': 'nextdoc4j.version',
     'x-file-storage': 'x-file-storage.version', 'aws-sdk-v1': 'aws-sdk-v1.version',
     'aws-sdk': 'aws-sdk.version', 'aws-crt': 'aws-crt.version', 'thumbnails': 'thumbnails.version',
