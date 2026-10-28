@@ -25,7 +25,11 @@ import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import top.continew.starter.auth.refresh.token.api.AuthSessionRevocationNotifier;
 import top.continew.starter.auth.refresh.token.service.RefreshTokenService;
+import top.continew.starter.auth.refresh.token.websocket.AuthWebSocketSessionService;
+
+import java.util.List;
 
 /**
  * Refresh Token 自动配置装配测试。
@@ -67,5 +71,33 @@ class AuthRefreshAutoConfigurationTest {
             context.assertThat().hasNotFailed();
             context.assertThat().doesNotHaveBean(RefreshTokenService.class);
         });
+    }
+
+    /**
+     * 业务注册自定义撤销回调时，WebSocket 通知服务仍应装配，且两者都进入回调列表。
+     *
+     * <p>WS 服务 Bean 的退出通道按具体类型判断（整体替换 WS 实现），业务追加通知器
+     * 不构成替换意图。防止条件注解退回按接口判断后，出现「注册清理回调导致推送撤销
+     * 广播静默失效」的回归。</p>
+     */
+    @Test
+    void shouldKeepWebSocketServiceAndAggregateNotifiersWhenCustomNotifierPresent() {
+        RedissonClient redissonClient = mock(RedissonClient.class);
+        RTopic topic = mock(RTopic.class);
+        when(redissonClient.getTopic(anyString())).thenReturn(topic);
+        AuthSessionRevocationNotifier customNotifier = mock(AuthSessionRevocationNotifier.class);
+        this.contextRunner.withBean(RedissonClient.class, () -> redissonClient)
+            .withBean("customRevocationNotifier", AuthSessionRevocationNotifier.class,
+                () -> customNotifier)
+            .run(context -> {
+                context.assertThat().hasSingleBean(AuthWebSocketSessionService.class);
+                // 两个通知器都注入：WS 服务与业务自定义回调并存
+                List<AuthSessionRevocationNotifier> expected = List
+                    .of(context.getBean(AuthWebSocketSessionService.class), customNotifier);
+                context.assertThat()
+                    .getBeans(AuthSessionRevocationNotifier.class)
+                    .hasSize(2)
+                    .containsValues(expected.toArray(new AuthSessionRevocationNotifier[0]));
+            });
     }
 }

@@ -79,18 +79,18 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenCodec tokenCodec;
     private final RefreshSessionStore sessionStore;
     private final RefreshTokenRequestGuard requestGuard;
-    private final AuthSessionRevocationNotifier sessionRevocationNotifier;
+    private final List<AuthSessionRevocationNotifier> sessionRevocationNotifiers;
     private final AccessSessionCache accessSessionCache;
 
     public RefreshTokenServiceImpl(RefreshTokenProperties properties, RefreshTokenCodec tokenCodec,
         RefreshSessionStore sessionStore, RefreshTokenRequestGuard requestGuard,
-        AuthSessionRevocationNotifier sessionRevocationNotifier,
+        List<AuthSessionRevocationNotifier> sessionRevocationNotifiers,
         AccessSessionCache accessSessionCache) {
         this.properties = properties;
         this.tokenCodec = tokenCodec;
         this.sessionStore = sessionStore;
         this.requestGuard = requestGuard;
-        this.sessionRevocationNotifier = sessionRevocationNotifier;
+        this.sessionRevocationNotifiers = List.copyOf(sessionRevocationNotifiers);
         this.accessSessionCache = accessSessionCache;
     }
 
@@ -773,9 +773,25 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
             // Session 已删除；索引清理失败只会产生会自动过期的脏数据，不会让 Token 重新有效。
             LOGGER.warn("清理 Refresh Session [{}] 管理索引失败", session.getSessionId(), e);
         }
-        sessionRevocationNotifier.notifyRevoked(session.getSessionId());
+        this.notifyRevoked(session.getSessionId());
         // 清除热路径本地缓存并广播通知其他节点，撤销即时性由广播与本地 TTL 共同保证。
         accessSessionCache.invalidate(session.getSessionId());
+    }
+
+    /**
+     * 逐个调用会话撤销回调；单个实现异常只记日志，不影响其余实现与撤销本身。
+     *
+     * @param sessionId Refresh Session ID
+     */
+    private void notifyRevoked(String sessionId) {
+        for (AuthSessionRevocationNotifier notifier : sessionRevocationNotifiers) {
+            try {
+                notifier.notifyRevoked(sessionId);
+            } catch (Exception e) {
+                LOGGER.warn("会话撤销通知失败：sessionId={}，notifier={}", sessionId, notifier
+                    .getClass().getSimpleName(), e);
+            }
+        }
     }
 
     private void revokeAfterFailure(String sessionId) {

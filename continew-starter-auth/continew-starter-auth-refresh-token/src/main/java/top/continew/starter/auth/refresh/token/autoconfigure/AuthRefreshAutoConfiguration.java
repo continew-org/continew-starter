@@ -54,6 +54,7 @@ import top.continew.starter.messaging.websocket.core.WebSocketClientService;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
 
 import jakarta.annotation.PostConstruct;
+import java.util.List;
 
 /**
  * Refresh Token 认证会话自动配置。
@@ -173,10 +174,10 @@ public class AuthRefreshAutoConfiguration {
     public RefreshTokenService refreshTokenService(RefreshTokenProperties properties,
         RefreshTokenCodec tokenCodec, RefreshSessionStore sessionStore,
         RefreshTokenRequestGuard requestGuard,
-        AuthSessionRevocationNotifier sessionRevocationNotifier,
+        List<AuthSessionRevocationNotifier> sessionRevocationNotifiers,
         AccessSessionCache accessSessionCache) {
         return new RefreshTokenServiceImpl(properties, tokenCodec, sessionStore, requestGuard,
-            sessionRevocationNotifier, accessSessionCache);
+            sessionRevocationNotifiers, accessSessionCache);
     }
 
     /**
@@ -222,7 +223,7 @@ public class AuthRefreshAutoConfiguration {
      * WebSocket 连接凭证周期校验与撤销通知服务。
      */
     @Bean
-    @ConditionalOnMissingBean(AuthSessionRevocationNotifier.class)
+    @ConditionalOnMissingBean(AuthWebSocketSessionService.class)
     public AuthWebSocketSessionService authWebSocketSessionService(RedissonClient redissonClient,
         ObjectProvider<WebSocketSessionDao> sessionDaoProvider,
         ObjectProvider<AccessSessionValidator> accessSessionValidatorProvider,
