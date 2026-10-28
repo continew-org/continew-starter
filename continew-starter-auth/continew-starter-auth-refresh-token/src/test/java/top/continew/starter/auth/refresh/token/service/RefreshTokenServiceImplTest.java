@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
@@ -157,7 +158,7 @@ class RefreshTokenServiceImplTest {
         RefreshTokenRequestGuard requestGuard = new RefreshTokenRequestGuard(properties, codec,
             sessionStore);
         service = new RefreshTokenServiceImpl(properties, codec, sessionStore, requestGuard,
-            sessionRevocationNotifier, accessSessionCache);
+            List.of(sessionRevocationNotifier), accessSessionCache);
     }
 
     @Test
@@ -505,6 +506,47 @@ class RefreshTokenServiceImplTest {
         verify(sessionRevocationNotifier).notifyRevoked(oldSession.getSessionId());
         // 用户级强制下线在 Redis 中记录失效原因，让被踢方下次请求看到准确提示。
         verify(sessionStore).saveLogoutReason(oldSession.getSessionId(), LogoutReasonEnum.KICKOUT);
+    }
+
+    @Test
+    void shouldNotifyAllNotifiersWhenSessionIsRevoked() {
+        // 业务侧可注册额外撤销回调（如清理活跃记录）：与 WebSocket 通知并存，逐个调用
+        AuthSessionRevocationNotifier extraNotifier = mock(AuthSessionRevocationNotifier.class);
+        RefreshTokenRequestGuard requestGuard = new RefreshTokenRequestGuard(properties, codec,
+            sessionStore);
+        RefreshTokenService multiNotifierService = new RefreshTokenServiceImpl(properties, codec,
+            sessionStore, requestGuard, List.of(sessionRevocationNotifier, extraNotifier),
+            accessSessionCache);
+        RefreshSession oldSession = session("old-web", "WEB", 1L);
+        when(sessionStore.findByUser(1L)).thenReturn(Set.of(oldSession.getSessionId()));
+        when(sessionStore.get(oldSession.getSessionId())).thenReturn(oldSession);
+
+        multiNotifierService.revokeByUser(1L);
+
+        verify(sessionRevocationNotifier).notifyRevoked(oldSession.getSessionId());
+        verify(extraNotifier).notifyRevoked(oldSession.getSessionId());
+    }
+
+    @Test
+    void shouldContinueRemainingNotifiersWhenOneFails() {
+        // 单个实现抛异常只记日志，不影响其余实现与撤销本身
+        AuthSessionRevocationNotifier failing = mock(AuthSessionRevocationNotifier.class);
+        doThrow(new IllegalStateException("push broken")).when(failing)
+            .notifyRevoked(anyString());
+        AuthSessionRevocationNotifier healthy = mock(AuthSessionRevocationNotifier.class);
+        RefreshTokenRequestGuard requestGuard = new RefreshTokenRequestGuard(properties, codec,
+            sessionStore);
+        RefreshTokenService failingFirstService = new RefreshTokenServiceImpl(properties, codec,
+            sessionStore, requestGuard, List.of(failing, healthy), accessSessionCache);
+        RefreshSession oldSession = session("old-web", "WEB", 1L);
+        when(sessionStore.findByUser(1L)).thenReturn(Set.of(oldSession.getSessionId()));
+        when(sessionStore.get(oldSession.getSessionId())).thenReturn(oldSession);
+
+        failingFirstService.revokeByUser(1L);
+
+        verify(healthy).notifyRevoked(oldSession.getSessionId());
+        // 撤销本身不受通知失败影响
+        verify(sessionStore).delete(oldSession.getSessionId());
     }
 
     @Test
