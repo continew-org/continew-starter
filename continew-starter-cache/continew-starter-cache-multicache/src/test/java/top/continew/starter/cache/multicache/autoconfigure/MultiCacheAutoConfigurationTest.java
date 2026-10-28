@@ -18,7 +18,6 @@ package top.continew.starter.cache.multicache.autoconfigure;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,6 +29,8 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import top.continew.starter.cache.multicache.cache.MultiLevelCacheManager;
 import top.continew.starter.cache.springcache.autoconfigure.SpringCacheAutoConfiguration;
 
@@ -61,7 +62,7 @@ class MultiCacheAutoConfigurationTest {
 
         @Bean
         ObjectMapper objectMapper() {
-            return new ObjectMapper();
+            return JsonMapper.builder().build();
         }
 
         @Bean
