@@ -50,7 +50,7 @@
 ## 预发布版本过滤
 
 Maven metadata 的 `<versions>` 混有 `M1/M2/RC1/Beta/alpha/temp1` 等预发布/临时版，且 `<release>` 字段不保证是 GA
-（少数项目如 `jetcache-bom` 会把 `<release>` 指到 RC）。因此 `scan.py` 不用 `<release>` 原始值，而是从 `<versions>`
+（少数项目如 `spring-boot-dependencies` 会把 `<release>` 指到 RC）。因此 `scan.py` 不用 `<release>` 原始值，而是从 `<versions>`
 过滤出 GA 取 `max(GA versions)` 作为「当前 release」；仅当列表无任何 GA 时才回退 `<release>`。
 
 GA 判定用**白名单式**正则 `PRERELEASE_RE`，只把已知预发布 qualifier 判为非 GA：

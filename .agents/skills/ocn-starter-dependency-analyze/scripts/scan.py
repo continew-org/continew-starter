@@ -72,9 +72,9 @@ COORDINATES = {
         family='认证', constraints='artifactId 首字母大写；与 sa-token 互补'),
     # --- cache ---
     'redisson.version': dict(group_id='org.redisson', artifact_id='redisson-spring-boot-starter',
-        family='缓存', constraints='缓存地基，Spring Cache/JetCache 建于其上'),
-    'jetcache.version': dict(group_id='com.alicp.jetcache', artifact_id='jetcache-bom',
-        family='缓存', constraints='建在 redisson starter 上，与 Spring Cache 互补'),
+        family='缓存', constraints='缓存地基，Spring Cache 与 multicache L2 建于其上'),
+    'caffeine.version': dict(group_id='com.github.ben-manes.caffeine', artifact_id='caffeine',
+        family='缓存', constraints='单构件无 BOM；multicache 的 L1 与 auth-refresh-token 的会话本地缓存'),
     # --- excel / doc ---
     'fastexcel.version': dict(group_id='cn.idev.excel', artifact_id='fastexcel',
         family='Excel/文档', constraints='与 poi 互斥；CRUD core 显式依赖 FastExcel'),
@@ -202,7 +202,7 @@ CHANGELOG = {
     'sa-token.version': 'https://github.com/dromara/Sa-Token/releases/tag/v{v}',
     'justauth.version': 'https://github.com/justauth/JustAuth/releases',
     'redisson.version': 'https://github.com/redisson/redisson/releases/tag/{v}',
-    'jetcache.version': 'https://github.com/alibaba/jetcache/releases',
+    'caffeine.version': 'https://github.com/ben-manes/caffeine/releases',
     'fastexcel.version': 'https://github.com/CodePhiliaX/fastexcel/releases',
     'poi.version': 'https://poi.apache.org/changes.html',
     'nextdoc4j.version': 'https://github.com/nextdoc4j/nextdoc4j/releases',
@@ -363,7 +363,8 @@ def fetch_metadata(group_id, artifact_id):
     Central layout: maven2/<group-path>/<artifact>/maven-metadata.xml
     (artifact appears once — NOT group/artifact/artifact).
 
-    NOTE: <release> is NOT always GA (e.g. jetcache-bom has <release>2.8.0.RC).
+    NOTE: <release> is NOT always GA (e.g. spring-boot-dependencies points it at
+    an RC while a new line is in pre-release).
     Callers must recompute the absolute release as max(GA versions) via
     absolute_release(), not trust this field directly."""
     path = '{}/{}/maven-metadata.xml'.format(
@@ -428,7 +429,7 @@ def same_major_latest(versions, locked):
 
 def absolute_release(versions, locked, release_field):
     """Newest GA across all majors within locked's lineage — the 🔴 major target.
-    We do NOT trust <release>: some projects set it to an RC (jetcache-bom), and
+    We do NOT trust <release>: some projects set it to an RC (spring-boot-dependencies), and
     for lineage artifacts it may point at a different line entirely."""
     cands = _ga_in_lineage(versions, locked)
     if cands:

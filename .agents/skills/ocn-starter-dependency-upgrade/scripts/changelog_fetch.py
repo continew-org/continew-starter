@@ -54,8 +54,8 @@ CHANGELOG_SOURCES = {
     'cn.hutool:hutool-bom': dict(
         type='changelog-md',
         url='https://raw.githubusercontent.com/chinabugotech/hutool/master/CHANGELOG.md'),
-    'com.alicp.jetcache:jetcache-bom': dict(
-        type='github-releases', repo='alicp/jetcache'),
+    'com.github.ben-manes.caffeine:caffeine': dict(
+        type='github-releases', repo='ben-manes/caffeine'),
     'cn.dev33:sa-token-bom': dict(
         type='github-releases', repo='dromara/Sa-Token'),
     'software.amazon.awssdk:bom': dict(
@@ -90,7 +90,7 @@ CHANGELOG_SOURCES = {
     'mybatis-plus.version': dict(ref='com.baomidou:mybatis-plus-bom'),
     'mybatis-flex.version': dict(ref='com.mybatis-flex:mybatis-flex-dependencies'),
     'hutool.version': dict(ref='cn.hutool:hutool-bom'),
-    'jetcache.version': dict(ref='com.alicp.jetcache:jetcache-bom'),
+    'caffeine.version': dict(ref='com.github.ben-manes.caffeine:caffeine'),
     'sa-token.version': dict(ref='cn.dev33:sa-token-bom'),
     'aws-sdk.version': dict(ref='software.amazon.awssdk:bom'),
     'aws-crt.version': dict(ref='software.amazon.awssdk.crt:aws-crt'),
