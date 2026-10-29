@@ -1,3 +1,52 @@
+## [v3.0.0](https://github.com/continew-org/continew-starter/compare/v2.17.0...v3.0.0) (待发布)
+
+> 3.0.0 为大版本升级：平台基线升级至 Spring Boot 4.1 / JDK 25 构建，含多项破坏性变更（标 **BREAKING**）。升级前请阅读 [3.0.0 迁移指南](https://continew.top/docs/starter/reference/upgrade)。
+
+### 平台基线
+
+- **BREAKING**【platform】升级 Spring Boot 4.1（4.1.1），Web 容器迁移 Tomcat 并引入 Jackson 2 过渡桥；Boot 4 生态同步适配（Spring Cloud 2025.1.3、Redisson 4.8.0、springdoc 3.1.1、nextdoc4j 1.5.0、dynamic-datasource 4.6.0，移除 aws-java-sdk-s3 与 aws-crt） ([6e6f831a](https://github.com/continew-org/continew-starter/commit/6e6f831abddee27249cdb67dce78916a6cc62192)) (#29) @Charles7c
+- **BREAKING**【platform】构建基线切换至 JDK 25（Enforcer 要求 21+，推荐 25），产物字节码保持 Java 17；门禁工具链升级（Checkstyle 14.3.0、SpotBugs 4.10.5.0、JaCoCo 0.8.15、Spotless 3.10.4、Enforcer 3.6.3、Surefire 3.5.6、Sonar Scanner 5.8.0.7211） ([96609c83](https://github.com/continew-org/continew-starter/commit/96609c835b57dd35db6cca31ef64afaf3b139ec4)) (#27) @Charles7c
+
+### 【json】JSON 序列化
+
+- **BREAKING**【json】JSON 序列化全面迁移至 Jackson 3，移除 Jackson 2 过渡桥：核心类主包名 `com.fasterxml.jackson` → `tools.jackson`（注解仍在 `com.fasterxml.jackson.annotation`），默认配置命名空间 `spring.jackson2.*` → `spring.jackson.*` ([cde1bd69](https://github.com/continew-org/continew-starter/commit/cde1bd690183120e526b00b9d36d3ae039889d0e)) (#32) @Charles7c
+
+### 【web】统一响应与全局异常处理
+
+- **BREAKING**【web】自研统一响应与全局异常处理，移除 graceful-response：默认响应类 `top.continew.starter.web.model.R`，新增 `GlobalResponseFactory` 扩展点，改用 Spring Boot 原生国际化，需 `@EnableGlobalResponse` 显式启用 ([98d9f8f6](https://github.com/continew-org/continew-starter/commit/98d9f8f65afe4017911d90580752f100c07d7467)) (#31) @Charles7c
+
+### 【trace】链路追踪
+
+- **BREAKING**【trace】链路追踪切换至 Micrometer Tracing（Brave 桥），移除 TLog 及 fastjson 传递依赖：传播头改 W3C `traceparent`，MDC 键改 `traceId`/`spanId`，删除 `TLogIdGenerator` 扩展点，旧 `continew-starter.trace.tlog.*` 配置项仅保留绑定兼容并在启动时告警 ([92022bab](https://github.com/continew-org/continew-starter/commit/92022bab08abf7a173d7b8911fbcddb099ff84a3)) (#34) @Charles7c
+
+### 【cache】缓存
+
+- **BREAKING**【cache】自研多级缓存 multicache（Caffeine L1 + Redis L2）替换 JetCache 模块，支持集群广播失效、防击穿、空值缓存、Redis 故障降级与 `@MultiCacheRefresh` 定时刷新，配置前缀 `continew-starter.cache.multi` ([67363e79](https://github.com/continew-org/continew-starter/commit/67363e792700f870959a5395af8cb3e6b2db60ba)) (#33) @zk020106
+- 【auth】AccessSessionCache 本地缓存由 JetCache 壳迁移为原生 Caffeine，行为不变 ([67363e79](https://github.com/continew-org/continew-starter/commit/67363e792700f870959a5395af8cb3e6b2db60ba)) (#33) @zk020106
+- 【cache】springcache 自动配置补注册 `CacheProperties`，修复 Spring Boot 4 属性绑定 ([67363e79](https://github.com/continew-org/continew-starter/commit/67363e792700f870959a5395af8cb3e6b2db60ba)) (#33) @zk020106
+
+### 【dependencies】依赖升级
+
+- **BREAKING**【auth】Sa-Token 升级至 1.46.0（含 Jackson 反序列化 RCE 安全修复）：Session 自定义对象反序列化改为全局类型白名单（需 `registerAllowType` 注册），新增 `sa-token.allow-login-id-colon` 默认 `false` ([40df9a4a](https://github.com/continew-org/continew-starter/commit/40df9a4ac6f82c501789be0a30d956b7cfb39451)) (#35) @Charles7c
+- **BREAKING**【data】CosId 升级至 4.0.2（2.13.3 → 4.0.2）：`IdGeneratorProvider` 返回类型收窄为 `StringIdGenerator`，4.0 新增容器环境检测（未配 instance-id 时建议容器内配 `${HOSTNAME}` + `stable: true`） ([463831cc](https://github.com/continew-org/continew-starter/commit/463831cc933cc4926f899bafbda28b1085dd7ad8)) (#37) @Charles7c
+
+### 【auth】认证
+
+- **BREAKING**【auth】撤销通知支持多实现聚合装配：`AuthSessionRevocationNotifier` 语义扩写为通用撤销回调，`RefreshTokenServiceImpl` 改为 List 注入并逐个容错调用，业务注册自定义回调不再误伤 WebSocket 撤销广播与凭证周期校验 ([c5bbe744](https://github.com/continew-org/continew-starter/commit/c5bbe744e8fb90e9df4213052143b71684e84a68)) (#40) @luoqiz
+
+### 【security】安全
+
+- **BREAKING**【security】敏感词模块重构：引擎切换为 sensitive-word，服务新增命中定位、替换、热刷新与运行时增删词，新增 `SensitiveWordsDictionary` 扩展点与 `NoOpSensitiveWordsService`，完善 `@SensitiveWords` 校验；移除 `SensitiveWordsConfig` SPI，配置键 `values` 改为 `deny-words` ([e1273a5b](https://github.com/continew-org/continew-starter/commit/e1273a5b0ddbb680a36c112ae260429ce9a230e7)) (#30) @luoqiz
+
+### 【storage】存储
+
+- 【storage】分片上传会话携带原始文件名并按会话维度隔离复用：新增按平台、桶、MD5、原始名、上级目录派生的会话复用键，清理时按 uploadId 条件删除映射 ([da89ddfd](https://github.com/continew-org/continew-starter/commit/da89ddfda695d2762820485c83ecb0cebfa348a6)) (#28) @luoqiz
+
+### 🐛 问题修复
+
+- 【extension/log】修复 Boot 4 下 CRUD 请求映射顶掉 Boot MVC 自动配置（改用 `WebMvcRegistrations` 替换请求映射器）、`LogFilter` 依赖 Boot 4 已不注册的 `ErrorProperties` 导致消费方全站 500 ([b4e0b3d6](https://github.com/continew-org/continew-starter/commit/b4e0b3d6f1807738b72d120ca2b3723c074620f6)) (#39) @Charles7c
+- 【data】数据权限过滤构建失败改为快速失败 ([7542c49b](https://github.com/continew-org/continew-starter/commit/7542c49b2fd3c455a0bdd3f4135a793fc54fd09d)) @Charles7c
+
 ## [v2.17.0](https://github.com/continew-org/continew-starter/compare/v2.16.1...v2.17.0) (2026-10-06)
 
 ### ✨ 新特性
