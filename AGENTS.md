@@ -19,7 +19,7 @@
 
 ## 项目概述
 
-ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级 Starter 库。它遵循"约定优于配置"理念，将一系列经过企业实践验证的第三方库（MyBatis-Plus、Sa-Token、Redisson、Caffeine 等）封装为开箱即用的 Starter，供 Spring Boot Web 应用集成。**这不是一个应用项目**，而是发布到 Maven Central 的多模块 Starter 库，groupId 为 `top.continew.starter`，全部模块版本通过 `${revision}` 属性统一管理。
+ContiNew Starter（Continue New Starter）是基于 Spring Boot 4.x 的企业级 Starter 库。它遵循"约定优于配置"理念，将一系列经过企业实践验证的第三方库（MyBatis-Plus、Sa-Token、Redisson、Caffeine 等）封装为开箱即用的 Starter，供 Spring Boot Web 应用集成。**这不是一个应用项目**，而是发布到 Maven Central 的多模块 Starter 库，groupId 为 `top.continew.starter`，全部模块版本通过 `${revision}` 属性统一管理。
 
 **当前版本**：3.0.0-SNAPSHOT | **主分支**：`dev` | **构建 JDK**：21+（推荐 25） | **产物字节码**：Java 17 | **构建**：Maven 3.9.16（`./mvnw`，Windows 为 `mvnw.cmd`）
 
@@ -34,7 +34,7 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 - **json**：Jackson 封装
 - **api-doc**：Spring Doc + NextDoc4j
 - **validation**：Hibernate Validator
-- **web**：跨域、全局异常与响应、链路追踪等自动配置
+- **web**：跨域、全局异常与响应、Query 参数转换器、Tomcat 服务器增强等自动配置
 - **cache**：redisson / multicache（Caffeine L1 + Redis L2）/ springcache
 - **auth**：satoken / justauth / refresh-token（轮换、重放保护、统一撤销、WebSocket 联动）
 - **data**：core + mp（MyBatis-Plus）/ mf（MyBatis-Flex）

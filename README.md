@@ -166,7 +166,7 @@ continew-starter
 │  └─ continew-starter-json-jackson（Jackson）
 ├─ continew-starter-api-doc（接口文档模块：Spring Doc + NextDoc4j）
 ├─ continew-starter-validation（校验模块：Hibernate Validator）
-├─ continew-starter-web（Web 开发模块：包含跨域、全局异常+响应、链路追踪等自动配置）
+├─ continew-starter-web（Web 开发模块：包含跨域、全局异常+响应、Query 参数转换器等自动配置）
 ├─ continew-starter-cache（缓存模块）
 │  ├─ continew-starter-cache-redisson（Redisson）
 │  ├─ continew-starter-cache-multicache（多级缓存：Caffeine L1 + Redis L2）
