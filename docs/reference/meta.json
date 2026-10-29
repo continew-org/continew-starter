@@ -3,6 +3,7 @@
   "pages": [
     "properties",
     "dependencies",
+    "upgrade",
     "security",
     "plan",
     "faq",

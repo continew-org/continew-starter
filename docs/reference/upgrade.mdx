@@ -1,0 +1,34 @@
+---
+title: 升级与迁移
+description: ContiNew Starter 3.0.0 破坏性变更与 2.x 升级迁移指南：JetCache → multicache、graceful-response → 内置统一响应、TLog → Micrometer Tracing、Jackson 2 → 3、Undertow → Tomcat 等迁移要点。
+---
+
+3.0.0 是大版本升级：平台基线升级至 Spring Boot 4.1，多个底层组件被自研实现或新选型替换。本页按变更项汇总迁移要点（每项一段话），需要了解细节时跳转对应模块文档；完整变更清单见 [CHANGELOG](https://github.com/continew-org/continew-starter/blob/dev/CHANGELOG.md)。
+
+## JetCache → multicache
+
+移除 `continew-starter-cache-jetcache`，改引 `continew-starter-cache-multicache`（Caffeine L1 + Redis L2 多级缓存，配置前缀 `continew-starter.cache.multi`）。缓存能力回归 Spring Cache 标准注解体系：JetCache 私有注解 `@Cached` 等改用 `@Cacheable` / `@CacheEvict`（无需 `@EnableCaching`），定时刷新 `@CacheRefresh` 改用 `@MultiCacheRefresh`（仅支持默认键生成器或显式 `keyGenerator` 的 `@Cacheable` 方法，不支持 SpEL `key`）；原 `jetcache.*` 配置项全部废弃，按 [多级缓存](/docs/starter/modules/cache/multicache) 文档改为 `continew-starter.cache.multi.*`（含 `local`、`remote`、`specs`）。`continew-starter-auth-refresh-token` 内部的本地缓存已同步迁移为原生 Caffeine，行为不变，使用方无需改动。
+
+## graceful-response → 内置统一响应
+
+`continew-starter-web` 自 3.0 起内置统一响应与全局异常处理，不再依赖 `com.feiniaojin:graceful-response`。配置前缀不变（`continew-starter.web.response.*`），绝大多数键名原样保留（如 `default-success-code`、`exclude-packages` 等），仅 `response-class-full-name` 与 `response-style` 两项废弃——自定义响应结构改为声明 `GlobalResponseFactory` Bean，默认响应类为 `top.continew.starter.web.model.R`。代码中的 `com.feiniaojin.gracefulresponse.api.ExcludeFromGracefulResponse` 注解替换为 `top.continew.starter.web.annotation.ExcludeFromGlobalResponse`；`@EnableGlobalResponse` 显式启用的方式与 2.x 相同，无需改动。异常别名与国际化改用 Spring Boot 原生 `MessageSource` 机制。详见 [Web 开发](/docs/starter/modules/web)。
+
+## TLog → Micrometer Tracing
+
+链路追踪底层由 TLog 切换为 Micrometer Tracing（Brave 桥）：传播头从 `tlogTraceId`、`tlogSpanId` 改为 W3C `traceparent`，与旧版本服务混跑时链路会中断，全家桶需同版本发布；日志 MDC 键从 TLog 的 `tl` 改为 `traceId`、`spanId`，日志 pattern 同步替换为 `%X{traceId}`；`TLogIdGenerator` 扩展点已删除，自定义链路 ID 生成改用 Micrometer 的 `Sampling`、`Propagator` 或桥实现配置。旧版 `continew-starter.trace.tlog.*` 配置项仍可绑定（避免升级后启动失败），但自 3.0.0 起不再生效，启动日志会输出 WARN 提示移除；Boot 4 已移除 `management.tracing.enabled`，建议删除该键。详见 [Trace 链路追踪](/docs/starter/modules/trace)。
+
+## Jackson 2 → 3
+
+JSON 序列化全面迁移至 Jackson 3：核心类主包名由 `com.fasterxml.jackson` 变更为 `tools.jackson`（如 `ObjectMapper` 变为 `tools.jackson.databind.ObjectMapper` 且不可变），实体类上的 `@JsonIgnore` 等注解仍在 `com.fasterxml.jackson.annotation` 包，无需改动；2.x 过渡期的 `spring.jackson2.*` 配置命名空间回归 `spring.jackson.*`。Sa-Token 侧需引入 `sa-token-jackson3`（经 SPI 自动加载），注意不要同时引入 Jackson 2 侧的 `sa-token-jackson` 插件。**存量 Redis 业务键需清理**：2.x 使用 Jackson 2 序列化写入的 Redis 值（如 Sa-Token 会话、`RBucket` 存储的 Java 对象）Jackson 3 无法读取，升级后需清空存量业务键或等待其过期，认证会话失效表现为用户重新登录；Spring Cache 缓存值序列化已切换为 `GenericJacksonJsonRedisSerializer`，存量数据兼容无需清理。详见 [JSON 序列化](/docs/starter/modules/json) 与 [Redisson](/docs/starter/modules/cache/redisson)。
+
+## Undertow → Tomcat
+
+Web 容器回归 Spring Boot 默认的 Tomcat，3.0 起不再内置 Undertow：曾显式排除 Undertow 或定制 Undertow 选项（`server.undertow.*`）的项目，需移除相关依赖排除与配置，容器定制改用 `server.tomcat.*`。同时 Boot 4 下「全局禁用不安全的 HTTP 请求方法」已由 Web MVC 配置改为 Servlet 过滤器实现，行为不变；Web 模块整体从 `spring-boot-starter-web` 体系迁至 Boot 4 的 `spring-boot-starter-webmvc` 变体坐标，仅使用 Starter 坐标的项目无需关注。详见 [Web 开发](/docs/starter/modules/web)。
+
+## 其他破坏性变更
+
+- **Sa-Token 1.45 → 1.46.0**（含 Jackson 反序列化 RCE 安全修复）：Session/缓存中自定义对象的反序列化改为全局类型白名单约束，往 `SaSession` 存自定义对象的系统需注册类型（如 `SaJsonStrategy.instance.registerAllowType(UserContext.class)`）；新增 `sa-token.allow-login-id-colon` 配置且默认 `false`，loginId 含冒号的系统升级后登录会直接报错，确有需要时显式放开。详见 [Sa-Token](/docs/starter/modules/auth/satoken) 的「1.45 → 1.46 升级须知」。
+- **CosId 2.x → 4.0.2**：`IdGeneratorProvider` 返回类型收窄为 `StringIdGenerator`（链式调用兼容）；4.0 新增容器环境检测，容器内未配置 instance-id 时会 WARN 建议配置 `${HOSTNAME}` + `stable: true`。
+- **敏感词模块重构**（security-sensitivewords）：引擎切换为 sensitive-word，移除 `SensitiveWordsConfig` SPI，配置键 `values` 改为 `deny-words`；服务新增命中定位、替换、热刷新与运行时增删词，并新增 `SensitiveWordsDictionary` 扩展点。详见 [敏感词](/docs/starter/modules/security/sensitivewords)。
+- **撤销通知多实现聚合**（auth）：`AuthSessionRevocationNotifier` 语义扩写为通用撤销回调，业务注册自定义回调不再影响 WebSocket 撤销广播与凭证周期校验。详见 [认证](/docs/starter/modules/auth)。
+- **分片上传会话复用键**（storage）：`FileRecorder` 传入的映射键由 32 位 MD5 变为 64 位十六进制会话键，对键长度或格式有约束的实现方需同步放宽；升级前创建的映射不会命中，会重建一次会话。详见 [存储](/docs/starter/modules/storage)。
