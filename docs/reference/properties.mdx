@@ -112,7 +112,7 @@ description: ContiNew Starter 各模块配置项一览表：配置前缀、配�
 | `continew-starter.cache.multi.enabled` | `boolean` | `true` | 是否启用 |
 | `continew-starter.cache.multi.broadcast-enabled` | `boolean` | `true` | 是否启用集群 L1 失效广播（多节点部署保持各节点 L1 最终一致） |
 | `continew-starter.cache.multi.broadcast-topic` | `String` | `continew:cache:evict:${spring.application.name:default}` | L1 失效广播 topic（默认按应用名隔离，支持占位符） |
-| `continew-starter.cache.multi.degrade-on-redis-failure` | `boolean` | `true` | Redis（L2）不可用时是否降级为仅本地缓存（记录 WARN，不中断业务） |
+| `continew-starter.cache.multi.degrade-on-redis-failure` | `boolean` | `true` | Redis（L2）不可用时是否降级为仅本地缓存（记录 WARN，不中断业务；`putIfAbsent` 降级期间一律失败） |
 | `continew-starter.cache.multi.local.expire-after-write` | `Duration` | `2h` | L1（Caffeine）写入后过期时长（实际取 L1 与 L2 TTL 较小值） |
 | `continew-starter.cache.multi.local.limit` | `long` | `1000` | L1 最大缓存元素数（`<=0` 不启用 L1，退化为纯 Redis 缓存） |
 | `continew-starter.cache.multi.remote.expire-after-write` | `Duration` | —（沿用 Spring Cache 的 Redis TTL 配置） | L2（Redis）写入后过期时长，显式设置后覆盖 Spring Cache 配置 |

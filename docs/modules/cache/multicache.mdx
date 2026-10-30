@@ -3,7 +3,7 @@ title: 多级缓存
 description: continew-starter-cache-multicache 提供多级缓存（Caffeine L1 + Redis L2）解决方案，原生 Spring Cache 注解，支持集群 L1 失效广播、防击穿、空值缓存与 Redis 故障降级，L2 复用 Spring Cache 序列化配置。
 ---
 
-`continew-starter-cache-multicache` 提供多级缓存（Caffeine L1 + Redis L2）解决方案。在 Spring Cache 标准注解（`@Cacheable` / `@CacheEvict` / `@CachePut`）之上叠加本地缓存层：读路径 L1 命中直接返回、未命中查 L2 后回填；写路径先写 L2 再写 L1（L1 TTL 不超过 L2）；多节点部署时通过 Redis 广播 L1 失效消息保持各节点最终一致。引入依赖即自动装配。
+`continew-starter-cache-multicache` 提供多级缓存（Caffeine L1 + Redis L2）解决方案。在 Spring Cache 标准注解（`@Cacheable` / `@CacheEvict` / `@CachePut`）之上叠加本地缓存层：读路径 L1 命中直接返回、未命中查 L2 后回填；写路径先写 L2 再写 L1（L1 TTL 不超过 L2），**写入成功后同样广播 L1 失效**；多节点部署时通过 Redis 广播 L1 失效消息保持各节点最终一致。引入依赖即自动装配。
 
 <Callout type="info">
 本模块依赖 `continew-starter-cache-springcache`，L2（Redis）复用 Spring Cache 的序列化与连接配置（见模块 `pom.xml`），Redis 连接使用 `spring.data.redis.*` 原生配置。
@@ -32,7 +32,7 @@ continew-starter:
       broadcast-enabled: true
       # L1 失效广播 topic（默认按应用名隔离，多应用共用同一 Redis 时互不串扰；支持占位符）
       broadcast-topic: continew:cache:evict:${spring.application.name:default}
-      # Redis（L2）不可用时是否降级为仅本地缓存（记录 WARN，不中断业务）
+      # Redis（L2）不可用时是否降级为仅本地缓存（记录 WARN，不中断业务；putIfAbsent 例外，见下文）
       degrade-on-redis-failure: true
       # 本地（L1）缓存全局配置
       local:
@@ -75,7 +75,9 @@ public class DemoService {
 
 ## 定时刷新：@MultiCacheRefresh
 
-`@MultiCacheRefresh` 标注在 `@Cacheable` 方法上，方法首次正常调用后按设定周期在后台线程自动刷新缓存：刷新时先失效该键，再经 Spring 代理重放方法完成回源与写回（等效 JetCache 的 `@CacheRefresh`）。同一方法 + 同一参数组合只注册一个刷新任务，任务总数上限 1024。
+`@MultiCacheRefresh` 标注在 `@Cacheable` 方法上，方法首次正常调用后按设定周期在后台线程自动刷新缓存：刷新时先失效该键，再经 Spring 代理重放方法完成回源与写回（等效 JetCache 的 `@CacheRefresh`）。
+
+刷新任务按「方法 + 实参」注册：同一方法 + 同一参数组合只注册一个任务，**每个方法最多 64 个任务**、全局最多 1024 个。达到上限时淘汰该范围内最久未被调用的任务并输出 WARN，新任务照常注册，因此参数取值发散的方法不会挤占其他方法（含参数固定的方法）的名额。参数几乎每次都不同的方法不适合本注解，请改用定时任务主动调用 `CacheUtils.put`。
 
 ```java
 @Cacheable(cacheNames = "config", key = "'latest'")
@@ -87,13 +89,16 @@ public ConfigVO getLatest() {
 
 <Callout type="warn">
 `@MultiCacheRefresh` 仅支持 `@Cacheable` 使用默认键生成器或显式 `keyGenerator` 的场景，不支持 SpEL `key`。使用 SpEL key 时任务不注册并输出 WARN（切面无法解析自定义键）。
+
+`@MultiCacheRefresh` 依赖 CGLIB 代理（Spring Boot 默认）。被代理的类实现了接口且强制使用 JDK 动态代理（`spring.aop.proxy-target-class: false` 或 `@EnableAspectJAutoProxy(proxyTargetClass = false)` + 接口）时，切面无法在代理类上定位目标方法，刷新任务不注册并输出 WARN。
 </Callout>
 
 ## 防击穿与降级
 
 - **防击穿**：`get(key, valueLoader)` 路径使用分段锁（32 段）+ 双重检查，同一键的并发回源只放行一个线程，其余等待后读缓存；
 - **空值缓存**：默认开启，空值包装为 `NullValue` 存入两级缓存，防止缓存穿透；
-- **Redis 故障降级**：`degrade-on-redis-failure: true`（默认）时，L2 读写失败仅记录 WARN 并降级为仅本地缓存，不中断业务；设为 `false` 时异常向上抛出。
+- **Redis 故障降级**：`degrade-on-redis-failure: true`（默认）时，L2 读、写、失效失败仅记录 WARN 并降级为仅本地缓存，不中断业务；设为 `false` 时异常向上抛出。
+- **降级期间的 putIfAbsent**：`Cache.putIfAbsent` 的跨节点互斥依赖 L2 的原子 SETNX，降级为仅本地缓存后无法实现。因此降级期间 `putIfAbsent` **一律抛出 `IllegalStateException`**（不写本地、不返回「写入成功」），由调用方决定中止或改为其他策略；`degrade-on-redis-failure: false` 时透传 L2 原始异常。需要跨节点互斥的场景请直接用 `RedisLockUtils` 等分布式原语，不要依赖缓存写入语义。
 
 ## 核心依赖
 

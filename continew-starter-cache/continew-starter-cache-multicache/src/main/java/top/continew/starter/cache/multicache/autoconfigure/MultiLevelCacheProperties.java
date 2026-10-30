@@ -49,7 +49,7 @@ public class MultiLevelCacheProperties {
     private String broadcastTopic = "continew:cache:evict:${spring.application.name:default}";
 
     /**
-     * Redis（L2）不可用时是否降级为仅本地缓存
+     * Redis（L2）不可用时是否降级为仅本地缓存（putIfAbsent 无法在本地保证跨节点互斥，降级期间一律失败）
      */
     private boolean degradeOnRedisFailure = true;
 
