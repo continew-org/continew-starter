@@ -18,9 +18,9 @@ package top.continew.starter.cache.multicache.aspect;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -65,13 +65,12 @@ class MultiCacheRefreshAspectTest {
             RefreshService service = context.getBean(RefreshService.class);
             assertEquals("v1", service.load());
             assertEquals("v1", service.load());
-            // 轮询等待后台刷新：先失效该键再经代理重放，方法应重新执行并写回新值
-            String value = "v1";
-            for (int i = 0; i < 100 && "v1".equals(value); i++) {
-                Thread.sleep(50);
-                value = service.load();
-            }
-            assertNotEquals("v1", value, "后台刷新应已回源更新缓存");
+            // 等待后台刷新：先失效该键再经代理重放，方法应重新执行并写回新值
+            Awaitility.await()
+                .atMost(Duration.ofSeconds(5))
+                .pollInterval(Duration.ofMillis(50))
+                .until(() -> !"v1".equals(service.load()));
+            String value = service.load();
             assertTrue(Integer.parseInt(value.substring(1)) >= 2, "方法应被重新执行");
             assertEquals(1, context.getBean(MultiCacheRefreshAspect.class).getRefreshTaskCount());
         }
@@ -113,20 +112,21 @@ class MultiCacheRefreshAspectTest {
     }
 
     /**
-     * 轮询等待固定参数方法的刷新任务生效（缓存值被后台刷新改写）
+     * 等待固定参数方法的刷新任务生效（缓存值被后台刷新改写）
+     *
+     * <p>
+     * 后台刷新周期为 100ms，轮询交给 Awaitility 调度，失败时直接抛 ConditionTimeoutException，
+     * 无需手写 sleep 循环。
+     * </p>
      *
      * @param service 被刷新的服务
      * @param cached  注册任务时的缓存值
-     * @throws InterruptedException 等待被中断
      */
-    private static void awaitRefreshed(RefreshService service, String cached)
-        throws InterruptedException {
-        String value = cached;
-        for (int i = 0; i < 100 && cached.equals(value); i++) {
-            Thread.sleep(50);
-            value = service.load();
-        }
-        assertNotEquals(cached, value, "固定参数方法的刷新任务应已生效");
+    private static void awaitRefreshed(RefreshService service, String cached) {
+        Awaitility.await()
+            .atMost(Duration.ofSeconds(5))
+            .pollInterval(Duration.ofMillis(50))
+            .until(() -> !cached.equals(service.load()));
     }
 
     private static MultiLevelCacheManager newCacheManager() {
@@ -197,7 +197,7 @@ class MultiCacheRefreshAspectTest {
 
         @Override
         public boolean isDone() {
-            return cancelled;
+            throw new UnsupportedOperationException();
         }
 
         @Override
