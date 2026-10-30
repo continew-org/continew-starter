@@ -354,15 +354,15 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
                     cache.evict(task.cacheKey);
                 }
             }
-            ReflectionUtils.makeAccessible(task.replayTarget.method());
-            task.replayTarget.method().invoke(task.replayTarget.proxy(), task.replayTarget.args());
+            ReflectionUtils.makeAccessible(task.replayTarget.method);
+            task.replayTarget.method.invoke(task.replayTarget.proxy, task.replayTarget.args);
             return true;
         } catch (Exception e) {
             Throwable cause = e instanceof InvocationTargetException ite && ite.getCause() != null
                 ? ite.getCause()
                 : e;
             LOGGER.warn("[ContiNew Starter] - Cache refresh task failed, will retry after {}ms. "
-                + "Method: {}, cause: {}", task.retryDelay, task.replayTarget.method(),
+                + "Method: {}, cause: {}", task.retryDelay, task.replayTarget.method,
                 cause.getMessage());
             return false;
         } finally {
@@ -398,12 +398,25 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
 
     /**
      * 重放三件套：刷新时经代理重放方法所需的代理、方法与参数快照
-     *
-     * @param proxy  Spring 代理对象
-     * @param method 代理对象上的目标方法
-     * @param args   注册时的实参快照
      */
-    private record ReplayTarget(Object proxy, Method method, Object[] args) {
+    private static final class ReplayTarget {
+
+        final Object proxy;
+        final Method method;
+        final Object[] args;
+
+        /**
+         * 代理、方法与实参在注册时一次性确定，刷新线程只读
+         *
+         * @param proxy  Spring 代理对象
+         * @param method 代理对象上的目标方法
+         * @param args   注册时的实参快照
+         */
+        ReplayTarget(Object proxy, Method method, Object[] args) {
+            this.proxy = proxy;
+            this.method = method;
+            this.args = args;
+        }
     }
 
     /**
