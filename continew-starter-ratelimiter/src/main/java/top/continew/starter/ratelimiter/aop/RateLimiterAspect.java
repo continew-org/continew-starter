@@ -34,6 +34,7 @@ import top.continew.starter.core.util.ServletUtils;
 import top.continew.starter.core.util.expression.ExpressionUtils;
 import top.continew.starter.ratelimiter.annotation.RateLimiter;
 import top.continew.starter.ratelimiter.annotation.RateLimiters;
+import top.continew.starter.ratelimiter.autoconfigure.RateLimiterExpireProperties;
 import top.continew.starter.ratelimiter.autoconfigure.RateLimiterProperties;
 import top.continew.starter.ratelimiter.enums.LimitType;
 import top.continew.starter.ratelimiter.exception.RateLimiterException;
@@ -57,13 +58,16 @@ public class RateLimiterAspect {
     private static final ConcurrentHashMap<String, RRateLimiter> RATE_LIMITER_CACHE =
         new ConcurrentHashMap<>();
     private final RateLimiterProperties properties;
+    private final RateLimiterExpireProperties expireProperties;
     private final RateLimiterNameGenerator nameGenerator;
     private final RedissonClient redissonClient;
 
     public RateLimiterAspect(RateLimiterProperties properties,
+        RateLimiterExpireProperties expireProperties,
         RateLimiterNameGenerator nameGenerator,
         RedissonClient redissonClient) {
         this.properties = properties;
+        this.expireProperties = expireProperties;
         this.nameGenerator = nameGenerator;
         this.redissonClient = redissonClient;
     }
@@ -142,11 +146,47 @@ public class RateLimiterAspect {
                 // 更新限流器
                 rRateLimiter.setRate(rateType, rate, rateInterval);
             }
+            // 刷新 Key 过期时间（延迟过期：活跃限流器不失效，空闲超过过期时长后 Key 到期删除）
+            Duration expireDuration = this.resolveExpireDuration(rateLimiter, rateInterval);
+            if (expireDuration != null) {
+                rRateLimiter.expire(expireDuration);
+            }
             // 尝试获取令牌
             return !rRateLimiter.tryAcquire();
         } catch (Exception e) {
             throw new RateLimiterException("服务器限流异常，请稍候再试", e);
         }
+    }
+
+    /**
+     * 解析限流器 Key 过期时长
+     * <p>
+     * 优先级：注解参数 &gt; 全局配置 &gt; 默认关闭。注解 expire 取 0 时表示显式关闭（可覆盖全局开启），
+     * 取负值时跟随全局配置。过期时长小于速率间隔会破坏令牌桶语义（Key 在补发周期内被删除导致限流被重置），
+     * 此时以速率间隔兜底。
+     *
+     * @param rateLimiter  限流注解
+     * @param rateInterval 速率间隔
+     * @return 过期时长，不需要过期时返回 null
+     */
+    private Duration resolveExpireDuration(RateLimiter rateLimiter, Duration rateInterval) {
+        long expire = rateLimiter.expire();
+        // 注解显式关闭过期
+        if (expire == 0) {
+            return null;
+        }
+        Duration expireDuration;
+        if (expire > 0) {
+            expireDuration = Duration.ofMillis(rateLimiter.expireUnit().toMillis(expire));
+        } else {
+            // 跟随全局配置
+            if (!this.expireProperties.isEnabled()) {
+                return null;
+            }
+            expireDuration = Duration.ofMillis(this.expireProperties.getUnit()
+                .toMillis(this.expireProperties.getTime()));
+        }
+        return expireDuration.compareTo(rateInterval) < 0 ? rateInterval : expireDuration;
     }
 
     /**

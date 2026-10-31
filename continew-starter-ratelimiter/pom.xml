@@ -25,5 +25,12 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-cache-redisson</artifactId>
         </dependency>
+
+        <!-- 测试 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
