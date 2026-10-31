@@ -79,6 +79,30 @@ public @interface RateLimiter {
     TimeUnit unit() default TimeUnit.MILLISECONDS;
 
     /**
+     * Key 过期时长（延迟过期）
+     * <p>
+     * 限流器每次被访问时刷新 Key 的 TTL，活跃限流器不失效，空闲超过该时长后 Key 到期删除。取值语义：
+     * <ul>
+     * <li>负值（默认 {@code -1}）：跟随全局配置 {@code continew-starter.rate-limiter.expire.enabled}；</li>
+     * <li>{@code 0}：显式关闭过期，Key 永不过期（可覆盖全局开启）；</li>
+     * <li>正值：注解级过期时长，覆盖全局配置。</li>
+     * </ul>
+     * 过期时长小于速率间隔会破坏限流语义，实际生效值不会低于速率间隔。
+     *
+     * @return Key 过期时长
+     * @since 3.0.0
+     */
+    long expire() default -1;
+
+    /**
+     * Key 过期时长单位（默认：小时），仅在 expire 取正值时生效
+     *
+     * @return Key 过期时长单位
+     * @since 3.0.0
+     */
+    TimeUnit expireUnit() default TimeUnit.HOURS;
+
+    /**
      * 提示信息
      *
      * @return 提示信息

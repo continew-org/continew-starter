@@ -11,6 +11,7 @@ description: 基于 AOP + Redisson 分布式限流器（令牌桶算法）的开
 - **多维度限流**：支持全局限流（`DEFAULT`）、IP 限流（`IP`）、集群单实例限流（`CLUSTER`）三种类型；
 - **SpEL 支持**：`key` 属性支持 Spring EL 表达式，可动态解析方法参数作为限流键；
 - **限流器链**：通过 `@RateLimiters` 组合多个 `@RateLimiter`，实现多级流量控制；
+- **Key 过期（延迟过期）**：限流器空闲超过指定时长后自动清理，活跃限流器不失效；
 - **自动配置**：`continew-starter.rate-limiter.enabled=false` 可整体关闭。
 
 ## 引入依赖
@@ -37,12 +38,23 @@ continew-starter:
     enabled: true
     # 限流 Key 统一前缀（默认：RateLimiter）
     key-prefix: RateLimiter
+    # Key 过期配置（默认关闭）
+    expire:
+      # 是否启用 Key 过期（默认：false）
+      enabled: false
+      # Key 过期时长（默认：1）
+      time: 1
+      # Key 过期时长单位（默认：HOURS）
+      unit: HOURS
 ```
 
 | 配置项 | 说明 | 默认值 |
 |:-------|:-----|:-------|
 | `continew-starter.rate-limiter.enabled` | 是否启用限流自动配置 | `true` |
 | `continew-starter.rate-limiter.key-prefix` | 限流器在 Redis 中的 Key 前缀 | `RateLimiter` |
+| `continew-starter.rate-limiter.expire.enabled` | 是否启用 Key 过期（延迟过期） | `false` |
+| `continew-starter.rate-limiter.expire.time` | Key 过期时长 | `1` |
+| `continew-starter.rate-limiter.expire.unit` | Key 过期时长单位 | `HOURS` |
 
 ## 使用 @RateLimiter 注解
 
@@ -85,6 +97,8 @@ public R getSmsCaptcha(@NotBlank(message = "手机号不能为空") @Mobile Stri
 | `rate` | 速率：指定时间间隔内产生的令牌数 | `Integer.MAX_VALUE` |
 | `interval` | 速率间隔（时间间隔数值） | `0` |
 | `unit` | 速率间隔的时间单位 | `TimeUnit.MILLISECONDS` |
+| `expire` | Key 过期时长（延迟过期），负值（默认 `-1`）跟随全局配置，`0` 显式关闭过期，正值覆盖全局配置 | `-1` |
+| `expireUnit` | Key 过期时长单位，仅在 `expire` 取正值时生效 | `TimeUnit.HOURS` |
 | `message` | 触发限流时的提示信息 | `操作过于频繁，请稍后再试` |
 
 三种 `LimitType` 的行为差异（见 `RateLimiterAspect.getCacheKey`）：
@@ -94,6 +108,24 @@ public R getSmsCaptcha(@NotBlank(message = "手机号不能为空") @Mobile Stri
 - `CLUSTER`：Key 附加当前 Redisson 节点 ID，限流速率按 `RateType.PER_CLIENT` 生效，即每个实例独享配额。
 
 触发限流时抛出 `top.continew.starter.ratelimiter.exception.RateLimiterException`，全局异常处理可据此返回统一响应。
+
+## Key 过期（延迟过期）
+
+默认情况下限流器的 Redis Key 永不过期，长期运行后不再使用的限流器会在 Redis 中持续累积。开启过期后采用延迟过期语义，限流器每次被访问时刷新 Key 的 TTL（活跃限流器不失效），空闲超过过期时长后 Key 到期删除，再次访问时自动重建。
+
+开启方式分三级，优先级为注解参数高于全局配置，全局配置高于默认关闭。
+
+1. 注解级。`@RateLimiter(expire = 30, expireUnit = TimeUnit.MINUTES)` 为该限流器单独设置过期时长；`@RateLimiter(expire = 0)` 显式关闭过期，可在全局开启时单独豁免某个限流器。
+2. 全局级。`continew-starter.rate-limiter.expire.enabled=true` 为全部限流器启用过期，时长取 `expire.time` 与 `expire.unit`，默认 1 小时。
+3. 默认关闭。不配置时行为与历史版本一致，Key 永不过期。
+
+`@RateLimiters` 组注解中的每个子注解独立取值，互不影响。
+
+<Callout type="warn">
+过期时长不能低于速率间隔，Key 在令牌桶补发周期内被删除会导致限流器被重置，已消耗的配额重新可用。模块对此做了兜底，实际生效的过期时长不会低于速率间隔。例如注解声明 `interval = 1, unit = TimeUnit.HOURS, expire = 30, expireUnit = TimeUnit.MINUTES` 时，实际过期时长为 1 小时。
+</Callout>
+
+TTL 通过 Redisson `RRateLimiter` 的 `RExpirable` 能力设置（`expire(Duration)`），Redisson 已原生覆盖限流器的全部内部子结构（`value`、`permits` 等），无需额外清理。每次访问都会多一次 TTL 刷新请求，这是延迟过期语义的固有开销。
 
 ## 自定义限流器名称生成器
 

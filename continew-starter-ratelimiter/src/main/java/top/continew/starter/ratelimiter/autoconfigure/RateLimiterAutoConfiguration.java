@@ -40,7 +40,7 @@ import jakarta.annotation.PostConstruct;
  * @since 2.2.0
  */
 @AutoConfiguration(after = RedissonAutoConfiguration.class)
-@EnableConfigurationProperties(RateLimiterProperties.class)
+@EnableConfigurationProperties({RateLimiterProperties.class, RateLimiterExpireProperties.class})
 @ConditionalOnProperty(prefix = PropertiesConstants.RATE_LIMITER,
     name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
 public class RateLimiterAutoConfiguration {
@@ -53,9 +53,11 @@ public class RateLimiterAutoConfiguration {
      */
     @Bean
     public RateLimiterAspect rateLimiterAspect(RateLimiterProperties properties,
+        RateLimiterExpireProperties expireProperties,
         RateLimiterNameGenerator rateLimiterNameGenerator,
         RedissonClient redissonClient) {
-        return new RateLimiterAspect(properties, rateLimiterNameGenerator, redissonClient);
+        return new RateLimiterAspect(properties, expireProperties, rateLimiterNameGenerator,
+            redissonClient);
     }
 
     /**

@@ -299,6 +299,9 @@ Spring Cache 实现未定义独立的 `@ConfigurationProperties` 类，直接使
 |:-------|:-----|:-------|:-----|
 | `continew-starter.rate-limiter.enabled` | `boolean` | `true` | 是否启用 |
 | `continew-starter.rate-limiter.key-prefix` | `String` | `RateLimiter` | Key 前缀 |
+| `continew-starter.rate-limiter.expire.enabled` | `boolean` | `false` | 是否启用 Key 过期（延迟过期） |
+| `continew-starter.rate-limiter.expire.time` | `long` | `1` | Key 过期时长 |
+| `continew-starter.rate-limiter.expire.unit` | `TimeUnit` | `HOURS` | Key 过期时长单位 |
 
 ## 幂等模块（Idempotent）
 

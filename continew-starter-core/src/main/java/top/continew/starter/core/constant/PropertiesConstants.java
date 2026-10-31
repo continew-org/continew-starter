@@ -105,6 +105,11 @@ public class PropertiesConstants {
         CONTINEW_STARTER + StringConstants.DOT + "rate-limiter";
 
     /**
+     * 限流-Key 过期配置
+     */
+    public static final String RATE_LIMITER_EXPIRE = RATE_LIMITER + StringConstants.DOT + "expire";
+
+    /**
      * 缓存配置
      */
     public static final String CACHE = CONTINEW_STARTER + StringConstants.DOT + "cache";
