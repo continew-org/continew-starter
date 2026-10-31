@@ -327,7 +327,7 @@ public class MultiLevelCache extends AbstractValueAdaptingCache {
     private void handleRemoteFailure(String operation, Object key, RuntimeException e) {
         if (degradeOnRedisFailure) {
             LOGGER.warn("[ContiNew Starter] - Multi-level cache L2 (Redis) '{}' failed, key: {}, "
-                + "degraded to local cache only. Cause: {}", operation, key, e.getMessage());
+                + "degraded to local cache only.", operation, key, e);
         } else {
             throw e;
         }
