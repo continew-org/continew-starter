@@ -34,8 +34,15 @@ public interface MultiLevelCacheConfigurer {
     /**
      * 预声明的缓存名列表（返回 null 表示完全懒创建）
      *
+     * <p>
+     * null 与空集合语义不同：null 表示完全懒创建（运行期未注册的 cacheName 也可动态创建），
+     * 空集合表示仅预声明 0 个缓存且禁用动态创建。null 是本接口契约的组成部分，
+     * 不可替换为空集合或 Optional。
+     * </p>
+     *
      * @return 预声明的缓存名列表
      */
+    @SuppressWarnings("java:S1168")
     default List<String> getCacheNames() {
         return null;
     }

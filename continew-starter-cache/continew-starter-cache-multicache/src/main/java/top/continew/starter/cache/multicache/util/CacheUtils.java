@@ -20,6 +20,7 @@ import org.springframework.cache.Cache;
 import top.continew.starter.cache.multicache.cache.MultiLevelCacheManager;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 多级缓存工具类（命令式缓存统一入口）
@@ -38,7 +39,8 @@ import java.util.concurrent.Callable;
  */
 public class CacheUtils {
 
-    private static volatile MultiLevelCacheManager cacheManager;
+    private static final AtomicReference<MultiLevelCacheManager> CACHE_MANAGER =
+        new AtomicReference<>();
 
     private CacheUtils() {
     }
@@ -49,7 +51,7 @@ public class CacheUtils {
      * @param cacheManager 多级缓存管理器
      */
     public static void setCacheManager(MultiLevelCacheManager cacheManager) {
-        CacheUtils.cacheManager = cacheManager;
+        CACHE_MANAGER.set(cacheManager);
     }
 
     /**
@@ -110,7 +112,7 @@ public class CacheUtils {
     }
 
     private static Cache getCache(String cacheName) {
-        MultiLevelCacheManager manager = cacheManager;
+        MultiLevelCacheManager manager = CACHE_MANAGER.get();
         if (manager == null) {
             throw new IllegalStateException(
                 "CacheUtils is not initialized: no MultiLevelCacheManager "

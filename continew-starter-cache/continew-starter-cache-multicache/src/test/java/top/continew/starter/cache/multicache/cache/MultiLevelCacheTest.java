@@ -16,12 +16,12 @@
 
 package top.continew.starter.cache.multicache.cache;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -250,26 +250,32 @@ class MultiLevelCacheTest {
         AtomicInteger loadCount = new AtomicInteger();
         int threads = 16;
         CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch loaderStarted = new CountDownLatch(1);
+        CountDownLatch loaderGate = new CountDownLatch(1);
         CountDownLatch doneLatch = new CountDownLatch(threads);
         ExecutorService executor = Executors.newFixedThreadPool(threads);
         for (int i = 0; i < threads; i++) {
             executor.submit(() -> {
                 try {
-                    startLatch.await();
-                    Object value = cache.get("hotKey", () -> {
-                        loadCount.incrementAndGet();
-                        Thread.sleep(50);
-                        return "loaded";
+                    assertDoesNotThrow(() -> {
+                        startLatch.await();
+                        assertEquals("loaded", cache.get("hotKey", () -> {
+                            // 用闸门同步代替 sleep：首个回源线程挂起时，其余线程已被分段锁挡住
+                            loadCount.incrementAndGet();
+                            loaderStarted.countDown();
+                            loaderGate.await();
+                            return "loaded";
+                        }));
                     });
-                    assertEquals("loaded", value);
-                } catch (Exception e) {
-                    fail(e);
                 } finally {
                     doneLatch.countDown();
                 }
             });
         }
         startLatch.countDown();
+        // 等首个线程真正进入回源后再放行，避免时序抖动导致击穿保护未被触发
+        loaderStarted.await();
+        loaderGate.countDown();
         doneLatch.await();
         executor.shutdown();
         assertEquals(1, loadCount.get(), "回源加载应只执行一次");
@@ -307,11 +313,11 @@ class MultiLevelCacheTest {
         properties.getRemote().setExpireAfterWrite(Duration.ofMinutes(10));
         properties.getRemote().setCacheNullValues(false);
         cacheManager = newManager(publisher);
-        cacheManager.getCache(CACHE_NAME).put("k1", "v1");
+        Cache cache = cacheManager.getCache(CACHE_NAME);
+        cache.put("k1", "v1");
         assertEquals(Duration.ofMinutes(10), cacheWriter.lastTtl.get());
         // 关闭空值缓存后写入 null 应拒绝（与 RedisCache 语义一致）
-        assertThrows(IllegalArgumentException.class, () -> cacheManager.getCache(CACHE_NAME)
-            .put("nullKey", null));
+        assertThrows(IllegalArgumentException.class, () -> cache.put("nullKey", null));
     }
 
     /**

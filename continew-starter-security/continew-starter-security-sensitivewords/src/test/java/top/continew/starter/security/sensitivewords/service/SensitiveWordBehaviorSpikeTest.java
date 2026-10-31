@@ -46,7 +46,7 @@ class SensitiveWordBehaviorSpikeTest {
     void longestMatchWhenFailFastDisabled() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
             .wordDeny(() -> List.of("法轮", "法轮功"))
-            .wordAllow(() -> List.of())
+            .wordAllow(List::of)
             .wordFailFast(false)
             .init();
         assertThat(wordBs.findAll("法轮功")).containsExactly("法轮功");
@@ -61,7 +61,7 @@ class SensitiveWordBehaviorSpikeTest {
     void shortMatchWhenFailFastEnabled() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
             .wordDeny(() -> List.of("法轮", "法轮功"))
-            .wordAllow(() -> List.of())
+            .wordAllow(List::of)
             .init();
         assertThat(wordBs.findAll("法轮功")).containsExactly("法轮");
     }
@@ -74,7 +74,7 @@ class SensitiveWordBehaviorSpikeTest {
     void endIndexIsExclusive() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
             .wordDeny(() -> List.of("法轮功"))
-            .wordAllow(() -> List.of())
+            .wordAllow(List::of)
             .wordFailFast(false)
             .init();
         String text = "a法轮功b";
@@ -92,7 +92,7 @@ class SensitiveWordBehaviorSpikeTest {
     void ignoreRepeat() {
         SensitiveWordBs repeated = SensitiveWordBs.newInstance()
             .wordDeny(() -> List.of("法轮功"))
-            .wordAllow(() -> List.of())
+            .wordAllow(List::of)
             .ignoreRepeat(true)
             .wordFailFast(false)
             .init();
@@ -100,7 +100,7 @@ class SensitiveWordBehaviorSpikeTest {
 
         SensitiveWordBs plain = SensitiveWordBs.newInstance()
             .wordDeny(() -> List.of("法轮功"))
-            .wordAllow(() -> List.of())
+            .wordAllow(List::of)
             .ignoreRepeat(false)
             .wordFailFast(false)
             .init();
@@ -115,7 +115,7 @@ class SensitiveWordBehaviorSpikeTest {
     void ignoreRepeatIndicesCoverFullOriginalSpan() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
             .wordDeny(() -> List.of("法轮功"))
-            .wordAllow(() -> List.of())
+            .wordAllow(List::of)
             .ignoreRepeat(true)
             .wordFailFast(false)
             .init();
@@ -140,7 +140,7 @@ class SensitiveWordBehaviorSpikeTest {
     void surrogatePairIndicesAreCharBased() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
             .wordDeny(() -> List.of("敏感词"))
-            .wordAllow(() -> List.of())
+            .wordAllow(List::of)
             .wordFailFast(false)
             .init();
 
@@ -165,7 +165,7 @@ class SensitiveWordBehaviorSpikeTest {
     void findFirstReturnsLeftmostHit() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
             .wordDeny(() -> List.of("甲词", "乙词"))
-            .wordAllow(() -> List.of())
+            .wordAllow(List::of)
             .wordFailFast(false)
             .init();
         assertThat(wordBs.findFirst("乙词X甲词")).as("按文本位置而非词库顺序").isEqualTo("乙词");
@@ -180,8 +180,8 @@ class SensitiveWordBehaviorSpikeTest {
     @DisplayName("numCheck 只命中 8 位及以上连续数字")
     void numCheckThreshold() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
-            .wordDeny(() -> List.of())
-            .wordAllow(() -> List.of())
+            .wordDeny(List::of)
+            .wordAllow(List::of)
             .wordFailFast(false)
             .enableNumCheck(true)
             .init();
@@ -202,7 +202,7 @@ class SensitiveWordBehaviorSpikeTest {
     void configuredWordIndependentOfSpecialChecks() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
             .wordDeny(() -> List.of("13800138000"))
-            .wordAllow(() -> List.of())
+            .wordAllow(List::of)
             .wordFailFast(false)
             .enableNumCheck(false)
             .init();
@@ -222,8 +222,8 @@ class SensitiveWordBehaviorSpikeTest {
     @DisplayName("特殊检测命中下标为原文坐标")
     void specialCheckIndicesAreOriginal() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
-            .wordDeny(() -> List.of())
-            .wordAllow(() -> List.of())
+            .wordDeny(List::of)
+            .wordAllow(List::of)
             .wordFailFast(false)
             .enableNumCheck(true)
             .enableEmailCheck(true)
@@ -251,7 +251,7 @@ class SensitiveWordBehaviorSpikeTest {
     @DisplayName("白名单可放行特殊检测命中")
     void allowExemptsSpecialCheck() {
         SensitiveWordBs numBs = SensitiveWordBs.newInstance()
-            .wordDeny(() -> List.of())
+            .wordDeny(List::of)
             .wordAllow(() -> List.of("13800138000"))
             .wordFailFast(false)
             .enableNumCheck(true)
@@ -260,7 +260,7 @@ class SensitiveWordBehaviorSpikeTest {
         assertThat(numBs.findAll("13800138001")).containsExactly("13800138001");
 
         SensitiveWordBs emailBs = SensitiveWordBs.newInstance()
-            .wordDeny(() -> List.of())
+            .wordDeny(List::of)
             .wordAllow(() -> List.of("admin@example.com"))
             .wordFailFast(false)
             .enableEmailCheck(true)
@@ -339,8 +339,8 @@ class SensitiveWordBehaviorSpikeTest {
     @DisplayName("init 后增量增删生效")
     void incrementalApiWorksAfterInit() {
         SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
-            .wordDeny(() -> List.of())
-            .wordAllow(() -> List.of())
+            .wordDeny(List::of)
+            .wordAllow(List::of)
             .wordFailFast(false)
             .init();
         assertThat(wordBs.contains("新词")).isFalse();

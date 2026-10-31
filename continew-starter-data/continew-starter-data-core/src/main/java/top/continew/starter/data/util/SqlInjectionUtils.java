@@ -66,9 +66,8 @@ public class SqlInjectionUtils {
      * SQL 函数检查正则
      */
     private static final String[] SQL_FUNCTION_PATTERN =
-        new String[] {"chr\\s*\\(", "mid\\s*\\(", " char\\s*\\(",
-            "sleep\\s*\\(", "user\\s*\\(", "show\\s+tables", "user[\\s]*\\([\\s]*\\)",
-            "show\\s+databases",
+        {"chr\\s*\\(", "mid\\s*\\(", " char\\s*\\(", "sleep\\s*\\(", "user\\s*\\(",
+            "show\\s+tables", "user[\\s]*\\([\\s]*\\)", "show\\s+databases",
             "sleep\\(\\d*\\)", "sleep\\(.*\\)"};
 
     private static final String MESSAGE_TEMPLATE = "SQL 注入检查: 检查值=>{}<=存在 SQL 注入关键字, 关键字=>{}<=";

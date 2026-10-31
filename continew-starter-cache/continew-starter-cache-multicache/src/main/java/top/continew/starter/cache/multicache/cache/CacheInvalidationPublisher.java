@@ -18,12 +18,14 @@ package top.continew.starter.cache.multicache.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.Cache;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 多级缓存 L1 失效广播（集群一致性）
@@ -51,7 +53,8 @@ public class CacheInvalidationPublisher implements MessageListener {
     /**
      * 本节点缓存管理器（收到广播时按 cacheName 清 L1）
      */
-    private volatile MultiLevelCacheManager cacheManager;
+    private final AtomicReference<MultiLevelCacheManager> cacheManagerRef =
+        new AtomicReference<>();
 
     public CacheInvalidationPublisher(StringRedisTemplate stringRedisTemplate, String topic) {
         this.stringRedisTemplate = stringRedisTemplate;
@@ -59,7 +62,7 @@ public class CacheInvalidationPublisher implements MessageListener {
     }
 
     public void setCacheManager(MultiLevelCacheManager cacheManager) {
-        this.cacheManager = cacheManager;
+        this.cacheManagerRef.set(cacheManager);
     }
 
     public String getTopic() {
@@ -100,10 +103,11 @@ public class CacheInvalidationPublisher implements MessageListener {
             boolean allEntries = Boolean.parseBoolean(parts[1]);
             String cacheName = parts[2];
             String key = NULL_KEY.equals(parts[3]) ? null : parts[3];
-            if (cacheManager == null) {
+            MultiLevelCacheManager manager = cacheManagerRef.get();
+            if (manager == null) {
                 return;
             }
-            org.springframework.cache.Cache cache = cacheManager.getCache(cacheName);
+            Cache cache = manager.getCache(cacheName);
             if (cache instanceof MultiLevelCache multiLevelCache) {
                 if (allEntries || key == null) {
                     multiLevelCache.clearLocal();
