@@ -220,31 +220,38 @@ class RateLimiterAspectTest {
 
     @RateLimiter(name = "test-default")
     private void annotatedDefault() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiter(name = "test-global")
     private void annotatedGlobal() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiter(name = "test-refresh")
     private void annotatedRefresh() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiter(name = "test-annotation", expire = 5, expireUnit = TimeUnit.MINUTES)
     private void annotatedExpire() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiter(name = "test-disabled", expire = 0)
     private void annotatedDisabled() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiter(name = "test-short", rate = 10, interval = 1, unit = TimeUnit.SECONDS,
         expire = 100, expireUnit = TimeUnit.MILLISECONDS)
     private void annotatedShortExpire() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiters({@RateLimiter(name = "group-explicit", expire = 5, expireUnit = TimeUnit.MINUTES),
         @RateLimiter(name = "group-follow")})
     private void annotatedGroup() {
+        // 仅承载注解，供反射读取注解实例
     }
 }

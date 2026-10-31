@@ -211,6 +211,7 @@ class RateLimiterExpireBehaviorTest {
 
     @RateLimiter(name = "behavior-global-custom")
     private void annotatedGlobalCustom() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     /**
@@ -218,23 +219,28 @@ class RateLimiterExpireBehaviorTest {
      */
     @RateLimiter(name = "behavior-global-short", rate = 10, interval = 2, unit = TimeUnit.HOURS)
     private void annotatedGlobalShort() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiter(name = "behavior-negative", expire = -2)
     private void annotatedOtherNegative() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiter(name = "behavior-independent", expire = 5, expireUnit = TimeUnit.MINUTES)
     private void annotatedIndependent() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiter(name = "behavior-matched", rate = 20, interval = 500, unit = TimeUnit.MILLISECONDS,
         expire = 5, expireUnit = TimeUnit.MINUTES)
     private void annotatedMatched() {
+        // 仅承载注解，供反射读取注解实例
     }
 
     @RateLimiter(name = "behavior-stale", rate = 20, interval = 500, unit = TimeUnit.MILLISECONDS,
         expire = 5, expireUnit = TimeUnit.MINUTES)
     private void annotatedStale() {
+        // 仅承载注解，供反射读取注解实例
     }
 }

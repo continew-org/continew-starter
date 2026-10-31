@@ -59,5 +59,6 @@ class RateLimiterAnnotationDefaultsTest {
 
     @RateLimiter(name = "legacy")
     private void legacyUsage() {
+        // 仅承载注解，供反射读取注解实例
     }
 }
