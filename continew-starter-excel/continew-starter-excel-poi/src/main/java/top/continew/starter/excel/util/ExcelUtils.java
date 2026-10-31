@@ -65,6 +65,7 @@ import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -646,7 +647,7 @@ public class ExcelUtils {
     private static List<ExcelClassField> assembleHeadFields(
         Map<Integer, List<ExcelClassField>> groupedBySort) {
         List<Integer> sortList = new ArrayList<>(groupedBySort.keySet());
-        Collections.sort(sortList);
+        sortList.sort(Comparator.naturalOrder());
         List<ExcelClassField> headFieldList = new ArrayList<>();
         for (Integer sort : sortList) {
             for (ExcelClassField cf : groupedBySort.get(sort)) {

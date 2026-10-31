@@ -809,7 +809,7 @@
                     S3252：项目统一使用 Hutool 门面类 StrUtil/ValidateUtil/URLEncodeUtil 等调用静态方法，
                     其父类 CharSequenceUtil/Validator/URLEncodeUtil 属实现细节，经门面访问是 Hutool 官方推荐用法，故关闭该规则。
                 -->
-                <sonar.issue.ignore.multicriteria>S3252,S2143-excel,S2143-license,S2143-license-param,S2143-license-param-vo,S2143-license-manager,S2143-date-converter,S2176-iservice,S2176-serviceimpl,S6204-tree,S6204-reflect,S6204-storage,S9149-tree,S9149-servlet,S3077-progress,S3077-license</sonar.issue.ignore.multicriteria>
+                <sonar.issue.ignore.multicriteria>S3252,S2143-excel,S2143-license,S2143-license-param,S2143-license-param-vo,S2143-license-manager,S2143-date-converter,S2176-iservice,S2176-serviceimpl,S6204-tree,S6204-reflect,S6204-storage,S9149-tree,S9149-servlet,S3077-progress,S3077-license,S5738-springutils</sonar.issue.ignore.multicriteria>
                 <sonar.issue.ignore.multicriteria.S3252.ruleKey>java:S3252</sonar.issue.ignore.multicriteria.S3252.ruleKey>
                 <sonar.issue.ignore.multicriteria.S3252.resourceKey>**/*</sonar.issue.ignore.multicriteria.S3252.resourceKey>
                 <!--
@@ -867,6 +867,14 @@
                 <sonar.issue.ignore.multicriteria.S3077-progress.resourceKey>**/storage/domain/file/ProgressAwareMultipartFile.java</sonar.issue.ignore.multicriteria.S3077-progress.resourceKey>
                 <sonar.issue.ignore.multicriteria.S3077-license.ruleKey>java:S3077</sonar.issue.ignore.multicriteria.S3077-license.ruleKey>
                 <sonar.issue.ignore.multicriteria.S3077-license.resourceKey>**/license/manager/CustomLicenseManager.java</sonar.issue.ignore.multicriteria.S3077-license.resourceKey>
+                <!--
+                    S5738：SpringUtils.registerResourceHandler 刻意使用带 UrlPathHelper 的废弃构造器，
+                    不传 pathHelper 时框架侧 PathResourceResolver 会改变相对路径的解码/编码判定，
+                    与既有资源映射行为相反（文件名含 % 时可能 404）；显式传 mvcUrlPathHelper
+                    保持行为不变，随 Spring 移除该构造器时一并迁移，故按文件排除。
+                -->
+                <sonar.issue.ignore.multicriteria.S5738-springutils.ruleKey>java:S5738</sonar.issue.ignore.multicriteria.S5738-springutils.ruleKey>
+                <sonar.issue.ignore.multicriteria.S5738-springutils.resourceKey>**/core/util/SpringUtils.java</sonar.issue.ignore.multicriteria.S5738-springutils.resourceKey>
             </properties>
             <activation>
                 <activeByDefault>false</activeByDefault>

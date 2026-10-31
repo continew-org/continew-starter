@@ -70,25 +70,15 @@ public class FakeRedisCacheWriter implements RedisCacheWriter {
     }
 
     @Override
-    public void remove(String name, byte[] key) {
+    public void evict(String name, byte[] key) {
         checkAvailable();
         store.remove(new String(key));
     }
 
     @Override
-    public void evict(String name, byte[] key) {
-        remove(name, key);
-    }
-
-    @Override
-    public void clean(String name, byte[] pattern) {
+    public void clear(String name, byte[] pattern) {
         checkAvailable();
         store.clear();
-    }
-
-    @Override
-    public void clear(String name, byte[] pattern) {
-        clean(name, pattern);
     }
 
     @Override
@@ -104,6 +94,7 @@ public class FakeRedisCacheWriter implements RedisCacheWriter {
 
     @Override
     public void clearStatistics(String name) {
+        // 内存版 fake 不采集统计信息，清空统计为空操作
     }
 
     @Override

@@ -48,6 +48,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 多级缓存定时刷新切面
@@ -225,8 +226,10 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
             taskCount.incrementAndGet();
             schedule(task, task.period);
         }
-        LOGGER.debug("[ContiNew Starter] - Registered cache refresh task: {}, period: {}ms",
-            joinPoint.getSignature().toShortString(), task.period);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("[ContiNew Starter] - Registered cache refresh task: {}, period: {}ms",
+                joinPoint.getSignature().toShortString(), task.period);
+        }
     }
 
     /**
@@ -282,7 +285,7 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
      */
     private void cancelTask(RefreshTask task) {
         task.cancelled = true;
-        ScheduledFuture<?> future = task.currentFuture;
+        ScheduledFuture<?> future = task.currentFuture.get();
         if (future != null) {
             future.cancel(false);
         }
@@ -328,7 +331,7 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
             boolean success = executeRefresh(task);
             schedule(task, success ? task.period : task.retryDelay);
         }, delayMillis, TimeUnit.MILLISECONDS);
-        task.currentFuture = future;
+        task.currentFuture.set(future);
         // 复查取消：cancelTask 可能恰在上面的 cancelled 检查后、本行赋值前执行，
         // 彼时它读到旧的（或空的）currentFuture，新提交的 future 由这里兜住取消
         if (task.cancelled) {
@@ -377,7 +380,7 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
     public void destroy() {
         refreshTasks.values().forEach(methodTasks -> methodTasks.values().forEach(task -> {
             task.cancelled = true;
-            ScheduledFuture<?> future = task.currentFuture;
+            ScheduledFuture<?> future = task.currentFuture.get();
             if (future != null) {
                 future.cancel(false);
             }
@@ -431,7 +434,7 @@ public class MultiCacheRefreshAspect implements BeanFactoryAware {
         final Object cacheKey;
         final long period;
         final long retryDelay;
-        volatile ScheduledFuture<?> currentFuture;
+        final AtomicReference<ScheduledFuture<?>> currentFuture = new AtomicReference<>();
         volatile boolean cancelled;
 
         /**

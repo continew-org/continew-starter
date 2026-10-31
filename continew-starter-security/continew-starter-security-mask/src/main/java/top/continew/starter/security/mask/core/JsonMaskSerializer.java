@@ -54,9 +54,9 @@ public class JsonMaskSerializer extends ValueSerializer<String> {
         }
         // 使用自定义脱敏策略
         Class<? extends IMaskStrategy> strategyClass = jsonMask.strategy();
-        IMaskStrategy maskStrategy = strategyClass != IMaskStrategy.class
-            ? SpringUtil.getBean(strategyClass)
-            : jsonMask.value();
+        IMaskStrategy maskStrategy = strategyClass == IMaskStrategy.class
+            ? jsonMask.value()
+            : SpringUtil.getBean(strategyClass);
         jsonGenerator.writeString(maskStrategy
             .mask(str, jsonMask.character(), jsonMask.left(), jsonMask.right()));
     }

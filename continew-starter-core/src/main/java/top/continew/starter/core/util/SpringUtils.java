@@ -188,6 +188,8 @@ public class SpringUtils {
         final ServletContext servletContext = applicationContext.getBean(ServletContext.class);
         final ContentNegotiationManager contentNegotiationManager = applicationContext
             .getBean("mvcContentNegotiationManager", ContentNegotiationManager.class);
+        // mvcUrlPathHelper 在 Spring 7.0 标记 forRemoval，显式传递以保持相对路径编码语义，
+        // 随 Spring 移除该构造器时一并迁移
         final UrlPathHelper urlPathHelper =
             applicationContext.getBean("mvcUrlPathHelper", UrlPathHelper.class);
         final ResourceHandlerRegistry resourceHandlerRegistry = new ResourceHandlerRegistry(

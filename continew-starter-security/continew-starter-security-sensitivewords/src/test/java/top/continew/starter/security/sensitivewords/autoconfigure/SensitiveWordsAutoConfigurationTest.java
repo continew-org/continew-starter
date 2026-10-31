@@ -212,7 +212,7 @@ class SensitiveWordsAutoConfigurationTest {
             .withPropertyValues("continew-starter.security.sensitive-words.use-default-deny=false")
             .withBean(SensitiveWordBs.class, () -> SensitiveWordBs.newInstance()
                 .wordDeny(() -> List.of("自定义引擎词"))
-                .wordAllow(() -> List.of())
+                .wordAllow(List::of)
                 .wordFailFast(false)
                 .init())
             .run(context -> {
@@ -272,7 +272,7 @@ class SensitiveWordsAutoConfigurationTest {
         runner.withPropertyValues("continew-starter.security.sensitive-words.enabled=false")
             .withBean(SensitiveWordBs.class, () -> SensitiveWordBs.newInstance()
                 .wordDeny(() -> List.of("自定义引擎词"))
-                .wordAllow(() -> List.of())
+                .wordAllow(List::of)
                 .wordFailFast(false)
                 .init())
             .run(context -> {
@@ -299,12 +299,12 @@ class SensitiveWordsAutoConfigurationTest {
             .withPropertyValues("continew-starter.security.sensitive-words.use-default-deny=false")
             .withBean("engine1", SensitiveWordBs.class, () -> SensitiveWordBs.newInstance()
                 .wordDeny(() -> List.of("词一"))
-                .wordAllow(() -> List.of())
+                .wordAllow(List::of)
                 .wordFailFast(false)
                 .init())
             .withBean("engine2", SensitiveWordBs.class, () -> SensitiveWordBs.newInstance()
                 .wordDeny(() -> List.of("词二"))
-                .wordAllow(() -> List.of())
+                .wordAllow(List::of)
                 .wordFailFast(false)
                 .init())
             .run(context -> {
@@ -341,7 +341,7 @@ class SensitiveWordsAutoConfigurationTest {
         public SensitiveWordBs primaryEngine() {
             return SensitiveWordBs.newInstance()
                 .wordDeny(() -> List.of("词一"))
-                .wordAllow(() -> List.of())
+                .wordAllow(List::of)
                 .wordFailFast(false)
                 .init();
         }
@@ -350,7 +350,7 @@ class SensitiveWordsAutoConfigurationTest {
         public SensitiveWordBs secondaryEngine() {
             return SensitiveWordBs.newInstance()
                 .wordDeny(() -> List.of("词二"))
-                .wordAllow(() -> List.of())
+                .wordAllow(List::of)
                 .wordFailFast(false)
                 .init();
         }

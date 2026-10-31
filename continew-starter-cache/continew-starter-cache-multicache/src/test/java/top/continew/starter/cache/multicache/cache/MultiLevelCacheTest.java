@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,6 +37,8 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -245,32 +246,41 @@ class MultiLevelCacheTest {
 
     @Test
     @DisplayName("get(loader) 并发回源只执行一次（击穿保护）")
-    void testPenetrationProtection() throws InterruptedException {
+    void testPenetrationProtection() throws Exception {
         Cache cache = cacheManager.getCache(CACHE_NAME);
         AtomicInteger loadCount = new AtomicInteger();
         int threads = 16;
         CountDownLatch startLatch = new CountDownLatch(1);
+        CountDownLatch loaderStarted = new CountDownLatch(1);
+        CountDownLatch loaderGate = new CountDownLatch(1);
         CountDownLatch doneLatch = new CountDownLatch(threads);
         ExecutorService executor = Executors.newFixedThreadPool(threads);
+        List<Future<Object>> futures = new ArrayList<>();
         for (int i = 0; i < threads; i++) {
-            executor.submit(() -> {
+            futures.add(executor.submit(() -> {
                 try {
-                    startLatch.await();
-                    Object value = cache.get("hotKey", () -> {
+                    assertTrue(startLatch.await(5, TimeUnit.SECONDS), "回源启动信号未就位");
+                    return cache.get("hotKey", () -> {
+                        // 用闸门同步代替 sleep：首个回源线程挂起时，其余线程已被分段锁挡住
                         loadCount.incrementAndGet();
-                        Thread.sleep(50);
+                        loaderStarted.countDown();
+                        loaderGate.await(5, TimeUnit.SECONDS);
                         return "loaded";
                     });
-                    assertEquals("loaded", value);
-                } catch (Exception e) {
-                    fail(e);
                 } finally {
                     doneLatch.countDown();
                 }
-            });
+            }));
         }
         startLatch.countDown();
-        doneLatch.await();
+        // 等首个线程真正进入回源后再放行，避免时序抖动导致击穿保护未被触发
+        assertTrue(loaderStarted.await(5, TimeUnit.SECONDS), "回源加载器未被调用，击穿保护或加载路径存在缺陷");
+        loaderGate.countDown();
+        // 统一回收 worker 结果：断言失败经 Future 传播到主线程，超时兜底避免测试挂死
+        for (Future<Object> future : futures) {
+            assertEquals("loaded", future.get(5, TimeUnit.SECONDS));
+        }
+        assertTrue(doneLatch.await(5, TimeUnit.SECONDS), "并发线程未全部完成");
         executor.shutdown();
         assertEquals(1, loadCount.get(), "回源加载应只执行一次");
     }
@@ -307,11 +317,11 @@ class MultiLevelCacheTest {
         properties.getRemote().setExpireAfterWrite(Duration.ofMinutes(10));
         properties.getRemote().setCacheNullValues(false);
         cacheManager = newManager(publisher);
-        cacheManager.getCache(CACHE_NAME).put("k1", "v1");
+        Cache cache = cacheManager.getCache(CACHE_NAME);
+        cache.put("k1", "v1");
         assertEquals(Duration.ofMinutes(10), cacheWriter.lastTtl.get());
         // 关闭空值缓存后写入 null 应拒绝（与 RedisCache 语义一致）
-        assertThrows(IllegalArgumentException.class, () -> cacheManager.getCache(CACHE_NAME)
-            .put("nullKey", null));
+        assertThrows(IllegalArgumentException.class, () -> cache.put("nullKey", null));
     }
 
     /**

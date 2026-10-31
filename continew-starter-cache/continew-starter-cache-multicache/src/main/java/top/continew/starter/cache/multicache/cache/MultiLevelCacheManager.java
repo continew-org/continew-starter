@@ -71,8 +71,8 @@ public class MultiLevelCacheManager extends AbstractCacheManager {
             // 校验 specs 中配置的 cacheName 是否已注册
             for (String specName : properties.getSpecs().keySet()) {
                 if (!initialCacheNames.contains(specName)) {
-                    LOGGER.warn("[ContiNew Starter] - Cache spec '{}' is not in registered "
-                        .formatted(specName) + "cache names, please check your configuration.");
+                    LOGGER.warn("[ContiNew Starter] - Cache spec '{}' is not in registered cache "
+                        + "names, please check your configuration.", specName);
                 }
             }
         }
@@ -138,12 +138,16 @@ public class MultiLevelCacheManager extends AbstractCacheManager {
             super(cacheWriter, defaultCacheConfiguration);
         }
 
+        // 两个 override 仅转发 super 调用：受 JLS 6.6.2 限制，外层类无法直接访问嵌套类
+        // 从 RedisCacheManager 继承的 protected 方法，必须以桥接方法形式暴露给本类使用
+        @SuppressWarnings("java:S1185")
         @Override
         protected RedisCache createRedisCache(String name,
             RedisCacheConfiguration cacheConfiguration) {
             return super.createRedisCache(name, cacheConfiguration);
         }
 
+        @SuppressWarnings("java:S1185")
         @Override
         protected RedisCacheConfiguration getDefaultCacheConfiguration() {
             return super.getDefaultCacheConfiguration();

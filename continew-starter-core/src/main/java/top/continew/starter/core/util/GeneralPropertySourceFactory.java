@@ -44,7 +44,8 @@ public class GeneralPropertySourceFactory extends DefaultPropertySourceFactory {
         EncodedResource encodedResource) throws IOException {
         Resource resource = encodedResource.getResource();
         String resourceName = resource.getFilename();
-        if (CharSequenceUtil.isNotBlank(resourceName)
+        // getFilename 契约允许返回 null，显式判空后再传入 load
+        if (resourceName != null && CharSequenceUtil.isNotBlank(resourceName)
             && CharSequenceUtil.endWithAny(resourceName, ".yml", ".yaml")) {
             return new YamlPropertySourceLoader().load(resourceName, resource).get(0);
         }

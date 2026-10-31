@@ -61,18 +61,22 @@ public class NoOpSensitiveWordsService implements SensitiveWordsService {
 
     @Override
     public void addWord(String... words) {
+        // NoOp 实现：模块关闭时不维护词库，动态增删均为空操作
     }
 
     @Override
     public void removeWord(String... words) {
+        // NoOp 实现：模块关闭时不维护词库，动态增删均为空操作
     }
 
     @Override
     public void addWordAllow(String... words) {
+        // NoOp 实现：模块关闭时不维护白名单，动态增删均为空操作
     }
 
     @Override
     public void removeWordAllow(String... words) {
+        // NoOp 实现：模块关闭时不维护白名单，动态增删均为空操作
     }
 
     @Override
