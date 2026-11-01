@@ -10,6 +10,7 @@
 - **内部模块依赖统一写 `${project.groupId}`**：模块 POM 与 BOM 中的内部依赖 groupId 一律使用 `${project.groupId}`；版本由 BOM（`${revision}`）统一供给，模块 POM 免写 version；`<parent>` 与项目自身坐标保持字面量。
 - **新增模块需在三处注册**：项目 BOM（`continew-starter-bom/pom.xml`）、聚合 POM 的 `<modules>`（`pom.xml`）；若模块引入配置属性，还须在 `PropertiesConstants` 中定义前缀常量。
 - **自动配置类必须注册到 `AutoConfiguration.imports`**：未注册的配置类不会被加载（参见[配置与自动配置规范](#配置与自动配置规范)）。
+- **交付前自动自检**：AI 生成或修改 Java 源码或影响装配行为的资源（`AutoConfiguration.imports`、`default-*.yml`、模块 pom）后，必须调用 `open-code-review-delegate` 自检（delegate 模式无网关依赖），发现 HIGH 及以上问题先修复再交付，未标注 severity 时按 category 为 bug/security 视同 HIGH。
 - **披露 AI 使用**：当提交中较大部分由 AI 生成时，请在 commit message 末尾追加 trailer，注明实际使用的智能体，例如：
   
   ```
@@ -83,11 +84,12 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 
 ### 提交前门禁（必须通过）
 
-提交 Java 代码前，AI 智能体**必须**让门禁通过：
+提交 Java 代码或影响装配行为的资源前，AI 智能体**必须**让门禁通过：
 
 1. 执行 `./mvnw verify`。门禁依次为：validate 阶段的 **Enforcer**（构建环境与依赖合规）、**Spotless check**（代码格式）、**Checkstyle**（代码规范），编译后 test 阶段的**单元测试**，以及 verify 阶段的 **SpotBugs**（字节码缺陷），任一不通过都会直接构建失败。
 2. 若被 Spotless 拦截，执行 `./mvnw compile -Pformat` 自动修复，然后再执行一次 `./mvnw verify` 确认通过。
-3. 全部门禁与单元测试通过后才能提交。
+3. AI 生成/修改 Java 或装配资源后先跑 `open-code-review-delegate` 自检（见 AI 贡献准则）。
+4. 全部门禁与单元测试通过后才能提交。
 
 > **非 Java 改动**：
 > - 仅改文档或运行时配置，无需执行 `./mvnw verify`。
@@ -124,7 +126,7 @@ Sonar 分析使用 `./mvnw verify -Psonar`（激活 JaCoCo），日常 `./mvnw v
 | Javadoc | 禁止单行（`RegexpSingleline` 强制）；方法注释写全 `@param`（含类型参数）与 `@return`，接口方法必须写全 |
 | 内联全限定名 | **禁止**（`InlineFullyQualifiedName`：与依赖库同名时应调整类名，而非内联全限定名绕过） |
 | 格式化豁免 | `// @formatter:off` 与 `// @formatter:on` 之间的代码不参与格式化 |
-| 命名 | `style/` 配置文件与 agent 技能统一使用 `ocn-` 前缀（OCN = OpenContiNew） |
+| 命名 | `style/` 配置文件与 agent 技能统一使用 `ocn-` 前缀（OCN = OpenContiNew），第三方技能除外 |
 
 ### 注释风格
 
@@ -258,4 +260,6 @@ public class XxxAutoConfiguration {
 
 ## Agent Skills
 
-各 agent 工具（DeepSeek Harness / Claude Code / Codex）共用的技能统一存放在 `.agents/skills/` 作为唯一事实源，每个技能一个目录、含 `SKILL.md`。新增技能沿用 `ocn-` 命名前缀。
+各 agent 工具（DeepSeek Harness / Claude Code / Codex）共用的技能统一存放在 `.agents/skills/` 作为唯一事实源，每个技能一个目录、含 `SKILL.md`。新增技能沿用 `ocn-` 命名前缀，第三方技能保留官方名、不加该前缀。
+
+评审相关技能按场景选用，`open-code-review` 用于 CI 自动评审（与 `ocr-review.yml` 同源）与维护者显式深度评审（需网关 key）；`open-code-review-delegate` 用于 AI 交付前自动自检与贡献者可选自检（无网关依赖，[CONTRIBUTING.md](./CONTRIBUTING.md) 与 [PR 模板](.github/PULL_REQUEST_TEMPLATE.md) 中「本地 AI 自检」所指）。

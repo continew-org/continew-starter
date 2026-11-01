@@ -71,7 +71,19 @@ git log ${PREV_TAG}..HEAD --format='%h %aI %an %s'
 | `fix` | 🐛 问题修复 | |
 | `refactor` / `perf` / `chore` / `style` | 💎 功能优化 | chore/style 默认进，校对时删纯 housekeeping |
 | `build(dependencies): X a.b.c => x.y.z` | 📦 依赖升级 | 按 pom property 顺序排；`X <= Y` 且 X<Y（pin）跳过、X>Y（降级）进 |
+| 带 `!` 前缀或 `BREAKING CHANGE` 脚注 | ⚠️ 破坏性变更 | 主体条目照常按 feat/fix 归桶，另汇总进段顶「破坏性变更」小节 |
 | `docs` / `ci` / `test` / 其它 `build:` | 跳过 | |
+
+⚠️ 破坏性变更条目写两处：常规桶照常收录，另在版本段顶部单列「破坏性变更」小节，逐条披露迁移方式并链接对应模块文档；3.0.0 这类大版本段不可省略该小节。
+
+写入后做机器计数校验（2.17.0 断档教训，人工校对会失手），防止破坏性提交漏收：
+
+```bash
+git log ${PREV_TAG}..HEAD --format='%s' | grep -c '!'                 # 计数必须等于「破坏性变更」小节条目数
+git log ${PREV_TAG}..HEAD --grep='BREAKING CHANGE' --format='%h %s'   # 输出的每个 hash 须在小节中有对应条目
+```
+
+带 `BREAKING CHANGE` 脚注的提交一般也带 `!`；若第二条出现小节之外的 hash，说明有提交被漏收，逐条补齐后重新计数。
 
 行格式：`- 【scope】subject ([短哈希](commit_url)) (#PR) @作者`。
 🆕 新贡献者：本区间 commit 的 author email 不在 `${PREV_TAG}` 之前历史里（`git log ${PREV_TAG} --format=%ae` 比对）。
@@ -89,14 +101,14 @@ README 徽章随发版切换：`badge/SNAPSHOT-vX.Y.Z` → `badge/RELEASE-v${NEW
 
 - `git add` 上述 6 类发版文件（README 有改动才加）→ `git commit -m "release: v${NEW_VERSION}"`。
 
-### 4. ./mvnw clean deploy -Prelease,gpg（最危险，单独确认）
+### 4. ./mvnw clean deploy -Prelease（最危险，单独确认）
 
 推全部模块的 jar + sources + javadoc + .asc 签名到 Maven Central，**无法撤回**。
+签名（`maven-gpg-plugin`）与发布插件都内置在 `release` profile（continew-starter-dependencies/pom.xml），仓库无单独的 `gpg` profile。
 
-> 已知问题：`central-publishing-maven-plugin` 0.4.0 会假失败（`UnrecognizedPropertyException`）
-> 但 **bundle 已上传**——去 [central.sonatype.com/publishing/deployments](https://central.sonatype.com/publishing/deployments)
-> 手动 Publish，已上传算半成功，继续后面步骤。升级插件到 0.7.0+ 留到下个 dev 周期的
-> `build(dependencies):` commit。
+> deploy 成功后 bundle 只是上传，尚未发布：`central-publishing-maven-plugin`（0.12.0，未开启
+> autoPublish）把 bundle 放入部署队列，需到 [central.sonatype.com/publishing/deployments](https://central.sonatype.com/publishing/deployments)
+> 手动 Publish 后才会出现在 Maven Central；校验不通过等失败也在此页面查看状态与原因。
 
 ### 5. tag + push（一次确认）
 

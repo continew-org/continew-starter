@@ -303,6 +303,35 @@ public void update(UpdateTenantReq req, Long id) { /* ... */ }
 
 锁目标由 `AuthPolicyLockTargetResolver` SPI 从方法参数解析（内置用户、租户维度两个约定实现），锁顺序与登录轮换共用同一组，杜绝死锁。该能力面向与认证会话存在数据竞争的写操作（如修改用户状态、变更租户套餐），普通业务无需使用。
 
+### 9. 会话撤销回调：`AuthSessionRevocationNotifier`
+
+会话被删除的全部路径（注销、强退、顶下线、策略失效、轮换重放判定、登录签发失败的补偿撤销）都会触发撤销回调 SPI `AuthSessionRevocationNotifier`（`top.continew.starter.auth.refresh.token.api` 包）。回调方法接收 Refresh Session ID，典型用途是实时推送撤销消息与清理会话关联的旁路数据（如活跃记录）。模块内置的 WebSocket 通知服务 `AuthWebSocketSessionService` 就是该接口的一个实现。
+
+业务实现注册为 Spring Bean 即可生效，示例实现如下。
+
+```java
+@Component
+public class ActiveSessionCleaner implements AuthSessionRevocationNotifier {
+
+    @Override
+    public void notifyRevoked(String sessionId) {
+        // 清理该会话关联的旁路数据
+    }
+}
+```
+
+撤销时 `RefreshTokenServiceImpl#notifyRevoked` 逐个调用全部实现。
+
+- **多实现并存**：容器中的每个实现都会被调用，业务回调与内置 WebSocket 通知服务互不影响；未注册任何业务实现时只有内置实现生效
+- **顺序**：默认不保证实现间先后，需要顺序时在实现类上标注 `@Order`，数值小的先调用
+- **异常容错**：单个实现抛出异常只记 WARN 日志（含 sessionId 与实现类名），其余实现继续执行，撤销本身不受影响
+
+回调在撤销路径上同步执行，实现应幂等并快速返回，耗时的清理动作建议放到异步线程。
+
+<Callout type="warn">
+3.0.0 起 `RefreshTokenServiceImpl` 构造签名的第 5 个参数由单个 `AuthSessionRevocationNotifier` 改为 `List<AuthSessionRevocationNotifier>`（多实现聚合）。经自动配置装配的应用无需改动；自行 `new RefreshTokenServiceImpl` 的代码需改传 `List`。同时 WebSocket 通知服务的装配条件改为按 `AuthWebSocketSessionService` 具体类型判断（`@ConditionalOnMissingBean(AuthWebSocketSessionService.class)`），业务注册自定义回调后 WebSocket 推送仍正常装配。
+</Callout>
+
 ## 主要特性
 
 - **原子轮换**：指纹门禁完成旧→新令牌的原子切换，宽限期内幂等重放、只前进一代
