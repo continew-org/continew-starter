@@ -736,6 +736,12 @@
                         </execution>
                     </executions>
                 </plugin>
+                <!-- 应用 repackage 打包插件（供继承本 POM 的使用方固定 repackage 工具版本，未管理时 Maven 按 metadata latest 解析，曾漂移到 4.2.0-RC1 与运行时底座错位） -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
