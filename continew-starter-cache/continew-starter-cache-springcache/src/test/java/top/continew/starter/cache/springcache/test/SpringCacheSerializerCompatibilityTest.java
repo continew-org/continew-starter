@@ -26,12 +26,12 @@ import org.springframework.boot.cache.autoconfigure.CacheProperties;
 import org.springframework.boot.jackson.autoconfigure.JacksonAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.redis.cache.RedisCacheConfiguration;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
-import org.springframework.data.redis.serializer.GenericJacksonJsonRedisSerializer;
-import tools.jackson.databind.ObjectMapper;
-import tools.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
+import org.springframework.data.redis.serializer.RedisSerializationContext;
 import top.continew.starter.cache.springcache.autoconfigure.SpringCacheAutoConfiguration;
 
+import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,7 +55,7 @@ import java.util.List;
 class SpringCacheSerializerCompatibilityTest {
 
     @Autowired
-    private ObjectMapper objectMapper;
+    private RedisCacheConfiguration redisCacheConfiguration;
 
     /**
      * 模拟 @Cacheable 缓存值的样本模型
@@ -116,20 +116,6 @@ class SpringCacheSerializerCompatibilityTest {
         return mapper;
     }
 
-    /**
-     * 按生产构造构建 3.0.0 版本的缓存值序列化器（与 SpringCacheAutoConfiguration 保持一致）
-     *
-     * @return Jackson 3 序列化器
-     */
-    private GenericJacksonJsonRedisSerializer productionSerializer() {
-        return GenericJacksonJsonRedisSerializer
-            .builder(objectMapper::rebuild)
-            .enableDefaultTyping(BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(Object.class)
-                .build())
-            .build();
-    }
-
     private static void assertSameValue(Object actual, CachedValue expected) {
         CachedValue value = assertInstanceOf(CachedValue.class, actual);
         assertEquals(expected.username, value.username);
@@ -144,16 +130,18 @@ class SpringCacheSerializerCompatibilityTest {
         GenericJackson2JsonRedisSerializer legacy =
             new GenericJackson2JsonRedisSerializer(legacyMapper());
         byte[] legacyBytes = legacy.serialize(sample());
-        Object decoded = productionSerializer().deserialize(legacyBytes);
+        // 直接使用生产 Bean 的值序列化对，防止生产构造与测试构造漂移
+        Object decoded = redisCacheConfiguration.getValueSerializationPair()
+            .read(ByteBuffer.wrap(legacyBytes));
         assertSameValue(decoded, sample());
     }
 
     @Test
     @DisplayName("生产构造序列化器序列化与反序列化自洽")
     void shouldRoundTripWithProductionSerializer() {
-        GenericJacksonJsonRedisSerializer serializer = productionSerializer();
-        byte[] bytes = serializer.serialize(sample());
-        Object decoded = serializer.deserialize(bytes);
+        RedisSerializationContext.SerializationPair<Object> pair = redisCacheConfiguration
+            .getValueSerializationPair();
+        Object decoded = pair.read(pair.write(sample()));
         assertSameValue(decoded, sample());
     }
     /**

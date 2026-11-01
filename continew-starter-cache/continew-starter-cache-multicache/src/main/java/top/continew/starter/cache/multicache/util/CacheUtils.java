@@ -16,6 +16,8 @@
 
 package top.continew.starter.cache.multicache.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.cache.Cache;
 import top.continew.starter.cache.multicache.cache.MultiLevelCacheManager;
 
@@ -38,6 +40,8 @@ import java.util.concurrent.atomic.AtomicReference;
  * @since 3.0.0
  */
 public class CacheUtils {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CacheUtils.class);
 
     private static final AtomicReference<MultiLevelCacheManager> CACHE_MANAGER =
         new AtomicReference<>();
@@ -105,24 +109,53 @@ public class CacheUtils {
     /**
      * 清空整个 cacheName 的缓存（同时清 L1 与 L2，并向集群广播）
      *
+     * <p>
+     * cacheName 未预注册且管理器未开启动态创建时，无缓存可清，此时输出 WARN 提示配置漂移
+     * （如 cacheName 拼写错误），既有失败行为保持不变。
+     * </p>
+     *
      * @param cacheName 缓存名称
      */
     public static void evictAll(String cacheName) {
-        getCache(cacheName).clear();
+        Cache cache = requireCacheManager().getCache(cacheName);
+        if (cache == null) {
+            LOGGER.warn("[ContiNew Starter] - evictAll skipped: cache '{}' is not registered, "
+                + "please check the cacheNames configuration.", cacheName);
+            throw notRegisteredException(cacheName);
+        }
+        cache.clear();
     }
 
     private static Cache getCache(String cacheName) {
+        Cache cache = requireCacheManager().getCache(cacheName);
+        if (cache == null) {
+            throw notRegisteredException(cacheName);
+        }
+        return cache;
+    }
+
+    /**
+     * 构造 cacheName 未注册异常（evictAll 与其余操作共用同一失败消息）
+     *
+     * @param cacheName 缓存名称
+     * @return 未注册异常
+     */
+    private static IllegalArgumentException notRegisteredException(String cacheName) {
+        return new IllegalArgumentException("Cache '%s' is not registered.".formatted(cacheName));
+    }
+
+    /**
+     * 获取已初始化的多级缓存管理器
+     *
+     * @return 多级缓存管理器
+     */
+    private static MultiLevelCacheManager requireCacheManager() {
         MultiLevelCacheManager manager = CACHE_MANAGER.get();
         if (manager == null) {
             throw new IllegalStateException(
                 "CacheUtils is not initialized: no MultiLevelCacheManager "
                     + "bean is available, please check the multi-level cache configuration.");
         }
-        Cache cache = manager.getCache(cacheName);
-        if (cache == null) {
-            throw new IllegalArgumentException(
-                "Cache '%s' is not registered.".formatted(cacheName));
-        }
-        return cache;
+        return manager;
     }
 }

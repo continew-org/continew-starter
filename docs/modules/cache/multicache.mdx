@@ -5,6 +5,11 @@ description: continew-starter-cache-multicache 提供多级缓存（Caffeine L1 
 
 `continew-starter-cache-multicache` 提供多级缓存（Caffeine L1 + Redis L2）解决方案。在 Spring Cache 标准注解（`@Cacheable` / `@CacheEvict` / `@CachePut`）之上叠加本地缓存层：读路径 L1 命中直接返回、未命中查 L2 后回填；写路径先写 L2 再写 L1（L1 TTL 不超过 L2），**写入成功后同样广播 L1 失效**；多节点部署时通过 Redis 广播 L1 失效消息保持各节点最终一致。引入依赖即自动装配。
 
+<Callout type="warning">
+从 2.x 的 JetCache 迁移到本模块时，升级前必须清空 Redis 中的存量缓存。2.x 的两级缓存默认以 JDK 序列化将缓存值写入 Redis（JetCache `ExternalCacheConfig` 默认 `JavaValueEncoder`），本模块以 Jackson 3 JSON 编码读取，两者互不兼容，旧值会读取失败。
+从 2.x 的 Spring Cache 路径（`continew-starter-cache-springcache`）迁移时无需清理，缓存值的多态类型编码与 3.0.0 兼容，存量数据可直接读取（见 [Spring Cache](./springcache)）。
+</Callout>
+
 <Callout type="info">
 本模块依赖 `continew-starter-cache-springcache`，L2（Redis）复用 Spring Cache 的序列化与连接配置（见模块 `pom.xml`），Redis 连接使用 `spring.data.redis.*` 原生配置。
 </Callout>

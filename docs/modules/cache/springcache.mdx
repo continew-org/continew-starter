@@ -56,6 +56,20 @@ public class DemoService {
 
 未指定 `key` 时，使用模块内置的 `KeyGenerator` 生成缓存 Key：方法名（下划线分隔后大写）+ `:` + 方法参数 JSON 的 SHA-256 摘要（见 `SpringCacheAutoConfiguration.keyGenerator`）。
 
+## 序列化行为与升级
+
+序列化配置见 `SpringCacheAutoConfiguration.redisCacheConfiguration`。Key 使用 `StringRedisSerializer`，Value 使用 `GenericJacksonJsonRedisSerializer`（Jackson 3）并启用多态类型信息。3.0.0 起 `Long`、不可变集合、Map 等根值携带多态类型 id（`@class`），`String`、`Integer`、`Boolean`、`Double` 等少数基础类型不携带（Spring Data Redis 既有设计）。int 范围内的 `Long` 根值读回保持 `Long`，`List.of()`、`Stream.toList()` 等不可变集合根值可正常读回。`byte[]` 根值的写出编码由裸 Base64 字符串变为携带类型 id，读回仍为 `byte[]` 且内容不变。
+
+JDK 不可变与包装 Map 实现（如 `Map.of()` 产物、`Collections.unmodifiableMap` 结果）的根值写入前会浅拷贝为 `LinkedHashMap`，读回为 `LinkedHashMap`，内容与原值等价，依赖原实现类型的调用方需自行转换。用户自定义的 Map 子类不受影响，读回保持原类型与条目。第三方不可变 Map（如 Guava `ImmutableMap`）按原实现类名写出，读回会显式抛出反序列化异常（与 2.x 行为一致），不存在静默污染。
+
+<Callout type="info">
+从 2.x 升级到 3.0.0 时，Spring Cache 缓存值的存量数据无需清理。2.x `GenericJackson2JsonRedisSerializer` 写入的多态类型编码与 3.0.0 兼容，常见值类型已做双向读写验证。
+</Callout>
+
+<Callout type="warn">
+多态类型信息基于 `allowIfBaseType(Object.class)` 校验（既有设计），Redis 缓存应视为可信边界，缓存键空间不得由不可信输入写入。存在不可信数据来源时，请自行收紧 `PolymorphicTypeValidator` 白名单。
+</Callout>
+
 <Callout type="info">
 本模块依赖 `continew-starter-cache-redisson`，可一并使用其 `RedisUtils`、`RedisLockUtils` 工具类（见 [Redisson](./redisson) 子页）。
 </Callout>
