@@ -70,23 +70,24 @@ git log ${PREV_TAG}..HEAD --format='%h %aI %an %s'
 | `feat` | ✨ 新特性 | |
 | `fix` | 🐛 问题修复 | |
 | `refactor` / `perf` / `chore` / `style` | 💎 功能优化 | chore/style 默认进，校对时删纯 housekeeping |
-| `build(dependencies): X a.b.c => x.y.z` | 📦 依赖升级 | 按 pom property 顺序排；`X <= Y` 且 X<Y（pin）跳过、X>Y（降级）进 |
+| `build(dependencies): X a.b.c => x.y.z` | 📦 依赖升级 | 按 pom property 顺序排；`X <= Y` 且 X<Y（pin）跳过、X>Y（降级）进；只列安全修复或使用者可感知的升级，纯 bump 不列 |
 | 带 `!` 前缀或 `BREAKING CHANGE` 脚注 | ⚠️ 破坏性变更 | 主体条目照常按 feat/fix 归桶，另汇总进段顶「破坏性变更」小节 |
 | `docs` / `ci` / `test` / 其它 `build:` | 跳过 | |
 
-⚠️ 破坏性变更条目写两处：常规桶照常收录，另在版本段顶部单列「破坏性变更」小节，逐条披露迁移方式并链接对应模块文档；3.0.0 这类大版本段不可省略该小节。
+⚠️ 破坏性变更条目写两处：常规桶照常收录，另在版本段顶部单列「破坏性变更」小节；3.0.0 这类大版本段不可省略该小节。小节内按影响面排序：底座升级 → 全局行为 → 模块级。
 
-写入后做机器计数校验（2.17.0 断档教训，人工校对会失手），防止破坏性提交漏收：
+条目面向升级者撰写，不照抄 commit subject：未随已发布版本到达用户的中间态不写（同版本内引入又移除的桥接层、过渡开关）；同一功能在同版本内的引入与后续修复合并为一条，同主题的治理提交也合并，成员链接全保留；修复已发布版本缺陷的 hotfix 必须单列。关键迁移动作写成行内一句话，不内链 docs/ 页面（文档重组会让历史段链接腐烂）。
+
+行格式：`- 【scope】描述 ([#PR](pr_url)) @GitHub用户名`，无 PR 的直推提交链接 commit；作者取 GitHub 账号名（noreply email 反推，`gh api users/<name>` 验证），不用 git author name。
+
+写入后做机器对账校验（2.17.0 断档教训，人工校对会失手），防止破坏性提交漏收。条目允许合并，校验口径是 hash 全覆盖对账而非计数等值：
 
 ```bash
-git log ${PREV_TAG}..HEAD --format='%s' | grep -c '!'                 # 计数必须等于「破坏性变更」小节条目数
-git log ${PREV_TAG}..HEAD --grep='BREAKING CHANGE' --format='%h %s'   # 输出的每个 hash 须在小节中有对应条目
+git log ${PREV_TAG}..HEAD --format='%h %s' | grep '!' | cut -d' ' -f1   # 带 ! 的提交清单，每个 hash 都须在小节内有对应条目（合并条目的成员也算覆盖）
+git log ${PREV_TAG}..HEAD --grep='BREAKING CHANGE' --format='%h %s'     # 输出的每个 hash 同样逐条对账
 ```
 
-带 `BREAKING CHANGE` 脚注的提交一般也带 `!`；若第二条出现小节之外的 hash，说明有提交被漏收，逐条补齐后重新计数。
-
-行格式：`- 【scope】subject ([短哈希](commit_url)) (#PR) @作者`。
-🆕 新贡献者：本区间 commit 的 author email 不在 `${PREV_TAG}` 之前历史里（`git log ${PREV_TAG} --format=%ae` 比对）。
+比对时在段内文本检索 `[hash]` 或 `[#PR]`（链接形态随条目：有 PR 链 PR，无 PR 链 commit）；任一 hash/PR 号出现在小节之外即有漏收，补齐后重新对账。含中文文本的检索建议用 `python -I`（git bash 的 grep 对中文文件不可靠）。带 `BREAKING CHANGE` 脚注的提交一般也带 `!`。
 
 **写入前硬性校验（2.17.0 教训）**：每个写进 CHANGELOG 的提交 hash 必须真实存在于当前 dev——
 逐条 `git cat-file -t <hash>` 或 `git merge-base --is-ancestor <hash> HEAD` 验证；用户校对时删掉的条目，
@@ -101,10 +102,10 @@ README 徽章随发版切换：`badge/SNAPSHOT-vX.Y.Z` → `badge/RELEASE-v${NEW
 
 - `git add` 上述 6 类发版文件（README 有改动才加）→ `git commit -m "release: v${NEW_VERSION}"`。
 
-### 4. ./mvnw clean deploy -Prelease（最危险，单独确认）
+### 4. ./mvnw clean deploy -Prelease,gpg（最危险，单独确认）
 
 推全部模块的 jar + sources + javadoc + .asc 签名到 Maven Central，**无法撤回**。
-签名（`maven-gpg-plugin`）与发布插件都内置在 `release` profile（continew-starter-dependencies/pom.xml），仓库无单独的 `gpg` profile。
+签名（`maven-gpg-plugin`）与发布插件都内置在 `release` profile（continew-starter-dependencies/pom.xml），POM 无 `gpg` profile；签名所需的 gpg 可执行文件与口令由使用者本机 settings.xml 的 `gpg` profile 提供，命令显式带 `gpg` 以兼容未常驻激活的环境。
 
 > deploy 成功后 bundle 只是上传，尚未发布：`central-publishing-maven-plugin`（0.12.0，未开启
 > autoPublish）把 bundle 放入部署队列，需到 [central.sonatype.com/publishing/deployments](https://central.sonatype.com/publishing/deployments)
