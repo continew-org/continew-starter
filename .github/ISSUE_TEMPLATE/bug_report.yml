@@ -36,7 +36,7 @@ body:
     attributes:
       label: ContiNew Starter 版本
       description: 产生问题的版本号
-      placeholder: 例如：3.0.0-SNAPSHOT
+      placeholder: 例如：3.0.0
     validations:
       required: true
   - type: textarea

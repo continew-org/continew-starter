@@ -1,3 +1,27 @@
+## [v3.0.0](https://github.com/continew-org/continew-starter/compare/v2.17.0...v3.0.0) (2026-11-01)
+
+### ⚠️ 破坏性变更
+
+- 升级 Spring Boot 4.1，迁移 Tomcat，含 CRUD 映射与 LogFilter 两处兼容修复 ([#29](https://github.com/continew-org/continew-starter/pull/29)) ([#39](https://github.com/continew-org/continew-starter/pull/39)) @Charles7c
+- 【json】JSON 序列化全面迁移至 Jackson 3，不再兼容 Jackson 2，Long 等基础类型序列化形态有变化 ([#32](https://github.com/continew-org/continew-starter/pull/32)) @Charles7c
+- 【web】自研统一响应与全局异常处理，移除 graceful-response ([#31](https://github.com/continew-org/continew-starter/pull/31)) @Charles7c
+- 【auth】Sa-Token 升级至 1.46.0，适配 Jackson 反序列化 RCE 安全修复 ([#35](https://github.com/continew-org/continew-starter/pull/35)) @Charles7c
+- 【cache】自研多级缓存 multicache 替换 JetCache，升级需替换依赖并清空 Redis 存量缓存 ([#33](https://github.com/continew-org/continew-starter/pull/33)) ([#42](https://github.com/continew-org/continew-starter/pull/42)) ([#45](https://github.com/continew-org/continew-starter/pull/45)) @zk020106 @Charles7c
+- 【auth】撤销通知支持多实现聚合装配，自定义 AuthSessionRevocationNotifier 实现需适配 List 注入语义 ([#40](https://github.com/continew-org/continew-starter/pull/40)) @luoqiz
+- 【trace】链路追踪切换至 Micrometer Tracing，移除 TLog，相关依赖与配置需同步调整 ([#34](https://github.com/continew-org/continew-starter/pull/34)) @Charles7c
+- 【deps】CosId 升级至 4.0.2 ([#37](https://github.com/continew-org/continew-starter/pull/37)) @Charles7c
+- 【security】完善敏感词模块服务实现与校验能力 ([#30](https://github.com/continew-org/continew-starter/pull/30)) @luoqiz
+
+### ✨ 新特性
+
+- 【ratelimiter】限流器支持 Key 过期时间 ([#43](https://github.com/continew-org/continew-starter/pull/43)) @Charles7c
+- 【storage】分片上传会话携带原始文件名并按会话维度隔离复用 ([#28](https://github.com/continew-org/continew-starter/pull/28)) @Charles7c
+
+### 🐛 问题修复
+
+- SonarCloud 代码质量集中治理，修复可靠性缺陷并清理全部 51 个历史问题 ([fdebbd2c](https://github.com/continew-org/continew-starter/commit/fdebbd2c2bae5fb05029e7666b7ffcce6148bbae)) ([#44](https://github.com/continew-org/continew-starter/pull/44)) @Charles7c
+- 【data】数据权限过滤条件构建失败时改为抛出异常阻止查询，不再静默放行 ([7542c49b](https://github.com/continew-org/continew-starter/commit/7542c49b2fd3c455a0bdd3f4135a793fc54fd09d)) @Charles7c
+
 ## [v2.17.0](https://github.com/continew-org/continew-starter/compare/v2.16.1...v2.17.0) (2026-10-06)
 
 ### ✨ 新特性
