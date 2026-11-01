@@ -45,6 +45,7 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Spring Cache 自动配置
@@ -147,16 +148,18 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
     private static final class RootTypedWriter implements JacksonObjectWriter {
 
         /**
-         * 缓存的 ObjectWriter（ObjectWriter 不可变且线程安全，声明类型固定为 Object，可复用）
+         * 缓存的 ObjectWriter（ObjectWriter 不可变且线程安全，声明类型固定为 Object，可复用；
+         * AtomicReference 保证并发首次写入时仅保留一个实例，失败方丢弃自建副本）
          */
-        private volatile ObjectWriter objectWriter;
+        private final AtomicReference<ObjectWriter> objectWriter = new AtomicReference<>();
 
         @Override
         public byte[] write(ObjectMapper mapper, Object value) {
-            ObjectWriter writer = this.objectWriter;
+            ObjectWriter writer = this.objectWriter.get();
             if (writer == null) {
                 writer = mapper.writerFor(Object.class);
-                this.objectWriter = writer;
+                this.objectWriter.compareAndSet(null, writer);
+                writer = this.objectWriter.get();
             }
             return writer.writeValueAsBytes(copyFinalMap(value));
         }

@@ -19,7 +19,6 @@ package top.continew.starter.cache.multicache.cache;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -208,6 +207,8 @@ class L2JsonSerializationTest {
         private String bizTag;
 
         public BizFinalMap() {
+            // Jackson 反序列化该 Map 子类依赖默认构造器；显式声明，避免未来新增带参构造器后
+            // 默认构造器被隐式移除，导致序列化静默失效
         }
 
         public String getBizTag() {
@@ -261,7 +262,7 @@ class L2JsonSerializationTest {
         cache.put("dict", Map.of("k", "v"));
         Object decoded = otherNodeManager().getCache(CACHE_NAME).get("dict").get();
         assertEquals(Map.of("k", "v"), decoded, "L2 读回内容必须与原值一致");
-        assertTrue(((Map<?, ?>) decoded).size() == 1, "类型 id 不得混入 Map 内容");
+        assertEquals(1, ((Map<?, ?>) decoded).size(), "类型 id 不得混入 Map 内容");
     }
 
     @Test
