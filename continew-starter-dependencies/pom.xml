@@ -736,6 +736,12 @@
                         </execution>
                     </executions>
                 </plugin>
+                <!-- 应用 repackage 打包插件（版本随底座固定，避免使用方按 latest 解析漂移到里程碑版） -->
+                <plugin>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <version>${spring-boot.version}</version>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
