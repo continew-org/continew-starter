@@ -45,10 +45,11 @@ description: >
 | bom/dependencies 两处 revision 一致 | `grep '<revision>' continew-starter-bom/pom.xml continew-starter-dependencies/pom.xml` | 不一致会导致反应堆解析错位（2.17.0 发版教训：bom 残留 2.16.0，全反应堆按旧版本编译） |
 | 上一个发布 tag 已 fetch 且有提交 | `git fetch origin --tags`，比对本地与远端 tag 取最新为 ${PREV_TAG}，`git log ${PREV_TAG}..HEAD --oneline` | 区间空则停 |
 | 四道静态门禁与单元测试全过 | `./mvnw verify` | 先修到全过（Enforcer → Spotless → Checkstyle → 单测 → SpotBugs，见 AGENTS.md） |
+| 签名密钥未临近过期 | `gpg --list-secret-keys` 看 `expires` 列 | 快过期先续期（`--quick-set-expire`）并 `--send-keys` 重传公钥，否则 deploy 签名失败 |
 
 > 发版文件只有 6 类：`CHANGELOG.md` / `README.md` / `continew-starter-*/pom.xml` /
 > `ContiNewStarterVersion.java` / `.gitignore` / `.github/ISSUE_TEMPLATE/*.yml`。
-> 不检查：origin/dev 领先落后、GPG 私钥、Central 凭证（deploy 时构建工具自己会报）。
+> 不检查：origin/dev 领先落后、Central 凭证（deploy 时构建工具自己会报）。
 
 通过后展示并确认：
 
@@ -100,11 +101,13 @@ README 徽章随发版切换：`badge/SNAPSHOT-vX.Y.Z` → `badge/RELEASE-v${NEW
 
 ### 3. release commit
 
+版本号替换点：两处 `<revision>`、`ContiNewStarterVersion.java` 的 `VERSION` 常量、issue 模板版本示例、README 徽章（见第 2 步）。**必须用二进制替换（`rb` 读、只 replace 版本串、`wb` 写）**：文本模式的 universal newline 会把工作区文件 LF 化，Spotless 期望与仓库存储不一致时第一个模块即拦停（3.0.0 实测，deploy 失败零上传）。
+
 - `git add` 上述 6 类发版文件（README 有改动才加）→ `git commit -m "release: v${NEW_VERSION}"`。
 
 ### 4. ./mvnw clean deploy -Prelease,gpg（最危险，单独确认）
 
-推全部模块的 jar + sources + javadoc + .asc 签名到 Maven Central，**无法撤回**。
+推全部模块的 jar + sources + javadoc + .asc 签名到 Maven Central。成功标志：`Uploaded bundle successfully, deploymentId: …` + `has been validated`；构建中途失败 = 零上传（0.12.0 构建完成后整体打包上传），修复后安全重跑；网页 Publish 后才真正生效且不可撤回。
 签名（`maven-gpg-plugin`）与发布插件都内置在 `release` profile（continew-starter-dependencies/pom.xml），POM 无 `gpg` profile；签名所需的 gpg 可执行文件与口令由使用者本机 settings.xml 的 `gpg` profile 提供，命令显式带 `gpg` 以兼容未常驻激活的环境。
 
 > deploy 成功后 bundle 只是上传，尚未发布：`central-publishing-maven-plugin`（0.12.0，未开启
@@ -121,35 +124,33 @@ git push origin ${NEW_TAG}
 
 （不用 `git push --tags`，避免误推其它本地 tag。）
 
+github.com 连接 reset / 空响应时改走 gh API 重建远端 commit：blob 从 `git cat-file` 对象库取，`POST /git/trees` 用 JSON body 传 base_tree + 条目，最后 `PATCH /git/refs/heads/dev`；交付总结记录 local/remote SHA 对应关系（tree 应一致）。
+
 ### 6. 三平台 release（GitHub 确认一次，Gitee+AtomGit 合并确认一次）
 
+> **前置**：`gh run list --workflow=mirror.yml` 确认 push 触发的镜像 run 已 completed/success（mirror.yml 在每次 push 时自动同步 dev / `3.0.x` 形态维护分支 / 全部 tag 到 Gitee 与 AtomGit，GitHub 是唯一写入点，**不需要也不应该手动向镜像平台 push 代码**）。tag 有时序缺口：tag push 晚于 dev push 时，要等下一次 push 触发，或手动 workflow_dispatch 跑一次 mirror。
+
 > 凭证一律从本机环境变量取，不写入仓库任何文件；工具名随宿主而异，**不要假定某个 MCP 工具一定存在**，
-> 有对应工具就用，没有就走下面的等价命令。
+> 有对应工具就用，没有就走下面的等价命令。宿主进程启动早于环境变量配置时，从注册表 `HKCU\Environment` 读（python winreg）。
 
 - **GitHub**（优先 `gh` CLI）：`gh release create ${NEW_TAG} --title "v${NEW_VERSION}" --generate-notes --target dev`，
   再 `gh release edit ${NEW_TAG} --notes-file <CHANGELOG 段>`——必须两步，把完整 CHANGELOG 盖上去才跟 Gitee 一致。
+  三平台 notes 统一取 CHANGELOG 段并**去掉首行 `## [版本]` 标题**（release 页自带标题与日期，正文重复无意义），Gitee body 需另含 `target_commitish`。段提取：CHANGELOG.md 中 `## [${NEW_TAG}]` 行至下一个 `## [` 行之间（`python -I` 处理，含中文勿用 grep）。
 - **Gitee**：若宿主提供 Gitee MCP 建 release 工具（如 `mcp__gitee__create_release`），传
-  `owner="continew"`、`tag_name=${NEW_TAG}`、`name="v${NEW_VERSION}"`、`body=<同一段>`、`target_commitish="dev"`；
+  `owner="continew"`、`tag_name=${NEW_TAG}`、`name="v${NEW_VERSION}"`、`body=<同一段去标题>`、`target_commitish=<tag 未同步时传 release commit 全 sha 让平台自动建 tag>`；
   否则走 REST：
   ```bash
   curl -X POST "https://gitee.com/api/v5/repos/continew/continew-starter/releases?access_token=${GITEE_TOKEN}" \
     -H "Content-Type: application/json" \
-    -d '{"tag_name":"'${NEW_TAG}'","name":"v'${NEW_VERSION}'","body":"<同一段>","target_commitish":"dev"}'
+    -d '{"tag_name":"'${NEW_TAG}'","name":"v'${NEW_VERSION}'","body":"<同一段>","target_commitish":"'${RELEASE_COMMIT_SHA}'"}'
   ```
   **注意 owner 是 `continew` 不是 `continew-org`。**
 - **AtomGit**（REST API + curl）：
-  仓库已关镜像（2026-10-06 起为普通仓库），无自动同步，需先手动推代码。
-  域名不是笔误：git 远端与网页用 `gitcode.com`，REST API 用 `api.atomgit.com`，同一平台两个入口。
-  `git remote add atomgit https://gitcode.com/continew/continew-starter.git`（首次），
-  `git push atomgit dev && git push atomgit ${NEW_TAG} && git push atomgit ${MAINT_BRANCH}`，然后：
-  （dev 是保护分支：若宿主提供 AtomGit MCP 的分支保护工具（如 `mcp__atomgit__remove_branch_protection`），
-  强推类操作前先解除保护，完成后用
-  `PUT /api/v5/repos/{owner}/{repo}/branches/setting/new` body `{"wildcard":"dev","pushers":"owner","mergers":"owner"}`
-  恢复——MCP 的 protect_branch 工具走旧路径已 405，不可用；无 MCP 时在网页端改分支保护设置。）
+  代码与 tag 由 mirror.yml 自动同步，本步骤只建 release。域名不是笔误：git 远端与网页用 `gitcode.com`，REST API 用 `api.atomgit.com`，同一平台两个入口。
   ```bash
   curl -X POST "https://api.atomgit.com/api/v5/repos/continew/continew-starter/releases?access_token=${ATOMGIT_TOKEN}" \
     -H "Content-Type: application/json" \
-    -d '{"tag_name":"'${NEW_TAG}'","name":"v'${NEW_VERSION}'","body":"<同一段>","target_commitish":"dev"}'
+    -d '{"tag_name":"'${NEW_TAG}'","name":"v'${NEW_VERSION}'","body":"<同一段>","target_commitish":"'${RELEASE_COMMIT_SHA}'"}'
   ```
   创建后必须再 PATCH 一次标记"最新版本"（POST 不带 release_status 字段；PATCH body 缺任何必填字段都 400）：
   ```bash
@@ -159,7 +160,8 @@ git push origin ${NEW_TAG}
   ```
   验证：`GET .../releases/latest` 应返回 ${NEW_TAG}。
   `${ATOMGIT_TOKEN}` / `${GITEE_TOKEN}` 由使用者自行配置到本机环境变量，不得硬编码进任何提交，
-  也不要把本机凭证的存放路径写进仓库文件；接口文档：docs.atomgit.com/docs/apis/post-api-v-5-repos-owner-repo-releases。
+  也不要把本机凭证的存放路径写进仓库文件；Gitee 令牌必须勾选 `projects` scope（401 `no 'projects' scope` = scope 缺失，重建令牌）；
+  接口文档：docs.atomgit.com/docs/apis/post-api-v-5-repos-owner-repo-releases。
   （历史备注：镜像仓库期间 REST 建 release 会 400 "image repository"，必须先同步出 tag——2.17.0 发版时遇到，随后关闭镜像解决。）
 
 ### 7. 维护分支
@@ -172,6 +174,15 @@ git checkout dev
 
 （维护分支只是本次发版的快照，不做任何额外改动。）
 
+### 8. 收口 issue（GitHub 确认一次，Gitee/AtomGit 合并确认一次）
+
+每次发版都解决了一批问题，对应平台的 open issue 应予关闭，但**动作前先出清单等用户确认**：
+
+1. 从 CHANGELOG 段的 fix / 破坏性条目与 `${PREV_TAG}..HEAD` 提交正文提取涉及的平台 issue 编号（GitHub `#N`、Gitee `Gitee#N`）。
+2. 逐平台列 open issue 对照：被本版本解决的给出「建议关闭 + 评论模板」（评论注明修复于 v${NEW_VERSION} 并链接 release 页）；部分修复或等业务回归的保持 open，登记进交付总结。
+3. 用户确认后执行：GitHub `gh issue close <N> -c "<评论>"`；Gitee `PATCH /api/v5/repos/continew/continew-starter/issues/<number>`（body `state=closed`）+ 关闭评论接口；AtomGit 走对应 REST（docs.atomgit.com）。
+4. 关闭属可逆操作（可 reopen），但按铁律仍逐平台确认后执行。
+
 ## 完成
 
 展示最终状态并提醒后续：
@@ -181,7 +192,7 @@ git checkout dev
   - release commit / tag: ${NEW_TAG} (pushed) / maintenance: ${MAINT_BRANCH} (pushed)
   - GitHub: https://github.com/continew-org/continew-starter/releases/tag/${NEW_TAG}
   - Gitee:  https://gitee.com/continew/continew-starter/releases/tag/${NEW_TAG}
-  - AtomGit: <链接或"请手动建">
+  - AtomGit: https://gitcode.com/continew/continew-starter/releases/tag/${NEW_TAG}
   - Maven Central: https://central.sonatype.com/artifact/top.continew.starter/continew-starter/versions
 后续：
   - Central 同步通常 5-30 分钟，期间仓库不可见属正常
