@@ -183,6 +183,15 @@ git checkout dev
 3. 用户确认后执行：GitHub `gh issue close <N> -c "<评论>"`；Gitee `PATCH /api/v5/repos/continew/continew-starter/issues/<number>`（body `state=closed`）+ 关闭评论接口；AtomGit 走对应 REST（docs.atomgit.com）。
 4. 关闭属可逆操作（可 reopen），但按铁律仍逐平台确认后执行。
 
+### 9. 清理分支（可选，清单经用户确认后执行）
+
+发版周期积累的 feat/fix 等分支在合并后失去价值，不知不觉堆积。清理分两层：
+
+1. 列清单：本地 `git branch --merged dev`（已合并进 dev 的）；远端 `gh pr list --state merged --json number,headRefName` 取已合并 PR 的 head 分支。**main / dev / `3.0.x` 形态维护分支永不进名单**。
+2. 用户确认后执行：远端 `gh api -X DELETE repos/continew-org/continew-starter/git/refs/heads/<branch>`；本地 `git branch -D <branch>`——squash 合并的分支不在 dev 历史中，`-d` 会拒删，确认已合并后用 `-D`。
+3. **Gitee/AtomGit 无需处理**：mirror.yml 推送带 `--prune`，GitHub 侧删除的分支会自动从镜像平台移除。
+4. 删除清单与数量记入交付总结。
+
 ## 完成
 
 展示最终状态并提醒后续：
