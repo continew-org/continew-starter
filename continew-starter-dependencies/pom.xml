@@ -94,6 +94,7 @@
         <extra-enforcer-rules.version>1.12.1</extra-enforcer-rules.version>
         <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
         <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
     </properties>
 
@@ -715,6 +716,12 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>${maven-surefire-plugin.version}</version>
                 </plugin>
+                <!-- 集成测试执行插件（与 surefire 同源版本；默认不绑定执行，经根 POM 的 integration profile 激活，运行 *IT 用例） -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>${maven-failsafe-plugin.version}</version>
+                </plugin>
                 <!-- 单元测试覆盖率插件（经 -Psonar 激活，为 Sonar 分析采集单测覆盖率） -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
@@ -798,6 +805,11 @@
                         <configuration>
                             <publishingServerId>central</publishingServerId>
                             <tokenAuth>true</tokenAuth>
+                            <!-- 仅测试用途模块，不入 Central；构件清单发布前需与上一版比对 -->
+                            <excludeArtifacts>
+                                <artifact>continew-starter-test-support</artifact>
+                                <artifact>continew-starter-smoke-tests</artifact>
+                            </excludeArtifacts>
                         </configuration>
                     </plugin>
                 </plugins>

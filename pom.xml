@@ -54,7 +54,21 @@
         <module>continew-starter-storage</module>
         <module>continew-starter-license</module>
         <module>continew-starter-extension</module>
+        <!-- 仅测试用途模块：只在聚合 POM 注册，不进 BOM，不发布 -->
+        <module>continew-starter-test-support</module>
+        <module>continew-starter-smoke-tests</module>
     </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- 仅供各模块 test 依赖免版本引用测试支撑模块；不进 continew-starter-bom，不随发布 BOM 供给使用方 -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>continew-starter-test-support</artifactId>
+                <version>${revision}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
@@ -125,6 +139,45 @@
                                 </goals>
                             </execution>
                         </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- 集成测试模式：Failsafe 运行 *IT 用例（Testcontainers 真实 Redis/MySQL），
+             本机无 Docker 时用例由 @EnabledIfDockerAvailable 自动跳过 -->
+        <profile>
+            <id>integration</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                                <configuration>
+                                    <includes>
+                                        <include>**/*IT.java</include>
+                                    </includes>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!-- 覆盖率模式：激活 JaCoCo 采集测试覆盖率并生成 target/site/jacoco 报告，
+             与 sonar profile 并存（sonar 自行激活 JaCoCo），供 integration workflow 与本地分析使用 -->
+        <profile>
+            <id>coverage</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>
