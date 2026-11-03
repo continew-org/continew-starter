@@ -1,0 +1,68 @@
+name: Integration
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+  workflow_dispatch:
+  schedule:
+    # 每周一 UTC 2:00
+    - cron: '0 2 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  integration:
+    name: Integration tests with coverage
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Set up JDK 25
+        uses: actions/setup-java@dd06d9cba3e5552c54d9f8ea23572deb30010f7c # v6.0.0
+        with:
+          java-version: 25
+          distribution: temurin
+          cache: maven
+      - name: Build and verify with integration tests
+        # verify 触发完整门禁与单元测试；integration 激活 Failsafe 运行 *IT（CI 有 Docker，真实执行）；coverage 激活 JaCoCo 采集覆盖率
+        run: ./mvnw -B verify -Pintegration -Pcoverage
+      - name: Fail on silently skipped integration tests
+        # 防静默跳过：failsafe XML 的 tests 属性包含 skipped 用例，必须扣除后与下限比较，
+        # 否则 Docker 缺失导致全部跳过时守卫仍会放行
+        run: |
+          total=$(python3 <<'PY'
+          import glob
+          import xml.etree.ElementTree as ET
+          total = 0
+          for path in glob.glob('**/target/failsafe-reports/*.xml', recursive=True):
+              root = ET.parse(path).getroot()
+              total += int(root.get('tests', '0')) - int(root.get('skipped', '0'))
+          print(total)
+          PY
+          )
+          echo "Integration tests executed (excluding skipped): $total"
+          if [ "$total" -lt 2 ]; then
+            echo "::error::真实执行的集成测试用例数（$total）低于下限（2），可能全部被跳过"
+            exit 1
+          fi
+      - name: Upload test and coverage reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-and-coverage-reports
+          path: |
+            **/target/failsafe-reports/
+            **/target/surefire-reports/
+            **/target/site/jacoco/
+          if-no-files-found: ignore
+          retention-days: 7
