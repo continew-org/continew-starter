@@ -57,7 +57,9 @@ class AuthRefreshAutoConfigurationContractTest {
      */
     private RedissonClient mockedRedissonClient() {
         RedissonClient redissonClient = mock(RedissonClient.class);
-        when(redissonClient.getTopic(anyString())).thenReturn(mock(RTopic.class));
+        // mock 创建提取到局部变量，避免其抛出的异常被错误归因（Sonar S9016）
+        RTopic invalidationTopic = mock(RTopic.class);
+        when(redissonClient.getTopic(anyString())).thenReturn(invalidationTopic);
         return redissonClient;
     }
 
