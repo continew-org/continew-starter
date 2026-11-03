@@ -1,0 +1,125 @@
+/*
+ * Copyright (c) 2022-present Charles7c Authors. All Rights Reserved.
+ * <p>
+ * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE 3.0;
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * <p>
+ * http://www.gnu.org/licenses/lgpl.html
+ * <p>
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package top.continew.starter.validation.autoconfigure;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.context.MessageSource;
+import org.springframework.context.support.StaticMessageSource;
+import top.continew.starter.test.support.AutoConfigurationImportsAssert;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
+import jakarta.validation.constraints.NotBlank;
+import java.util.Locale;
+import java.util.Set;
+
+/**
+ * 校验模块自动配置契约测试
+ *
+ * <p>固化 ValidationAutoConfiguration 的契约：imports 登记完整性、默认装配、
+ * 快速失败语义与国际化消息源接线。</p>
+ *
+ * <p>本模块无装配开关、无 @ConditionalOnMissingBean 扩展点（Validator 为无条件注册），
+ * 亦无自有 @ConfigurationProperties，故开关、回退与属性绑定用例不适用。装配前提为容器中
+ * 存在 MessageSource（validator Bean 的硬性依赖），各用例以 StaticMessageSource 等价供给。</p>
+ *
+ * @author Charles7c
+ * @since 3.1.0
+ */
+class ValidationAutoConfigurationContractTest {
+
+    private final ApplicationContextRunner runner = new ApplicationContextRunner()
+        .withConfiguration(AutoConfigurations.of(ValidationAutoConfiguration.class));
+
+    /**
+     * classpath 上扫描到的 @AutoConfiguration 类型应全部登记进 imports 资源。
+     *
+     * <p>ValidationAutoConfiguration 仅标注 @AutoConfigureBefore，而本工具只扫描
+     * {@code @AutoConfiguration} 注解类型，当前登记状态即为完整。</p>
+     */
+    @Test
+    void autoConfigurationImportsShouldBeComplete() {
+        assertTrue(
+            AutoConfigurationImportsAssert.findUnregistered("top.continew.starter.validation")
+                .isEmpty());
+    }
+
+    /**
+     * 无装配开关，默认应注册启用快速失败的 Validator。
+     */
+    @Test
+    void validatorShouldRegisterByDefault() {
+        this.runner.withBean(MessageSource.class, StaticMessageSource::new)
+            .run(context -> assertThat(context).hasSingleBean(Validator.class));
+    }
+
+    /**
+     * 校验器应启用快速失败：多字段同时违规时仅返回首个违规（默认行为是收集全部违规）。
+     */
+    @Test
+    void validatorShouldFailFast() {
+        this.runner.withBean(MessageSource.class, StaticMessageSource::new).run(context -> {
+            Validator validator = context.getBean(Validator.class);
+            Set<ConstraintViolation<UserRegistration>> violations =
+                validator.validate(new UserRegistration());
+            assertEquals(1, violations.size());
+        });
+    }
+
+    /**
+     * 校验消息应通过容器 MessageSource 做国际化插值，而非 Hibernate Validator 内置资源束。
+     */
+    @Test
+    void validatorShouldInterpolateMessageFromMessageSource() {
+        StaticMessageSource messageSource = new StaticMessageSource();
+        messageSource.addMessage("contract.not-blank", Locale.getDefault(), "参数不能为空");
+        messageSource.addMessage("contract.not-blank", Locale.ROOT, "参数不能为空");
+        this.runner.withBean(MessageSource.class, () -> messageSource).run(context -> {
+            Validator validator = context.getBean(Validator.class);
+            Set<ConstraintViolation<ValidatedPayload>> violations =
+                validator.validate(new ValidatedPayload());
+            violations.forEach(violation -> assertEquals("参数不能为空", violation.getMessage()));
+        });
+    }
+
+    /**
+     * 双字段违规样例，用于验证快速失败语义。
+     */
+    static class UserRegistration {
+
+        @NotBlank
+        private String username;
+
+        @NotBlank
+        private String mobile;
+    }
+
+    /**
+     * 单字段违规样例，消息占位符指向容器 MessageSource。
+     */
+    static class ValidatedPayload {
+
+        @NotBlank(message = "{contract.not-blank}")
+        private String username;
+    }
+}
