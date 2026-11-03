@@ -9,6 +9,7 @@
 - **依赖版本只改根父 POM**：修改依赖版本只能在 `continew-starter-dependencies/pom.xml` 的版本属性中进行，禁止在各模块 pom.xml 中硬编码版本号。
 - **内部模块依赖统一写 `${project.groupId}`**：模块 POM 与 BOM 中的内部依赖 groupId 一律使用 `${project.groupId}`；版本由 BOM（`${revision}`）统一供给，模块 POM 免写 version；`<parent>` 与项目自身坐标保持字面量。
 - **新增模块需在三处注册**：项目 BOM（`continew-starter-bom/pom.xml`）、聚合 POM 的 `<modules>`（`pom.xml`）；若模块引入配置属性，还须在 `PropertiesConstants` 中定义前缀常量。
+- **仅测试用途模块的注册豁免**：artifactId 以 `-test-support` 或 `-tests` 结尾的模块，只在聚合 POM 注册、不进 BOM，必须设置 `maven.deploy.skip=true` 并加入 release profile `central-publishing-maven-plugin` 的 `excludeArtifacts`，发布前比对构件清单确认未误发布。
 - **自动配置类必须注册到 `AutoConfiguration.imports`**：未注册的配置类不会被加载（参见[配置与自动配置规范](#配置与自动配置规范)）。
 - **交付前自动自检**：AI 生成或修改 Java 源码或影响装配行为的资源（`AutoConfiguration.imports`、`default-*.yml`、模块 pom）后，必须调用 `open-code-review-delegate` 自检（delegate 模式无网关依赖），发现 HIGH 及以上问题先修复再交付，未标注 severity 时按 category 为 bug/security 视同 HIGH。
 - **披露 AI 使用**：当提交中较大部分由 AI 生成时，请在 commit message 末尾追加 trailer，注明实际使用的智能体，例如：
@@ -76,9 +77,15 @@ ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级
 
 # 清理所有 target 目录及 flatten 生成的 .flattened-pom.xml
 ./mvnw clean
+
+# 运行基础设施集成测试（*IT 用例，Testcontainers 真实 Redis/MySQL；本机无 Docker 时由 @EnabledIfDockerAvailable 自动跳过）
+./mvnw -B verify -Pintegration
+
+# 生成本地测试覆盖率报告（target/site/jacoco），与 sonar profile 并存
+./mvnw -B verify -Pcoverage
 ```
 
-单元测试随模块维护（如 `continew-starter-auth-refresh-token` 内置 67 个用例，无外部依赖，本地与 CI 自动执行）。代码改动的验证方式是执行 `./mvnw verify` 确保四道静态门禁与全部单元测试通过。
+单元测试随模块维护（如 `continew-starter-auth-refresh-token` 内置 78 个用例，无外部依赖，本地与 CI 自动执行）。代码改动的验证方式是执行 `./mvnw verify` 确保四道静态门禁与全部单元测试通过。
 
 版本管理：`${revision}` 属性定义在 `continew-starter-dependencies` 与 `continew-starter-bom` 中，`flatten-maven-plugin` 在 `process-resources` 阶段将其解析为实际版本并生成用于发布的简化 `.flattened-pom.xml`，修改版本只需改一处。
 
