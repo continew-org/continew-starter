@@ -99,7 +99,9 @@ class AuthRefreshAutoConfigurationContractTest {
      */
     @Test
     void shouldSkipWhenDisabled() {
-        this.contextRunner.withBean(RedissonClient.class, () -> mock(RedissonClient.class))
+        // mock 创建提取到局部变量，避免其抛出的异常被归因到 withBean 调用（Sonar S9016）
+        RedissonClient disabledRedissonClient = mock(RedissonClient.class);
+        this.contextRunner.withBean(RedissonClient.class, () -> disabledRedissonClient)
             .withPropertyValues("continew-starter.refresh-token.enabled=false")
             .run(context -> {
                 assertThat(context).hasNotFailed();
