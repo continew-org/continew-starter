@@ -157,6 +157,7 @@ class OpenApiSignAutoConfigurationContractTest {
             }
         };
         OpenApiSignAuditSink customSink = event -> {
+            // 默认空实现：审计接收为空操作
         };
         this.contextRunner.withPropertyValues("continew-starter.openapi.enabled=true")
             .withBean("credentialResolver", CredentialResolver.class, () -> customResolver)

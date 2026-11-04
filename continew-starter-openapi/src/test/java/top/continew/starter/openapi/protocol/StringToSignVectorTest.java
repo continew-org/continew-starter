@@ -106,7 +106,7 @@ class StringToSignVectorTest {
             "x-ocn-content-digest:sha-256=" + EMPTY_BODY_DIGEST, "host;x-ocn-content-digest",
             TIMESTAMP,
             "aB3cD5eF7gH9jK2m");
-        assertThat(stringToSign.endsWith("\n")).isFalse();
+        assertThat(stringToSign).doesNotEndWith("\n");
         assertThat(SignatureVerifier.verify(TEST_SECRET_KEY, stringToSign, V1_SIGNATURE)).isTrue();
     }
 
@@ -151,8 +151,7 @@ class StringToSignVectorTest {
         byte[] tamperedBody =
             "{\"amount\":999,\"currency\":\"CNY\"}".getBytes(StandardCharsets.UTF_8);
         String recalculatedDigest = ContentDigest.sha256Hex(tamperedBody);
-        assertThat(recalculatedDigest).isEqualTo(F2_BODY_DIGEST);
-        assertThat(recalculatedDigest).isNotEqualTo(V2_BODY_DIGEST);
+        assertThat(recalculatedDigest).isEqualTo(F2_BODY_DIGEST).isNotEqualTo(V2_BODY_DIGEST);
     }
 
     /**
@@ -166,8 +165,7 @@ class StringToSignVectorTest {
         String tamperedSignature =
             HexFormat.of().formatHex(SignatureVerifier.hmacSha256(TEST_SECRET_KEY,
                 stringToSign));
-        assertThat(tamperedSignature).isEqualTo(F2_SIGNATURE);
-        assertThat(tamperedSignature).isNotEqualTo(V2_SIGNATURE);
+        assertThat(tamperedSignature).isEqualTo(F2_SIGNATURE).isNotEqualTo(V2_SIGNATURE);
     }
 
     /**
@@ -272,26 +270,27 @@ class StringToSignVectorTest {
             + "a".repeat(64);
         assertThatThrownBy(() -> SignHeaderParser.parse(reordered, OpenApiSignProtocol.SCHEME))
             .isInstanceOf(OpenApiSignException.class);
-        assertThatThrownBy(() -> SignHeaderParser
-            .parse(
-                authorization("ak_example_0001", "host", "1730000000", "aB3cD5eF7gH9jK2m",
-                    "a".repeat(64)),
-                OpenApiSignProtocol.SCHEME))
+        String wrongSignedHeaders =
+            authorization("ak_example_0001", "host", "1730000000", "aB3cD5eF7gH9jK2m",
+                "a".repeat(64));
+        assertThatThrownBy(() -> SignHeaderParser.parse(wrongSignedHeaders,
+            OpenApiSignProtocol.SCHEME))
             .isInstanceOf(OpenApiSignException.class);
-        assertThatThrownBy(() -> SignHeaderParser
-            .parse(authorization("ak_example_0001", "host;x-ocn-content-digest", "1730000",
-                "aB3cD5eF7gH9jK2m",
-                "a".repeat(64)), OpenApiSignProtocol.SCHEME))
+        String shortTimestamp =
+            authorization("ak_example_0001", "host;x-ocn-content-digest", "1730000",
+                "aB3cD5eF7gH9jK2m", "a".repeat(64));
+        assertThatThrownBy(() -> SignHeaderParser.parse(shortTimestamp, OpenApiSignProtocol.SCHEME))
             .isInstanceOf(OpenApiSignException.class);
-        assertThatThrownBy(() -> SignHeaderParser
-            .parse(
-                authorization("ak_example_0001", "host;x-ocn-content-digest", "1730000000", "short",
-                    "a".repeat(64)),
-                OpenApiSignProtocol.SCHEME))
+        String shortNonce =
+            authorization("ak_example_0001", "host;x-ocn-content-digest", "1730000000", "short",
+                "a".repeat(64));
+        assertThatThrownBy(() -> SignHeaderParser.parse(shortNonce, OpenApiSignProtocol.SCHEME))
             .isInstanceOf(OpenApiSignException.class);
-        assertThatThrownBy(() -> SignHeaderParser
-            .parse(authorization("ak_example_0001", "host;x-ocn-content-digest", "1730000000",
-                "aB3cD5eF7gH9jK2m", "A".repeat(64)), OpenApiSignProtocol.SCHEME))
+        String uppercaseSignature =
+            authorization("ak_example_0001", "host;x-ocn-content-digest", "1730000000",
+                "aB3cD5eF7gH9jK2m", "A".repeat(64));
+        assertThatThrownBy(() -> SignHeaderParser.parse(uppercaseSignature,
+            OpenApiSignProtocol.SCHEME))
             .isInstanceOf(OpenApiSignException.class);
     }
 

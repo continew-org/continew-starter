@@ -53,6 +53,7 @@ import java.security.MessageDigest;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -130,6 +131,7 @@ public class OpenApiSignFilter extends OncePerRequestFilter {
         String path = resolvePath(request);
         String clientIp = ServletUtils.getClientIP(request);
         String traceId = MDC.get(TRACE_ID_KEY);
+        RequestContext context = new RequestContext(method, path, clientIp, traceId, requestId);
         String accessKey = null;
         Long appId = null;
         String nonceKey = null;
@@ -184,9 +186,8 @@ public class OpenApiSignFilter extends OncePerRequestFilter {
             if (!authorizationChecker.check(appId, method, path)) {
                 throw new OpenApiSignException(OpenApiSignErrorCodes.APP_NO_PERMISSION);
             }
-            recordAudit(OpenApiSignAuditEvent.SIGN_SUCCESS, appId, accessKey, method, path, null,
-                requestId,
-                traceId, clientIp);
+            recordAudit(context, appId, accessKey,
+                new AuditOutcome(OpenApiSignAuditEvent.SIGN_SUCCESS, null));
             if (LOGGER.isDebugEnabled()) {
                 // 只记摘要与字节数，请求体原文不进日志
                 LOGGER.debug(
@@ -204,9 +205,7 @@ public class OpenApiSignFilter extends OncePerRequestFilter {
             String eventType = e.getErrorCode() == OpenApiSignErrorCodes.APP_NO_PERMISSION
                 ? OpenApiSignAuditEvent.APP_DENIED
                 : OpenApiSignAuditEvent.SIGN_DENIED;
-            recordAudit(eventType, appId, accessKey, method, path, e.getErrorCode(), requestId,
-                traceId,
-                clientIp);
+            recordAudit(context, appId, accessKey, new AuditOutcome(eventType, e.getErrorCode()));
             LOGGER.debug(
                 "[ContiNew Starter] - Open API signature rejected, method: {}, path: {}, code: {}",
                 method, path, e.getErrorCode().getCode());
@@ -395,7 +394,7 @@ public class OpenApiSignFilter extends OncePerRequestFilter {
             throw new OpenApiSignException(OpenApiSignErrorCodes.APP_DISABLED);
         }
         if (credential.getExpireTime() != null
-            && credential.getExpireTime().isBefore(LocalDateTime.now())) {
+            && credential.getExpireTime().isBefore(LocalDateTime.now(ZoneId.systemDefault()))) {
             throw new OpenApiSignException(OpenApiSignErrorCodes.APP_EXPIRED);
         }
     }
@@ -403,22 +402,25 @@ public class OpenApiSignFilter extends OncePerRequestFilter {
     /**
      * 记录审计事件（accessKey 脱敏后进入事件，密钥与请求体原文不进入）
      *
-     * @param eventType 事件类型
+     * @param context   请求基础信息
      * @param appId     应用 ID（未识别时为 null）
      * @param accessKey 应用访问标识（未识别时为 null）
-     * @param method    HTTP 方法
-     * @param path      请求路径
-     * @param errorCode 失败错误码（成功时为 null）
-     * @param requestId 请求关联 ID
-     * @param traceId   链路追踪 ID（可为 null）
-     * @param clientIp  客户端 IP
+     * @param outcome   审计结果（事件类型与失败错误码，成功时错误码为 null）
      */
-    private void recordAudit(String eventType, Long appId, String accessKey, String method,
-        String path,
-        OpenApiSignErrorCodes errorCode, String requestId, String traceId, String clientIp) {
-        auditSink.record(new OpenApiSignAuditEvent(eventType, appId, OpenApiSignAuditEvent
-            .maskAccessKey(accessKey), method, path, errorCode == null ? null : errorCode.getCode(),
-            requestId, traceId, Instant.now(), clientIp));
+    private void recordAudit(RequestContext context, Long appId, String accessKey,
+        AuditOutcome outcome) {
+        auditSink.accept(OpenApiSignAuditEvent.builder()
+            .eventType(outcome.eventType())
+            .appId(appId)
+            .accessKey(OpenApiSignAuditEvent.maskAccessKey(accessKey))
+            .method(context.method())
+            .path(context.path())
+            .errorCode(outcome.errorCode() == null ? null : outcome.errorCode().getCode())
+            .requestId(context.requestId())
+            .traceId(context.traceId())
+            .occurredAt(Instant.now())
+            .clientIp(context.clientIp())
+            .build());
     }
 
     /**
@@ -488,5 +490,27 @@ public class OpenApiSignFilter extends OncePerRequestFilter {
      */
     private boolean isLowerCaseHex(String value) {
         return value.chars().allMatch(c -> (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'));
+    }
+
+    /**
+     * 请求基础信息（验签全程不变，进入链路前一次构造，供日志与审计复用）
+     *
+     * @param method    HTTP 方法
+     * @param path      请求路径
+     * @param clientIp  客户端 IP
+     * @param traceId   链路追踪 ID（可为 null）
+     * @param requestId 请求关联 ID
+     */
+    private record RequestContext(String method, String path, String clientIp, String traceId,
+        String requestId) {
+    }
+
+    /**
+     * 审计结果（事件类型与失败错误码，成功时错误码为 null）
+     *
+     * @param eventType 事件类型
+     * @param errorCode 失败错误码（成功时为 null）
+     */
+    private record AuditOutcome(String eventType, OpenApiSignErrorCodes errorCode) {
     }
 }

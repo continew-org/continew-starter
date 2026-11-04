@@ -19,6 +19,7 @@ package top.continew.starter.openapi.spi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Clock;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,9 +48,24 @@ public class DefaultReplayGuard implements ReplayGuard {
 
     private final AtomicLong operationCount = new AtomicLong();
 
+    private final Clock clock;
+
+    public DefaultReplayGuard() {
+        this(Clock.systemDefaultZone());
+    }
+
+    /**
+     * 指定时钟构造：过期判定统一取自注入时钟，测试注入可推进时钟替代真实等待
+     *
+     * @param clock 过期判定基准时钟
+     */
+    public DefaultReplayGuard(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     public boolean tryAcquire(String nonceKey, Duration ttl) {
-        long now = System.currentTimeMillis();
+        long now = clock.millis();
         long expireAt = now + ttl.toMillis();
         boolean[] acquired = {false};
         // compute 对同一键串行执行，「过期即重占位」判定不会与并发请求交错
@@ -79,7 +95,7 @@ public class DefaultReplayGuard implements ReplayGuard {
      * 清理已过期的占位条目，防止长期运行后内存缓慢增长
      */
     private void purgeExpired() {
-        long now = System.currentTimeMillis();
+        long now = clock.millis();
         store.entrySet().removeIf(entry -> entry.getValue() <= now);
         LOGGER.debug(
             "[ContiNew Starter] - Default replay guard purged expired nonce entries, remain: {}",

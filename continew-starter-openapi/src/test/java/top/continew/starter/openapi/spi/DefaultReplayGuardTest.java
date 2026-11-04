@@ -20,7 +20,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -63,10 +67,11 @@ class DefaultReplayGuardTest {
      * 占位过期后同键可重新占位
      */
     @Test
-    void expiredEntryShouldBeReplaceable() throws Exception {
-        DefaultReplayGuard guard = new DefaultReplayGuard();
+    void expiredEntryShouldBeReplaceable() {
+        MutableClock clock = new MutableClock(Instant.parse("2025-01-01T00:00:00Z"));
+        DefaultReplayGuard guard = new DefaultReplayGuard(clock);
         assertThat(guard.tryAcquire("nonce-1", Duration.ofMillis(50))).isTrue();
-        Thread.sleep(80);
+        clock.advance(Duration.ofMillis(80));
         assertThat(guard.tryAcquire("nonce-1", Duration.ofSeconds(60))).isTrue();
     }
 
@@ -108,16 +113,48 @@ class DefaultReplayGuardTest {
      * 成功占位同样推进清理节奏：从不 release 的全成功流量下，达到清理间隔时过期条目被清除
      */
     @Test
-    void acquireShouldTriggerPurgeOfExpiredEntries() throws Exception {
-        DefaultReplayGuard guard = new DefaultReplayGuard();
+    void acquireShouldTriggerPurgeOfExpiredEntries() {
+        MutableClock clock = new MutableClock(Instant.parse("2025-01-01T00:00:00Z"));
+        DefaultReplayGuard guard = new DefaultReplayGuard(clock);
         assertThat(guard.tryAcquire("expired-nonce", Duration.ofMillis(1))).isTrue();
-        // 等待首个条目过期，随后仅通过 tryAcquire（无任何 release）累计超过清理间隔
-        Thread.sleep(20);
+        // 推进时钟使首个条目过期，随后仅通过 tryAcquire（无任何 release）累计超过清理间隔
+        clock.advance(Duration.ofMillis(20));
         for (int i = 0; i < 69; i++) {
             assertThat(guard.tryAcquire("nonce-" + i, Duration.ofSeconds(60))).isTrue();
         }
         // 第 64 次成功占位触发过期清理，expired-nonce 已被移除，仅剩 69 个有效占位
         assertThat(guard.size()).isEqualTo(69);
         assertThat(guard.tryAcquire("expired-nonce", Duration.ofSeconds(60))).isTrue();
+    }
+
+    /**
+     * 可推进时钟：用 advance 模拟时间流逝驱动 TTL 过期，替代真实等待
+     */
+    private static final class MutableClock extends Clock {
+
+        private Instant now;
+
+        MutableClock(Instant start) {
+            this.now = start;
+        }
+
+        void advance(Duration duration) {
+            this.now = this.now.plus(duration);
+        }
+
+        @Override
+        public ZoneOffset getZone() {
+            return ZoneOffset.UTC;
+        }
+
+        @Override
+        public Clock withZone(ZoneId zone) {
+            return this;
+        }
+
+        @Override
+        public Instant instant() {
+            return this.now;
+        }
     }
 }

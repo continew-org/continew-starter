@@ -60,29 +60,39 @@ public final class QueryCanonicalizer {
         }
         List<String[]> encodedPairs = new ArrayList<>();
         for (String pair : rawQuery.split(PAIR_SEPARATOR, -1)) {
-            if (pair.isEmpty()) {
-                throw new OpenApiSignException(OpenApiSignErrorCodes.SIGN_HEADER_INVALID);
-            }
-            int separatorIndex = pair.indexOf(KEY_VALUE_SEPARATOR);
-            String rawName = separatorIndex >= 0 ? pair.substring(0, separatorIndex) : pair;
-            String rawValue = separatorIndex >= 0 ? pair.substring(separatorIndex + 1) : null;
-            String name = decode(rawName);
-            if (OpenApiSignProtocol.LEGACY_SIGN_PARAM_NAMES.contains(name)) {
-                throw new OpenApiSignException(OpenApiSignErrorCodes.SIGN_HEADER_INVALID);
-            }
-            String value = rawValue == null ? StringConstants.EMPTY : decode(rawValue);
-            encodedPairs.add(new String[] {percentEncode(name), percentEncode(value)});
+            encodedPairs.add(encodePair(pair));
         }
         encodedPairs.sort(
             Comparator.<String[], String>comparing(pair -> pair[0]).thenComparing(pair -> pair[1]));
         StringBuilder canonical = new StringBuilder();
         for (String[] pair : encodedPairs) {
-            if (canonical.length() > 0) {
+            if (!canonical.isEmpty()) {
                 canonical.append(PAIR_SEPARATOR);
             }
             canonical.append(pair[0]).append(KEY_VALUE_SEPARATOR).append(pair[1]);
         }
         return canonical.toString();
+    }
+
+    /**
+     * 解析并编码单对键值（拆键、解码、旧协议参数判定、百分号编码）
+     *
+     * @param pair 原始键值对（{@code &} 拆分后的片段）
+     * @return 编码后的键值二元组（下标 0 为键，1 为值）
+     */
+    private static String[] encodePair(String pair) {
+        if (pair.isEmpty()) {
+            throw new OpenApiSignException(OpenApiSignErrorCodes.SIGN_HEADER_INVALID);
+        }
+        int separatorIndex = pair.indexOf(KEY_VALUE_SEPARATOR);
+        String rawName = separatorIndex >= 0 ? pair.substring(0, separatorIndex) : pair;
+        String rawValue = separatorIndex >= 0 ? pair.substring(separatorIndex + 1) : null;
+        String name = decode(rawName);
+        if (OpenApiSignProtocol.LEGACY_SIGN_PARAM_NAMES.contains(name)) {
+            throw new OpenApiSignException(OpenApiSignErrorCodes.SIGN_HEADER_INVALID);
+        }
+        String value = rawValue == null ? StringConstants.EMPTY : decode(rawValue);
+        return new String[] {percentEncode(name), percentEncode(value)};
     }
 
     /**

@@ -29,9 +29,9 @@ package top.continew.starter.openapi.audit;
 public interface OpenApiSignAuditSink {
 
     /**
-     * 记录审计事件
+     * 接收审计事件
      *
      * @param event 审计事件
      */
-    void record(OpenApiSignAuditEvent event);
+    void accept(OpenApiSignAuditEvent event);
 }

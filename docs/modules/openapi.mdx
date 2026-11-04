@@ -244,4 +244,4 @@ signature = 076e7252ba75ee0e116d1c9b49396075681d0590715bf69c81934b6ac8194d56
 
 ## 审计
 
-验签通过、验签拒绝、授权拒绝三类事件通过 `OpenApiSignAuditSink.record(OpenApiSignAuditEvent)` 输出，事件字段含事件类型、应用 ID、脱敏后的 accessKey（前 6 位 + `****` + 后 4 位）、method、path、错误码、请求关联 ID、链路追踪 ID、发生时间与客户端 IP。密钥与请求体原文不进入审计事件，落库与统计由使用方实现。SPI 内部故障（如凭证查询数据库异常）不产生审计事件，须由实现方自行监控。
+验签通过、验签拒绝、授权拒绝三类事件通过 `OpenApiSignAuditSink.accept(OpenApiSignAuditEvent)` 输出，事件字段含事件类型、应用 ID、脱敏后的 accessKey（前 6 位 + `****` + 后 4 位）、method、path、错误码、请求关联 ID、链路追踪 ID、发生时间与客户端 IP。密钥与请求体原文不进入审计事件，落库与统计由使用方实现。SPI 内部故障（如凭证查询数据库异常）不产生审计事件，须由实现方自行监控。

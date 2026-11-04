@@ -94,7 +94,21 @@ public class OpenApiSignAuditEvent {
      */
     private final String clientIp;
 
-    public OpenApiSignAuditEvent(String eventType, Long appId, String accessKey, String method,
+    /**
+     * 私有全参构造：外部统一经由 {@link #builder()} 组装，避免多参构造器误传同型字段
+     *
+     * @param eventType  事件类型（取 SIGN_SUCCESS、SIGN_DENIED、APP_DENIED 之一）
+     * @param appId      应用 ID（未识别时为 null）
+     * @param accessKey  脱敏后的 accessKey
+     * @param method     HTTP 方法
+     * @param path       请求路径（不含 context-path）
+     * @param errorCode  失败错误码（成功时为 null）
+     * @param requestId  请求关联 ID
+     * @param traceId    链路追踪 ID（可为 null）
+     * @param occurredAt 事件发生时间
+     * @param clientIp   客户端 IP
+     */
+    private OpenApiSignAuditEvent(String eventType, Long appId, String accessKey, String method,
         String path, String errorCode, String requestId, String traceId, Instant occurredAt,
         String clientIp) {
         this.eventType = eventType;
@@ -166,5 +180,160 @@ public class OpenApiSignAuditEvent {
             return "****";
         }
         return accessKey.substring(0, 6) + "****" + accessKey.substring(accessKey.length() - 4);
+    }
+
+    /**
+     * 创建审计事件构建器
+     *
+     * @return 审计事件构建器
+     */
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    /**
+     * 审计事件构建器（字段与事件一一对应，链式组装后 {@link #build()} 出不可变事件）
+     */
+    public static class Builder {
+
+        private String eventType;
+
+        private Long appId;
+
+        private String accessKey;
+
+        private String method;
+
+        private String path;
+
+        private String errorCode;
+
+        private String requestId;
+
+        private String traceId;
+
+        private Instant occurredAt;
+
+        private String clientIp;
+
+        /**
+         * 设置事件类型
+         *
+         * @param eventType 事件类型（取 SIGN_SUCCESS、SIGN_DENIED、APP_DENIED 之一）
+         * @return 当前构建器
+         */
+        public Builder eventType(String eventType) {
+            this.eventType = eventType;
+            return this;
+        }
+
+        /**
+         * 设置应用 ID
+         *
+         * @param appId 应用 ID（未识别时为 null）
+         * @return 当前构建器
+         */
+        public Builder appId(Long appId) {
+            this.appId = appId;
+            return this;
+        }
+
+        /**
+         * 设置脱敏后的 accessKey
+         *
+         * @param accessKey 脱敏后的 accessKey
+         * @return 当前构建器
+         */
+        public Builder accessKey(String accessKey) {
+            this.accessKey = accessKey;
+            return this;
+        }
+
+        /**
+         * 设置 HTTP 方法
+         *
+         * @param method HTTP 方法
+         * @return 当前构建器
+         */
+        public Builder method(String method) {
+            this.method = method;
+            return this;
+        }
+
+        /**
+         * 设置请求路径
+         *
+         * @param path 请求路径（不含 context-path）
+         * @return 当前构建器
+         */
+        public Builder path(String path) {
+            this.path = path;
+            return this;
+        }
+
+        /**
+         * 设置失败错误码
+         *
+         * @param errorCode 失败错误码（成功时为 null）
+         * @return 当前构建器
+         */
+        public Builder errorCode(String errorCode) {
+            this.errorCode = errorCode;
+            return this;
+        }
+
+        /**
+         * 设置请求关联 ID
+         *
+         * @param requestId 请求关联 ID
+         * @return 当前构建器
+         */
+        public Builder requestId(String requestId) {
+            this.requestId = requestId;
+            return this;
+        }
+
+        /**
+         * 设置链路追踪 ID
+         *
+         * @param traceId 链路追踪 ID（可为 null）
+         * @return 当前构建器
+         */
+        public Builder traceId(String traceId) {
+            this.traceId = traceId;
+            return this;
+        }
+
+        /**
+         * 设置事件发生时间
+         *
+         * @param occurredAt 事件发生时间
+         * @return 当前构建器
+         */
+        public Builder occurredAt(Instant occurredAt) {
+            this.occurredAt = occurredAt;
+            return this;
+        }
+
+        /**
+         * 设置客户端 IP
+         *
+         * @param clientIp 客户端 IP
+         * @return 当前构建器
+         */
+        public Builder clientIp(String clientIp) {
+            this.clientIp = clientIp;
+            return this;
+        }
+
+        /**
+         * 构建审计事件
+         *
+         * @return 审计事件
+         */
+        public OpenApiSignAuditEvent build() {
+            return new OpenApiSignAuditEvent(eventType, appId, accessKey, method, path, errorCode,
+                requestId, traceId, occurredAt, clientIp);
+        }
     }
 }
