@@ -40,5 +40,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- 测试支撑模块（imports 完整性断言工具，仅测试使用） -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-test-support</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

@@ -21,5 +21,19 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>continew-starter-encrypt-core</artifactId>
         </dependency>
+
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- 测试支撑模块（自动配置 imports 完整性断言工具） -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-test-support</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>

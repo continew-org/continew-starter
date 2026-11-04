@@ -45,6 +45,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- 测试支撑模块（imports 完整性断言工具，仅测试使用） -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-test-support</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <!-- Spring Boot Jackson 支持（仅测试使用：为容器提供 Jackson 3 ObjectMapper Bean，供自动配置装配） -->
         <dependency>
