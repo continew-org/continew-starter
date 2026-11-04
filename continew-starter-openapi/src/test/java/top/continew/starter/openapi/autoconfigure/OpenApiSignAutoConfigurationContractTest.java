@@ -154,6 +154,7 @@ class OpenApiSignAutoConfigurationContractTest {
 
             @Override
             public void release(String nonceKey) {
+                /* 测试桩固定占位成功，无占位可释放 */
             }
         };
         OpenApiSignAuditSink customSink = event -> {

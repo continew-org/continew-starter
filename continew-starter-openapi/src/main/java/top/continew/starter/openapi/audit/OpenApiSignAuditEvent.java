@@ -95,32 +95,21 @@ public class OpenApiSignAuditEvent {
     private final String clientIp;
 
     /**
-     * 私有全参构造：外部统一经由 {@link #builder()} 组装，避免多参构造器误传同型字段
+     * 私有构造：外部统一经由 {@link #builder()} 组装，避免多参构造器误传同型字段
      *
-     * @param eventType  事件类型（取 SIGN_SUCCESS、SIGN_DENIED、APP_DENIED 之一）
-     * @param appId      应用 ID（未识别时为 null）
-     * @param accessKey  脱敏后的 accessKey
-     * @param method     HTTP 方法
-     * @param path       请求路径（不含 context-path）
-     * @param errorCode  失败错误码（成功时为 null）
-     * @param requestId  请求关联 ID
-     * @param traceId    链路追踪 ID（可为 null）
-     * @param occurredAt 事件发生时间
-     * @param clientIp   客户端 IP
+     * @param builder 构建器（含全部事件字段）
      */
-    private OpenApiSignAuditEvent(String eventType, Long appId, String accessKey, String method,
-        String path, String errorCode, String requestId, String traceId, Instant occurredAt,
-        String clientIp) {
-        this.eventType = eventType;
-        this.appId = appId;
-        this.accessKey = accessKey;
-        this.method = method;
-        this.path = path;
-        this.errorCode = errorCode;
-        this.requestId = requestId;
-        this.traceId = traceId;
-        this.occurredAt = occurredAt;
-        this.clientIp = clientIp;
+    private OpenApiSignAuditEvent(Builder builder) {
+        this.eventType = builder.eventType;
+        this.appId = builder.appId;
+        this.accessKey = builder.accessKey;
+        this.method = builder.method;
+        this.path = builder.path;
+        this.errorCode = builder.errorCode;
+        this.requestId = builder.requestId;
+        this.traceId = builder.traceId;
+        this.occurredAt = builder.occurredAt;
+        this.clientIp = builder.clientIp;
     }
 
     public String getEventType() {
@@ -332,8 +321,7 @@ public class OpenApiSignAuditEvent {
          * @return 审计事件
          */
         public OpenApiSignAuditEvent build() {
-            return new OpenApiSignAuditEvent(eventType, appId, accessKey, method, path, errorCode,
-                requestId, traceId, occurredAt, clientIp);
+            return new OpenApiSignAuditEvent(this);
         }
     }
 }
