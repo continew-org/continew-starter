@@ -47,6 +47,11 @@ public class OrderedConstants {
         public static final int XSS_FILTER = Ordered.HIGHEST_PRECEDENCE + 200;
 
         /**
+         * 开放接口验签过滤器顺序（在 API 加密、链路追踪、XSS 之后，日志过滤器与认证拦截器之前）
+         */
+        public static final int OPENAPI_SIGN_FILTER = Ordered.HIGHEST_PRECEDENCE + 250;
+
+        /**
          * 日志过滤器顺序
          */
         public static final int LOG_FILTER = Ordered.LOWEST_PRECEDENCE - 100;
