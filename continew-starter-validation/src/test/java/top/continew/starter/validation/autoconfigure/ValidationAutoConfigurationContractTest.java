@@ -36,12 +36,8 @@ import java.util.Set;
 /**
  * 校验模块自动配置契约测试
  *
- * <p>固化 ValidationAutoConfiguration 的契约：imports 登记完整性、默认装配、
- * 快速失败语义与国际化消息源接线。</p>
- *
- * <p>本模块无装配开关、无 @ConditionalOnMissingBean 扩展点（Validator 为无条件注册），
- * 亦无自有 @ConfigurationProperties，故开关、回退与属性绑定用例不适用。装配前提为容器中
- * 存在 MessageSource（validator Bean 的硬性依赖），各用例以 StaticMessageSource 等价供给。</p>
+ * <p>装配前提为容器中存在 MessageSource（validator Bean 的硬性依赖），
+ * 各用例以 StaticMessageSource 供给。</p>
  *
  * @author Charles7c
  * @since 3.1.0
@@ -54,9 +50,7 @@ class ValidationAutoConfigurationContractTest {
     /**
      * ValidationAutoConfiguration 必须显式登记进 imports 资源。
      *
-     * <p>该入口只标注 {@code @AutoConfigureBefore}，没有 {@code @AutoConfiguration} 注解，
-     * 不在候选扫描结果中；若从 imports 资源移除这一行，下面的显式断言即失败。
-     * 因此对这类非注解入口只能查登记列表，不能靠扫描差集间接判定。</p>
+     * <p>该入口只标注 {@code @AutoConfigureBefore}，不在候选扫描结果中。</p>
      */
     @Test
     void autoConfigurationImportsShouldBeComplete() {

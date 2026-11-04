@@ -21,8 +21,7 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 /**
  * 无附加条件的自动配置探针
  *
- * <p>故意不登记进任何 imports 资源，作为负向验证的基准对照：即便不带任何条件注解，
- * 未登记时也必须被 {@code findUnregistered} 报告。</p>
+ * <p>不登记进任何 imports 资源。</p>
  *
  * @author Charles7c
  * @since 3.1.0

@@ -41,11 +41,11 @@ import java.util.TreeSet;
  * {@link AutoConfiguration} 的顶层具体类型，与 classpath 上全部 {@code AutoConfiguration.imports}
  * 资源中已登记的类型求差集，差集为空即注册完整。</p>
  *
- * <p>本工具只做静态字节码扫描，不评估任何运行时装配条件。Spring Framework 7 在
- * {@code ClassPathScanningCandidateComponentProvider} 的
- * {@code isCandidateComponent(MetadataReader)}
- * 阶段会调用 {@code ConditionEvaluator.shouldSkip}，把默认关闭（如 {@code @ConditionalOnProperty}）
- * 或 Web 环境限定的自动配置提前排除；改用具名资源遍历可避免条件参与筛选，保证漏登记必被发现。</p>
+ * <p>本工具只做静态字节码扫描，不评估任何运行时装配条件。
+ * {@code ClassPathScanningCandidateComponentProvider} 会在
+ * {@code isCandidateComponent(MetadataReader)} 阶段调用
+ * {@code ConditionEvaluator.shouldSkip}，把默认关闭或 Web 环境限定的自动配置提前排除，
+ * 因此不能用于漏登记检查。</p>
  *
  * <p>零候选一律视为配置错误并抛出 {@link IllegalStateException}，绝不静默当作「注册完整」，
  * 以免基础包名写错或过滤过强时给出假阳性结论。</p>

@@ -31,8 +31,8 @@ import top.continew.starter.test.support.AutoConfigurationImportsAssert;
  * XSS 过滤自动配置装配契约测试
  *
  * <p>开关为 {@code continew-starter.security.xss.enabled} 且未声明 {@code matchIfMissing}：
- * 属性默认值虽为启用，但环境未声明该属性时条件不匹配、整体不装配，「注解语义优先于属性默认值」
- * 这条容易误判的契约在此固化。模块同时限定 Web 环境，非 Web 应用即使显式开启也应静默跳过。</p>
+ * 属性默认值虽为启用，但环境未声明该属性时条件不匹配、整体不装配。模块同时限定 Web 环境，
+ * 非 Web 应用即使显式开启也应静默跳过。</p>
  *
  * @author Charles7c
  * @since 3.1.0
@@ -55,8 +55,7 @@ class XssAutoConfigurationContractTest {
     /**
      * 未声明 enabled 属性时应整体跳过装配（无 matchIfMissing，注解语义优先于属性默认值）。
      *
-     * <p>负向断言取过滤器注册 Bean：生产侧仅注册包装对象，XssFilter 本身不是独立 Bean，
-     * 断言它不存在无法证明过滤器未被注册。</p>
+     * <p>生产侧注册 {@code FilterRegistrationBean}，XssFilter 只是其持有的普通实例。</p>
      */
     @Test
     void shouldSkipByDefaultWithoutEnabledProperty() {

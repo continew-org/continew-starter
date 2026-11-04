@@ -22,8 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 /**
  * 仅 Web 环境生效的自动配置探针
  *
- * <p>故意不登记进任何 imports 资源，用于负向验证扫描不受运行时装配条件影响。
- * 单测运行在非 Web 环境，若工具误用条件评估器将被提前排除。</p>
+ * <p>不登记进任何 imports 资源，单测运行在非 Web 环境。</p>
  *
  * @author Charles7c
  * @since 3.1.0

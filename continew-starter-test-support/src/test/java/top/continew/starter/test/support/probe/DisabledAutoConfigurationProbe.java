@@ -22,8 +22,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 /**
  * 默认关闭的自动配置探针
  *
- * <p>故意不登记进任何 imports 资源，用于负向验证扫描不受运行时装配条件影响。
- * 该类型带默认不满足的 {@code @ConditionalOnProperty}，若工具误用条件评估器将被提前排除。</p>
+ * <p>不登记进任何 imports 资源，带默认不满足的 {@code @ConditionalOnProperty}。</p>
  *
  * @author Charles7c
  * @since 3.1.0

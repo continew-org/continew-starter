@@ -31,8 +31,7 @@ import java.util.List;
 /**
  * AutoConfigurationImportsAssert 自身行为的负向验证
  *
- * <p>探针类均为独立顶层类型，标注 {@code @AutoConfiguration} 且故意不登记进任何 imports 资源。
- * 用例覆盖：条件注解不再影响扫描、错误包名零候选保护、已登记模块判定、以及非注解入口的显式登记判定。</p>
+ * <p>探针类均为独立顶层类型，标注 {@code @AutoConfiguration} 且不登记进任何 imports 资源。</p>
  *
  * @author Charles7c
  * @since 3.1.0
@@ -46,8 +45,8 @@ class AutoConfigurationImportsAssertTest {
     /**
      * 条件注解不得影响扫描：默认关闭、Web-only、无条件三个未登记探针都必须被报告。
      *
-     * <p>Spring Framework 7 的 ClassPathScanningCandidateComponentProvider 会在扫描阶段用条件评估器
-     * 提前排除前两类，本用例固化改用字节码元数据遍历后的行为。</p>
+     * <p>ClassPathScanningCandidateComponentProvider 会在扫描阶段用条件评估器提前排除前两类，
+     * 探针因此覆盖带条件与无条件两种形态。</p>
      */
     @Test
     void findUnregisteredShouldReportAllProbesRegardlessOfConditions() {

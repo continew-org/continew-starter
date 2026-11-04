@@ -37,10 +37,7 @@ import java.nio.file.Path;
  * License 校验自动配置装配契约测试
  *
  * <p>开关为 {@code continew-starter.license.verifier.enabled}（缺省视为启用）。启用即强制校验：
- * 初始化 Bean 在容器启动阶段真实安装证书，缺证书时必须启动失败而不允许静默放行，该语义通过
- * 失败消息与私有目录隔离在此固化。属性绑定不设独立用例：{@code enabled=false} 时整个配置类连同属性 Bean
- * 一并跳过，而启用场景启动先于属性可观测，契约层无法独立断言。模块各 Bean 均无
- * {@code @ConditionalOnMissingBean}，不设 fallback 用例。</p>
+ * 初始化 Bean 在容器启动阶段真实安装证书，缺证书时必须启动失败而不允许静默放行。</p>
  *
  * @author Charles7c
  * @since 3.1.0
@@ -77,9 +74,7 @@ class LicenseVerifyAutoConfigurationContractTest {
     /**
      * 默认启用且无证书时应启动失败，失败必须来自缺少证书压缩包而非其他环境错误。
      *
-     * <p>store-path 指向用例私有的空目录，避免读取或覆盖系统临时目录中的同名文件；
-     * 打桩硬件探测使流程确定走到证书解压，断言根因链包含「解压失败」以排除硬件探测失败等
-     * 其他 LicenseException 路径。</p>
+     * <p>store-path 指向用例私有的空目录，硬件探测被打桩以保证流程走到证书解压。</p>
      *
      * @param storeDir
      *            用例私有空目录，由 JUnit 在用例结束后清理
