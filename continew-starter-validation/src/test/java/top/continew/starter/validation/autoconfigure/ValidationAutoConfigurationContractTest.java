@@ -52,16 +52,16 @@ class ValidationAutoConfigurationContractTest {
         .withConfiguration(AutoConfigurations.of(ValidationAutoConfiguration.class));
 
     /**
-     * classpath 上扫描到的 @AutoConfiguration 类型应全部登记进 imports 资源。
+     * ValidationAutoConfiguration 必须显式登记进 imports 资源。
      *
-     * <p>ValidationAutoConfiguration 仅标注 @AutoConfigureBefore，而本工具只扫描
-     * {@code @AutoConfiguration} 注解类型，当前登记状态即为完整。</p>
+     * <p>该入口只标注 {@code @AutoConfigureBefore}，没有 {@code @AutoConfiguration} 注解，
+     * 不在候选扫描结果中；若从 imports 资源移除这一行，下面的显式断言即失败。
+     * 因此对这类非注解入口只能查登记列表，不能靠扫描差集间接判定。</p>
      */
     @Test
     void autoConfigurationImportsShouldBeComplete() {
-        assertTrue(
-            AutoConfigurationImportsAssert.findUnregistered("top.continew.starter.validation")
-                .isEmpty());
+        assertTrue(AutoConfigurationImportsAssert
+            .isRegistered(ValidationAutoConfiguration.class));
     }
 
     /**

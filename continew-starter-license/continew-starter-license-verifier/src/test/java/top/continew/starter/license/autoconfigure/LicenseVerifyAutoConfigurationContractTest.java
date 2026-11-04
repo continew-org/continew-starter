@@ -17,21 +17,28 @@
 package top.continew.starter.license.autoconfigure;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mockStatic;
 
 import de.schlichtherle.license.LicenseManager;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.mockito.MockedStatic;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import top.continew.starter.license.bean.LicenseInstallerBean;
-import top.continew.starter.license.exception.LicenseException;
+import top.continew.starter.license.model.LicenseExtraModel;
+import top.continew.starter.license.util.ServerInfoUtils;
 import top.continew.starter.test.support.AutoConfigurationImportsAssert;
+
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  * License 校验自动配置装配契约测试
  *
  * <p>开关为 {@code continew-starter.license.verifier.enabled}（缺省视为启用）。启用即强制校验：
  * 初始化 Bean 在容器启动阶段真实安装证书，缺证书时必须启动失败而不允许静默放行，该语义通过
- * 异常根因链在此固化。属性绑定不设独立用例：{@code enabled=false} 时整个配置类连同属性 Bean
+ * 失败消息与私有目录隔离在此固化。属性绑定不设独立用例：{@code enabled=false} 时整个配置类连同属性 Bean
  * 一并跳过，而启用场景启动先于属性可观测，契约层无法独立断言。模块各 Bean 均无
  * {@code @ConditionalOnMissingBean}，不设 fallback 用例。</p>
  *
@@ -68,30 +75,52 @@ class LicenseVerifyAutoConfigurationContractTest {
     }
 
     /**
-     * 默认启用且无证书时应启动失败，根因链上必须存在 LicenseException。
+     * 默认启用且无证书时应启动失败，失败必须来自缺少证书压缩包而非其他环境错误。
+     *
+     * <p>store-path 指向用例私有的空目录，避免读取或覆盖系统临时目录中的同名文件；
+     * 打桩硬件探测使流程确定走到证书解压，断言根因链包含「解压失败」以排除硬件探测失败等
+     * 其他 LicenseException 路径。</p>
+     *
+     * @param storeDir
+     *            用例私有空目录，由 JUnit 在用例结束后清理
      */
     @Test
-    void shouldFailStartupWithoutLicenseWhenEnabled() {
-        this.contextRunner.run(context -> {
-            Throwable failure = context.getStartupFailure();
-            assertThat(failure).as("启用校验器后缺证书应导致启动失败").isNotNull();
-            assertThat(hasCauseOfType(failure, LicenseException.class))
-                .as("启动失败根因链应包含 LicenseException")
-                .isTrue();
-        });
+    void shouldFailStartupWithoutLicenseWhenEnabled(@TempDir Path storeDir) {
+        try (MockedStatic<ServerInfoUtils> serverInfo = mockStatic(ServerInfoUtils.class)) {
+            serverInfo.when(ServerInfoUtils::getServerInfos).thenReturn(new LicenseExtraModel());
+            this.contextRunner
+                .withPropertyValues("continew-starter.license.verifier.store-path="
+                    + storeDir.toAbsolutePath())
+                .run(context -> {
+                    Throwable failure = context.getStartupFailure();
+                    assertThat(failure).as("启用校验器后缺证书应导致启动失败").isNotNull();
+                    assertThat(hasMessageContaining(failure, "解压失败"))
+                        .as("启动失败应来自缺少证书压缩包，而非硬件探测或配置错误")
+                        .isTrue();
+                    assertThat(Files.exists(storeDir.resolve("clientLicense.zip")))
+                        .as("用例私有目录不得出现证书压缩包，证明未读取共享临时目录")
+                        .isFalse();
+                    assertThat(
+                        Files.exists(storeDir.resolve("clientLicense").resolve("license.lic")))
+                        .as("缺证书时不得产生任何证书解压产物")
+                        .isFalse();
+                });
+        }
     }
 
     /**
-     * 遍历异常根因链判断是否包含目标类型。
+     * 遍历异常根因链判断是否存在包含目标文本的消息。
      *
-     * @param failure 启动失败异常
-     * @param type    目标异常类型
-     * @return 根因链上存在目标类型实例时返回 true
+     * @param failure
+     *            启动失败异常
+     * @param text
+     *            目标消息片段
+     * @return 根因链上存在包含该片段的消息时返回 true
      */
-    private static boolean hasCauseOfType(Throwable failure, Class<? extends Throwable> type) {
+    private static boolean hasMessageContaining(Throwable failure, String text) {
         Throwable current = failure;
         while (current != null) {
-            if (type.isInstance(current)) {
+            if (current.getMessage() != null && current.getMessage().contains(text)) {
                 return true;
             }
             current = current.getCause();

@@ -178,6 +178,17 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
+                        <executions>
+                            <!-- 覆盖父 POM 绑定到 test 阶段的同名执行：集成测试在 integration-test
+                                 阶段写入执行数据，报告必须在 verify 阶段生成才能包含 IT 覆盖 -->
+                            <execution>
+                                <id>jacoco-report</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

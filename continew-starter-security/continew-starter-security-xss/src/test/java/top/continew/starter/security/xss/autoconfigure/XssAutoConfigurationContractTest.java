@@ -54,13 +54,28 @@ class XssAutoConfigurationContractTest {
 
     /**
      * 未声明 enabled 属性时应整体跳过装配（无 matchIfMissing，注解语义优先于属性默认值）。
+     *
+     * <p>负向断言取过滤器注册 Bean：生产侧仅注册包装对象，XssFilter 本身不是独立 Bean，
+     * 断言它不存在无法证明过滤器未被注册。</p>
      */
     @Test
     void shouldSkipByDefaultWithoutEnabledProperty() {
         this.contextRunner.run(context -> {
             assertThat(context).hasNotFailed();
-            assertThat(context).doesNotHaveBean(XssFilter.class);
+            assertThat(context).doesNotHaveBean(FilterRegistrationBean.class);
         });
+    }
+
+    /**
+     * 显式关闭后即使处于 Web 环境也应整体跳过装配。
+     */
+    @Test
+    void shouldSkipWhenExplicitlyDisabled() {
+        this.contextRunner.withPropertyValues("continew-starter.security.xss.enabled=false")
+            .run(context -> {
+                assertThat(context).hasNotFailed();
+                assertThat(context).doesNotHaveBean(FilterRegistrationBean.class);
+            });
     }
 
     /**
@@ -88,7 +103,7 @@ class XssAutoConfigurationContractTest {
             .withPropertyValues("continew-starter.security.xss.enabled=true");
         nonWebRunner.run(context -> {
             assertThat(context).hasNotFailed();
-            assertThat(context).doesNotHaveBean(XssFilter.class);
+            assertThat(context).doesNotHaveBean(FilterRegistrationBean.class);
         });
     }
 
