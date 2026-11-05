@@ -36,3 +36,6 @@ jobs:
       - name: Check configuration reference drift
         # 编译生成 spring-configuration-metadata.json 后，校验配置参考没有失效键或漏项
         run: python3 scripts/check-doc-properties.py
+      - name: Check contract test coverage
+        # 校验每个声明自动配置的模块都有同名装配契约测试，防止契约测试被静默移除
+        run: python3 scripts/check-contract-tests.py
