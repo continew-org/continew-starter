@@ -45,6 +45,8 @@ description: >
 | bom/dependencies 两处 revision 一致 | `grep '<revision>' continew-starter-bom/pom.xml continew-starter-dependencies/pom.xml` | 不一致会导致反应堆解析错位（2.17.0 发版教训：bom 残留 2.16.0，全反应堆按旧版本编译） |
 | 上一个发布 tag 已 fetch 且有提交 | `git fetch origin --tags`，比对本地与远端 tag 取最新为 ${PREV_TAG}，`git log ${PREV_TAG}..HEAD --oneline` | 区间空则停 |
 | 四道静态门禁与单元测试全过 | `./mvnw verify` | 先修到全过（Enforcer → Spotless → Checkstyle → 单测 → SpotBugs，见 AGENTS.md） |
+| 装配契约测试与自动配置模块零漂移 | `python -I scripts/check-contract-tests.py` | 新增/移除模块未同步契约测试，按 3.1.0 门禁固化要求补齐（见 #14） |
+| 配置参考与生成 metadata 无漂移 | `python -I scripts/check-doc-properties.py`（需先 `./mvnw compile -DskipTests` 生成 metadata） | 先补 properties.mdx 缺失键或清理失效键 |
 | 签名密钥未临近过期 | `gpg --list-secret-keys` 看 `expires` 列 | 快过期先续期（`--quick-set-expire`）并 `--send-keys` 重传公钥，否则 deploy 签名失败 |
 
 > 发版文件只有 6 类：`CHANGELOG.md` / `README.md` / `continew-starter-*/pom.xml` /
