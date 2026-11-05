@@ -25,6 +25,9 @@ description: ContiNew Starter 的需求处理方式与规划来源（AtomGit 看
 
 | 版本 | 任务 | 开发者 | 状态 |
 |:-----|:-----|:-------|:----:|
+| 3.0.0 | Spring Boot 4 / JDK 25 结构性迁移：切换 JDK 25 构建基线与 Boot 4 版本组合，替换 Undertow 迁移 Web 自动配置，迁移 Jackson 3 公共 API 与缓存会话序列化 | Charles7c | ✅ |
+| | 自研多级缓存 multicache 替换 JetCache，升级需替换依赖并清空 Redis 存量缓存 | zk020106、Charles7c | ✅ |
+| | 自研统一响应与全局异常处理，移除 graceful-response；Sa-Token 升级至 1.46.0；链路追踪切换至 Micrometer Tracing | Charles7c、luoqiz | ✅ |
 | 2.16.0 | 存储模块增强（预签名 URL、分片上传） | [梓陌](https://gitee.com/dom-w) | ✅ |
 | | 升级适配 Spring Boot 3.5.x、NextDoc4j 1.4.x | Charles7c | ✅ |
 | 2.15.0 | 新增 NextDoc4j API 文档模块 | [梓陌](https://gitee.com/dom-w) | ✅ |

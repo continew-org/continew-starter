@@ -97,6 +97,22 @@ Starter 的可覆盖 Bean 大多标注了 `@ConditionalOnMissingBean`，你自�
 3. 多环境配置下，确认修改的是当前激活 profile 对应的文件；
 4. 与 Starter 内置默认值同名的项（如 Jackson 时区），需在你的 `application.yml` 显式声明才能覆盖。
 
+## 升级到 3.0.0
+
+3.0.0 是含结构性迁移的大版本，以下要点以 [CHANGELOG.md](https://github.com/continew-org/continew-starter/blob/dev/CHANGELOG.md) 的破坏性变更条目为准，逐条说明使用方需要的动作。
+
+**运行环境**：构建与运行基线上移到 Spring Boot 4.1 与 JDK 17+（推荐 JDK 21+，仓库自身以 JDK 25 构建）。Boot 3.x 项目需先完成 Spring Boot 4.1 升级再引入 3.0.0。
+
+**Web 容器**：Boot 4 移除了 Undertow，Starter 已切换为 Tomcat 并完成 CRUD 映射与 LogFilter 兼容修复。此前通过 `spring-boot-starter-undertow` 排除 Tomcat 的项目，需移除 Undertow 依赖与相关定制配置。
+
+**JSON 序列化**：全面迁移至 Jackson 3（`tools.jackson`），不再兼容 Jackson 2，Long 等基础类型的序列化形态有变化。直接依赖 `com.fasterxml.jackson` 包或自行配置 ObjectMapper 的项目，需按 Jackson 3 的包名与 API 迁移，并回归涉及 Long、时间类型与多态序列化的接口。
+
+**统一响应**：自研统一响应与全局异常处理，移除 graceful-response。引入该库的项目需删除对应依赖，并按新的响应结构调整前端对返回体的解析。
+
+**多级缓存**：multicache 替换 JetCache，序列化协议已变化，升级后需替换依赖并**清空 Redis 存量缓存**，否则旧值反序列化会失败。
+
+**其他依赖与语义**：Sa-Token 升级至 1.46.0，链路追踪由 TLog 切换为 Micrometer Tracing（相关依赖与配置需同步调整），CosId 升级至 4.0.2，自定义 `AuthSessionRevocationNotifier` 的实现需适配多实现聚合的 List 注入语义。
+
 ## 版本变更（Changelog）
 
 各版本的新特性、修复与破坏性变更记录维护在仓库的 [CHANGELOG.md](https://github.com/continew-org/continew-starter/blob/dev/CHANGELOG.md) 中，按版本号倒序组织，每条变更附对应的 Commit 与 PR 链接；1.x 与 2.0.0–2.12.2 的历史记录分别在 `CHANGELOG_1.x.x.md`、`CHANGELOG_2.0.0-2.12.2.md`。
