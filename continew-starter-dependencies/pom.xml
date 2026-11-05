@@ -29,7 +29,7 @@
         <justauth.version>1.16.7</justauth.version>
 
         <!-- Database and ORM Versions -->
-        <mybatis-plus.version>3.5.17</mybatis-plus.version>
+        <mybatis-plus.version>3.5.18.1</mybatis-plus.version>
         <mybatis-flex.version>1.11.8</mybatis-flex.version>
         <dynamic-datasource.version>4.6.0</dynamic-datasource.version>
         <p6spy.version>3.9.1</p6spy.version>
@@ -61,7 +61,7 @@
 
         <!-- API Documentation Versions -->
         <nextdoc4j.version>1.5.0</nextdoc4j.version>
-        <springdoc.version>3.1.1</springdoc.version>
+        <springdoc.version>3.2.0</springdoc.version>
         <swagger.version>2.2.55</swagger.version>
 
         <!-- License and Compression Versions -->
@@ -71,9 +71,9 @@
         <!-- HTTP Client and Utilities Versions -->
         <ttl.version>2.14.5</ttl.version>
         <ip2region.version>3.5.7</ip2region.version>
-        <hutool.version>5.8.47</hutool.version>
+        <hutool.version>5.8.48</hutool.version>
         <sensitive-word.version>0.29.5</sensitive-word.version>
-        <snakeyaml.version>2.6</snakeyaml.version>
+        <snakeyaml.version>2.7</snakeyaml.version>
         <nashorn.version>15.7</nashorn.version>
 
         <commons-fileupload.version>1.6.0</commons-fileupload.version>
@@ -86,15 +86,15 @@
         <!-- Maven Plugin Versions -->
         <flatten.version>1.8.0</flatten.version>
         <sonar.version>5.8.0.7211</sonar.version>
-        <jacoco.version>0.8.15</jacoco.version>
+        <jacoco.version>0.8.16</jacoco.version>
         <spotless.version>3.10.4</spotless.version>
-        <checkstyle.version>14.3.0</checkstyle.version>
+        <checkstyle.version>14.4.0</checkstyle.version>
         <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
         <spotbugs.version>4.10.5.0</spotbugs.version>
         <extra-enforcer-rules.version>1.12.1</extra-enforcer-rules.version>
-        <maven-enforcer-plugin.version>3.6.3</maven-enforcer-plugin.version>
-        <maven-surefire-plugin.version>3.5.6</maven-surefire-plugin.version>
-        <maven-failsafe-plugin.version>3.5.6</maven-failsafe-plugin.version>
+        <maven-enforcer-plugin.version>3.7.0</maven-enforcer-plugin.version>
+        <maven-surefire-plugin.version>3.6.1</maven-surefire-plugin.version>
+        <maven-failsafe-plugin.version>3.6.1</maven-failsafe-plugin.version>
         <maven-compiler-plugin.version>3.16.0</maven-compiler-plugin.version>
     </properties>
 
