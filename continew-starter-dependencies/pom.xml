@@ -17,8 +17,8 @@
         <revision>3.1.0-SNAPSHOT</revision>
 
         <!-- Core Framework Versions -->
-        <spring-boot.version>4.1.1</spring-boot.version>
-        <spring-cloud.version>2025.1.3</spring-cloud.version>
+        <spring-boot.version>4.1.2</spring-boot.version>
+        <spring-cloud.version>2025.1.4</spring-cloud.version>
 
         <!-- Cache and Storage Versions -->
         <redisson.version>4.8.0</redisson.version>
@@ -82,6 +82,7 @@
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <commons-io.version>2.22.0</commons-io.version>
         <commons-compress.version>1.28.0</commons-compress.version>
+        <fastjson.version>1.2.84</fastjson.version>
 
         <!-- Maven Plugin Versions -->
         <flatten.version>1.8.0</flatten.version>
@@ -413,6 +414,12 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>${commons-compress.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
             </dependency>
 
             <!-- ContiNew Starter 依赖 -->
