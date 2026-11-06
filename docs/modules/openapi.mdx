@@ -1,0 +1,247 @@
+---
+title: 开放接口签名认证
+description: continew-starter-openapi 基于 HMAC-SHA256 为第三方开放接口提供过滤器统一验签，覆盖签名头解析、body 摘要、时间戳窗口与 nonce 重放防护。
+---
+
+`continew-starter-openapi` 面向第三方开放调用场景，在 Servlet 过滤器层统一完成验签（协议标识 `OCN1-HMAC-SHA256`），业务接口无需自行校验签名。验签通过只证明请求来自持密钥方，「有权访问哪些接口」由使用方通过 `AuthorizationChecker` SPI 判定。
+
+主要特性：
+
+- 精简签名协议：公共参数集中在 `Authorization` 签名头，请求体摘要必进待签串
+- 内置重放防护：时间戳窗口加 nonce 原子占位，占位成功后验签失败时释放占位，保证接入方可重试
+- 扩展点齐备：凭证查询、授权判定、重放防护、审计接收四个 SPI，均带安全默认实现
+- 失败可定位：12 个结构化错误码，密钥与请求体原文不进日志、异常与审计
+
+## 引入依赖
+
+```xml
+<dependency>
+    <groupId>top.continew.starter</groupId>
+    <artifactId>continew-starter-openapi</artifactId>
+</dependency>
+```
+
+<Callout type="info">
+本模块默认关闭，须将 `continew-starter.openapi.enabled` 设为 `true` 显式开启。凭证与应用数据属于业务侧，本模块不持有 AK/SK 存储，需使用方实现 `CredentialResolver` 接入自己的应用表。
+</Callout>
+
+## 配置
+
+配置属性类为 `top.continew.starter.openapi.autoconfigure.OpenApiSignProperties`，各键默认值经 `default-openapi.yml` 供给。
+
+```yaml
+continew-starter:
+  openapi:
+    # 是否启用开放接口验签（缺省视为关闭，使用方必须显式开启）
+    enabled: true
+    # 验签过滤器拦截的路径模式（仅支持 Servlet url-pattern 语法，Ant 风格 ** 不会生效）
+    include-paths: /open/*
+    # 协议标识，当前唯一取值
+    algorithm: OCN1-HMAC-SHA256
+    sign:
+      # 时间戳允许窗口（秒）
+      timestamp-window: 300
+      # 额外时钟偏差容忍（秒）
+      clock-skew: 0
+      # 请求体大小上限（字节）
+      max-body-size: 1048576
+      # 签名头长度上限（字节）
+      max-header-size: 4096
+      # query 长度上限（字节）
+      max-query-size: 8192
+    replay:
+      # nonce 占位有效期（秒），应不小于时间戳窗口（含时钟偏差）的两倍
+      nonce-ttl: 600
+```
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.openapi.enabled` | `Boolean` | `false` | 模块开关（自动配置条件，无 `matchIfMissing`） |
+| `continew-starter.openapi.include-paths` | `List<String>` | `/open/*` | 过滤器拦截路径，验签范围即此清单。仅支持 Servlet url-pattern 语法（精确、`/xxx/*`、`*.ext`、`/`），Ant 风格 `**` 不会生效，装配时对含 `**` 的模式打 WARN |
+| `continew-starter.openapi.algorithm` | `String` | `OCN1-HMAC-SHA256` | 协议标识 |
+| `continew-starter.openapi.sign.timestamp-window` | `Long` | `300` | 时间戳允许窗口（秒），`|now - ts|` 超出即拒绝 |
+| `continew-starter.openapi.sign.clock-skew` | `Long` | `0` | 额外时钟偏差容忍（秒），叠加在窗口之上 |
+| `continew-starter.openapi.sign.max-body-size` | `Long` | `1048576` | 请求体大小上限（字节），超限返回 `E413` |
+| `continew-starter.openapi.sign.max-header-size` | `Integer` | `4096` | 签名头长度上限（字节），超限返回 `E400` |
+| `continew-starter.openapi.sign.max-query-size` | `Integer` | `8192` | query 长度上限（字节），超限返回 `E400` |
+| `continew-starter.openapi.replay.nonce-ttl` | `Long` | `600` | nonce 占位有效期（秒），调整窗口后须同步调整 |
+
+## 签名协议
+
+### 签名头
+
+`Authorization` 头承载全部公共参数，字段间以逗号分隔，字段名大小写敏感：
+
+```
+Authorization: OCN1-HMAC-SHA256 Credential=<accessKey>, SignedHeaders=host;x-ocn-content-digest, Timestamp=<unix秒>, Nonce=<nonce>, Signature=<hex>
+```
+
+| 字段 | 约束 |
+|:-----|:-----|
+| `Credential` | 非空，服务端按它查询凭证 |
+| `SignedHeaders` | 固定 `host;x-ocn-content-digest`，小写、分号分隔、字典序 |
+| `Timestamp` | 10 位十进制 Unix 秒（UTC），不接受毫秒与 ISO8601 |
+| `Nonce` | `[A-Za-z0-9]` 的 16 至 64 位随机串，由密码学安全随机数生成 |
+| `Signature` | 64 位小写 hex |
+
+请求体摘要头必须出现，值格式 `sha-256=<64 位小写 hex>`：
+
+```
+X-Ocn-Content-Digest: sha-256=<body 原文 SHA-256 的 64 位小写 hex>
+```
+
+请求头总长度上限 4096 字节（`Authorization`、`Host`、`X-Ocn-Content-Digest` 逐头校验），同名头重复出现、非 ASCII 头值、query 中出现 `accessKey`、`timestamp`、`nonce`、`sign` 旧协议参数均按 `E400` 拒绝。
+
+### 待签串（string-to-sign）
+
+固定 9 行，行间以 LF 连接，末尾不加换行：
+
+| 行 | 内容 |
+|:---|:-----|
+| 1 | 协议标识 `OCN1-HMAC-SHA256` |
+| 2 | HTTP method（大写） |
+| 3 | 请求路径（不含 query 与 context-path，为空取 `/`） |
+| 4 | canonical query（无 query 时空行） |
+| 5 | `host:<Host 头原值>` |
+| 6 | `x-ocn-content-digest:<摘要头原值>` |
+| 7 | `host;x-ocn-content-digest` |
+| 8 | Timestamp（Unix 秒十进制串） |
+| 9 | Nonce |
+
+### canonical query
+
+1. 取原始 query 按 `&` 拆对，按首个 `=` 拆键值，值内 `=` 保留；
+2. 键与值分别 URL 解码（UTF-8，`+` 还原为空格），再按 RFC 3986 百分号编码（未保留字符为 `A-Z a-z 0-9 - . _ ~`，其余字节转大写 `%XX`）；
+3. 按键的编码后字节序升序排序，键相同按值排序，重复键全部保留；
+4. 以 `=` 连接键值、`&` 连接各对，有键无值写 `key=`。
+
+### body 摘要
+
+摘要对传输的原始字节计算（`SHA-256(body 原文字节)`），不解析、不重排 JSON。GET 等无请求体的请求取空串摘要（`e3b0c442...b7852b855`）。表单请求直接按 `E415` 拒绝，不参与摘要计算。
+
+### 服务端验算顺序
+
+解析头、格式与长度校验、编码校验、query 规范化、multipart/form 判定与 body 大小校验、body 摘要比对、时间戳窗口、nonce 原子占位、凭证查询、应用状态、HMAC 验算、授权判定、审计、放行。任一步失败即返回对应错误码，后续步骤不再执行。摘要比对与签名比较均为常量时间实现。
+
+### 边界规则
+
+- `multipart/form-data` 请求按 `E415` 拒绝，本版协议不覆盖文件上传，开放接口如需上传请定义独立的签名范围
+- `application/x-www-form-urlencoded` 表单请求按 `E415` 拒绝，容器会重新编码表单键值对，接入方按原文计算的摘要无法与服务端对齐
+- body 超过 `max-body-size` 按 `E413` 拒绝，请求体按该上限有界读取，chunked 传输同样受上限保护
+- 字符编码仅接受 UTF-8，其他编码按 `E400` 拒绝
+- 验签过滤器顺序为 `Ordered.HIGHEST_PRECEDENCE + 250`，在 API 加密（先解密）、链路追踪、XSS 之后，认证拦截器与日志过滤器之前
+
+## 快速开始
+
+### 接入方签名
+
+1. 构造待签串（9 行）；
+2. 以 SK 的 UTF-8 字节为密钥计算 `HMAC-SHA256`，输出 64 位小写 hex 作为 `Signature`；
+3. 按头格式组装 `Authorization` 与 `X-Ocn-Content-Digest`。
+
+### 服务端接入
+
+验签所需的业务数据通过三个 SPI 接入，定义同名 Bean 即可替换默认实现：
+
+```java
+@Bean
+public CredentialResolver credentialResolver() {
+    // 按 accessKey 查询应用表，返回密钥与应用状态
+    return accessKey -> appMapper.selectByAccessKey(accessKey)
+        .map(app -> new OpenApiCredential(app.getId(), app.getSecretKey(), app.isDisabled(), app.getExpireTime()));
+}
+
+@Bean
+public AuthorizationChecker authorizationChecker() {
+    // 查询应用-接口清单，未登记即拒绝
+    return (appId, method, path) -> appApiService.exists(appId, method + ":" + path);
+}
+```
+
+默认实现的行为：`CredentialResolver` 返回空（全部请求按凭证无效拒绝）、`AuthorizationChecker` 拒绝全部（安全默认）、`ReplayGuard` 使用 JVM 内存占位、`OpenApiSignAuditSink` 空操作。
+
+<Callout type="warning">
+`ReplayGuard` 默认实现仅适用于单实例部署，多实例部署时各实例 nonce 互不可见，无法全局去重，必须覆盖为集中式存储（如 Redis 的 `setIfAbsent`）实现。nonce 去重键为 `openapi:nonce:<accessKey>:<nonce>`，按应用粒度隔离。
+</Callout>
+
+验签通过后业务层可通过 `OpenAppContextHolder.getContext()` 读取开放应用身份（appId、accessKey、authorizedApi、requestId），上下文在请求结束时自动清理。开放调用没有登录用户，业务层识别开放调用应读取该上下文。
+
+## 测试向量
+
+测试密钥（仅用于测试，不得用于生产）：`{{SECRET_c0c4usr9}}`，host 统一 `api.example.com`，timestamp 统一 `1730000000`。
+
+正例 V1（GET + query + 空 body）：
+
+```
+method          = GET
+path            = /open/api/order/query
+canonical query = page=1&size=20&status=paid
+bodyDigest      = e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+nonce           = aB3cD5eF7gH9jK2m
+
+stringToSign:
+OCN1-HMAC-SHA256
+GET
+/open/api/order/query
+page=1&size=20&status=paid
+host:api.example.com
+x-ocn-content-digest:sha-256=e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+host;x-ocn-content-digest
+1730000000
+aB3cD5eF7gH9jK2m
+
+signature = 769cd5261488441f15900690b4c0bf825a5c51acb5839f16ce0547f433d4ce18
+```
+
+正例 V2（POST + JSON body）：
+
+```
+method          = POST
+path            = /open/api/order/create
+canonical query =（空）
+body            = {"amount":100,"currency":"CNY"}
+bodyDigest      = e40373cbad970f998f7cddcc3b611ca5b1e0cdf3a4e311d86da94103214a848f
+nonce           = nKq2mZp7Rs1TvWx4Yb6Hc
+
+stringToSign:
+OCN1-HMAC-SHA256
+POST
+/open/api/order/create
+
+host:api.example.com
+x-ocn-content-digest:sha-256=e40373cbad970f998f7cddcc3b611ca5b1e0cdf3a4e311d86da94103214a848f
+host;x-ocn-content-digest
+1730000000
+nKq2mZp7Rs1TvWx4Yb6Hc
+
+signature = 076e7252ba75ee0e116d1c9b49396075681d0590715bf69c81934b6ac8194d56
+```
+
+<Callout type="info">
+两个向量的签名值由 JDK 实现与 Node `crypto` 两个独立来源按同一密钥字面量实算并交叉一致后固化，模块内 `StringToSignVectorTest` 持续校验。设计基线文档中的旧签名值因生成时密钥占位符被替换而无法按披露字面量复现，以本页数值为准。
+</Callout>
+
+失败例：把 V2 的 `Timestamp` 改为 `1729998700`（与服务端相差 1300 秒），窗口 300 秒时返回 `E401`；把 V2 的 body 改为 `{"amount":999,"currency":"CNY"}` 而不改摘要头，返回 `E403`（摘要不符），同步篡改摘要头则返回 `E401`（签名不匹配）。
+
+## 错误码
+
+| code | 含义 | HTTP 状态 |
+|:-----|:-----|:----------|
+| `E400` | 签名头缺失、格式错、重复头、长度或字符集违规、query 含旧协议参数 | 400 |
+| `E413` | 请求体超过大小上限 | 413 |
+| `E415` | 签名接口不支持 multipart 请求 | 415 |
+| `E415` | 签名接口不支持 form 表单请求，请使用 JSON 等原文可复现的请求体 | 415 |
+| `E401` | 签名已过期（timestamp 超窗） | 401 |
+| `E409` | nonce 已被使用 | 409 |
+| `E401` | 凭证无效（accessKey 不存在或密钥未配置） | 401 |
+| `E403` | 应用已禁用 | 403 |
+| `E403` | 应用已过期 | 403 |
+| `E403` | 请求体摘要与摘要头不一致 | 403 |
+| `E401` | 签名不匹配 | 401 |
+| `E403` | 应用无权访问该接口 | 403 |
+
+失败响应体为 `{"code":"<错误码>","msg":"<固定文案>","data":null}`，错误文案为固定短语，不拼接异常文本。
+
+## 审计
+
+验签通过、验签拒绝、授权拒绝三类事件通过 `OpenApiSignAuditSink.accept(OpenApiSignAuditEvent)` 输出，事件字段含事件类型、应用 ID、脱敏后的 accessKey（前 6 位 + `****` + 后 4 位）、method、path、错误码、请求关联 ID、链路追踪 ID、发生时间与客户端 IP。密钥与请求体原文不进入审计事件，落库与统计由使用方实现。SPI 内部故障（如凭证查询数据库异常）不产生审计事件，须由实现方自行监控。

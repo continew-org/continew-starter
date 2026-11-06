@@ -51,6 +51,7 @@ jobs:
             storage
             license
             extension
+            openapi
           requireScope: false
           # if true, the PR title must match the commit message
           validateSingleCommit: false
