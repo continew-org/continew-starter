@@ -48,7 +48,7 @@
 
         <!-- Excel Processing Versions -->
         <fastexcel.version>1.3.0</fastexcel.version>
-        <poi.version>5.5.1</poi.version>
+        <poi.version>6.0.0</poi.version>
 
         <!-- File Storage Versions -->
         <x-file-storage.version>2.3.0</x-file-storage.version>
