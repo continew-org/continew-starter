@@ -1,9 +1,9 @@
 ---
 title: 行为验证码
-description: 基于 AJ-Captcha 的行为验证码实现，提供滑动拼图与文字点选两种交互验证，内置内存与 Redis 缓存，并支持接口限流、水印等丰富配置。
+description: 基于 AJ-Captcha 的行为验证码实现，提供滑动拼图、曲线滑动与文字点选三种交互验证，内置内存与 Redis 缓存，并支持接口限流、水印等丰富配置。
 ---
 
-`continew-starter-captcha-behavior` 底层基于 AJ-Captcha，提供滑动拼图（拖动滑块至缺口位置）与文字点选（按顺序点击图片中的文字）两种行为验证方式，内置内存与 Redis 两种缓存实现，并支持接口限流、水印等丰富配置。
+`continew-starter-captcha-behavior` 底层基于 AJ-Captcha，提供滑动拼图（拖动滑块至缺口位置）、曲线滑动（拖动滑块沿曲线轨迹滑动）与文字点选（按顺序点击图片中的文字）三种行为验证方式，内置内存与 Redis 两种缓存实现，并支持接口限流、水印等丰富配置。
 
 ## 引入依赖
 
@@ -24,7 +24,7 @@ description: 基于 AJ-Captcha 的行为验证码实现，提供滑动拼图与�
 |:-------|:-----|:-------|
 | `enabled` | 是否启用（设为 `false` 可关闭自动配置） | `true` |
 | `enable-aes` | 是否开启坐标 AES 加密 | `true` |
-| `type` | 验证码类型：`BLOCKPUZZLE`（滑动拼图）、`CLICKWORD`（文字点选）、`DEFAULT`（两种均实例化） | `BLOCKPUZZLE` |
+| `type` | 验证码类型：`BLOCKPUZZLE`（滑动拼图）、`CURVESLIDER`（曲线滑动）、`CLICKWORD`（文字点选）、`DEFAULT`（全部类型均实例化） | `BLOCKPUZZLE` |
 | `cache-type` | 缓存类型：`DEFAULT`（内存）、`REDIS`、`CUSTOM`（自定义） | `DEFAULT` |
 | `jigsaw-base-map-path` | 滑动拼图底图路径，为空则使用默认底图。支持全路径或 `classpath:` 开头的资源路径；路径下需包含 `original`（底图）与 `slidingBlock`（滑块）两个文件夹 | 无 |
 | `pic-click-base-map-path` | 点选文字底图路径，为空则使用默认底图。支持全路径或 `classpath:` 开头的资源路径，仅一个图片目录 | 无 |

@@ -43,7 +43,7 @@
         <paho-mqttv3.version>1.2.5</paho-mqttv3.version>
 
         <!-- Captcha Versions -->
-        <aj-captcha.version>1.4.0</aj-captcha.version>
+        <aj-captcha.version>2.0.0</aj-captcha.version>
         <easy-captcha.version>1.6.2</easy-captcha.version>
 
         <!-- Excel Processing Versions -->
