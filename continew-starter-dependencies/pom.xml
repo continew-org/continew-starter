@@ -70,7 +70,7 @@
 
         <!-- HTTP Client and Utilities Versions -->
         <ttl.version>2.14.5</ttl.version>
-        <ip2region.version>3.5.7</ip2region.version>
+        <ip2region.version>4.1.0</ip2region.version>
         <hutool.version>5.8.48</hutool.version>
         <sensitive-word.version>0.29.5</sensitive-word.version>
         <snakeyaml.version>2.7</snakeyaml.version>
