@@ -52,7 +52,7 @@
 
         <!-- File Storage Versions -->
         <x-file-storage.version>2.3.0</x-file-storage.version>
-        <aws-sdk.version>2.42.41</aws-sdk.version>
+        <aws-sdk.version>2.57.9</aws-sdk.version>
         <thumbnails.version>0.4.21</thumbnails.version>
 
         <!-- Validation and Response Processing Versions -->
