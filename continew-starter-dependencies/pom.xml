@@ -22,7 +22,7 @@
 
         <!-- Cache and Storage Versions -->
         <redisson.version>4.8.0</redisson.version>
-        <caffeine.version>3.2.0</caffeine.version>
+        <caffeine.version>3.3.1</caffeine.version>
 
         <!-- Security and Authentication Versions -->
         <sa-token.version>1.46.0</sa-token.version>
