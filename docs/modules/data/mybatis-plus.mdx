@@ -202,6 +202,14 @@ public class ExampleApplication {
 ```
 </Callout>
 
+## 4.0 → 4.1 升级须知
+
+本模块传递的 CosId 版本已随 3.1.0 升至 4.1.1。`type: COSID` 的装配行为不变（仍注入内置共享 Bean `__share__SnowflakeId` 生成分布式 ID）。
+
+- **segment 生成器并发跳段缺陷已修复**：CosId 4.0.2 引入的缺陷在并发取号时会让部分号段的 ID 永不发放（浪费但不重复，CosId #1299），4.1.0 已修复。使用 segment 生成器的项目随本次升级获得修复，无需调整配置。
+- **存储模块不再传递 Guava**：自行引入 `cosid-jdbc`、`cosid-spring-redis` 或 `cosid-mongo` 的项目，4.1.0 起这些模块不再传递 Guava（CosId #1271），代码用到 Guava 的需自行声明 `com.google.guava:guava`；`cosid-zookeeper` 经 Apache Curator 仍会带入 Guava。
+- **预取 worker 停机钩子在 starter 下默认关闭**：`cosid.segment.chain.prefetch-worker.shutdown-hook` 在 starter 下自 4.1.1 默认变为 `false`（CosId #1302），停机时预取 worker 改由 Spring lifecycle 在 web server 排空后停止，需提前停止的容器化部署可设回 `true`。
+
 ## 核心依赖
 
 | 依赖 | 描述 |
