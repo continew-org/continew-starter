@@ -61,8 +61,8 @@ jobs:
     name: Verify commit author emails
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    # 仅在提交变动时校验，标题/描述编辑（edited）无需重跑
-    if: github.event.action != 'edited'
+    # 仅在提交变动时校验，标题/描述编辑（edited）无需重跑；Bot 提交的邮箱不绑定账号，跳过
+    if: github.event.action != 'edited' && github.event.pull_request.user.type != 'Bot'
     permissions:
       pull-requests: write
     steps:
