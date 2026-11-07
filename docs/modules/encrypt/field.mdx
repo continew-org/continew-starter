@@ -38,9 +38,9 @@ description: 基于 MyBatis 拦截器的数据库字段加解密：标注 @Field
 
 - `QueryWrapper` / `LambdaQueryWrapper` / `UpdateWrapper` 条件中命中加密列的参数值会被加密，查询完成后恢复为明文
 - 参数级 `@FieldEncrypt` 注解的 String 参数按注解配置加密
-- `resultType=map` 的结果行按键解密：按 MyBatis-Plus 已注册实体声明的加密列匹配列名（大小写不敏感），仅解密命中列且值为字符串的键；未注册实体的场景（如 `TableInfo` 尚未初始化）不处理。同一列名被多个实体声明且加密配置不同时，以先注册的为准，此类场景建议使用实体 `resultType` 获得精确匹配
+- `resultType=map` 的结果行按键解密：按 MyBatis-Plus 已注册实体声明的加密列匹配列名（大小写不敏感），仅解密命中列且值为字符串的键；未注册实体的场景（如 `TableInfo` 尚未初始化）不处理。同一列名被多个实体声明且加密配置不同时，以先注册的为准，此类场景建议使用实体 `resultType` 获得精确匹配。该解密存在两点精度边界：未加密实体与加密实体存在同名列时（如明文表的 `phone`），map 结果行中的该列会被按加密列误解密，默认 fail-fast 模式下表现为解密失败报错；全局加密列并集在首次 map 解密时构建并固化（`AbstractMyBatisInterceptor` 的列映射缓存），其后再完成实体注册（`TableInfo` 初始化）的实体不会进入并集，其加密列在 map 结果行中将持续不处理
 
-不支持自动处理的路径：手写 SQL 字符串拼接（如 `${sql}` 内联传值、非 `#{}` 占位符的动态 SQL）不经过 MyBatis 参数对象，拦截器无法感知，需在业务层自行调用 `EncryptHelper` 加解密；Wrapper 内嵌实体（`wrapper.setEntity(...)`）不参与加密。
+不支持自动处理的路径：手写 SQL 字符串拼接（如 `${sql}` 内联传值、非 `#{}` 占位符的动态 SQL）不经过 MyBatis 参数对象，拦截器无法感知，需在业务层自行调用 `EncryptHelper` 加解密；Wrapper 内嵌实体（`wrapper.setEntity(...)`）不参与加密；`BETWEEN`、`EXISTS` 等复杂条件不在自动加密范围内，加密列的此类条件值以明文参与匹配，无法查到密文数据，需自行调用 `EncryptHelper` 加解密后拼接或改用受支持的操作符。
 
 ## 配置
 
