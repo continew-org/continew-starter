@@ -24,6 +24,8 @@ import static org.mockito.Mockito.when;
 
 import cn.hutool.core.util.ReflectUtil;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import org.apache.ibatis.binding.BindingException;
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMap;
@@ -106,6 +108,32 @@ class MyBatisEncryptInterceptorBehaviorTest {
         Executor executor = this.mockWriteExecutor((param, captured) -> this
             .collectPhoneValues(param, captured));
         this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
+        assertThat(user.phone).isEqualTo(PHONE);
+    }
+
+    /**
+     * 以真实 MapperMethod.ParamMap 为参数时，替换后的落库参数应保持 ParamMap 类型与
+     * 缺键抛 BindingException 的拼写检查语义，实体照常加密。
+     */
+    @Test
+    void shouldPreserveParamMapSemantics() throws Throwable {
+        User user = new User();
+        user.phone = PHONE;
+        MapperMethod.ParamMap<Object> parameter = new MapperMethod.ParamMap<>();
+        parameter.put("et", user);
+        List<Object> capturedParams = new ArrayList<>();
+        Executor executor = mock(Executor.class);
+        when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
+            Map<?, ?> param = invocation.getArgument(1);
+            capturedParams.add(param);
+            return 1;
+        });
+        this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
+        assertThat(capturedParams).hasSize(1);
+        Object newParameter = capturedParams.get(0);
+        assertThat(newParameter).isInstanceOf(MapperMethod.ParamMap.class);
+        assertThatThrownBy(() -> ((Map<?, ?>) newParameter).get("wrongKey"))
+            .isInstanceOf(BindingException.class);
         assertThat(user.phone).isEqualTo(PHONE);
     }
 

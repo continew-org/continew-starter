@@ -22,6 +22,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.BoundSql;
@@ -139,7 +140,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             return invocation.proceed();
         }
         Map<String, FieldEncrypt> encryptParameterMap = super.getEncryptParameters(mappedStatement);
-        Map<Object, Object> newParameterMap = new HashMap<>(parameterMap.size());
+        Map<Object, Object> newParameterMap = this.newParameterMap(parameterMap);
         IdentityHashMap<Object, Object> copyCache = new IdentityHashMap<>();
         for (Map.Entry<?, ?> entry : parameterMap.entrySet()) {
             newParameterMap.put(entry.getKey(), this.resolveQueryValue(entry.getKey(),
@@ -147,6 +148,21 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         }
         invocation.getArgs()[1] = newParameterMap;
         return invocation.proceed();
+    }
+
+    /**
+     * 构造与原参数同语义的参数容器：ParamMap 保持缺键抛出 BindingException 的拼写检查语义，
+     * 其余场景使用普通 HashMap
+     *
+     * @param parameterMap 原参数 Map
+     * @return 新参数容器
+     */
+    @SuppressWarnings("unchecked")
+    private Map<Object, Object> newParameterMap(Map<?, ?> parameterMap) {
+        if (parameterMap instanceof MapperMethod.ParamMap) {
+            return (Map<Object, Object>) new MapperMethod.ParamMap();
+        }
+        return new HashMap<>(parameterMap.size());
     }
 
     /**
@@ -231,7 +247,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             return null;
         }
         if (value instanceof Map<?, ?> parameterMap) {
-            Map<Object, Object> newParameterMap = new HashMap<>(parameterMap.size());
+            Map<Object, Object> newParameterMap = this.newParameterMap(parameterMap);
             // 先登记新容器再遍历，自引用参数可命中缓存而不会无限递归
             copyCache.put(value, newParameterMap);
             for (Map.Entry<?, ?> entry : parameterMap.entrySet()) {

@@ -22,6 +22,8 @@ description: 基于 MyBatis 拦截器的数据库字段加解密：标注 @Field
 
 加密拦截器 `MyBatisEncryptInterceptor` 与解密拦截器 `MyBatisDecryptInterceptor` 均为标准 MyBatis 插件（`org.apache.ibatis.plugin.Interceptor`），引入依赖后由 mybatis-plus starter 自动注册到 `SqlSessionFactory`，无需手动配置。
 
+> 升级提示：`MyBatisEncryptInterceptor` 自 3.1.0 起改为标准 MyBatis 插件（`org.apache.ibatis.plugin.Interceptor`），由 mybatis-plus starter 自动注册到 `SqlSessionFactory`。若此前手动执行过 `mybatisPlusInterceptor.addInnerInterceptor(new MyBatisEncryptInterceptor())`，请删除该行配置（升级后编译会报错提示）。`MyBatisDecryptInterceptor` 装配方式不变。另：旧版本加密拦截器依赖已配置的 `MybatisPlusInterceptor` 才生效，新版本不再有此依赖。
+
 写入时支持以下参数形态，加密只作用于落库参数（传入实体保持明文原值，不做就地改写），同一实体重复写入不会二次加密；实体拷贝要求具备无参构造：
 
 - 实体（如 MyBatis-Plus 的 `insert` 直传实体）
@@ -74,8 +76,6 @@ continew-starter:
 - **启动期校验（严格模式）**：对称加密算法（`AES`、`DES`、`PBE_WITH_MD5_AND_DES`）要求全局密钥 `continew-starter.encrypt.field.password` 必须配置且长度合法（`AES` 为 16/24/32 字节、`DES` 为 8 字节、`PBE_WITH_MD5_AND_DES` 仅要求非空），不满足时启动失败，异常信息指向具体配置项。
 - **运行期（严格模式）**：加密或解密失败时抛出 `top.continew.starter.encrypt.field.exception.FieldEncryptException`，异常信息包含字段名与算法，不会返回原值写入或读出。
 - **降级模式（`fail-fast: false`）**：跳过启动期校验，运行期失败仅记录警告日志并返回原值，与早期版本行为一致。敏感字段可能以明文落库，仅在存量密文兼容场景下使用。
-
-不支持自动处理的路径：手写 SQL 字符串拼接（如 `${sql}` 内联传值、非 `#{}` 占位符的动态 SQL）不经过 MyBatis 参数对象，拦截器无法感知，需在业务层自行调用 `EncryptHelper` 加解密。
 
 ## 使用 @FieldEncrypt 注解
 
