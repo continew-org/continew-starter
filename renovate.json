@@ -1,0 +1,37 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:best-practices"],
+  "timezone": "Asia/Shanghai",
+  "schedule": ["after 9am on monday"],
+  "semanticCommits": "enabled",
+  "semanticCommitType": "build",
+  "semanticCommitScope": "dependencies",
+  "dependencyDashboard": true,
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 3,
+  "packageRules": [
+    {
+      "description": "Groovy 保持 4.x：Rest Assured 5.5.6 仅支持 Groovy 4，支持 Groovy 5 后删除本条",
+      "matchPackageNames": ["org.apache.groovy:*"],
+      "allowedVersions": "<5"
+    },
+    {
+      "description": "fastjson 与 JustAuth 联动，保留安全更新但不自动合并",
+      "matchPackageNames": ["com.alibaba:fastjson"],
+      "automerge": false,
+      "labels": ["dependencies", "pin-review"]
+    },
+    {
+      "description": "补丁与小版本合一个 PR，先人工审；跑满 3 批稳定后再对 patch 开 automerge",
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "依赖补丁与小版本",
+      "automerge": false
+    },
+    {
+      "description": "大版本独立 PR 人工审，CI 照跑",
+      "matchUpdateTypes": ["major"],
+      "automerge": false,
+      "labels": ["dependencies", "major"]
+    }
+  ]
+}

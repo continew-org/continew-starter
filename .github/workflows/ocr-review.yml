@@ -68,9 +68,13 @@ jobs:
       # 推理深度（low/medium/high/xhigh/max），默认发送 thinking:disabled，
       # 端点不接受该值时需在此显式指定；评审请求与诊断探针共用此值
       # OCR_REASONING_EFFORT: 'low'
-    # 评论触发仅限维护者发送 /continew-code-review 或 @continew-code-review
+    # 评论触发仅限维护者发送 /continew-code-review 或 @continew-code-review；
+    # Bot（如 Renovate）的 PR 不跑 LLM 评审，网关额度留给人工变更
     if: |
-      github.event_name == 'pull_request_target'
+      (
+        github.event_name == 'pull_request_target'
+        && github.event.pull_request.user.type != 'Bot'
+      )
       || (
         github.event_name == 'issue_comment'
         && github.event.issue.pull_request
