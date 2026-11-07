@@ -34,6 +34,12 @@ description: 基于 MyBatis 拦截器的数据库字段加解密：标注 @Field
 
 `UpdateWrapper` 的 `set` 参数中的空串保持空串落库，不会被替换为 `null`；实体加密字段的空串与空白串同样保持原值。
 
+查询时支持以下场景，查询参数与结果的处理对传入对象无副作用：
+
+- `QueryWrapper` / `LambdaQueryWrapper` / `UpdateWrapper` 条件中命中加密列的参数值会被加密，查询完成后恢复为明文
+- 参数级 `@FieldEncrypt` 注解的 String 参数按注解配置加密
+- `resultType=map` 的结果行按键解密：按 MyBatis-Plus 已注册实体声明的加密列匹配列名（大小写不敏感），仅解密命中列且值为字符串的键；未注册实体的场景（如 `TableInfo` 尚未初始化）不处理。同一列名被多个实体声明且加密配置不同时，以先注册的为准，此类场景建议使用实体 `resultType` 获得精确匹配
+
 不支持自动处理的路径：手写 SQL 字符串拼接（如 `${sql}` 内联传值、非 `#{}` 占位符的动态 SQL）不经过 MyBatis 参数对象，拦截器无法感知，需在业务层自行调用 `EncryptHelper` 加解密；Wrapper 内嵌实体（`wrapper.setEntity(...)`）不参与加密。
 
 ## 配置

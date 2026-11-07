@@ -74,6 +74,19 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
     private static final Pattern PARAM_PAIRS_PATTERN = Pattern
         .compile("#\\{ew\\.paramNameValuePairs\\.(" + Constants.WRAPPER_PARAM + "\\d+)\\}");
 
+    /**
+     * 查询条件段中「列名 操作符 占位符」的配对
+     */
+    private static final Pattern QUERY_CONDITION_PAIR = Pattern
+        .compile(
+            "([\\w.`.]+)\\s*(?:=|<>|!=|>=|<=|>|<|(?:NOT\\s+)?(?:LIKE|IN))\\s*\\(?\\s*#\\{ew\\.paramNameValuePairs\\.(\\w+)\\}");
+
+    /**
+     * 查询条件段中全部 pairs 占位符键
+     */
+    private static final Pattern QUERY_PAIRS_KEYS = Pattern
+        .compile("#\\{ew\\.paramNameValuePairs\\.(\\w+)\\}");
+
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
@@ -139,15 +152,26 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         if (!(parameterObject instanceof Map<?, ?> parameterMap)) {
             return invocation.proceed();
         }
+        CryptoSnapshot snapshot = new CryptoSnapshot();
         Map<String, FieldEncrypt> encryptParameterMap = super.getEncryptParameters(mappedStatement);
         Map<Object, Object> newParameterMap = this.newParameterMap(parameterMap);
         IdentityHashMap<Object, Object> copyCache = new IdentityHashMap<>();
-        for (Map.Entry<?, ?> entry : parameterMap.entrySet()) {
-            newParameterMap.put(entry.getKey(), this.resolveQueryValue(entry.getKey(),
-                entry.getValue(), encryptParameterMap, copyCache));
+        try {
+            for (Map.Entry<?, ?> entry : parameterMap.entrySet()) {
+                newParameterMap.put(entry.getKey(), this.resolveQueryValue(entry.getKey(),
+                    entry.getValue(), encryptParameterMap, mappedStatement, snapshot, copyCache));
+            }
+        } catch (Exception e) {
+            snapshot.restore();
+            throw e;
         }
         invocation.getArgs()[1] = newParameterMap;
-        return invocation.proceed();
+        try {
+            return invocation.proceed();
+        } finally {
+            // Wrapper 的条件参数在查询完成后恢复原值
+            snapshot.restore();
+        }
     }
 
     /**
@@ -166,17 +190,22 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
     }
 
     /**
-     * 加密查询单个参数值：参数级注解的 String 值与直接实体替换为加密结果，其余原样保留
+     * 加密查询单个参数值：参数级注解的 String 值与直接实体替换为加密结果，Wrapper 的条件值
+     * 就地加密（快照还原），其余原样保留
      *
      * @param parameterName       参数名
      * @param parameterValue      参数值
      * @param encryptParameterMap 参数级加密注解映射
+     * @param mappedStatement     映射语句
+     * @param snapshot            快照
      * @param copyCache           拷贝缓存
      * @return 处理后的参数值
      */
     private Object resolveQueryValue(Object parameterName,
         Object parameterValue,
         Map<String, FieldEncrypt> encryptParameterMap,
+        MappedStatement mappedStatement,
+        CryptoSnapshot snapshot,
         IdentityHashMap<Object, Object> copyCache) {
         if (parameterValue instanceof String str) {
             FieldEncrypt fieldEncrypt = encryptParameterMap.get(String.valueOf(parameterName));
@@ -185,8 +214,11 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             }
             return parameterValue;
         }
-        if (parameterValue == null || ClassUtil.isBasicType(parameterValue
-            .getClass()) || parameterValue instanceof AbstractWrapper) {
+        if (parameterValue instanceof AbstractWrapper wrapper) {
+            this.encryptQueryWrapper(wrapper, mappedStatement, snapshot);
+            return parameterValue;
+        }
+        if (parameterValue == null || ClassUtil.isBasicType(parameterValue.getClass())) {
             return parameterValue;
         }
         List<Field> fieldList = super.getEncryptFields(parameterValue.getClass());
@@ -200,6 +232,67 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         this.encryptEntity(fieldList, copy);
         copyCache.put(parameterValue, copy);
         return copy;
+    }
+
+    /**
+     * 加密 Wrapper 查询条件的参数值（针对 QueryWrapper、LambdaQueryWrapper 等条件），
+     * 按 AND/OR 切分条件段后配对列名与占位符，命中加密列的参数值就地加密并记录快照
+     *
+     * @param wrapper         Wrapper 参数
+     * @param mappedStatement 映射语句
+     * @param snapshot        快照
+     */
+    private void encryptQueryWrapper(AbstractWrapper wrapper,
+        MappedStatement mappedStatement,
+        CryptoSnapshot snapshot) {
+        Class<?> entityClass = this.getEntityClass(wrapper, mappedStatement);
+        Map<String, FieldEncrypt> columnMap = super.getColumnEncryptAnnotations(entityClass);
+        if (columnMap.isEmpty()) {
+            return;
+        }
+        String sqlSegment = wrapper.getSqlSegment();
+        if (CharSequenceUtil.isBlank(sqlSegment)) {
+            return;
+        }
+        for (String segment : sqlSegment.split("\\s+(?:AND|OR)\\s+")) {
+            this.encryptQueryCondition(wrapper, segment, columnMap, snapshot);
+        }
+    }
+
+    /**
+     * 加密单个查询条件段的参数值，IN 等多占位符条件段的全部参数值同属该列
+     *
+     * @param wrapper   Wrapper 参数
+     * @param segment   条件段
+     * @param columnMap 列名到加密注解映射
+     * @param snapshot  快照
+     */
+    private void encryptQueryCondition(AbstractWrapper wrapper,
+        String segment,
+        Map<String, FieldEncrypt> columnMap,
+        CryptoSnapshot snapshot) {
+        Matcher pairMatcher = QUERY_CONDITION_PAIR.matcher(segment);
+        if (!pairMatcher.find()) {
+            return;
+        }
+        FieldEncrypt fieldEncrypt = columnMap.get(pairMatcher.group(1)
+            .replace("`", "")
+            .toLowerCase());
+        if (fieldEncrypt == null) {
+            return;
+        }
+        Map<String, Object> paramNameValuePairs = wrapper.getParamNameValuePairs();
+        Matcher keysMatcher = QUERY_PAIRS_KEYS.matcher(segment);
+        while (keysMatcher.find()) {
+            String valueKey = keysMatcher.group(1);
+            Object value = paramNameValuePairs.get(valueKey);
+            if (ObjectUtil.isNull(value)) {
+                continue;
+            }
+            snapshot.recordMapEntry(paramNameValuePairs, valueKey, value);
+            paramNameValuePairs.put(valueKey, this.doEncrypt(value, fieldEncrypt, pairMatcher
+                .group(1)));
+        }
     }
 
     /**

@@ -31,7 +31,6 @@ import top.continew.starter.encrypt.field.util.EncryptHelper;
 
 import java.lang.reflect.Field;
 import java.sql.Statement;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -61,9 +60,9 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
         if (obj instanceof List<?> resultList) {
             // 处理列表结果
             this.decryptList(resultList);
-        } else if (obj instanceof Map<?, ?> map) {
-            // 处理Map结果
-            this.decryptMap(map);
+        } else if (obj instanceof Map<?, ?> resultMap) {
+            // 处理 map 结果（resultType=map 的单行结果）
+            this.decryptMapRow(this.toMutableRow(resultMap));
         } else {
             // 处理单个对象结果
             this.decryptObject(obj);
@@ -86,18 +85,6 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
     }
 
     /**
-     * 解密Map结果
-     *
-     * @param resultMap 结果Map
-     */
-    private void decryptMap(Map<?, ?> resultMap) {
-        if (CollUtil.isEmpty(resultMap)) {
-            return;
-        }
-        new HashSet<>(resultMap.values()).forEach(this::decryptObject);
-    }
-
-    /**
      * 解密单个对象结果
      *
      * @param result 结果对象
@@ -108,6 +95,11 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
         }
         // String、Integer、Long 等简单类型对象无需处理
         if (SimpleTypeRegistry.isSimpleType(result.getClass())) {
+            return;
+        }
+        // resultType=map 的结果行为 Map，按实体声明的加密列按键解密
+        if (result instanceof Map<?, ?> resultMap) {
+            this.decryptMapRow(this.toMutableRow(resultMap));
             return;
         }
         // 获取所有字符串类型、需要解密的、有值字段
@@ -126,5 +118,42 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
                 }
             }
         }
+    }
+
+    /**
+     * 按 MyBatis-Plus 已注册实体声明的加密列解密 map 结果行，列名命中加密列且值为字符串时
+     * 解密替换，其余列保持原值
+     *
+     * @param row 结果行
+     */
+    @SuppressWarnings("unchecked")
+    private void decryptMapRow(Map<Object, Object> row) {
+        Map<String, FieldEncrypt> columnMap = super.getGlobalColumnEncryptAnnotations();
+        if (columnMap.isEmpty()) {
+            return;
+        }
+        for (Map.Entry<Object, Object> entry : row.entrySet()) {
+            Object value = entry.getValue();
+            if (!(value instanceof String strValue) || CharSequenceUtil.isBlank(strValue)) {
+                continue;
+            }
+            String columnName = String.valueOf(entry.getKey()).toLowerCase();
+            FieldEncrypt fieldEncrypt = columnMap.get(columnName);
+            if (fieldEncrypt == null) {
+                continue;
+            }
+            entry.setValue(EncryptHelper.decrypt(strValue, fieldEncrypt, columnName));
+        }
+    }
+
+    /**
+     * 转换为键值可替换的结果行视图
+     *
+     * @param resultMap 结果 Map
+     * @return 可替换键值的 Map
+     */
+    @SuppressWarnings("unchecked")
+    private Map<Object, Object> toMutableRow(Map<?, ?> resultMap) {
+        return (Map<Object, Object>) resultMap;
     }
 }

@@ -23,9 +23,15 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import cn.hutool.core.util.ReflectUtil;
+import com.baomidou.mybatisplus.core.MybatisConfiguration;
+import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.binding.MapperMethod;
+import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.ParameterMap;
@@ -85,6 +91,22 @@ class MyBatisEncryptInterceptorBehaviorTest {
         private String phone;
 
         private String name;
+
+        public String getPhone() {
+            return phone;
+        }
+
+        public void setPhone(String phone) {
+            this.phone = phone;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     private final MyBatisEncryptInterceptor interceptor = new MyBatisEncryptInterceptor();
@@ -339,6 +361,83 @@ class MyBatisEncryptInterceptorBehaviorTest {
         assertThat(captured).hasSize(1);
         assertThat(captured.get(0)).isNotEqualTo(PHONE);
         assertThat(user.phone).isEqualTo(PHONE);
+    }
+
+    /**
+     * QueryWrapper 的条件值应在查询期间被加密，查询完成后恢复为明文。
+     */
+    @Test
+    void shouldEncryptQueryWrapperConditionValueAndRestore() throws Throwable {
+        QueryWrapper<User> wrapper = new QueryWrapper<User>().eq("phone", PHONE);
+        List<String> captured = new ArrayList<>();
+        Executor executor = this.mockQueryExecutor(wrapper, captured);
+        this.interceptSelect(executor, wrapper);
+        assertThat(captured).allMatch(value -> !PHONE.equals(value));
+        assertThat(wrapper.getParamNameValuePairs().containsValue(PHONE)).isTrue();
+    }
+
+    /**
+     * LambdaQueryWrapper 的条件值应同样被加密并在查询完成后恢复为明文。
+     */
+    @Test
+    void shouldEncryptLambdaQueryWrapperConditionValueAndRestore() throws Throwable {
+        this.initUserTableInfo();
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<User>().eq(User::getPhone, PHONE);
+        List<String> captured = new ArrayList<>();
+        Executor executor = this.mockQueryExecutor(wrapper, captured);
+        this.interceptSelect(executor, wrapper);
+        assertThat(captured).allMatch(value -> !PHONE.equals(value));
+        assertThat(wrapper.getParamNameValuePairs().containsValue(PHONE)).isTrue();
+    }
+
+    /**
+     * 模拟查询型 Executor：执行期间记录 Wrapper 条件参数的当前值
+     *
+     * @param wrapper  Wrapper 参数
+     * @param captured 捕获结果
+     * @return 已打桩的 Executor
+     * @throws SQLException Executor.query 声明的受检异常
+     */
+    private Executor mockQueryExecutor(AbstractWrapper<?, ?, ?> wrapper, List<String> captured)
+        throws SQLException {
+        Executor executor = mock(Executor.class);
+        when(executor.query(any(MappedStatement.class), any(), any(RowBounds.class),
+            any(ResultHandler.class))).thenAnswer(invocation -> {
+                wrapper.getParamNameValuePairs().forEach((key, value) -> {
+                    if (value instanceof String strValue) {
+                        captured.add(strValue);
+                    }
+                });
+                return new ArrayList<>();
+            });
+        return executor;
+    }
+
+    /**
+     * 通过 Invocation 触发拦截器查询路径
+     *
+     * @param executor 模拟的执行器
+     * @param wrapper  Wrapper 参数
+     * @throws Throwable 拦截异常
+     */
+    private void interceptSelect(Executor executor, AbstractWrapper<?, ?, ?> wrapper)
+        throws Throwable {
+        Method queryMethod = Executor.class.getMethod("query", MappedStatement.class, Object.class,
+            RowBounds.class, ResultHandler.class);
+        Map<String, Object> parameter = new HashMap<>();
+        parameter.put("ew", wrapper);
+        Invocation invocation = new Invocation(executor, queryMethod,
+            new Object[] {updateStatement(SqlCommandType.SELECT), parameter, RowBounds.DEFAULT,
+                mock(ResultHandler.class)});
+        this.interceptor.intercept(invocation);
+    }
+
+    /**
+     * 注册样例实体的 MyBatis-Plus TableInfo（Lambda 列名解析与全局加密列构建依赖）
+     */
+    private void initUserTableInfo() {
+        TableInfoHelper.initTableInfo(new MapperBuilderAssistant(new MybatisConfiguration(), ""),
+            User.class);
     }
 
     /**
