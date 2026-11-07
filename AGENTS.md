@@ -23,7 +23,7 @@
 
 ContiNew Starter（Continue New Starter）是基于 Spring Boot 3.x 的企业级 Starter 库。它遵循"约定优于配置"理念，将一系列经过企业实践验证的第三方库（MyBatis-Plus、Sa-Token、Redisson、Caffeine 等）封装为开箱即用的 Starter，供 Spring Boot Web 应用集成。**这不是一个应用项目**，而是发布到 Maven Central 的多模块 Starter 库，groupId 为 `top.continew.starter`，全部模块版本通过 `${revision}` 属性统一管理。
 
-**当前版本**：3.1.0-SNAPSHOT | **主分支**：`dev` | **构建 JDK**：21+（推荐 25） | **产物字节码**：Java 17 | **构建**：Maven 3.9.16（`./mvnw`，Windows 为 `mvnw.cmd`）
+**当前版本**：3.1.0-SNAPSHOT | **主分支**：`dev` | **构建 JDK**：21+（Enforcer `requireJavaVersion [21,)`，推荐 25） | **产物字节码**：Java 17（`java.version=17` 指编译目标，不表示用 JDK 17 构建） | **构建**：Maven 3.9.16（`./mvnw`，Windows 为 `mvnw.cmd`）
 
 ## 核心架构
 
@@ -137,33 +137,26 @@ Sonar 分析使用 `./mvnw verify -Psonar`（激活 JaCoCo），日常 `./mvnw v
 
 ### 注释风格
 
-注释解释意图、约束与权衡，不复述实现。
+注释只写当前代码的非显然约束。归属映射：修改历史归 commit message，修复原因与旧实现缺陷归 commit 正文或 PR 正文，两者都不进代码注释。
 
-- 不写变更痕迹（"新增""原逻辑"）和对话腔（"我们""这里"）。
-- 不为自解释代码加注释，密度与周围代码一致。
-- 公共 API 用 Javadoc 写契约，实现内部只解释非显然决策。
+以下违规注释出自同生态 ContiNew Admin 的整改记录（PR #251、#255 台账，可核实原文）：
+
+| 违规注释 | 违规点 | 处置 |
+|:--|:--|:--|
+| `// 先记录仍持有超套餐菜单的受影响角色，删除后再查恒为空集，在线刷新会失效` | 时态拼贴，讲的是已修掉的旧缺陷，读者误以为当前仍有问题 | 改为面向当前约束的一句（如「受影响集合须在关联删除前查询」），或直接删除（顺序已由单测锁定） |
+| ` * 回归：菜单权限置空撤销时没有新关联可插入，……` | 「回归：」前缀是变更叙事，正文其余是有效契约说明 | 删前缀，保留契约说明 |
+| `（用例设计稿的 3 秒会被入口校验挡掉，属测试侧设计修正，非产品缺陷）` | 设计稿修订叙事，读者看不到设计稿 | 整句删除；阈值与静置窗口的约束说明保留 |
+| 通用型：`// 输出调试日志` 置于 `log.debug(...)` 上方 | 复述自明代码 | 删除 |
+
+判定手法：写注释时不看 diff，只看当前文件；把注释单独抽出对着最新代码读，读起来像一段修复说明或旁白，即不合格。
+
+- 块注释平实概括一段动作，单行注释解释非显然约束；用代码里已有的词，不另造需要反推的概括。
+- 词表扫描注意假阳性：业务动词「新增与清理共用 compute 串行化」一类（`ConcurrentWebSocketSessionDao`）中的「新增」是操作名而非变更痕迹，属合法注释。
+- 不为自解释代码逐行加注释，密度与周围代码一致；公共 API 用 Javadoc 写契约，实现内部只解释非显然决策。
 
 ### License Header
 
-每个新增 Java 源文件**必须**包含 LGPL-3.0 License Header。Spotless 在 validate 阶段校验，`./mvnw compile -Pformat` 可自动补全。模板位于 [`style/license-header`](style/license-header)：
-
-```java
-/*
- * Copyright (c) 2022-present Charles7c Authors. All Rights Reserved.
- * <p>
- * Licensed under the GNU LESSER GENERAL PUBLIC LICENSE 3.0;
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.gnu.org/licenses/lgpl.html
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-```
+每个新增 Java 源文件**必须**包含 LGPL-3.0 License Header，模板见 [`style/license-header`](style/license-header)。Spotless 在 validate 阶段校验，`./mvnw compile -Pformat` 自动补全，无需手工复制。
 
 ## 配置与自动配置规范
 
@@ -213,16 +206,13 @@ public class XxxAutoConfiguration {
 }
 ```
 
-## Java 版本
-
-- **构建 JDK**：JDK 21 及以上（推荐 25；Enforcer `requireJavaVersion [21,)`，`continew-starter-dependencies/pom.xml:581`），低于 21 会在编译前失败
-- **产物字节码**：Java 17（全项目统一，无向后兼容目标；`java.version=17` → `maven.compiler.release`，`pom.xml:26`）。`java.version=17` 描述的是字节码目标，不表示用 JDK 17 构建
-
 ## PR 约定
 
 所有 PR 必须提交到 `dev` 分支（新功能与功能优化）；维护分支 `x.x.x` 仅接受 bug 修复。请基于目标分支创建特性分支（如 `feat/new-feature`），不要直接修改源分支。遵循 [PR 模板](.github/PULL_REQUEST_TEMPLATE.md)。
 
 **提交格式**：[Conventional Commits（约定式提交）1.0.0](https://www.conventionalcommits.org/zh-hans/v1.0.0/)规范，`<类型>[可选作用域]: <描述>`，破坏性变更在类型或作用域后追加 `!`，如 `feat(cache): 新增 xxx`、`feat!:`。
+
+**PR 正文口吻**：以变更者第一人称视角直接陈述改了什么、为什么改，读者是几个月后另一台机器前的人。不写成对当前审查者的会话回复（「如您所问」「现已修复完成」「请查看」），不带汇报腔（「本 PR 完成了以下工作」）。修复原因与修复前后行为对比写在这里（「解决方案」段），不写进代码注释。
 
 **提交前检查**：
 
@@ -236,34 +226,11 @@ public class XxxAutoConfiguration {
 
 ## 文档（docs/）
 
-本仓库 `docs/` 目录是 ContiNew Starter 官方文档的**唯一权威源**，经 [continew.top](https://github.com/continew-org/continew.top) 官网仓库在构建时汇聚渲染为 `/docs/starter/*`。AI 智能体被指派编写或更新本模块文档时，**在此目录工作**。以下为关键约定；完整写作规范以 continew.top 仓库 `.agents/skills/ocn-doc-writing/SKILL.md` 为**事实源全本**。
+本仓库 `docs/` 目录是 ContiNew Starter 官方文档的**唯一权威源**，经 [continew.top](https://github.com/continew-org/continew.top) 官网仓库构建时汇聚渲染为 `/docs/starter/*`。AI 智能体被指派编写或更新文档时在此目录工作，**开工前必须先读取 [`ocn-doc-writing/SKILL.md`](https://github.com/continew-org/continew.top/blob/main/.agents/skills/ocn-doc-writing/SKILL.md)**（目录结构、frontmatter、链接策略、写作风格禁令的事实源全本），本文件只保留三条硬约束：
 
-### 目录与结构
-
-- **叙事式学习路径**：`index.mdx`（分区入口，只导航不复述正文）+ `guide/`（introduction 是什么/解决什么 → quick-start → configuration）+ `modules/`（功能模块）+ `reference/`（properties/dependencies/faq/changelog）；每个目录含 `meta.json` 声明页面顺序。
-- **多实现模块拆分**：含多个子实现的模块（cache、auth、data、encrypt、security、captcha、messaging、excel、license、extension），按「目录 + 子实现各一篇 + 模块 index 入口」组织，侧边栏可直达具体组件；模块公共内容（如公共配置、核心依赖）放模块 index 页。单实现模块保持单篇。
-- **Root Folder**：`docs/meta.json` 标 `root: true`，构成官网侧边栏顶部的项目切换器。
-
-### frontmatter 与命名
-
-- 每个 `.mdx` 顶部含 `title` 与 `description`（一句话说明本页解决什么问题）；`title` 用**纯中文**（如「数据权限」），模块英文名放 `description`。
-- 链接策略：**跨模块/跨分区引用用绝对路径** `/docs/starter/...`；**同模块/同目录内引用用相对链接**（GitHub 裸看也能跳转）。
-
-### 内容与准确性
-
-- **事实源优先级**：starter 源码（类名/默认值/异常）> continew-admin 实际用法（示例/最佳实践）> 上游官方文档。API 签名以源码为准；示例场景去业务化（不贴 admin 的 `sys_user`、`ignore-menus: 1050` 这类业务数据）；**配置项归 starter，配置值归 admin**。模块文档末尾可加「完整参考实现」链接指向 admin 仓库文件。
-- 依赖坐标不写 `<version>`（由 BOM 供给）；配置以 `continew-starter.<模块>` 为前缀；示例版本号给**具体值**并附 Maven Central 链接。
-- **文档-代码同步**：修改某模块代码（尤其配置项、行为）时，**必须在同一 PR 中同步更新对应文档**；纯文档改动无需跑 `./mvnw verify` 门禁。
-
-### 写作风格（活人感 · 硬禁令）
-
-- 不用破折号 `——`（改分句、括号或另起一句）；不用提示性冒号（「说明：」「通用模式：」，代码块与配置键除外）。
-- 不写翻案腔（「不是 A 而是 B」「值得注意的是」「说白了」「先说结论」）；不写商业黑话（赋能、一站式、无缝、极致、助力、综上所述）。
-- 不把动词名词化；不在末段摘要全文；每个判断后面跟依据（类名/配置键/默认值/报错串/真实用法）。
-
-### 模块 README
-
-各代码模块如需保留 `README.md`，只放「是什么 + 坐标 + 一句话用法 + 完整文档链接」，不复述完整文档。
+- 修改模块代码（尤其配置项、行为）必须在**同一 PR** 中同步更新对应文档，并执行 `python scripts/check-doc-properties.py` 与 `@ConfigurationProperties` 对账（见提交前门禁）；纯文档改动无需跑 `./mvnw verify`。
+- 类名、配置键、默认值、异常串、版本号必须以 **starter 源码的具体值**为准，禁止凭印象；示例场景去业务化，不贴 admin 业务数据；配置项归 starter，配置值归 admin。
+- 多实现模块（cache、auth、data、encrypt 等）按「目录 + 子实现各一篇 + 模块 index 入口」组织；各代码模块的 `README.md` 只放「是什么 + 坐标 + 一句话用法 + 完整文档链接」，不复述完整文档。
 
 ## Agent Skills
 

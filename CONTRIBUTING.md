@@ -37,7 +37,7 @@ ContiNew 系列项目采用清晰的分支策略，确保开发与维护有序�
 
 | 要求 | 说明 |
 |:-----|:-----|
-| JDK 21+（推荐 JDK 25） | 构建需要 JDK 21 及以上（Enforcer `requireJavaVersion [21,)`，`continew-starter-dependencies/pom.xml:581`），产物字节码为 Java 17（与 Spring Boot 4 官方基线对齐） |
+| JDK 21+（推荐 JDK 25） | 构建需要 JDK 21 及以上（Enforcer `requireJavaVersion [21,)`，见 dependencies 父 POM），产物字节码为 Java 17（与 Spring Boot 4 官方基线对齐） |
 | Maven 3.9+ | 推荐直接使用仓库内置的 `./mvnw`（Windows 为 `mvnw.cmd`），无需单独安装 |
 | IDE（可选） | IntelliJ IDEA，可导入项目提供的代码风格配置（见下） |
 
@@ -183,7 +183,7 @@ git push --force-with-lease
 提交 PR 前，请对照以下清单自检：
 
 - [ ] 一个 PR 只解决一个 Issue（只做一件事），不夹带无关改动
-- [ ] 代码遵循已有风格，注释克制（解释意图与约束，不复述实现），符合阿里巴巴《Java 开发手册(黄山版)》
+- [ ] 代码遵循已有风格；注释只写当前代码的非显然约束，不复述实现、不写变更痕迹与修复叙事，符合阿里巴巴《Java 开发手册(黄山版)》
 - [ ] 本地 `./mvnw verify` 四道静态门禁与单元测试全部通过
 - [ ] （可选）已在本地完成 AI 自检。安装 `ocr` CLI 后，在 AI 编码工具中调用 `open-code-review-delegate`；该检查为建议项，不阻塞合并
 - [ ] 如有行为变更，已同步更新相关文档
