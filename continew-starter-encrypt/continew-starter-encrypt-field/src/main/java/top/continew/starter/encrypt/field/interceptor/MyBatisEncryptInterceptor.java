@@ -265,23 +265,22 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         int cursor = 0;
         int length = sqlSegment.length();
         while (cursor < length) {
-            if (!isRegexBlank(sqlSegment.charAt(cursor))) {
-                cursor++;
-                continue;
-            }
-            int keywordStart = cursor;
-            while (cursor < length && isRegexBlank(sqlSegment.charAt(cursor))) {
-                cursor++;
-            }
-            if ((sqlSegment.startsWith("AND", cursor) || sqlSegment.startsWith("OR", cursor))
-                && cursor + 3 < length && isRegexBlank(sqlSegment.charAt(cursor + 3))) {
-                segments.add(sqlSegment.substring(segmentStart, keywordStart));
-                cursor = cursor + 3;
+            if (isRegexBlank(sqlSegment.charAt(cursor))) {
+                int keywordStart = cursor;
                 while (cursor < length && isRegexBlank(sqlSegment.charAt(cursor))) {
                     cursor++;
                 }
-                segmentStart = cursor;
-                continue;
+                if ((sqlSegment.startsWith("AND", cursor) || sqlSegment.startsWith("OR", cursor))
+                    && cursor + 3 < length && isRegexBlank(sqlSegment.charAt(cursor + 3))) {
+                    segments.add(sqlSegment.substring(segmentStart, keywordStart));
+                    cursor = cursor + 3;
+                    while (cursor < length && isRegexBlank(sqlSegment.charAt(cursor))) {
+                        cursor++;
+                    }
+                    segmentStart = cursor;
+                }
+            } else {
+                cursor++;
             }
         }
         segments.add(sqlSegment.substring(segmentStart));
