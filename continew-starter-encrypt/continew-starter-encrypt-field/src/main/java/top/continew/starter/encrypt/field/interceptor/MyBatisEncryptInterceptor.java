@@ -267,17 +267,12 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         while (cursor < length) {
             if (isRegexBlank(sqlSegment.charAt(cursor))) {
                 int keywordStart = cursor;
-                while (cursor < length && isRegexBlank(sqlSegment.charAt(cursor))) {
-                    cursor++;
-                }
-                if ((sqlSegment.startsWith("AND", cursor) || sqlSegment.startsWith("OR", cursor))
-                    && cursor + 3 < length && isRegexBlank(sqlSegment.charAt(cursor + 3))) {
+                cursor = this.skipRegexBlanksForward(sqlSegment, cursor);
+                int separatorEnd = this.resolveConditionSeparatorEnd(sqlSegment, cursor);
+                if (separatorEnd >= 0) {
                     segments.add(sqlSegment.substring(segmentStart, keywordStart));
-                    cursor = cursor + 3;
-                    while (cursor < length && isRegexBlank(sqlSegment.charAt(cursor))) {
-                        cursor++;
-                    }
-                    segmentStart = cursor;
+                    segmentStart = separatorEnd;
+                    cursor = separatorEnd;
                 }
             } else {
                 cursor++;
@@ -285,6 +280,37 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         }
         segments.add(sqlSegment.substring(segmentStart));
         return segments;
+    }
+
+    /**
+     * 判断 cursor 处是否为两侧带空白的 AND、OR（大写）分隔，返回分隔后新条件段的起点，
+     * 非分隔返回 -1
+     *
+     * @param sqlSegment 查询条件 SQL 片段
+     * @param cursor     空白串消费后的位置
+     * @return 分隔后新条件段的起点，非分隔返回 -1
+     */
+    private int resolveConditionSeparatorEnd(String sqlSegment, int cursor) {
+        boolean isSeparator = (sqlSegment.startsWith("AND", cursor)
+            || sqlSegment.startsWith("OR", cursor))
+            && cursor + 3 < sqlSegment.length()
+            && isRegexBlank(sqlSegment.charAt(cursor + 3));
+        return isSeparator ? this.skipRegexBlanksForward(sqlSegment, cursor + 3) : -1;
+    }
+
+    /**
+     * 从指定位置向前跳过空白字符（等价于正则 \s 的字符集）
+     *
+     * @param text 目标文本
+     * @param from 起始位置（含）
+     * @return 空白串后的位置
+     */
+    private int skipRegexBlanksForward(String text, int from) {
+        int cursor = from;
+        while (cursor < text.length() && isRegexBlank(text.charAt(cursor))) {
+            cursor++;
+        }
+        return cursor;
     }
 
     /**
