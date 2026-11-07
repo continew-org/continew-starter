@@ -27,8 +27,8 @@ import top.continew.starter.encrypt.field.annotation.FieldEncrypt;
 import top.continew.starter.encrypt.field.autoconfigure.FieldEncryptProperties;
 import top.continew.starter.encrypt.field.exception.FieldEncryptException;
 
-import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -42,14 +42,14 @@ public class EncryptHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptHelper.class);
 
     /**
-     * 默认加密配置
+     * 加密配置快照（不可变），初始化时固化以隔离多上下文与运行期配置变更
      */
-    private static FieldEncryptProperties defaultProperties;
+    private static volatile EncryptionSnapshot snapshot;
 
     /**
-     * 加密器缓存
+     * 加密器缓存：以加密上下文为键，上下文已实现字段级 equals 与 hashCode，精确匹配无碰撞
      */
-    private static final Map<Integer, IEncryptor> ENCRYPTOR_CACHE = new ConcurrentHashMap<>();
+    private static final Map<CryptoContext, IEncryptor> ENCRYPTOR_CACHE = new ConcurrentHashMap<>();
 
     private EncryptHelper() {
     }
@@ -60,40 +60,22 @@ public class EncryptHelper {
      * @param properties 加密配置
      */
     public static void init(FieldEncryptProperties properties) {
-        defaultProperties = properties;
+        snapshot = new EncryptionSnapshot(Objects.requireNonNull(properties, "properties 不能为空"));
     }
 
     /**
      * 注册加密执行者到缓存
-     * <p>
-     * 计算 CryptoContext 对象的hashCode作为缓存中的key，通过hashCode查询缓存中存在则直接返回，不存在则创建并缓存
-     * </p>
      *
      * @param cryptoContext 加密执行者需要的相关配置参数
      * @return 加密执行者
      */
     public static IEncryptor registerAndGetEncryptor(CryptoContext cryptoContext) {
-        int key = cryptoContext.hashCode();
         Class<? extends IEncryptor> encryptorClass =
             cryptoContext.getEncryptor().equals(IEncryptor.class)
                 ? cryptoContext.getAlgorithm().getEncryptor()
                 : cryptoContext.getEncryptor();
-        return ENCRYPTOR_CACHE.computeIfAbsent(key,
-            k -> ReflectUtil.newInstance(encryptorClass, cryptoContext));
-    }
-
-    /**
-     * 获取字段上的 @FieldEncrypt 注解
-     *
-     * @param obj       对象
-     * @param fieldName 字段名称
-     * @return 字段上的 @FieldEncrypt 注解
-     * @throws NoSuchFieldException /
-     */
-    public static FieldEncrypt getFieldEncrypt(Object obj, String fieldName)
-        throws NoSuchFieldException {
-        Field field = obj.getClass().getDeclaredField(fieldName);
-        return field.getAnnotation(FieldEncrypt.class);
+        return ENCRYPTOR_CACHE.computeIfAbsent(cryptoContext,
+            k -> ReflectUtil.newInstance(encryptorClass, k));
     }
 
     /**
@@ -250,7 +232,7 @@ public class EncryptHelper {
      * @return 是否 fail-fast 模式
      */
     private static boolean isFailFast() {
-        return defaultProperties == null || !Boolean.FALSE.equals(defaultProperties.getFailFast());
+        return snapshot == null || snapshot.isFailFast();
     }
 
     /**
@@ -261,8 +243,8 @@ public class EncryptHelper {
      */
     private static Algorithm resolveAlgorithm(FieldEncrypt fieldEncrypt) {
         Algorithm algorithm = fieldEncrypt.value();
-        if (algorithm == Algorithm.DEFAULT && defaultProperties != null) {
-            algorithm = defaultProperties.getAlgorithm();
+        if (algorithm == Algorithm.DEFAULT && snapshot != null) {
+            algorithm = snapshot.getAlgorithm();
         }
         return algorithm;
     }
@@ -273,7 +255,7 @@ public class EncryptHelper {
      * @return 加密算法
      */
     private static Algorithm resolveGlobalAlgorithm() {
-        return defaultProperties != null ? defaultProperties.getAlgorithm() : null;
+        return snapshot != null ? snapshot.getAlgorithm() : null;
     }
 
     /**
@@ -285,19 +267,19 @@ public class EncryptHelper {
     private static CryptoContext buildCryptoContext(FieldEncrypt fieldEncrypt) {
         CryptoContext cryptoContext = new CryptoContext();
         cryptoContext.setAlgorithm(fieldEncrypt.value() == Algorithm.DEFAULT
-            ? defaultProperties.getAlgorithm()
+            ? snapshot.getAlgorithm()
             : fieldEncrypt.value());
         cryptoContext.setEncryptor(fieldEncrypt.encryptor().equals(IEncryptor.class)
             ? IEncryptor.class
             : fieldEncrypt.encryptor());
         cryptoContext.setPassword(fieldEncrypt.password().isEmpty()
-            ? defaultProperties.getPassword()
+            ? snapshot.getPassword()
             : fieldEncrypt.password());
         cryptoContext.setPrivateKey(fieldEncrypt.privateKey().isEmpty()
-            ? defaultProperties.getPrivateKey()
+            ? snapshot.getPrivateKey()
             : fieldEncrypt.privateKey());
         cryptoContext.setPublicKey(fieldEncrypt.publicKey().isEmpty()
-            ? defaultProperties.getPublicKey()
+            ? snapshot.getPublicKey()
             : fieldEncrypt.publicKey());
         return cryptoContext;
     }
@@ -309,11 +291,55 @@ public class EncryptHelper {
      */
     private static CryptoContext buildCryptoContext() {
         CryptoContext cryptoContext = new CryptoContext();
-        cryptoContext.setAlgorithm(defaultProperties.getAlgorithm());
+        cryptoContext.setAlgorithm(snapshot.getAlgorithm());
         cryptoContext.setEncryptor(IEncryptor.class);
-        cryptoContext.setPassword(defaultProperties.getPassword());
-        cryptoContext.setPrivateKey(defaultProperties.getPrivateKey());
-        cryptoContext.setPublicKey(defaultProperties.getPublicKey());
+        cryptoContext.setPassword(snapshot.getPassword());
+        cryptoContext.setPrivateKey(snapshot.getPrivateKey());
+        cryptoContext.setPublicKey(snapshot.getPublicKey());
         return cryptoContext;
+    }
+
+    /**
+     * 加密配置快照，字段一经构造不可变更
+     */
+    private static final class EncryptionSnapshot {
+
+        private final Algorithm algorithm;
+
+        private final String password;
+
+        private final String publicKey;
+
+        private final String privateKey;
+
+        private final boolean failFast;
+
+        EncryptionSnapshot(FieldEncryptProperties properties) {
+            this.algorithm = properties.getAlgorithm();
+            this.password = properties.getPassword();
+            this.publicKey = properties.getPublicKey();
+            this.privateKey = properties.getPrivateKey();
+            this.failFast = !Boolean.FALSE.equals(properties.getFailFast());
+        }
+
+        Algorithm getAlgorithm() {
+            return algorithm;
+        }
+
+        String getPassword() {
+            return password;
+        }
+
+        String getPublicKey() {
+            return publicKey;
+        }
+
+        String getPrivateKey() {
+            return privateKey;
+        }
+
+        boolean isFailFast() {
+            return failFast;
+        }
     }
 }

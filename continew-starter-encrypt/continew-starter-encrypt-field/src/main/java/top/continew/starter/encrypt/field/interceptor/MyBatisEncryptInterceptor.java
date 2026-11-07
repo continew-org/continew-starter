@@ -21,7 +21,6 @@ import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -34,7 +33,6 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
-import top.continew.starter.core.constant.StringConstants;
 import top.continew.starter.encrypt.field.annotation.FieldEncrypt;
 import top.continew.starter.encrypt.field.exception.FieldEncryptException;
 import top.continew.starter.encrypt.field.util.EncryptHelper;
@@ -71,8 +69,11 @@ import java.util.regex.Pattern;
             CacheKey.class, BoundSql.class})})
 public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implements Interceptor {
 
-    private static final Pattern PARAM_PAIRS_PATTERN = Pattern
-        .compile("#\\{ew\\.paramNameValuePairs\\.(" + Constants.WRAPPER_PARAM + "\\d+)\\}");
+    /**
+     * SQL SET 片段中「列名=占位符」的配对
+     */
+    private static final Pattern SQL_SET_PAIR_PATTERN = Pattern
+        .compile("([\\w.`]+)\\s*=\\s*#\\{ew\\.paramNameValuePairs\\.(\\w+)\\}");
 
     /**
      * 查询条件段中「列名 操作符 占位符」的配对
@@ -426,7 +427,8 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
     }
 
     /**
-     * 加密 Wrapper 的 SET 参数（针对 MP 的 UpdateWrapper、LambdaUpdateWrapper 等参数）
+     * 加密 Wrapper 的 SET 参数（针对 MP 的 UpdateWrapper、LambdaUpdateWrapper 等参数），
+     * 按正则配对「列名=占位符」解析，原样 SQL 片段（如 setSql）与含逗号的内容不会被误切
      *
      * @param wrapper         Wrapper 参数
      * @param mappedStatement 映射语句
@@ -442,34 +444,26 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         if (CharSequenceUtil.isBlank(sqlSet)) {
             return;
         }
-        // 将 name=#{ew.paramNameValuePairs.xxx},age=#{ew.paramNameValuePairs.xxx} 切出来
-        String[] elArr = sqlSet.split(StringConstants.COMMA);
-        Map<String, String> propMap = new HashMap<>(elArr.length);
-        Arrays.stream(elArr).forEach(el -> {
-            String[] elPart = el.split(StringConstants.EQUAL_SIGN);
-            propMap.put(elPart[0], elPart[1]);
-        });
-        // 获取加密字段
         Class<?> entityClass = this.getEntityClass(wrapper, mappedStatement);
-        List<Field> encryptFieldList = super.getEncryptFields(entityClass);
-        for (Field field : encryptFieldList) {
-            FieldEncrypt fieldEncrypt = field.getAnnotation(FieldEncrypt.class);
-            String el = propMap.get(field.getName());
-            if (CharSequenceUtil.isBlank(el)) {
+        Map<String, FieldEncrypt> columnMap = super.getColumnEncryptAnnotations(entityClass);
+        if (columnMap.isEmpty()) {
+            return;
+        }
+        Matcher matcher = SQL_SET_PAIR_PATTERN.matcher(sqlSet);
+        while (matcher.find()) {
+            String columnName = matcher.group(1).replace("`", "");
+            FieldEncrypt fieldEncrypt = columnMap.get(columnName.toLowerCase());
+            if (fieldEncrypt == null) {
                 continue;
             }
-            Matcher matcher = PARAM_PAIRS_PATTERN.matcher(el);
-            if (matcher.matches()) {
-                String valueKey = matcher.group(1);
-                Map<String, Object> paramNameValuePairs = wrapper.getParamNameValuePairs();
-                Object value = paramNameValuePairs.get(valueKey);
-                if (ObjectUtil.isNull(value)) {
-                    continue;
-                }
-                snapshot.recordMapEntry(paramNameValuePairs, valueKey, value);
-                paramNameValuePairs.put(valueKey, this.doEncrypt(value, fieldEncrypt, field
-                    .getName()));
+            String valueKey = matcher.group(2);
+            Map<String, Object> paramNameValuePairs = wrapper.getParamNameValuePairs();
+            Object value = paramNameValuePairs.get(valueKey);
+            if (ObjectUtil.isNull(value)) {
+                continue;
             }
+            snapshot.recordMapEntry(paramNameValuePairs, valueKey, value);
+            paramNameValuePairs.put(valueKey, this.doEncrypt(value, fieldEncrypt, columnName));
         }
     }
 

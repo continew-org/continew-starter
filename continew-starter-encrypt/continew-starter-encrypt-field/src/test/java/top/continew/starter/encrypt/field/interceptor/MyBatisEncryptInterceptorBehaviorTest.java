@@ -276,6 +276,36 @@ class MyBatisEncryptInterceptorBehaviorTest {
     }
 
     /**
+     * setSql 的原样 SQL 片段（含逗号、无占位符）不应影响 SET 参数的加密解析，
+     * 命中加密列的占位符参数照常加密。
+     */
+    @Test
+    void shouldIgnoreSetSqlFragmentWithoutPlaceholder() throws Throwable {
+        this.initUserTableInfo();
+        UpdateWrapper<User> wrapper = new UpdateWrapper<>();
+        wrapper.set("phone", PHONE);
+        wrapper.setSql("name = 'a,b'");
+        Map<String, Object> parameter = new HashMap<>();
+        parameter.put("ew", wrapper);
+        List<String> captured = new ArrayList<>();
+        Executor executor = mock(Executor.class);
+        when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
+            Map<?, ?> param = invocation.getArgument(1);
+            UpdateWrapper<?> wrapperParam = (UpdateWrapper<?>) param.get("ew");
+            wrapperParam.getParamNameValuePairs().forEach((key, value) -> {
+                if (value instanceof String strValue) {
+                    captured.add(strValue);
+                }
+            });
+            return 1;
+        });
+        this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
+        assertThat(captured).hasSize(1);
+        assertThat(captured.get(0)).isNotEqualTo(PHONE);
+        assertThat(wrapper.getParamNameValuePairs().containsValue(PHONE)).isTrue();
+    }
+
+    /**
      * 直传实体（MP insert 等无别名方法）应被加密，传入实体保持明文。
      */
     @Test
