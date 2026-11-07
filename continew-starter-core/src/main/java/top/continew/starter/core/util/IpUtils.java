@@ -54,7 +54,7 @@ public class IpUtils {
             return null;
         }
         Set<String> regionSet =
-            CollUtil.newLinkedHashSet(ipInfo.getCountry(), ipInfo.getRegion(), ipInfo
+            CollUtil.newLinkedHashSet(ipInfo.getCountry(), ipInfo
                 .getProvince(), ipInfo.getCity(), ipInfo.getIsp());
         regionSet.removeIf(Objects::isNull);
         return String.join(StringConstants.PIPE, regionSet);
