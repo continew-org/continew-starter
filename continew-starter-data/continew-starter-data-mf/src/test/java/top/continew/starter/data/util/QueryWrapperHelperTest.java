@@ -64,9 +64,10 @@ class QueryWrapperHelperTest {
         private String mixed;
 
         /**
-         * 未标注 {@code @Query} 的字段。
+         * 未标注 {@code @Query} 的字段（由条件构建遍历按注解过滤，仅断言 SQL 时以列名
+         * 字符串引用，Sonar 无法追踪该引用，故不使用 private 可见性）。
          */
-        private String noAnnotation;
+        String noAnnotation;
 
         QueryDto(String name, String keyword, String mixed) {
             this.name = name;

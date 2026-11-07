@@ -64,9 +64,10 @@ class QueryUtilsTest {
         private String mixed;
 
         /**
-         * 未标注 {@code @Query} 的字段。
+         * 未标注 {@code @Query} 的字段（经 getDeclaredField 按名反射访问，Sonar 无法
+         * 追踪该引用，故不使用 private 可见性）。
          */
-        private String plain;
+        String plain;
     }
 
     /**

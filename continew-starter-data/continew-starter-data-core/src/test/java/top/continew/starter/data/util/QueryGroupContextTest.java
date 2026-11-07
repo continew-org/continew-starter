@@ -18,7 +18,7 @@ package top.continew.starter.data.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -42,7 +42,7 @@ class QueryGroupContextTest {
      */
     @Test
     void shouldBindGroupDuringCallAndRestoreAfter() {
-        String result = QueryGroupContext.callWith("list", () -> QueryGroupContext.get());
+        String result = QueryGroupContext.callWith("list", QueryGroupContext::get);
         assertEquals("list", result);
         assertNull(QueryGroupContext.get());
     }
@@ -66,14 +66,9 @@ class QueryGroupContextTest {
      */
     @Test
     void shouldRestoreGroupWhenActionThrows() {
-        try {
-            QueryGroupContext.runWith("list", () -> {
-                throw new IllegalStateException("boom");
-            });
-            fail("应抛出异常");
-        } catch (IllegalStateException e) {
-            // 抛出即验证目标，无需额外断言
-        }
+        assertThrows(IllegalStateException.class, () -> QueryGroupContext.runWith("list", () -> {
+            throw new IllegalStateException("boom");
+        }));
         assertNull(QueryGroupContext.get());
     }
 
