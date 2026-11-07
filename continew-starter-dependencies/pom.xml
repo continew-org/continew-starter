@@ -78,6 +78,10 @@
 
         <commons-fileupload.version>1.6.0</commons-fileupload.version>
 
+        <!-- Testing Versions -->
+        <rest-assured.version>5.5.6</rest-assured.version>
+        <groovy.version>4.0.22</groovy.version>
+
         <!-- Security Vulnerability Fix Versions -->
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <commons-io.version>2.22.0</commons-io.version>
@@ -105,6 +109,15 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Groovy（Apache Groovy 编程语言，仅作为 Rest Assured 的传递依赖使用。spring-boot-dependencies 强制 Groovy 5.0.8，而 Rest Assured 5.5.6 官方仅支持 Groovy 4.x，须先于 Boot BOM 导入才能锁定 4.x，待 Rest Assured 支持 Groovy 5 后两者一起升级） -->
+            <dependency>
+                <groupId>org.apache.groovy</groupId>
+                <artifactId>groovy-bom</artifactId>
+                <version>${groovy.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- Spring Boot（由 Pivotal 团队提供的全新框架，其设计目的是用来简化新Spring应用的初始搭建以及开发过程）-->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
@@ -399,6 +412,13 @@
                 <groupId>commons-fileupload</groupId>
                 <artifactId>commons-fileupload</artifactId>
                 <version>${commons-fileupload.version}</version>
+            </dependency>
+
+            <!-- REST Assured（L3 API 黑盒测试 HTTP 客户端） -->
+            <dependency>
+                <groupId>io.rest-assured</groupId>
+                <artifactId>rest-assured</artifactId>
+                <version>${rest-assured.version}</version>
             </dependency>
 
             <!-- 解决部分传递依赖漏洞问题 -->
