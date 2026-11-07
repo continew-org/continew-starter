@@ -88,6 +88,26 @@ QueryWrapper queryWrapper = QueryWrapperHelper.build(query);
 
 构建过程会对查询值做 SQL 注入校验、对排序字段做合法性校验（`QueryWrapperHelper.java`）。
 
+`@Query` 支持按接口分组声明（自 3.1.0 起）：同一字段上重复声明注解并通过 `groups` 绑定生效分组，构建查询条件时按当前分组选中对应声明，选择规则与 MyBatis Plus 实现一致：
+
+```java
+@Data
+public class DeptQuery implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    @Query(type = QueryType.EQ, groups = "list")
+    @Query(type = QueryType.LIKE_RIGHT, groups = "export")
+    private String name;
+}
+
+// 按列表分组构建
+QueryWrapper queryWrapper = QueryWrapperHelper.build(query, fields, QueryWrapper.create(), "list");
+```
+
+未声明分组的声明在所有分组下生效；仅分组声明且分组不匹配的字段不参与条件构建。CRUD 模块的内置分组见 [CRUD 查询分组](/docs/starter/modules/extension/crud#查询分组)。
+
 ## 通用 Mapper 与 Service
 
 ```java

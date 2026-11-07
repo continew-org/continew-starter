@@ -134,6 +134,7 @@ QueryWrapper<DeptDO> queryWrapper = QueryWrapperHelper.build(query);
 | `columns` | 数据库列名（非实体字段名，关键字需用转义符包裹）。为空时取字段名并自动转下划线命名；配置多列时多列条件间为或关系 | `{}` |
 | `type` | 查询类型 | `QueryType.EQ` |
 | `logicalRelation` | 多列查询时的逻辑关系（仅 `columns` 长度大于 1 时生效），可选 `AND` / `OR` | `OR` |
+| `groups` | 生效分组。为空时该声明在所有分组下生效；不为空时仅在命中的分组下生效，且优先于未声明分组的声明。自 3.1.0 起，注解支持在同一字段上重复声明（需声明多组时使用） | `{}` |
 
 查询类型枚举 `top.continew.starter.data.enums.QueryType`：
 
@@ -153,6 +154,34 @@ QueryWrapper<DeptDO> queryWrapper = QueryWrapperHelper.build(query);
 | `NOT_IN` | 不包含查询 | `WHERE age NOT IN (20, 30)` |
 | `IS_NULL` | 空值查询 | `WHERE email IS NULL` |
 | `IS_NOT_NULL` | 非空查询 | `WHERE email IS NOT NULL` |
+
+### 按接口分组声明
+
+同一查询条件类被多个接口复用且查询类型要求不同时（列表要等值、导出要右模糊），在同一字段上重复声明 `@Query` 并通过 `groups` 绑定生效分组，构建查询条件时按当前分组选中对应声明：
+
+```java
+@Data
+public class DeptQuery implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    /**
+     * 部门名称
+     */
+    @Query(type = QueryType.EQ, groups = "list")
+    @Query(type = QueryType.LIKE_RIGHT, groups = "export")
+    private String name;
+}
+```
+
+选择规则（`QueryUtils.selectQuery`）：
+
+- 命中当前分组的声明优先；多个命中时取声明顺序中的第一个。
+- 未命中任何分组声明时，回退到未声明分组（`groups` 为空）的声明，与既有单声明行为一致。
+- 仅存在分组声明且分组不匹配时，该字段在当前分组下不参与条件构建。
+
+分组标识为开放字符串，由查询构建方传入。CRUD 模块的内置分组见 [CRUD 查询分组](/docs/starter/modules/extension/crud#查询分组)（列表 `list`、导出 `export`）；通过 `QueryWrapperHelper.build(query, fields, queryWrapper, group)` 自行构建查询条件时可传入任意分组。
 
 ## 通用 Mapper 与 Service
 

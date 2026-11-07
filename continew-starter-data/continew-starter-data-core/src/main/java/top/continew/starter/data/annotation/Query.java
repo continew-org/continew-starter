@@ -21,6 +21,7 @@ import top.continew.starter.data.enums.QueryType;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -28,10 +29,17 @@ import java.lang.annotation.Target;
 /**
  * 查询注解
  *
+ * <p>
+ * 同一字段可通过重复声明本注解表达多组查询条件，每组可通过 {@link #groups()} 绑定生效
+ * 分组（如列表、导出），由查询构建方按当前分组选择声明；未声明分组的声明在所有分组下
+ * 生效。
+ * </p>
+ *
  * @author Charles7c
  * @author Jasmine
  * @since 1.0.0
  */
+@Repeatable(Queries.class)
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
@@ -62,4 +70,18 @@ public @interface Query {
      * @return 多列查询时的逻辑关系
      */
     LogicalRelation logicalRelation() default LogicalRelation.OR;
+
+    /**
+     * 生效分组
+     *
+     * <p>
+     * 为空时该声明在所有分组下生效；不为空时仅在命中的分组下生效，且优先级高于未声明
+     * 分组的声明。分组标识由查询构建方传入，CRUD 场景内置列表（list）与导出（export）
+     * 两个分组，见 {@code CrudQueryGroups}。
+     * </p>
+     *
+     * @return 生效分组
+     * @since 3.1.0
+     */
+    String[] groups() default {};
 }

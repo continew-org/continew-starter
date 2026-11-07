@@ -16,7 +16,6 @@
 
 package top.continew.starter.data.util;
 
-import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ArrayUtil;
@@ -112,13 +111,34 @@ public class QueryWrapperHelper {
      * @return QueryWrapper
      */
     public static <Q> QueryWrapper build(Q query, List<Field> fields, QueryWrapper queryWrapper) {
+        return build(query, fields, queryWrapper, null);
+    }
+
+    /**
+     * 构建 QueryWrapper
+     *
+     * <p>
+     * 字段上声明多个 {@code @Query} 时，按 {@code group} 选择生效声明：命中分组的声明
+     * 优先，否则回退到未声明分组的声明；未命中任何声明的字段不参与条件构建。
+     * </p>
+     *
+     * @param query        查询条件
+     * @param fields       查询条件字段列表
+     * @param queryWrapper QueryWrapper
+     * @param group        分组标识，为空时等价于既有单声明行为
+     * @param <Q>          查询条件数据类型
+     * @return QueryWrapper
+     * @since 3.1.0
+     */
+    public static <Q> QueryWrapper build(Q query, List<Field> fields, QueryWrapper queryWrapper,
+        String group) {
         // 没有查询条件，直接返回
         if (query == null) {
             return queryWrapper;
         }
         // 解析并拼接查询条件
         for (Field field : fields) {
-            List<Consumer<QueryWrapper>> consumers = buildWrapperConsumer(query, field);
+            List<Consumer<QueryWrapper>> consumers = buildWrapperConsumer(query, field, group);
             if (CollUtil.isNotEmpty(consumers)) {
                 consumers.forEach(queryWrapper::and);
             }
@@ -131,18 +151,21 @@ public class QueryWrapperHelper {
      *
      * @param query 查询条件
      * @param field 查询条件字段
+     * @param group 分组标识，为空时等价于既有单声明行为
      * @param <Q>   查询条件数据类型
      * @return QueryWrapper Consumer
      */
-    private static <Q> List<Consumer<QueryWrapper>> buildWrapperConsumer(Q query, Field field) {
+    private static <Q> List<Consumer<QueryWrapper>> buildWrapperConsumer(Q query,
+        Field field,
+        String group) {
         try {
             // 如果字段值为空，直接返回
             Object fieldValue = ReflectUtil.getFieldValue(query, field);
             if (ObjectUtil.isEmpty(fieldValue)) {
                 return Collections.emptyList();
             }
-            // 没有 @Query 注解，直接返回
-            Query queryAnnotation = AnnotationUtil.getAnnotation(field, Query.class);
+            // 没有 @Query 声明或分组不匹配，直接返回
+            Query queryAnnotation = QueryUtils.selectQuery(field, group);
             if (queryAnnotation == null) {
                 return Collections.emptyList();
             }
