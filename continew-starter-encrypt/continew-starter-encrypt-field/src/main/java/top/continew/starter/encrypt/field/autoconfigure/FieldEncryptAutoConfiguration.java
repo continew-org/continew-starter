@@ -71,6 +71,13 @@ public class FieldEncryptAutoConfiguration {
 
     @PostConstruct
     public void postConstruct() {
+        if (Boolean.FALSE.equals(this.properties.getFailFast())) {
+            LOGGER.warn(
+                "[ContiNew Starter] - Encrypt-Field fail-fast 已关闭，加密配置异常与加解密失败将降级为"
+                    + "警告日志并返回原值，敏感字段可能以明文落库。");
+        } else {
+            FieldEncryptPropertiesValidator.validate(this.properties);
+        }
         EncryptHelper.init(properties);
         LOGGER.debug(
             "[ContiNew Starter] - Auto Configuration 'Encrypt-Field' completed initialization.");

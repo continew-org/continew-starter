@@ -55,6 +55,11 @@ public class FieldEncryptProperties {
      */
     private String privateKey;
 
+    /**
+     * 失败是否快速抛出，默认 true（严格模式）
+     */
+    private Boolean failFast = Boolean.TRUE;
+
     public Boolean getEnabled() {
         return enabled;
     }
@@ -77,6 +82,26 @@ public class FieldEncryptProperties {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * 获取失败是否快速抛出
+     *
+     * @return 失败是否快速抛出
+     * @since 3.1.0
+     */
+    public Boolean getFailFast() {
+        return failFast;
+    }
+
+    /**
+     * 设置失败是否快速抛出
+     *
+     * @param failFast 失败是否快速抛出
+     * @since 3.1.0
+     */
+    public void setFailFast(Boolean failFast) {
+        this.failFast = failFast;
     }
 
     public String getPublicKey() {

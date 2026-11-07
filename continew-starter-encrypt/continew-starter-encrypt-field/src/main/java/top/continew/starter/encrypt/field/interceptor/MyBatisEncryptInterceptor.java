@@ -102,7 +102,8 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
             if (parameterValue instanceof String str) {
                 FieldEncrypt fieldEncrypt = encryptParameterMap.get(parameterName);
                 if (fieldEncrypt != null) {
-                    parameterMap.put(parameterName, this.doEncrypt(str, fieldEncrypt));
+                    parameterMap.put(parameterName,
+                        this.doEncrypt(str, fieldEncrypt, parameterName));
                 }
             } else {
                 // 实体参数
@@ -124,7 +125,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
                 String strValue = String.valueOf(fieldValue);
                 if (CharSequenceUtil.isNotBlank(strValue)) {
                     ReflectUtil.setFieldValue(entity, field, EncryptHelper.encrypt(strValue, field
-                        .getAnnotation(FieldEncrypt.class)));
+                        .getAnnotation(FieldEncrypt.class), field.getName()));
                 }
             }
         }
@@ -186,7 +187,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
                     String valueKey = matcher.group(1);
                     Object value = updateWrapper.getParamNameValuePairs().get(valueKey);
                     updateWrapper.getParamNameValuePairs().put(valueKey,
-                        this.doEncrypt(value, fieldEncrypt));
+                        this.doEncrypt(value, fieldEncrypt, field.getName()));
                 }
             }
         }
@@ -197,9 +198,10 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
      *
      * @param parameterValue 参数值
      * @param fieldEncrypt   字段加密注解
+     * @param fieldName      字段名称，用于失败时定位
      * @return 加密后的值
      */
-    private Object doEncrypt(Object parameterValue, FieldEncrypt fieldEncrypt) {
+    private Object doEncrypt(Object parameterValue, FieldEncrypt fieldEncrypt, String fieldName) {
         if (ObjectUtil.isNull(parameterValue)) {
             return null;
         }
@@ -207,7 +209,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor
         if (CharSequenceUtil.isBlank(strValue)) {
             return null;
         }
-        return EncryptHelper.encrypt(strValue, fieldEncrypt);
+        return EncryptHelper.encrypt(strValue, fieldEncrypt, fieldName);
     }
 
     /**

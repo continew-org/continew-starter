@@ -25,6 +25,7 @@ import top.continew.starter.encrypt.encryptor.IEncryptor;
 import top.continew.starter.encrypt.enums.Algorithm;
 import top.continew.starter.encrypt.field.annotation.FieldEncrypt;
 import top.continew.starter.encrypt.field.autoconfigure.FieldEncryptProperties;
+import top.continew.starter.encrypt.field.exception.FieldEncryptException;
 
 import java.lang.reflect.Field;
 import java.util.Map;
@@ -103,18 +104,31 @@ public class EncryptHelper {
      * @return 加密后的字符串
      */
     public static String encrypt(String value, FieldEncrypt fieldEncrypt) {
+        return encrypt(value, fieldEncrypt, null);
+    }
+
+    /**
+     * 加密方法
+     *
+     * @param value        待加密字符串
+     * @param fieldEncrypt 待加密字段注解
+     * @param fieldName    字段名称，用于失败时定位
+     * @return 加密后的字符串
+     * @throws FieldEncryptException 加密失败（fail-fast 模式下）
+     * @since 3.1.0
+     */
+    public static String encrypt(String value, FieldEncrypt fieldEncrypt, String fieldName) {
         if (CharSequenceUtil.isBlank(value) || fieldEncrypt == null) {
             return value;
         }
-        String ciphertext = value;
         try {
             CryptoContext cryptoContext = buildCryptoContext(fieldEncrypt);
             IEncryptor encryptor = registerAndGetEncryptor(cryptoContext);
-            ciphertext = encryptor.encrypt(ciphertext);
+            return encryptor.encrypt(value);
         } catch (Exception e) {
-            LOGGER.warn("加密失败，请检查加密配置，处理加密字段异常：{}", e.getMessage(), e);
+            failOrWarn("加密", fieldName, resolveAlgorithm(fieldEncrypt), e);
+            return value;
         }
-        return ciphertext;
     }
 
     /**
@@ -122,20 +136,20 @@ public class EncryptHelper {
      *
      * @param value 待加密字符串
      * @return 加密后的字符串
+     * @throws FieldEncryptException 加密失败（fail-fast 模式下）
      */
     public static String encrypt(String value) {
         if (CharSequenceUtil.isBlank(value)) {
             return value;
         }
-        String ciphertext = value;
         try {
             CryptoContext cryptoContext = buildCryptoContext();
             IEncryptor encryptor = registerAndGetEncryptor(cryptoContext);
-            ciphertext = encryptor.encrypt(ciphertext);
+            return encryptor.encrypt(value);
         } catch (Exception e) {
-            LOGGER.warn("加密失败，请检查加密配置，处理加密字段异常：{}", e.getMessage(), e);
+            failOrWarn("加密", null, resolveGlobalAlgorithm(), e);
+            return value;
         }
-        return ciphertext;
     }
 
     /**
@@ -146,18 +160,31 @@ public class EncryptHelper {
      * @return 解密后的字符串
      */
     public static String decrypt(String value, FieldEncrypt fieldEncrypt) {
+        return decrypt(value, fieldEncrypt, null);
+    }
+
+    /**
+     * 解密方法
+     *
+     * @param value        待解密字符串
+     * @param fieldEncrypt 待解密字段注解
+     * @param fieldName    字段名称，用于失败时定位
+     * @return 解密后的字符串
+     * @throws FieldEncryptException 解密失败（fail-fast 模式下）
+     * @since 3.1.0
+     */
+    public static String decrypt(String value, FieldEncrypt fieldEncrypt, String fieldName) {
         if (CharSequenceUtil.isBlank(value) || fieldEncrypt == null) {
             return value;
         }
-        String plaintext = value;
         try {
             CryptoContext cryptoContext = buildCryptoContext(fieldEncrypt);
             IEncryptor encryptor = registerAndGetEncryptor(cryptoContext);
-            plaintext = encryptor.decrypt(plaintext);
+            return encryptor.decrypt(value);
         } catch (Exception e) {
-            LOGGER.warn("解密失败，请检查加密配置，处理解密字段异常：{}", e.getMessage(), e);
+            failOrWarn("解密", fieldName, resolveAlgorithm(fieldEncrypt), e);
+            return value;
         }
-        return plaintext;
     }
 
     /**
@@ -165,20 +192,88 @@ public class EncryptHelper {
      *
      * @param value 待解密字符串
      * @return 解密后的字符串
+     * @throws FieldEncryptException 解密失败（fail-fast 模式下）
      */
     public static String decrypt(String value) {
         if (CharSequenceUtil.isBlank(value)) {
             return value;
         }
-        String plaintext = value;
         try {
             CryptoContext cryptoContext = buildCryptoContext();
             IEncryptor encryptor = registerAndGetEncryptor(cryptoContext);
-            plaintext = encryptor.decrypt(plaintext);
+            return encryptor.decrypt(value);
         } catch (Exception e) {
-            LOGGER.warn("解密失败，请检查加密配置，处理解密字段异常：{}", e.getMessage(), e);
+            failOrWarn("解密", null, resolveGlobalAlgorithm(), e);
+            return value;
         }
-        return plaintext;
+    }
+
+    /**
+     * 失败处理：fail-fast 模式抛出异常终止操作，降级模式仅记录警告
+     *
+     * @param action    动作描述（加密/解密）
+     * @param fieldName 字段名称，可为空
+     * @param algorithm 加密算法
+     * @param e         原始异常
+     */
+    private static void failOrWarn(String action,
+        String fieldName,
+        Algorithm algorithm,
+        Exception e) {
+        String message = buildFailureMessage(action, fieldName, algorithm);
+        if (isFailFast()) {
+            throw new FieldEncryptException(message, e);
+        }
+        LOGGER.warn("{}，请检查加密配置：{}", message, e.getMessage(), e);
+    }
+
+    /**
+     * 构建失败描述，包含字段名称与算法
+     *
+     * @param action    动作描述（加密/解密）
+     * @param fieldName 字段名称，可为空
+     * @param algorithm 加密算法
+     * @return 失败描述
+     */
+    private static String buildFailureMessage(String action,
+        String fieldName,
+        Algorithm algorithm) {
+        if (CharSequenceUtil.isBlank(fieldName)) {
+            return String.format("%s失败，算法 [%s]", action, algorithm);
+        }
+        return String.format("%s失败，字段 [%s]，算法 [%s]", action, fieldName, algorithm);
+    }
+
+    /**
+     * 判断是否 fail-fast 模式，未初始化配置时视为严格模式
+     *
+     * @return 是否 fail-fast 模式
+     */
+    private static boolean isFailFast() {
+        return defaultProperties == null || !Boolean.FALSE.equals(defaultProperties.getFailFast());
+    }
+
+    /**
+     * 解析注解实际使用的算法（DEFAULT 表示跟随全局配置）
+     *
+     * @param fieldEncrypt 字段加密注解
+     * @return 加密算法
+     */
+    private static Algorithm resolveAlgorithm(FieldEncrypt fieldEncrypt) {
+        Algorithm algorithm = fieldEncrypt.value();
+        if (algorithm == Algorithm.DEFAULT && defaultProperties != null) {
+            algorithm = defaultProperties.getAlgorithm();
+        }
+        return algorithm;
+    }
+
+    /**
+     * 解析全局默认算法
+     *
+     * @return 加密算法
+     */
+    private static Algorithm resolveGlobalAlgorithm() {
+        return defaultProperties != null ? defaultProperties.getAlgorithm() : null;
     }
 
     /**

@@ -122,7 +122,7 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
                 String strValue = String.valueOf(fieldValue);
                 if (CharSequenceUtil.isNotBlank(strValue)) {
                     ReflectUtil.setFieldValue(result, field, EncryptHelper.decrypt(strValue, field
-                        .getAnnotation(FieldEncrypt.class)));
+                        .getAnnotation(FieldEncrypt.class), field.getName()));
                 }
             }
         }
