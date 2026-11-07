@@ -38,6 +38,7 @@ import top.continew.starter.encrypt.field.exception.FieldEncryptException;
 import top.continew.starter.encrypt.field.util.EncryptHelper;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,6 +47,7 @@ import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,17 +72,15 @@ import java.util.regex.Pattern;
 public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implements Interceptor {
 
     /**
-     * SQL SET 片段中「列名=占位符」的配对
+     * Wrapper 参数占位符的固定前缀
      */
-    private static final Pattern SQL_SET_PAIR_PATTERN = Pattern
-        .compile("([\\w.`]++)\\s*+=\\s*+#\\{ew\\.paramNameValuePairs\\.(\\w++)\\}");
+    private static final String PARAM_MARKER = "#{ew.paramNameValuePairs.";
 
     /**
-     * 查询条件段中「列名 操作符 占位符」的配对
+     * 查询条件段中单 token 操作符，NOT 前缀（NOT LIKE、NOT IN）单独识别
      */
-    private static final Pattern QUERY_CONDITION_PAIR = Pattern
-        .compile(
-            "([\\w.`]++)\\s*+(?:NOT\\s++(?:LIKE|IN)|>=|<=|<>|!=|[=<>]|LIKE|IN)\\s*+\\(?\\s*+#\\{ew\\.paramNameValuePairs\\.(\\w++)\\}");
+    private static final Set<String> SINGLE_OPERATOR_TOKENS =
+        Set.of("=", "<>", "!=", ">=", "<=", ">", "<", "LIKE", "IN");
 
     /**
      * 查询条件段中全部 pairs 占位符键
@@ -113,11 +113,12 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      * @param mappedStatement 映射语句
      * @param parameterObject 参数
      * @return 写入结果
-     * @throws Throwable 写入异常
+     * @throws InvocationTargetException 写入执行失败
+     * @throws IllegalAccessException    写入执行不可访问
      */
     private Object interceptWrite(Invocation invocation,
         MappedStatement mappedStatement,
-        Object parameterObject) throws Throwable {
+        Object parameterObject) throws InvocationTargetException, IllegalAccessException {
         CryptoSnapshot snapshot = new CryptoSnapshot();
         IdentityHashMap<Object, Object> copyCache = new IdentityHashMap<>();
         try {
@@ -140,11 +141,12 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      * @param mappedStatement 映射语句
      * @param parameterObject 参数
      * @return 查询结果
-     * @throws Throwable 查询异常
+     * @throws InvocationTargetException 查询执行失败
+     * @throws IllegalAccessException    查询执行不可访问
      */
     private Object interceptSelect(Invocation invocation,
         MappedStatement mappedStatement,
-        Object parameterObject) throws Throwable {
+        Object parameterObject) throws InvocationTargetException, IllegalAccessException {
         if (!(parameterObject instanceof Map<?, ?> parameterMap)) {
             return invocation.proceed();
         }
@@ -245,13 +247,50 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         if (CharSequenceUtil.isBlank(sqlSegment)) {
             return;
         }
-        for (String segment : sqlSegment.split("\\s++(?:AND|OR)\\s++")) {
+        for (String segment : this.splitConditionSegments(sqlSegment)) {
             this.encryptQueryCondition(wrapper, segment, columnMap, snapshot);
         }
     }
 
     /**
-     * 加密单个查询条件段的参数值，IN 等多占位符条件段的全部参数值同属该列
+     * 切分查询条件段：以两侧带空白的 AND、OR（大写）为分隔，空白串长度不限，
+     * 分隔后的条件段不含首尾空白
+     *
+     * @param sqlSegment 查询条件 SQL 片段
+     * @return 条件段列表（至少一个元素）
+     */
+    private List<String> splitConditionSegments(String sqlSegment) {
+        List<String> segments = new ArrayList<>();
+        int segmentStart = 0;
+        int cursor = 0;
+        int length = sqlSegment.length();
+        while (cursor < length) {
+            if (!isRegexBlank(sqlSegment.charAt(cursor))) {
+                cursor++;
+                continue;
+            }
+            int keywordStart = cursor;
+            while (cursor < length && isRegexBlank(sqlSegment.charAt(cursor))) {
+                cursor++;
+            }
+            if ((sqlSegment.startsWith("AND", cursor) || sqlSegment.startsWith("OR", cursor))
+                && cursor + 3 < length && isRegexBlank(sqlSegment.charAt(cursor + 3))) {
+                segments.add(sqlSegment.substring(segmentStart, keywordStart));
+                cursor = cursor + 3;
+                while (cursor < length && isRegexBlank(sqlSegment.charAt(cursor))) {
+                    cursor++;
+                }
+                segmentStart = cursor;
+                continue;
+            }
+        }
+        segments.add(sqlSegment.substring(segmentStart));
+        return segments;
+    }
+
+    /**
+     * 加密单个查询条件段的参数值：定位首个占位符并向前解析操作符结构，
+     * IN 等多占位符条件段的全部参数值同属该列
      *
      * @param wrapper   Wrapper 参数
      * @param segment   条件段
@@ -262,13 +301,21 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         String segment,
         Map<String, FieldEncrypt> columnMap,
         CryptoSnapshot snapshot) {
-        Matcher pairMatcher = QUERY_CONDITION_PAIR.matcher(segment);
-        if (!pairMatcher.find()) {
+        int placeholderStart = segment.indexOf(PARAM_MARKER);
+        if (placeholderStart < 0) {
             return;
         }
-        FieldEncrypt fieldEncrypt = columnMap.get(pairMatcher.group(1)
-            .replace("`", "")
-            .toLowerCase());
+        int columnEnd = this.resolveConditionColumnEnd(segment, placeholderStart);
+        if (columnEnd < 0) {
+            return;
+        }
+        int nameEnd = this.skipRegexBlankAndParenBackward(segment, columnEnd);
+        int nameStart = this.skipColumnNameBackward(segment, nameEnd);
+        if (nameStart == nameEnd) {
+            return;
+        }
+        String columnName = segment.substring(nameStart, nameEnd).replace("`", "");
+        FieldEncrypt fieldEncrypt = columnMap.get(columnName.toLowerCase());
         if (fieldEncrypt == null) {
             return;
         }
@@ -281,9 +328,120 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
                 continue;
             }
             snapshot.recordMapEntry(paramNameValuePairs, valueKey, value);
-            paramNameValuePairs.put(valueKey, this.doEncrypt(value, fieldEncrypt, pairMatcher
-                .group(1)));
+            paramNameValuePairs.put(valueKey, this.doEncrypt(value, fieldEncrypt, columnName));
         }
+    }
+
+    /**
+     * 从条件段占位符起点向前解析操作符结构，返回列名提取的起点，结构不符返回 -1。
+     * 支持的操作符为单 token（=、<>、!=、>=、<=、>、<、LIKE、IN）及其 NOT 前缀组合，
+     * 占位符与操作符之间的空白串与可选左括号均被跳过
+     *
+     * @param segment      条件段
+     * @param valueKeyStart 占位符起点（含）
+     * @return 列名提取起点，结构不符返回 -1
+     */
+    private int resolveConditionColumnEnd(String segment, int valueKeyStart) {
+        int cursor = this.skipRegexBlankBackward(segment, valueKeyStart);
+        if (cursor > 0 && segment.charAt(cursor - 1) == '(') {
+            cursor = this.skipRegexBlankBackward(segment, cursor - 1);
+        }
+        int tokenEnd = cursor;
+        cursor = this.skipNonRegexBlankBackward(segment, cursor);
+        String token = segment.substring(cursor, tokenEnd);
+        if (!SINGLE_OPERATOR_TOKENS.contains(token)) {
+            return -1;
+        }
+        if ("LIKE".equals(token) || "IN".equals(token)) {
+            int prefixEnd = this.skipRegexBlankBackward(segment, cursor);
+            int notStart = this.skipNonRegexBlankBackward(segment, prefixEnd);
+            if (notStart < prefixEnd && "NOT".equals(segment.substring(notStart, prefixEnd))) {
+                return notStart;
+            }
+        }
+        return cursor;
+    }
+
+    /**
+     * 从指定位置向左跳过空白与左括号
+     *
+     * @param text 目标文本
+     * @param from 起始位置（不含）
+     * @return 停止位置
+     */
+    private int skipRegexBlankAndParenBackward(String text, int from) {
+        int cursor = from;
+        while (cursor > 0 && (isRegexBlank(text.charAt(cursor - 1)) || text
+            .charAt(cursor - 1) == '(')) {
+            cursor--;
+        }
+        return cursor;
+    }
+
+    /**
+     * 从指定位置向左跳过空白字符（等价于正则 \s 的字符集）
+     *
+     * @param text 目标文本
+     * @param from 起始位置（不含）
+     * @return 停止位置
+     */
+    private int skipRegexBlankBackward(String text, int from) {
+        int cursor = from;
+        while (cursor > 0 && isRegexBlank(text.charAt(cursor - 1))) {
+            cursor--;
+        }
+        return cursor;
+    }
+
+    /**
+     * 从指定位置向左跳过非空白字符
+     *
+     * @param text 目标文本
+     * @param from 起始位置（不含）
+     * @return 停止位置
+     */
+    private int skipNonRegexBlankBackward(String text, int from) {
+        int cursor = from;
+        while (cursor > 0 && !isRegexBlank(text.charAt(cursor - 1))) {
+            cursor--;
+        }
+        return cursor;
+    }
+
+    /**
+     * 判断字符是否属于正则 \s 的字符集
+     *
+     * @param c 目标字符
+     * @return 是否空白
+     */
+    private static boolean isRegexBlank(char c) {
+        return c == ' ' || c == '\t' || c == '\n' || c == '\u000B' || c == '\f' || c == '\r';
+    }
+
+    /**
+     * 从指定位置向左读取列名 token：字母、数字、下划线、点与反引号（等价于原列名字符类）
+     *
+     * @param text 目标文本
+     * @param from 起始位置（不含）
+     * @return 停止位置
+     */
+    private int skipColumnNameBackward(String text, int from) {
+        int cursor = from;
+        while (cursor > 0 && isColumnNameChar(text.charAt(cursor - 1))) {
+            cursor--;
+        }
+        return cursor;
+    }
+
+    /**
+     * 判断字符是否属于列名字符集
+     *
+     * @param c 目标字符
+     * @return 是否列名字符
+     */
+    private static boolean isColumnNameChar(char c) {
+        return c == '_' || c == '.' || c == '`' || (c >= 'a' && c <= 'z')
+            || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
     }
 
     /**
@@ -479,7 +637,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
 
     /**
      * 加密 Wrapper 的 SET 参数（针对 MP 的 UpdateWrapper、LambdaUpdateWrapper 等参数），
-     * 按正则配对「列名=占位符」解析，原样 SQL 片段（如 setSql）与含逗号的内容不会被误切
+     * 扫描「列名=占位符」结构解析配对，原样 SQL 片段（如 setSql）与含逗号的内容不会被误切
      *
      * @param wrapper         Wrapper 参数
      * @param mappedStatement 映射语句
@@ -500,37 +658,62 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         if (columnMap.isEmpty()) {
             return;
         }
-        Matcher matcher = SQL_SET_PAIR_PATTERN.matcher(sqlSet);
-        while (matcher.find()) {
-            this.encryptWrapperPair(wrapper, matcher, columnMap, snapshot);
+        int cursor = 0;
+        while (cursor < sqlSet.length()) {
+            int placeholderStart = sqlSet.indexOf(PARAM_MARKER, cursor);
+            if (placeholderStart < 0) {
+                break;
+            }
+            cursor = this.encryptWrapperPair(wrapper, sqlSet, placeholderStart, columnMap,
+                snapshot);
         }
     }
 
     /**
-     * 加密单个「列名=占位符」配对的参数值，未命中加密列或占位符无值时跳过
+     * 加密 sqlSet 中指定占位符对应的「列名=占位符」配对，占位符前需为单个等号（可带空白），
+     * 未命中加密列、结构不符或占位符无值时跳过
      *
-     * @param wrapper   Wrapper 参数
-     * @param matcher   SET 片段配对匹配器
-     * @param columnMap 列名到加密注解映射
-     * @param snapshot  快照
+     * @param wrapper          Wrapper 参数
+     * @param sqlSet           SET 片段
+     * @param placeholderStart 占位符起点
+     * @param columnMap        列名到加密注解映射
+     * @param snapshot         快照
+     * @return 继续扫描的位置
      */
-    private void encryptWrapperPair(AbstractWrapper wrapper,
-        Matcher matcher,
+    private int encryptWrapperPair(AbstractWrapper wrapper,
+        String sqlSet,
+        int placeholderStart,
         Map<String, FieldEncrypt> columnMap,
         CryptoSnapshot snapshot) {
-        String columnName = matcher.group(1).replace("`", "");
+        int valueKeyStart = placeholderStart + PARAM_MARKER.length();
+        int valueKeyEnd = sqlSet.indexOf('}', valueKeyStart);
+        if (valueKeyEnd < 0) {
+            return sqlSet.length();
+        }
+        String valueKey = sqlSet.substring(valueKeyStart, valueKeyEnd);
+        int next = valueKeyEnd + 1;
+        int cursor = this.skipRegexBlankBackward(sqlSet, placeholderStart);
+        if (cursor == 0 || sqlSet.charAt(cursor - 1) != '=') {
+            return next;
+        }
+        cursor = this.skipRegexBlankBackward(sqlSet, cursor - 1);
+        int nameStart = this.skipColumnNameBackward(sqlSet, cursor);
+        if (nameStart == cursor) {
+            return next;
+        }
+        String columnName = sqlSet.substring(nameStart, cursor).replace("`", "");
         FieldEncrypt fieldEncrypt = columnMap.get(columnName.toLowerCase());
         if (fieldEncrypt == null) {
-            return;
+            return next;
         }
-        String valueKey = matcher.group(2);
         Map<String, Object> paramNameValuePairs = wrapper.getParamNameValuePairs();
         Object value = paramNameValuePairs.get(valueKey);
         if (ObjectUtil.isNull(value)) {
-            return;
+            return next;
         }
         snapshot.recordMapEntry(paramNameValuePairs, valueKey, value);
         paramNameValuePairs.put(valueKey, this.doEncrypt(value, fieldEncrypt, columnName));
+        return next;
     }
 
     /**

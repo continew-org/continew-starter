@@ -267,8 +267,8 @@ class MyBatisEncryptInterceptorBehaviorTest {
             return 1;
         });
         this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
-        assertThat(captured).hasSize(2).contains("");
-        assertThat(captured).anyMatch(value -> !PHONE.equals(value) && !value.isEmpty());
+        String onceEncrypted = EncryptHelper.encrypt(PHONE, userAnnotation(User.class));
+        assertThat(captured).hasSize(2).contains("").contains(onceEncrypted);
         assertThat(wrapper.getParamNameValuePairs()).containsValue(PHONE);
         assertThat(wrapper.getParamNameValuePairs()).containsValue("");
     }
