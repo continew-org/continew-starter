@@ -71,7 +71,7 @@ class ServletUtilsTest {
         ServletUtils.writeJson(response, "长时间未操作，请重新登录");
         inOrder.verify(response).setCharacterEncoding(StandardCharsets.UTF_8.name());
         inOrder.verify(response).getWriter();
-        assertThat(writerSink.toString()).isEqualTo("长时间未操作，请重新登录");
+        assertThat(writerSink.toString()).hasToString("长时间未操作，请重新登录");
     }
 
     @Test
@@ -91,7 +91,7 @@ class ServletUtilsTest {
         ServletUtils.writeJson(response, "您当前没有访问该租户的权限", "GBK");
         inOrder.verify(response).setCharacterEncoding("GBK");
         inOrder.verify(response).getWriter();
-        assertThat(writerSink.toString()).isEqualTo("您当前没有访问该租户的权限");
+        assertThat(writerSink.toString()).hasToString("您当前没有访问该租户的权限");
     }
 
     @Test
