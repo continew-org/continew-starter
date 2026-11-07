@@ -30,6 +30,7 @@ import top.continew.starter.encrypt.field.exception.FieldEncryptException;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 加密助手
@@ -42,9 +43,9 @@ public class EncryptHelper {
     private static final Logger LOGGER = LoggerFactory.getLogger(EncryptHelper.class);
 
     /**
-     * 加密配置快照（不可变），初始化时固化以隔离多上下文与运行期配置变更
+     * 加密配置快照（不可变）的原子引用，初始化时固化以隔离多上下文与运行期配置变更
      */
-    private static volatile EncryptionSnapshot snapshot;
+    private static final AtomicReference<EncryptionSnapshot> SNAPSHOT = new AtomicReference<>();
 
     /**
      * 加密器缓存：以加密上下文为键，上下文已实现字段级 equals 与 hashCode，精确匹配无碰撞
@@ -60,7 +61,7 @@ public class EncryptHelper {
      * @param properties 加密配置
      */
     public static void init(FieldEncryptProperties properties) {
-        snapshot = new EncryptionSnapshot(Objects.requireNonNull(properties, "properties 不能为空"));
+        SNAPSHOT.set(new EncryptionSnapshot(Objects.requireNonNull(properties, "properties 不能为空")));
     }
 
     /**
@@ -232,7 +233,8 @@ public class EncryptHelper {
      * @return 是否 fail-fast 模式
      */
     private static boolean isFailFast() {
-        return snapshot == null || snapshot.isFailFast();
+        EncryptionSnapshot current = SNAPSHOT.get();
+        return current == null || current.isFailFast();
     }
 
     /**
@@ -242,9 +244,10 @@ public class EncryptHelper {
      * @return 加密算法
      */
     private static Algorithm resolveAlgorithm(FieldEncrypt fieldEncrypt) {
+        EncryptionSnapshot current = SNAPSHOT.get();
         Algorithm algorithm = fieldEncrypt.value();
-        if (algorithm == Algorithm.DEFAULT && snapshot != null) {
-            algorithm = snapshot.getAlgorithm();
+        if (algorithm == Algorithm.DEFAULT && current != null) {
+            algorithm = current.getAlgorithm();
         }
         return algorithm;
     }
@@ -255,7 +258,8 @@ public class EncryptHelper {
      * @return 加密算法
      */
     private static Algorithm resolveGlobalAlgorithm() {
-        return snapshot != null ? snapshot.getAlgorithm() : null;
+        EncryptionSnapshot current = SNAPSHOT.get();
+        return current != null ? current.getAlgorithm() : null;
     }
 
     /**
@@ -265,21 +269,22 @@ public class EncryptHelper {
      * @return 加密上下文
      */
     private static CryptoContext buildCryptoContext(FieldEncrypt fieldEncrypt) {
+        EncryptionSnapshot current = SNAPSHOT.get();
         CryptoContext cryptoContext = new CryptoContext();
         cryptoContext.setAlgorithm(fieldEncrypt.value() == Algorithm.DEFAULT
-            ? snapshot.getAlgorithm()
+            ? current.getAlgorithm()
             : fieldEncrypt.value());
         cryptoContext.setEncryptor(fieldEncrypt.encryptor().equals(IEncryptor.class)
             ? IEncryptor.class
             : fieldEncrypt.encryptor());
         cryptoContext.setPassword(fieldEncrypt.password().isEmpty()
-            ? snapshot.getPassword()
+            ? current.getPassword()
             : fieldEncrypt.password());
         cryptoContext.setPrivateKey(fieldEncrypt.privateKey().isEmpty()
-            ? snapshot.getPrivateKey()
+            ? current.getPrivateKey()
             : fieldEncrypt.privateKey());
         cryptoContext.setPublicKey(fieldEncrypt.publicKey().isEmpty()
-            ? snapshot.getPublicKey()
+            ? current.getPublicKey()
             : fieldEncrypt.publicKey());
         return cryptoContext;
     }
@@ -290,12 +295,13 @@ public class EncryptHelper {
      * @return 加密上下文
      */
     private static CryptoContext buildCryptoContext() {
+        EncryptionSnapshot current = SNAPSHOT.get();
         CryptoContext cryptoContext = new CryptoContext();
-        cryptoContext.setAlgorithm(snapshot.getAlgorithm());
+        cryptoContext.setAlgorithm(current.getAlgorithm());
         cryptoContext.setEncryptor(IEncryptor.class);
-        cryptoContext.setPassword(snapshot.getPassword());
-        cryptoContext.setPrivateKey(snapshot.getPrivateKey());
-        cryptoContext.setPublicKey(snapshot.getPublicKey());
+        cryptoContext.setPassword(current.getPassword());
+        cryptoContext.setPrivateKey(current.getPrivateKey());
+        cryptoContext.setPublicKey(current.getPublicKey());
         return cryptoContext;
     }
 

@@ -133,13 +133,11 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
             return;
         }
         for (Map.Entry<Object, Object> entry : row.entrySet()) {
-            Object value = entry.getValue();
-            if (!(value instanceof String strValue) || CharSequenceUtil.isBlank(strValue)) {
-                continue;
-            }
             String columnName = String.valueOf(entry.getKey()).toLowerCase();
             FieldEncrypt fieldEncrypt = columnMap.get(columnName);
-            if (fieldEncrypt == null) {
+            Object value = entry.getValue();
+            if (fieldEncrypt == null || !(value instanceof String strValue)
+                || CharSequenceUtil.isBlank(strValue)) {
                 continue;
             }
             entry.setValue(EncryptHelper.decrypt(strValue, fieldEncrypt, columnName));

@@ -127,8 +127,7 @@ class MyBatisEncryptInterceptorBehaviorTest {
         user.phone = PHONE;
         Map<String, Object> parameter = new HashMap<>();
         parameter.put("et", user);
-        Executor executor = this.mockWriteExecutor((param, captured) -> this
-            .collectPhoneValues(param, captured));
+        Executor executor = this.mockWriteExecutor(this::collectPhoneValues);
         this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
         assertThat(user.phone).isEqualTo(PHONE);
     }
@@ -268,11 +267,10 @@ class MyBatisEncryptInterceptorBehaviorTest {
             return 1;
         });
         this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
-        assertThat(captured).hasSize(2);
-        assertThat(captured).contains("");
+        assertThat(captured).hasSize(2).contains("");
         assertThat(captured).anyMatch(value -> !PHONE.equals(value) && !value.isEmpty());
-        assertThat(wrapper.getParamNameValuePairs().containsValue(PHONE)).isTrue();
-        assertThat(wrapper.getParamNameValuePairs().containsValue("")).isTrue();
+        assertThat(wrapper.getParamNameValuePairs()).containsValue(PHONE);
+        assertThat(wrapper.getParamNameValuePairs()).containsValue("");
     }
 
     /**
@@ -302,7 +300,7 @@ class MyBatisEncryptInterceptorBehaviorTest {
         this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
         assertThat(captured).hasSize(1);
         assertThat(captured.get(0)).isNotEqualTo(PHONE);
-        assertThat(wrapper.getParamNameValuePairs().containsValue(PHONE)).isTrue();
+        assertThat(wrapper.getParamNameValuePairs()).containsValue(PHONE);
     }
 
     /**
@@ -359,9 +357,8 @@ class MyBatisEncryptInterceptorBehaviorTest {
         InvalidKeyEntity entity = new InvalidKeyEntity();
         entity.phone = PHONE;
         Executor executor = mock(Executor.class);
-        assertThatThrownBy(
-            () -> this.interceptUpdate(executor, updateStatement(SqlCommandType.INSERT),
-                entity))
+        MappedStatement statement = updateStatement(SqlCommandType.INSERT);
+        assertThatThrownBy(() -> this.interceptUpdate(executor, statement, entity))
             .isInstanceOf(FieldEncryptException.class);
         assertThat(entity.phone).isEqualTo(PHONE);
     }
@@ -403,7 +400,7 @@ class MyBatisEncryptInterceptorBehaviorTest {
         Executor executor = this.mockQueryExecutor(wrapper, captured);
         this.interceptSelect(executor, wrapper);
         assertThat(captured).allMatch(value -> !PHONE.equals(value));
-        assertThat(wrapper.getParamNameValuePairs().containsValue(PHONE)).isTrue();
+        assertThat(wrapper.getParamNameValuePairs()).containsValue(PHONE);
     }
 
     /**
@@ -417,7 +414,7 @@ class MyBatisEncryptInterceptorBehaviorTest {
         Executor executor = this.mockQueryExecutor(wrapper, captured);
         this.interceptSelect(executor, wrapper);
         assertThat(captured).allMatch(value -> !PHONE.equals(value));
-        assertThat(wrapper.getParamNameValuePairs().containsValue(PHONE)).isTrue();
+        assertThat(wrapper.getParamNameValuePairs()).containsValue(PHONE);
     }
 
     /**

@@ -114,8 +114,8 @@ class MyBatisDecryptInterceptorBehaviorTest {
         List<Object> rows = new ArrayList<>();
         rows.add(row);
         this.interceptResultSets(rows);
-        assertThat(row.get("phone")).isEqualTo(PHONE);
-        assertThat(row.get("name")).isEqualTo("张三");
+        assertThat(row).containsEntry("phone", PHONE);
+        assertThat(row).containsEntry("name", "张三");
     }
 
     /**
