@@ -36,7 +36,7 @@
 
         <!-- ID Generator and Job Scheduler Versions -->
         <cosid.version>4.1.1</cosid.version>
-        <snail-job.version>1.10.0</snail-job.version>
+        <snail-job.version>2.0.2</snail-job.version>
 
         <!-- Messaging and Notification Versions -->
         <sms4j.version>3.3.5</sms4j.version>
