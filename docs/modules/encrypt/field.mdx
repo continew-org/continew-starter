@@ -22,13 +22,15 @@ description: 基于 MyBatis 拦截器的数据库字段加解密：标注 @Field
 
 加密拦截器 `MyBatisEncryptInterceptor` 与解密拦截器 `MyBatisDecryptInterceptor` 均为标准 MyBatis 插件（`org.apache.ibatis.plugin.Interceptor`），引入依赖后由 mybatis-plus starter 自动注册到 `SqlSessionFactory`，无需手动配置。
 
-写入时支持以下参数形态，加密实体在写入完成后保持明文原值，同一实体重复写入不会二次加密：
+写入时支持以下参数形态，加密只作用于落库参数（传入实体保持明文原值，不做就地改写），同一实体重复写入不会二次加密；实体拷贝要求具备无参构造：
 
 - 实体（如 MyBatis-Plus 的 `insert` 直传实体）
 - `et` 实体别名（如 `updateById`、`update`）
 - `ew` Wrapper（`UpdateWrapper` / `LambdaUpdateWrapper` 的 `set` 参数）
 - 集合与数组（如 `@Param("list") List<User>`、`User[]`）
 - 自定义 `@Param` 别名实体（如 `@Param("user") User user`）
+
+`UpdateWrapper` 的 `set` 参数中的空串保持空串落库，不会被替换为 `null`；实体加密字段的空串与空白串同样保持原值。
 
 不支持自动处理的路径：手写 SQL 字符串拼接（如 `${sql}` 内联传值、非 `#{}` 占位符的动态 SQL）不经过 MyBatis 参数对象，拦截器无法感知，需在业务层自行调用 `EncryptHelper` 加解密；Wrapper 内嵌实体（`wrapper.setEntity(...)`）不参与加密。
 

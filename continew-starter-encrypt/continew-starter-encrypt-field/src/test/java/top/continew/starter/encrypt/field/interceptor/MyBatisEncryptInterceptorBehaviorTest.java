@@ -47,14 +47,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 /**
  * 字段加密拦截器行为测试
  *
  * <p>用 Mockito 模拟 Executor、以真实 MappedStatement 与 Invocation 驱动拦截器，验证写入参数
- * 的各类形态（实体、et/ew、集合、数组、自定义别名）均被加密、写入后参数恢复原值、同一实体
- * 重复写入幂等、加密失败时参数不被污染。</p>
+ * 的各类形态（实体、et/ew、集合、数组、自定义别名）均被加密、加密只作用于落库参数拷贝而
+ * 传入实体保持明文原值、同一实体重复写入幂等、加密失败时参数不被污染。</p>
  *
  * @author Charles7c
  * @since 3.1.0
@@ -95,22 +95,22 @@ class MyBatisEncryptInterceptorBehaviorTest {
     }
 
     /**
-     * et 实体参数应在写入期间被加密，写入完成后恢复为明文原值。
+     * et 实体参数应被加密（落库参数为密文），传入实体保持明文原值。
      */
     @Test
-    void shouldEncryptEtEntityAndRestoreAfterWrite() throws Throwable {
+    void shouldEncryptEtEntityAndKeepOriginalEntityPlain() throws Throwable {
         User user = new User();
         user.phone = PHONE;
         Map<String, Object> parameter = new HashMap<>();
         parameter.put("et", user);
-        Executor executor = this.mockWriteExecutor(captured -> this.collectPhoneValues(parameter,
-            captured));
+        Executor executor = this.mockWriteExecutor((param, captured) -> this
+            .collectPhoneValues(param, captured));
         this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
         assertThat(user.phone).isEqualTo(PHONE);
     }
 
     /**
-     * 自定义别名实体、集合与数组中的实体均应被加密（写入期间均为密文），写入完成后恢复为明文。
+     * 自定义别名实体、集合与数组中的实体均应被加密，传入实体保持明文。
      */
     @Test
     void shouldEncryptCustomAliasCollectionAndArrayEntities() throws Throwable {
@@ -130,12 +130,11 @@ class MyBatisEncryptInterceptorBehaviorTest {
         Executor executor = mock(Executor.class);
         when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
             List<String> captured = new ArrayList<>();
-            this.collectPhoneValues(parameter, captured);
+            this.collectPhoneValues(invocation.getArgument(1), captured);
             capturedPerExecute.add(captured);
             return 1;
         });
         this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
-        assertThat(capturedPerExecute).hasSize(1);
         assertThat(capturedPerExecute.get(0)).hasSize(4);
         assertThat(capturedPerExecute.get(0)).allMatch(value -> !PHONE.equals(value));
         assertThat(aliased.phone).isEqualTo(PHONE);
@@ -157,7 +156,7 @@ class MyBatisEncryptInterceptorBehaviorTest {
         Executor executor = mock(Executor.class);
         when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
             List<String> captured = new ArrayList<>();
-            this.collectPhoneValues(parameter, captured);
+            this.collectPhoneValues(invocation.getArgument(1), captured);
             capturedPerExecute.add(captured);
             return 1;
         });
@@ -168,7 +167,8 @@ class MyBatisEncryptInterceptorBehaviorTest {
     }
 
     /**
-     * 同一实体在多个参数别名（et、param1、自定义别名）下同时出现时应只加密一次。
+     * 同一实体在多个参数别名（et、param1、自定义别名）下同时出现时应只加密一次，
+     * 落库参数中各别名指向同一加密拷贝。
      */
     @Test
     void shouldNotDoubleEncryptSameEntityInOneWrite() throws Throwable {
@@ -178,27 +178,31 @@ class MyBatisEncryptInterceptorBehaviorTest {
         parameter.put("et", user);
         parameter.put("param1", user);
         parameter.put("alias", user);
-        List<List<String>> capturedPerExecute = new ArrayList<>();
+        List<Map<?, ?>> capturedParams = new ArrayList<>();
         Executor executor = mock(Executor.class);
         when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
-            List<String> captured = new ArrayList<>();
-            this.collectPhoneValues(parameter, captured);
-            capturedPerExecute.add(captured);
+            capturedParams.add((Map<?, ?>) invocation.getArgument(1));
             return 1;
         });
         this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
-        assertThat(capturedPerExecute.get(0)).hasSize(3);
+        Map<?, ?> newParameter = capturedParams.get(0);
+        Object etCopy = newParameter.get("et");
+        assertThat(newParameter.get("param1")).isSameAs(etCopy);
+        assertThat(newParameter.get("alias")).isSameAs(etCopy);
+        assertThat(etCopy).isNotSameAs(user);
         String onceEncrypted = EncryptHelper.encrypt(PHONE, userAnnotation(User.class));
-        assertThat(capturedPerExecute.get(0)).allMatch(onceEncrypted::equals);
+        assertThat(ReflectUtil.getFieldValue(etCopy, "phone")).isEqualTo(onceEncrypted);
     }
 
     /**
-     * UpdateWrapper 的 SET 参数应在写入期间被加密，写入完成后恢复为明文。
+     * UpdateWrapper 的 SET 参数应被加密，空串保持空串不被替换为 null，
+     * 写入完成后 paramNameValuePairs 恢复为明文。
      */
     @Test
-    void shouldEncryptUpdateWrapperPairsAndRestore() throws Throwable {
+    void shouldEncryptUpdateWrapperPairsAndKeepEmptyString() throws Throwable {
         UpdateWrapper<User> wrapper = new UpdateWrapper<>();
         wrapper.set("phone", PHONE);
+        wrapper.set("name", "");
         Map<String, Object> parameter = new HashMap<>();
         parameter.put("ew", wrapper);
         List<String> captured = new ArrayList<>();
@@ -214,13 +218,15 @@ class MyBatisEncryptInterceptorBehaviorTest {
             return 1;
         });
         this.interceptUpdate(executor, updateStatement(SqlCommandType.UPDATE), parameter);
-        assertThat(captured).hasSize(1);
-        assertThat(captured.get(0)).isNotEqualTo(PHONE);
+        assertThat(captured).hasSize(2);
+        assertThat(captured).contains("");
+        assertThat(captured).anyMatch(value -> !PHONE.equals(value) && !value.isEmpty());
         assertThat(wrapper.getParamNameValuePairs().containsValue(PHONE)).isTrue();
+        assertThat(wrapper.getParamNameValuePairs().containsValue("")).isTrue();
     }
 
     /**
-     * 直传实体（MP insert 等无别名方法）应被加密，写入完成后恢复为明文。
+     * 直传实体（MP insert 等无别名方法）应被加密，传入实体保持明文。
      */
     @Test
     void shouldEncryptInsertEntityParameter() throws Throwable {
@@ -241,10 +247,35 @@ class MyBatisEncryptInterceptorBehaviorTest {
     }
 
     /**
-     * fail-fast 模式下加密失败应抛出异常，且实体字段不被密文污染。
+     * 直传集合（批量插入）应整集合加密，传入集合中的实体保持明文。
      */
     @Test
-    void shouldRestoreEntityWhenEncryptFails() throws Throwable {
+    void shouldEncryptInsertCollectionParameter() throws Throwable {
+        User first = new User();
+        first.phone = PHONE;
+        User second = new User();
+        second.phone = PHONE;
+        List<User> users = new ArrayList<>(Arrays.asList(first, second));
+        List<List<String>> capturedPerExecute = new ArrayList<>();
+        Executor executor = mock(Executor.class);
+        when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
+            List<String> captured = new ArrayList<>();
+            this.collectPhoneValues(invocation.getArgument(1), captured);
+            capturedPerExecute.add(captured);
+            return 1;
+        });
+        this.interceptUpdate(executor, updateStatement(SqlCommandType.INSERT), users);
+        assertThat(capturedPerExecute.get(0)).hasSize(2);
+        assertThat(capturedPerExecute.get(0)).allMatch(value -> !PHONE.equals(value));
+        assertThat(first.phone).isEqualTo(PHONE);
+        assertThat(second.phone).isEqualTo(PHONE);
+    }
+
+    /**
+     * fail-fast 模式下加密失败应抛出异常，且传入实体不被密文污染。
+     */
+    @Test
+    void shouldNotPolluteEntityWhenEncryptFails() throws Throwable {
         InvalidKeyEntity entity = new InvalidKeyEntity();
         entity.phone = PHONE;
         Executor executor = mock(Executor.class);
@@ -256,10 +287,10 @@ class MyBatisEncryptInterceptorBehaviorTest {
     }
 
     /**
-     * 查询路径的实体参数应被加密（保持既有行为），查询完成后恢复为明文。
+     * 查询路径的实体参数应被加密（保持既有行为），传入实体保持明文。
      */
     @Test
-    void shouldEncryptQueryEntityParameterAndRestore() throws Throwable {
+    void shouldEncryptQueryEntityParameterAndKeepOriginalPlain() throws Throwable {
         User user = new User();
         user.phone = PHONE;
         Map<String, Object> parameter = new HashMap<>();
@@ -283,17 +314,18 @@ class MyBatisEncryptInterceptorBehaviorTest {
     }
 
     /**
-     * 模拟写入型 Executor：执行期间按给定捕获器记录参数快照
+     * 模拟写入型 Executor：执行期间按给定捕获器记录替换后的落库参数
      *
-     * @param capturer 捕获器，执行期间被调用以记录当时的参数值
+     * @param capturer 捕获器，入参为替换后的参数对象与捕获结果
      * @return 已打桩的 Executor
      * @throws SQLException Executor.update 声明的受检异常
      */
-    private Executor mockWriteExecutor(Consumer<List<String>> capturer) throws SQLException {
+    private Executor mockWriteExecutor(BiConsumer<Object, List<String>> capturer)
+        throws SQLException {
         Executor executor = mock(Executor.class);
         when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
             List<String> captured = new ArrayList<>();
-            capturer.accept(captured);
+            capturer.accept(invocation.getArgument(1), captured);
             return 1;
         });
         return executor;
