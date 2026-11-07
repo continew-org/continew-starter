@@ -41,6 +41,7 @@ import top.continew.starter.core.util.validation.CheckUtils;
 import top.continew.starter.core.util.validation.ValidationUtils;
 import top.continew.starter.data.mapper.BaseMapper;
 import top.continew.starter.data.service.impl.ServiceImpl;
+import top.continew.starter.data.util.QueryGroupContext;
 import top.continew.starter.data.util.QueryWrapperHelper;
 import top.continew.starter.data.util.SortUtils;
 import top.continew.starter.excel.util.ExcelUtils;
@@ -48,6 +49,7 @@ import top.continew.starter.extension.crud.annotation.DictModel;
 import top.continew.starter.extension.crud.annotation.TreeField;
 import top.continew.starter.extension.crud.autoconfigure.CrudProperties;
 import top.continew.starter.extension.crud.autoconfigure.CrudTreeDictModelProperties;
+import top.continew.starter.extension.crud.constant.CrudQueryGroups;
 import top.continew.starter.extension.crud.model.entity.BaseIdDO;
 import top.continew.starter.extension.crud.model.query.PageQuery;
 import top.continew.starter.extension.crud.model.query.SortQuery;
@@ -86,7 +88,8 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
 
     @Override
     public PageResp<L> page(Q query, PageQuery pageQuery) {
-        QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
+        QueryWrapper<T> queryWrapper = QueryGroupContext.callWith(CrudQueryGroups.LIST, () -> this
+            .buildQueryWrapper(query));
         this.sort(queryWrapper, pageQuery);
         IPage<T> page = baseMapper.selectPage(new Page<>(pageQuery.getPage(), pageQuery.getSize()),
             queryWrapper);
@@ -97,7 +100,8 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
 
     @Override
     public List<L> list(Q query, SortQuery sortQuery) {
-        List<L> list = this.list(query, sortQuery, this.getListClass());
+        List<L> list = QueryGroupContext.callWith(CrudQueryGroups.LIST, () -> this.list(query,
+            sortQuery, this.getListClass()));
         list.forEach(this::fill);
         return list;
     }
@@ -205,7 +209,8 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
 
     @Override
     public void export(Q query, SortQuery sortQuery, HttpServletResponse response) {
-        List<D> list = this.list(query, sortQuery, this.getDetailClass());
+        List<D> list = QueryGroupContext.callWith(CrudQueryGroups.EXPORT, () -> this.list(query,
+            sortQuery, this.getDetailClass()));
         list.forEach(this::fill);
         ExcelUtils.export(list, "导出数据", this.getDetailClass(), response);
     }
@@ -354,8 +359,9 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
      */
     protected QueryWrapper<T> buildQueryWrapper(Q query) {
         QueryWrapper<T> queryWrapper = new QueryWrapper<>();
-        // 解析并拼接查询条件
-        return QueryWrapperHelper.build(query, this.getQueryFields(), queryWrapper);
+        // 分组标识由场景入口经 QueryGroupContext 传入，未绑定分组时回退既有行为
+        return QueryWrapperHelper.build(query, this.getQueryFields(), queryWrapper,
+            QueryGroupContext.get());
     }
 
     /**
