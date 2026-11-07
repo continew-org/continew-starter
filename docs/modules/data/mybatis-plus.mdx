@@ -183,6 +183,8 @@ public class DeptQuery implements Serializable {
 
 分组标识为开放字符串，由查询构建方传入。CRUD 模块的内置分组见 [CRUD 查询分组](/docs/starter/modules/extension/crud#查询分组)（列表 `list`、导出 `export`）；通过 `QueryWrapperHelper.build(query, fields, queryWrapper, group)` 自行构建查询条件时可传入任意分组。
 
+分组上下文基于 ThreadLocal 在同步调用链内传递，不跨线程；异步或线程池场景需由使用方自行传递分组，或重写 `buildQueryWrapper` 显式指定。
+
 ## 通用 Mapper 与 Service
 
 继承模块提供的 `BaseMapper`（`top.continew.starter.data.mapper.BaseMapper`）与 `IService` / `ServiceImpl`，在 MyBatis Plus 默认能力之上额外获得批量与链式方法：

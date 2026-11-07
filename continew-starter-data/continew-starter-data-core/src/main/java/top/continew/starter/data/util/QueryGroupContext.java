@@ -63,7 +63,7 @@ public class QueryGroupContext {
         try {
             return action.get();
         } finally {
-            GROUP.set(previous);
+            restore(previous);
         }
     }
 
@@ -80,6 +80,20 @@ public class QueryGroupContext {
         try {
             action.run();
         } finally {
+            restore(previous);
+        }
+    }
+
+    /**
+     * 恢复进入前的分组绑定，进入前未绑定时移除 Entry，避免线程池场景在
+     * ThreadLocalMap 中残留 null 值 Entry
+     *
+     * @param previous 进入前的分组标识
+     */
+    private static void restore(String previous) {
+        if (previous == null) {
+            GROUP.remove();
+        } else {
             GROUP.set(previous);
         }
     }

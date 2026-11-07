@@ -393,6 +393,8 @@ public class UserQuery {
 
 选择规则：命中当前接口分组的声明优先；未命中分组声明时回退到未声明分组（`groups` 为空）的声明；仅分组声明且不匹配的字段在当前接口不参与条件构建。未声明任何分组的既有查询条件类行为不变。
 
+分组上下文基于 ThreadLocal 在同步调用链内传递，不跨线程；异步或线程池场景需由使用方自行传递分组，或重写 `buildQueryWrapper` 显式指定。
+
 #### 生命周期钩子
 
 `CrudServiceImpl` 提供以下钩子方法，由子类按需重写（见 `CrudServiceImpl.java:366-425`）。

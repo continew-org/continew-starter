@@ -108,6 +108,8 @@ QueryWrapper queryWrapper = QueryWrapperHelper.build(query, fields, QueryWrapper
 
 未声明分组的声明在所有分组下生效；仅分组声明且分组不匹配的字段不参与条件构建。CRUD 模块的内置分组见 [CRUD 查询分组](/docs/starter/modules/extension/crud#查询分组)。
 
+分组上下文基于 ThreadLocal 在同步调用链内传递，不跨线程；异步或线程池场景需由使用方自行传递分组，或重写 `buildQueryWrapper` 显式指定。
+
 ## 通用 Mapper 与 Service
 
 ```java

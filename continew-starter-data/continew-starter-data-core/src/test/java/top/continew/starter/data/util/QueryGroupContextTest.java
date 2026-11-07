@@ -18,6 +18,7 @@ package top.continew.starter.data.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -69,6 +70,7 @@ class QueryGroupContextTest {
             QueryGroupContext.runWith("list", () -> {
                 throw new IllegalStateException("boom");
             });
+            fail("应抛出异常");
         } catch (IllegalStateException e) {
             // 抛出即验证目标，无需额外断言
         }
