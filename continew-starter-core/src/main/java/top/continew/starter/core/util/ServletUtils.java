@@ -31,6 +31,7 @@ import top.continew.starter.core.constant.StringConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Map;
@@ -189,7 +190,7 @@ public class ServletUtils extends JakartaServletUtil {
      * @see #write(HttpServletResponse, String, String)
      */
     public static void writeJson(HttpServletResponse response, String data) {
-        writeJson(response, data, StandardCharsets.UTF_8.name());
+        writeJson(response, data, StandardCharsets.UTF_8);
     }
 
     /**
@@ -200,13 +201,13 @@ public class ServletUtils extends JakartaServletUtil {
      * {@code getWriter()}，编码设置会被容器静默忽略。
      * </p>
      *
-     * @param response    响应对象
-     * @param data        响应数据
-     * @param charsetName 字符编码名称，如 {@code StandardCharsets.UTF_8.name()}
+     * @param response 响应对象
+     * @param data     响应数据
+     * @param charset  字符编码，如 {@code StandardCharsets.UTF_8}
      * @since 3.1.0
      */
-    public static void writeJson(HttpServletResponse response, String data, String charsetName) {
-        response.setCharacterEncoding(charsetName);
+    public static void writeJson(HttpServletResponse response, String data, Charset charset) {
+        response.setCharacterEncoding(charset.name());
         write(response, data, MediaType.APPLICATION_JSON_VALUE);
     }
 

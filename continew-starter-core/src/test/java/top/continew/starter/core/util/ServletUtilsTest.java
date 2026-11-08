@@ -33,6 +33,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -88,7 +89,7 @@ class ServletUtilsTest {
         StringWriter writerSink = new StringWriter();
         HttpServletResponse response = buildResponseWithWriter(writerSink);
         InOrder inOrder = inOrder(response);
-        ServletUtils.writeJson(response, "您当前没有访问该租户的权限", "GBK");
+        ServletUtils.writeJson(response, "您当前没有访问该租户的权限", Charset.forName("GBK"));
         inOrder.verify(response).setCharacterEncoding("GBK");
         inOrder.verify(response).getWriter();
         assertThat(writerSink.toString()).hasToString("您当前没有访问该租户的权限");
