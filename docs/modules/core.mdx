@@ -165,7 +165,7 @@ public class CustomCorsConfiguration {
 | 组件 | 说明 |
 |:-----|:-----|
 | `SpringUtils` | Spring 相关工具：获取 Bean / 代理对象、URL 路径匹配（`isMatch`、`isMatchAnt`）、动态注册/注销资源处理器、获取 `HandlerMethod` 等 |
-| `ServletUtils` | Servlet 相关工具：获取当前 Request/Response/Session、请求头 Map、浏览器与操作系统解析、写出 JSON、判断请求体类型等 |
+| `ServletUtils` | Servlet 相关工具：获取当前 Request/Response/Session、请求头 Map、浏览器与操作系统解析、写出 JSON（默认 UTF-8，可指定编码）、判断请求体类型等 |
 | `IpUtils` | IP 工具：`getIpv4Address` 基于 ip2region 离线库查询归属地、`isInnerIpv4` 判断内网 IP |
 | `TreeUtils` | 树结构构建：`build`、`buildMultiRoot`、`getLeafNodes` 等 |
 | `CollUtils` / `MapUtils` / `StrUtils` | 集合、Map、字符串的扩展操作（如 `mapToList`、`blankToDefault`） |
