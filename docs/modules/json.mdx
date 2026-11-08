@@ -56,7 +56,7 @@ spring:
 | 取值 | 行为 | 说明 |
 |:-----|:-----|:-----|
 | `FLEXIBLE`（默认） | 超出 JS 安全整数范围的数值转为 `String`，范围内保持原类型 | 兼顾前端可读性与精度安全 |
-| `TO_STRING` | `Long`/`BigInteger` 统一转为 `String` | 前端始终收到字符串 |
+| `TO_STRING` | `Long`/`BigInteger`/`BigDecimal` 统一转为 `String` | 前端始终收到字符串 |
 | `NO_OPERATE` | 不做任何处理（不建议） | 超过 JS 范围的数值会损失精度，如 `8014753905961037835` 会变成 `8014753905961038000` |
 
 <Callout type="info">
@@ -85,7 +85,12 @@ JS 的 `Number.MAX_SAFE_INTEGER` 为 `9007199254740991`，雪花算法等生成�
 
 ### 大数值
 
-根据 `big-number-serialize-mode` 的配置，为 `Long`、`long`、`BigInteger` 注册对应的序列化器（`BigNumberSerializer` 或 `ToStringSerializer`），见上文配置表。
+根据 `big-number-serialize-mode` 的配置，为 `Long`、`long`、`BigInteger`、`BigDecimal` 注册对应的序列化器（`BigNumberSerializer` 或 `ToStringSerializer`），见上文配置表。
+
+`FLEXIBLE` 模式（默认）下，`BigNumberSerializer` 以 JS 安全整数闭区间 [-9007199254740991, 9007199254740991] 为判定基准（边界值可被 JS 精确表示）：
+
+- `Long`/`long`/`BigInteger`：区间内保持数字输出，区间外转为字符串；
+- `BigDecimal`：绝对值超出该区间，或绝对值不小于 2^51 且无法被 double 精确表示时转为字符串，其余情况保持数字输出。
 
 ## 工具类
 

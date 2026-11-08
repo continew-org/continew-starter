@@ -43,6 +43,7 @@ import top.continew.starter.json.jackson.serializer.BaseEnumSerializer;
 import top.continew.starter.json.jackson.serializer.BigNumberSerializer;
 import top.continew.starter.json.jackson.serializer.SimpleDeserializersWrapper;
 
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Duration;
 import java.time.Instant;
@@ -148,11 +149,14 @@ public class JacksonAutoConfiguration {
                 bigNumberModule.addSerializer(Long.TYPE, BigNumberSerializer.SERIALIZER_INSTANCE);
                 bigNumberModule.addSerializer(BigInteger.class,
                     BigNumberSerializer.SERIALIZER_INSTANCE);
+                bigNumberModule.addSerializer(BigDecimal.class,
+                    BigNumberSerializer.SERIALIZER_INSTANCE);
             }
             case TO_STRING -> {
                 bigNumberModule.addSerializer(Long.class, ToStringSerializer.instance);
                 bigNumberModule.addSerializer(Long.TYPE, ToStringSerializer.instance);
                 bigNumberModule.addSerializer(BigInteger.class, ToStringSerializer.instance);
+                bigNumberModule.addSerializer(BigDecimal.class, ToStringSerializer.instance);
             }
             default ->
                 LOGGER.warn("[ContiNew Starter] - Jackson 大数值序列化模式：NO_OPERATE，超过 JS 范围的数值会损失精度");
