@@ -58,12 +58,16 @@ public abstract class AbstractMyBatisInterceptor {
 
     /**
      * 获取实体声明的加密列映射：列名（小写）到加密注解，优先取 MyBatis-Plus TableInfo 的
-     * 列名，TableInfo 未初始化时以字段名兜底
+     * 列名，TableInfo 未初始化时以字段名兜底；entityClass 为 null 时返回空映射，即无实体
+     * 上下文的语句跳过列映射加密
      *
      * @param entityClass 实体类
      * @return 列名到加密注解映射
      */
     protected Map<String, FieldEncrypt> getColumnEncryptAnnotations(Class<?> entityClass) {
+        if (entityClass == null) {
+            return Collections.emptyMap();
+        }
         return COLUMN_ENCRYPT_CACHE.computeIfAbsent(entityClass, clazz -> {
             Map<String, FieldEncrypt> columnMap = new HashMap<>();
             TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);

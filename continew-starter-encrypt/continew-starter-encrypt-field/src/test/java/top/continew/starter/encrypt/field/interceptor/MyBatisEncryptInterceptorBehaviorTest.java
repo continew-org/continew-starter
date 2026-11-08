@@ -418,6 +418,34 @@ class MyBatisEncryptInterceptorBehaviorTest {
     }
 
     /**
+     * 无实体上下文的 select 查询（Wrapper 无实体类且语句参数映射无类型）应正常放行不抛
+     * 异常，落库参数保持原 Wrapper，条件值未被加密触碰。
+     */
+    @Test
+    void shouldPassThroughSelectWithoutEntityContext() throws Throwable {
+        QueryWrapper<User> wrapper = new QueryWrapper<>();
+        wrapper.eq("phone", PHONE);
+        Map<Object, Object> capturedParameter = new HashMap<>();
+        Executor executor = mock(Executor.class);
+        when(executor.query(any(MappedStatement.class), any(), any(RowBounds.class),
+            any(ResultHandler.class))).thenAnswer(invocation -> {
+                capturedParameter.putAll((Map<?, ?>) invocation.getArgument(1));
+                return new ArrayList<>();
+            });
+        this.interceptSelect(executor, wrapper, this.statementWithoutParameterType());
+        assertThat(capturedParameter).containsEntry("ew", wrapper);
+        assertThat(wrapper.getParamNameValuePairs()).isEmpty();
+    }
+
+    /**
+     * 实体类为 null 时列映射应返回空映射，跳过列映射加密。
+     */
+    @Test
+    void shouldReturnEmptyColumnMapWhenEntityClassIsNull() {
+        assertThat(this.interceptor.getColumnEncryptAnnotations(null)).isEmpty();
+    }
+
+    /**
      * 模拟查询型 Executor：执行期间记录 Wrapper 条件参数的当前值
      *
      * @param wrapper  Wrapper 参数
@@ -441,7 +469,7 @@ class MyBatisEncryptInterceptorBehaviorTest {
     }
 
     /**
-     * 通过 Invocation 触发拦截器查询路径
+     * 通过 Invocation 触发拦截器查询路径，语句使用样例实体参数映射
      *
      * @param executor 模拟的执行器
      * @param wrapper  Wrapper 参数
@@ -449,13 +477,25 @@ class MyBatisEncryptInterceptorBehaviorTest {
      */
     private void interceptSelect(Executor executor, AbstractWrapper<?, ?, ?> wrapper)
         throws Throwable {
+        this.interceptSelect(executor, wrapper, updateStatement(SqlCommandType.SELECT));
+    }
+
+    /**
+     * 通过 Invocation 触发拦截器查询路径
+     *
+     * @param executor  模拟的执行器
+     * @param wrapper   Wrapper 参数
+     * @param statement 映射语句
+     * @throws Throwable 拦截异常
+     */
+    private void interceptSelect(Executor executor, AbstractWrapper<?, ?, ?> wrapper,
+        MappedStatement statement) throws Throwable {
         Method queryMethod = Executor.class.getMethod("query", MappedStatement.class, Object.class,
             RowBounds.class, ResultHandler.class);
         Map<String, Object> parameter = new HashMap<>();
         parameter.put("ew", wrapper);
         Invocation invocation = new Invocation(executor, queryMethod,
-            new Object[] {updateStatement(SqlCommandType.SELECT), parameter, RowBounds.DEFAULT,
-                mock(ResultHandler.class)});
+            new Object[] {statement, parameter, RowBounds.DEFAULT, mock(ResultHandler.class)});
         this.interceptor.intercept(invocation);
     }
 
@@ -545,6 +585,23 @@ class MyBatisEncryptInterceptorBehaviorTest {
         String statementId = MyBatisEncryptInterceptorBehaviorTest.class.getName() + ".updateUser";
         return new MappedStatement.Builder(configuration, statementId, sqlSource, commandType)
             .parameterMap(new ParameterMap.Builder(configuration, "default", User.class,
+                new ArrayList<>()).build())
+            .build();
+    }
+
+    /**
+     * 构造参数映射无类型的 select 语句，模拟动态 statement 下 Wrapper 与语句均无实体上下文
+     *
+     * @return 映射语句
+     */
+    private MappedStatement statementWithoutParameterType() {
+        Configuration configuration = new Configuration();
+        RawSqlSource sqlSource = new RawSqlSource(configuration,
+            "SELECT * FROM user WHERE phone = ?", null);
+        String statementId = MyBatisEncryptInterceptorBehaviorTest.class.getName() + ".selectUser";
+        return new MappedStatement.Builder(configuration, statementId, sqlSource,
+            SqlCommandType.SELECT)
+            .parameterMap(new ParameterMap.Builder(configuration, "default", null,
                 new ArrayList<>()).build())
             .build();
     }
