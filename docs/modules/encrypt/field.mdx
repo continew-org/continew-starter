@@ -18,6 +18,30 @@ description: 基于 MyBatis 拦截器的数据库字段加解密：标注 @Field
 字段加密基于 MyBatis 拦截器实现，依赖 `mybatis-plus-extension`，仅在 MyBatis（MyBatis Plus）持久层场景下生效。
 </Callout>
 
+## 拦截器装配与支持范围
+
+加密拦截器 `MyBatisEncryptInterceptor` 与解密拦截器 `MyBatisDecryptInterceptor` 均为标准 MyBatis 插件（`org.apache.ibatis.plugin.Interceptor`），引入依赖后由 mybatis-plus starter 自动注册到 `SqlSessionFactory`，无需手动配置。
+
+> 升级提示：`MyBatisEncryptInterceptor` 自 3.1.0 起改为标准 MyBatis 插件（`org.apache.ibatis.plugin.Interceptor`），由 mybatis-plus starter 自动注册到 `SqlSessionFactory`。若此前手动执行过 `mybatisPlusInterceptor.addInnerInterceptor(new MyBatisEncryptInterceptor())`，请删除该行配置（升级后编译会报错提示）。`MyBatisDecryptInterceptor` 装配方式不变。另：旧版本加密拦截器依赖已配置的 `MybatisPlusInterceptor` 才生效，新版本不再有此依赖。
+
+写入时支持以下参数形态，加密只作用于落库参数（传入实体保持明文原值，不做就地改写），同一实体重复写入不会二次加密；实体拷贝要求具备无参构造：
+
+- 实体（如 MyBatis-Plus 的 `insert` 直传实体）
+- `et` 实体别名（如 `updateById`、`update`）
+- `ew` Wrapper（`UpdateWrapper` / `LambdaUpdateWrapper` 的 `set` 参数）
+- 集合与数组（如 `@Param("list") List<User>`、`User[]`）
+- 自定义 `@Param` 别名实体（如 `@Param("user") User user`）
+
+`UpdateWrapper` 的 `set` 参数中的空串保持空串落库，不会被替换为 `null`；实体加密字段的空串与空白串同样保持原值。
+
+查询时支持以下场景，查询参数与结果的处理对传入对象无副作用：
+
+- `QueryWrapper` / `LambdaQueryWrapper` / `UpdateWrapper` 条件中命中加密列的参数值会被加密，查询完成后恢复为明文
+- 参数级 `@FieldEncrypt` 注解的 String 参数按注解配置加密
+- `resultType=map` 的结果行按键解密：按 MyBatis-Plus 已注册实体声明的加密列匹配列名（大小写不敏感），仅解密命中列且值为字符串的键；未注册实体的场景（如 `TableInfo` 尚未初始化）不处理。同一列名被多个实体声明且加密配置不同时，以先注册的为准，此类场景建议使用实体 `resultType` 获得精确匹配。该解密存在两点精度边界：未加密实体与加密实体存在同名列时（如明文表的 `phone`），map 结果行中的该列会被按加密列误解密，默认 fail-fast 模式下表现为解密失败报错；全局加密列并集在首次 map 解密时构建并固化（`AbstractMyBatisInterceptor` 的列映射缓存），其后再完成实体注册（`TableInfo` 初始化）的实体不会进入并集，其加密列在 map 结果行中将持续不处理
+
+不支持自动处理的路径：手写 SQL 字符串拼接（如 `${sql}` 内联传值、非 `#{}` 占位符的动态 SQL）不经过 MyBatis 参数对象，拦截器无法感知，需在业务层自行调用 `EncryptHelper` 加解密；Wrapper 内嵌实体（`wrapper.setEntity(...)`）不参与加密；`BETWEEN`、`EXISTS` 等复杂条件不在自动加密范围内，加密列的此类条件值以明文参与匹配，无法查到密文数据，需自行调用 `EncryptHelper` 加解密后拼接或改用受支持的操作符。
+
 ## 配置
 
 配置项定义在 `top.continew.starter.encrypt.field.autoconfigure.FieldEncryptProperties` 中：
@@ -36,6 +60,8 @@ continew-starter:
       public-key: ''
       # 非对称加密算法私钥（RSA 需要）
       private-key: ''
+      # 失败是否快速抛出（默认：true）
+      fail-fast: true
 ```
 
 | 配置项 | 说明 | 默认值 |
@@ -45,8 +71,17 @@ continew-starter:
 | `continew-starter.encrypt.field.password` | 对称加密算法密钥 | 无 |
 | `continew-starter.encrypt.field.public-key` | 非对称加密算法公钥（RSA） | 无 |
 | `continew-starter.encrypt.field.private-key` | 非对称加密算法私钥（RSA） | 无 |
+| `continew-starter.encrypt.field.fail-fast` | 失败是否快速抛出，`true` 为严格模式 | `true` |
 
 内置算法由 `top.continew.starter.encrypt.enums.Algorithm` 枚举定义：`AES`、`DES`、`PBE_WITH_MD5_AND_DES`、`RSA`、`BASE64`，另有 `DEFAULT` 表示跟随全局配置的 `algorithm`。
+
+## 失败策略
+
+`fail-fast`（默认 `true`）控制加密配置异常与加解密失败的处理方式：
+
+- **启动期校验（严格模式）**：对称加密算法（`AES`、`DES`、`PBE_WITH_MD5_AND_DES`）要求全局密钥 `continew-starter.encrypt.field.password` 必须配置且长度合法（`AES` 为 16/24/32 字节、`DES` 为 8 字节、`PBE_WITH_MD5_AND_DES` 仅要求非空），不满足时启动失败，异常信息指向具体配置项。
+- **运行期（严格模式）**：加密或解密失败时抛出 `top.continew.starter.encrypt.field.exception.FieldEncryptException`，异常信息包含字段名与算法，不会返回原值写入或读出。
+- **降级模式（`fail-fast: false`）**：跳过启动期校验，运行期失败仅记录警告日志并返回原值，与早期版本行为一致。敏感字段可能以明文落库，仅在存量密文兼容场景下使用。
 
 ## 使用 @FieldEncrypt 注解
 
