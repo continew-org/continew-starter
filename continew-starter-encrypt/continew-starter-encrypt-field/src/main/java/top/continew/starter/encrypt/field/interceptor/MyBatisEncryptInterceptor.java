@@ -152,21 +152,30 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      */
     private void writeBackGeneratedKeys(IdentityHashMap<Object, Object> copyCache) {
         for (Map.Entry<Object, Object> entry : copyCache.entrySet()) {
-            Object source = entry.getKey();
-            Object copy = entry.getValue();
-            if (source instanceof Map || source instanceof Collection || source.getClass()
-                .isArray()) {
-                continue;
-            }
-            Field keyField = this.resolveKeyField(source.getClass());
-            if (keyField == null) {
-                continue;
-            }
-            Object sourceKey = ReflectUtil.getFieldValue(source, keyField);
-            Object copyKey = ReflectUtil.getFieldValue(copy, keyField);
-            if (sourceKey == null && copyKey != null) {
-                ReflectUtil.setFieldValue(source, keyField, copyKey);
-            }
+            this.writeBackGeneratedKey(entry.getKey(), entry.getValue());
+        }
+    }
+
+    /**
+     * 回写单个条目的主键：容器类参数与未识别到主键字段的条目直接跳过，仅在原对象主键为空
+     * 且拷贝上已被填充时写回，不覆盖调用方已设置的主键
+     *
+     * @param source 原对象
+     * @param copy   加密拷贝
+     */
+    private void writeBackGeneratedKey(Object source, Object copy) {
+        if (source instanceof Map || source instanceof Collection || source.getClass()
+            .isArray()) {
+            return;
+        }
+        Field keyField = this.resolveKeyField(source.getClass());
+        if (keyField == null) {
+            return;
+        }
+        Object sourceKey = ReflectUtil.getFieldValue(source, keyField);
+        Object copyKey = ReflectUtil.getFieldValue(copy, keyField);
+        if (sourceKey == null && copyKey != null) {
+            ReflectUtil.setFieldValue(source, keyField, copyKey);
         }
     }
 
