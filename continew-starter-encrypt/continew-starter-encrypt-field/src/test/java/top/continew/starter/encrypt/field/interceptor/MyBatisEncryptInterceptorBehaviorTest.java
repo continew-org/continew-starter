@@ -23,6 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import cn.hutool.core.util.ReflectUtil;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -83,14 +84,44 @@ class MyBatisEncryptInterceptorBehaviorTest {
     }
 
     /**
+     * 主键识别退化为 @TableId 注解的样例实体（未注册 TableInfo）
+     */
+    static class KeyEntity {
+
+        @TableId
+        private Long id;
+
+        @FieldEncrypt
+        private String phone;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+    }
+
+    /**
      * 使用全局默认配置的样例实体
      */
     static class User {
+
+        private Long id;
 
         @FieldEncrypt
         private String phone;
 
         private String name;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
 
         public String getPhone() {
             return phone;
@@ -360,6 +391,125 @@ class MyBatisEncryptInterceptorBehaviorTest {
         MappedStatement statement = updateStatement(SqlCommandType.INSERT);
         assertThatThrownBy(() -> this.interceptUpdate(executor, statement, entity))
             .isInstanceOf(FieldEncryptException.class);
+        assertThat(entity.phone).isEqualTo(PHONE);
+    }
+
+    /**
+     * 插入成功且影响行数大于 0 时，MP 回填到落库拷贝实体上的主键应写回调用方原实体，
+     * 原实体加密字段保持明文。
+     */
+    @Test
+    void shouldWriteBackGeneratedIdToOriginalEntityOnInsert() throws Throwable {
+        this.initUserTableInfo();
+        User user = new User();
+        user.phone = PHONE;
+        List<Object> insertedParameters = new ArrayList<>();
+        Executor executor = mock(Executor.class);
+        when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
+            Object param = invocation.getArgument(1);
+            // 模拟 MP 的主键填充发生在参数处理阶段，作用于替换后的落库参数对象
+            if (param instanceof User copy) {
+                copy.setId(1L);
+            }
+            insertedParameters.add(param);
+            return 1;
+        });
+        this.interceptUpdate(executor, updateStatement(SqlCommandType.INSERT), user);
+        assertThat(insertedParameters.get(0)).isNotSameAs(user);
+        assertThat(user.getId()).isEqualTo(1L);
+        assertThat(user.phone).isEqualTo(PHONE);
+    }
+
+    /**
+     * et 别名形态插入时，回填到 ParamMap 中拷贝实体的主键应写回原实体。
+     */
+    @Test
+    void shouldWriteBackGeneratedIdFromEtParameterCopy() throws Throwable {
+        this.initUserTableInfo();
+        User user = new User();
+        user.phone = PHONE;
+        Map<String, Object> parameter = new HashMap<>();
+        parameter.put("et", user);
+        Executor executor = mock(Executor.class);
+        when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
+            Map<?, ?> param = (Map<?, ?>) invocation.getArgument(1);
+            if (param.get("et") instanceof User copy) {
+                copy.setId(2L);
+            }
+            return 1;
+        });
+        this.interceptUpdate(executor, updateStatement(SqlCommandType.INSERT), parameter);
+        assertThat(user.getId()).isEqualTo(2L);
+        assertThat(user.phone).isEqualTo(PHONE);
+    }
+
+    /**
+     * 批量插入（集合参数）时，各拷贝实体上被回填的主键应分别写回集合中的原实体。
+     */
+    @Test
+    void shouldWriteBackGeneratedIdsForCollectionInsert() throws Throwable {
+        this.initUserTableInfo();
+        User first = new User();
+        first.phone = PHONE;
+        User second = new User();
+        second.phone = PHONE;
+        List<User> users = new ArrayList<>(Arrays.asList(first, second));
+        Executor executor = mock(Executor.class);
+        when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
+            List<?> param = (List<?>) invocation.getArgument(1);
+            long id = 10L;
+            for (Object element : param) {
+                if (element instanceof User copy) {
+                    copy.setId(id++);
+                }
+            }
+            return param.size();
+        });
+        this.interceptUpdate(executor, updateStatement(SqlCommandType.INSERT), users);
+        assertThat(first.getId()).isEqualTo(10L);
+        assertThat(second.getId()).isEqualTo(11L);
+        assertThat(first.phone).isEqualTo(PHONE);
+        assertThat(second.phone).isEqualTo(PHONE);
+    }
+
+    /**
+     * 插入影响行数为 0（未插入成功）时不应回写主键，调用方实体保持 null 主键。
+     */
+    @Test
+    void shouldNotWriteBackIdWhenInsertAffectsNoRows() throws Throwable {
+        this.initUserTableInfo();
+        User user = new User();
+        user.phone = PHONE;
+        Executor executor = mock(Executor.class);
+        when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
+            Object param = invocation.getArgument(1);
+            if (param instanceof User copy) {
+                copy.setId(99L);
+            }
+            return 0;
+        });
+        this.interceptUpdate(executor, updateStatement(SqlCommandType.INSERT), user);
+        assertThat(user.getId()).isNull();
+        assertThat(user.phone).isEqualTo(PHONE);
+    }
+
+    /**
+     * 实体未注册 TableInfo 时，主键识别退化为 @TableId 注解，回填的主键仍应写回原实体。
+     */
+    @Test
+    void shouldWriteBackGeneratedIdViaTableIdAnnotationFallback() throws Throwable {
+        KeyEntity entity = new KeyEntity();
+        entity.phone = PHONE;
+        Executor executor = mock(Executor.class);
+        when(executor.update(any(MappedStatement.class), any())).thenAnswer(invocation -> {
+            Object param = invocation.getArgument(1);
+            if (param instanceof KeyEntity copy) {
+                copy.setId(3L);
+            }
+            return 1;
+        });
+        this.interceptUpdate(executor, updateStatement(SqlCommandType.INSERT), entity);
+        assertThat(entity.getId()).isEqualTo(3L);
         assertThat(entity.phone).isEqualTo(PHONE);
     }
 

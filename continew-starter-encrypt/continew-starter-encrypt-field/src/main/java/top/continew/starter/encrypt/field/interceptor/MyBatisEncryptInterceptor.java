@@ -20,7 +20,10 @@ import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.ReflectUtil;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.core.conditions.AbstractWrapper;
+import com.baomidou.mybatisplus.core.metadata.TableInfo;
+import com.baomidou.mybatisplus.core.metadata.TableInfoHelper;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -55,7 +58,8 @@ import java.util.regex.Pattern;
  * 字段加密拦截器
  *
  * <p>写入时对参数中的加密实体拷贝加密，加密结果只作用于落库参数，传入实体保持明文原值，
- * 支持实体、{@code et}/{@code ew}、集合、数组与自定义 {@code @Param} 别名等参数形态。</p>
+ * 支持实体、{@code et}/{@code ew}、集合、数组与自定义 {@code @Param} 别名等参数形态；
+ * 插入成功后，把 MyBatis-Plus 回填到拷贝实体的主键写回调用方实体。</p>
  *
  * @author Charles7c
  * @author lishuyan
@@ -127,11 +131,63 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             if (newParameter != parameterObject) {
                 invocation.getArgs()[1] = newParameter;
             }
-            return invocation.proceed();
+            Object rows = invocation.proceed();
+            if (mappedStatement.getSqlCommandType() == SqlCommandType.INSERT
+                && rows instanceof Integer rowsCount && rowsCount > 0) {
+                this.writeBackGeneratedKeys(copyCache);
+            }
+            return rows;
         } finally {
             // Wrapper 的 paramNameValuePairs 在写入完成后恢复原值，加密失败时不残留密文
             snapshot.restore();
         }
+    }
+
+    /**
+     * 把 MyBatis-Plus 回填到拷贝实体的主键写回调用方实体：主键填充发生在参数处理阶段，
+     * 作用于落库拷贝，调用方实体仍持有 null 主键；仅回写原值为 null 且拷贝上已被填充的
+     * 主键字段，不覆盖调用方已设置的主键
+     *
+     * @param copyCache 拷贝缓存（原对象到加密拷贝）
+     */
+    private void writeBackGeneratedKeys(IdentityHashMap<Object, Object> copyCache) {
+        for (Map.Entry<Object, Object> entry : copyCache.entrySet()) {
+            Object source = entry.getKey();
+            Object copy = entry.getValue();
+            if (source instanceof Map || source instanceof Collection || source.getClass()
+                .isArray()) {
+                continue;
+            }
+            Field keyField = this.resolveKeyField(source.getClass());
+            if (keyField == null) {
+                continue;
+            }
+            Object sourceKey = ReflectUtil.getFieldValue(source, keyField);
+            Object copyKey = ReflectUtil.getFieldValue(copy, keyField);
+            if (sourceKey == null && copyKey != null) {
+                ReflectUtil.setFieldValue(source, keyField, copyKey);
+            }
+        }
+    }
+
+    /**
+     * 解析实体的主键字段：优先取 MyBatis-Plus TableInfo 的主键属性，TableInfo 未初始化时
+     * 退化为 {@code @TableId} 注解识别，未识别到返回 null（跳过回写）
+     *
+     * @param entityClass 实体类
+     * @return 主键字段或 null
+     */
+    private Field resolveKeyField(Class<?> entityClass) {
+        TableInfo tableInfo = TableInfoHelper.getTableInfo(entityClass);
+        if (tableInfo != null && CharSequenceUtil.isNotBlank(tableInfo.getKeyProperty())) {
+            return ReflectUtil.getField(entityClass, tableInfo.getKeyProperty());
+        }
+        for (Field field : ReflectUtil.getFields(entityClass)) {
+            if (field.getAnnotation(TableId.class) != null) {
+                return field;
+            }
+        }
+        return null;
     }
 
     /**
