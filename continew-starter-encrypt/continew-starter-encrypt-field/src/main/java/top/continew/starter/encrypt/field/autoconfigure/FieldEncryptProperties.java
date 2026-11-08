@@ -84,22 +84,10 @@ public class FieldEncryptProperties {
         this.password = password;
     }
 
-    /**
-     * 获取失败是否快速抛出
-     *
-     * @return 失败是否快速抛出
-     * @since 3.1.0
-     */
     public Boolean getFailFast() {
         return failFast;
     }
 
-    /**
-     * 设置失败是否快速抛出
-     *
-     * @param failFast 失败是否快速抛出
-     * @since 3.1.0
-     */
     public void setFailFast(Boolean failFast) {
         this.failFast = failFast;
     }
