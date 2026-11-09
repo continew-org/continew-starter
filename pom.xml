@@ -22,8 +22,8 @@
 
     <properties>
         <!-- Maven Environment Versions -->
-        <!-- 产物字节码版本：与 Spring Boot 4 官方基线（Java 17）对齐，构建机使用 JDK 25 -->
-        <java.version>17</java.version>
+        <!-- 产物字节码版本：Java 21，即使用方的运行时门槛；构建机使用 JDK 25 -->
+        <java.version>21</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <resource.delimiter>@</resource.delimiter>
         <maven.javadoc.failOnError>false</maven.javadoc.failOnError>

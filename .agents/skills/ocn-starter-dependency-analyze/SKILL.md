@@ -159,7 +159,7 @@ Spring Boot↔Cloud 兼容矩阵，无需重复提供上下文。
 
 - **Python 3 标准库**，零第三方依赖（仅 `urllib`/`xml.etree`/`re`/`json`）。
 - **联网**：Step 1 需访问 `repo1.maven.org:443`；离线时 `scan.py` 用内置坐标目录生成「无最新版」快照并标注离线。
-- **git + JDK 17 + Maven Wrapper**：默认写操作只改文件，不调 git/构建；仅 `{"compile":true}` 路径需要构建，
+- **git + JDK 21+ + Maven Wrapper**：默认写操作只改文件，不调 git/构建；仅 `{"compile":true}` 路径需要构建，
   统一用仓库自带的 `./mvnw`（Windows `./mvnw.cmd`），不要裸调 `mvn`。纯读报告不需要。
 - **Windows**：命令用 `python`（不是 `python3`），macOS/Linux 自行改 `python3`。
 

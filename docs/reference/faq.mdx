@@ -113,6 +113,10 @@ Starter 的可覆盖 Bean 大多标注了 `@ConditionalOnMissingBean`，你自�
 
 **其他依赖与语义**：Sa-Token 升级至 1.46.0，链路追踪由 TLog 切换为 Micrometer Tracing（相关依赖与配置需同步调整），CosId 升级至 4.0.2，自定义 `AuthSessionRevocationNotifier` 的实现需适配多实现聚合的 List 注入语义。
 
+## 升级到 3.1.0
+
+**运行环境门槛**：3.1.0 起产物字节码为 **Java 21**，使用方运行时需 **JDK 21 及以上**（构建侧要求 JDK 21+，推荐 25）。仍停留在 JDK 17 运行时且暂无法升级的项目，请继续使用 3.0.x；升级到 3.1.0 前先把运行环境升到 JDK 21，否则类加载会抛 `UnsupportedClassVersionError`。依赖字节码同样不得高于 Java 21，Enforcer 会在 `validate` 阶段拦截更高版本构件。3.1.0 的其余变更以 [CHANGELOG.md](https://github.com/continew-org/continew-starter/blob/dev/CHANGELOG.md) 为准。
+
 ## 版本变更（Changelog）
 
 各版本的新特性、修复与破坏性变更记录维护在仓库的 [CHANGELOG.md](https://github.com/continew-org/continew-starter/blob/dev/CHANGELOG.md) 中，按版本号倒序组织，每条变更附对应的 Commit 与 PR 链接；1.x 与 2.0.0–2.12.2 的历史记录分别在 `CHANGELOG_1.x.x.md`、`CHANGELOG_2.0.0-2.12.2.md`。
