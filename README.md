@@ -230,13 +230,14 @@ continew-starter
 
 | 维度 | 要求 | 声明位置 |
 |:-----|:-----|:---------|
-| 构建 JDK | **JDK 21 及以上**（推荐 JDK 25） | `continew-starter-dependencies/pom.xml:581`（Enforcer `requireJavaVersion [21,)`） |
-| 产物字节码 | **Java 17** | `pom.xml:26`（`java.version=17`）→ `pom.xml:27`（`maven.compiler.release`） |
+| 构建 JDK | **JDK 21 及以上**（推荐 JDK 25） | `continew-starter-dependencies/pom.xml:610`（Enforcer `requireJavaVersion [21,)`） |
+| 产物字节码 | **Java 21** | `pom.xml:26`（`java.version=21`）→ `pom.xml:27`（`maven.compiler.release`） |
 
 - 构建需要 **JDK 21 及以上**：Enforcer 的 `requireJavaVersion [21,)` 规则在 `validate` 阶段校验，低于 21 会在编译前直接失败。
-- 产出的字节码目标仍是 **Java 17**（`maven.compiler.release=17`），对外承诺的运行时门槛不变。
+- 产出的字节码目标为 **Java 21**（`maven.compiler.release=21`），使用方运行时门槛为 JDK 21 及以上。
+- 依赖字节码不得高于 Java 21：Enforcer 的 `enforceBytecodeVersion` 在 `validate` 阶段拦截更高版本构件，避免悄悄抬高使用方门槛。
 
-> `pom.xml` 中的 `java.version=17` 只描述产物字节码，**不表示需要用 JDK 17 构建**。CI 实际使用 Temurin 25（`.github/workflows/ci.yml:30`）。
+> `pom.xml` 中的 `java.version=21` 只描述产物字节码，**不表示需要用 JDK 21 构建**。CI 实际使用 Temurin 25（`.github/workflows/ci.yml:30`）。
 
 ## 参与贡献
 

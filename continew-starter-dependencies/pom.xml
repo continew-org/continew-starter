@@ -609,12 +609,12 @@
                         </requireMavenVersion>
                         <requireJavaVersion>
                             <version>[21,)</version>
-                            <message>本项目要求 JDK 21 及以上版本构建（推荐 JDK 25，产物字节码为 Java 17）。</message>
+                            <message>本项目要求 JDK 21 及以上版本构建（推荐 JDK 25，产物字节码为 Java 21）。</message>
                         </requireJavaVersion>
                         <banDuplicatePomDependencyVersions/>
                         <enforceBytecodeVersion>
-                            <maxJdkVersion>17</maxJdkVersion>
-                            <message>依赖中存在高于 Java 17 字节码版本的构件，请勿引入。</message>
+                            <maxJdkVersion>21</maxJdkVersion>
+                            <message>依赖中存在高于 Java 21 字节码版本的构件，会抬高使用方运行时门槛，请勿引入。</message>
                         </enforceBytecodeVersion>
                     </rules>
                 </configuration>

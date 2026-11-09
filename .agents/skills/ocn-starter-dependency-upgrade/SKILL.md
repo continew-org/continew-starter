@@ -263,7 +263,7 @@ compile 干净后，跑项目规定的完整验收（四道静态门禁 + 单元
 - **Python 3 标准库**，零第三方依赖（urllib/xml.etree/re/json/subprocess 调 git）。
 - **联网**：Step 4 需访问各库官网（GitHub Releases / 官网 migration 页）；离线时 `changelog_fetch.py` 标注
   「离线，回退 WebSearch」并提示手动查。
-- **git + JDK 17 + Maven Wrapper**：统一用仓库自带的 `./mvnw`（Windows `./mvnw.cmd`），不要裸调 `mvn`，
+- **git + JDK 21+ + Maven Wrapper**：统一用仓库自带的 `./mvnw`（Windows `./mvnw.cmd`），不要裸调 `mvn`，
   版本与 CI 一致。
 - **Windows**：命令用 `python`（不是 `python3`）。
 
