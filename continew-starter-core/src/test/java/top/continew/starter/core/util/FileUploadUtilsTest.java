@@ -86,8 +86,7 @@ class FileUploadUtilsTest {
         MockMultipartFile multipartFile = new MockMultipartFile("file", "../../evil.txt",
             MediaType.TEXT_PLAIN_VALUE, "upload".getBytes(StandardCharsets.UTF_8));
         File dest = FileUploadUtils.upload(multipartFile, tempDir.toString(), false);
-        assertThat(dest).isNotNull();
-        assertThat(dest).hasParent(tempDir.toFile());
+        assertThat(dest).isNotNull().hasParent(tempDir.toFile());
         assertThat(dest.getName()).matches(UUID_NAME_PATTERN);
     }
 
