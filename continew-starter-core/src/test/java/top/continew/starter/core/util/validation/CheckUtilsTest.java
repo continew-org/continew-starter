@@ -49,7 +49,8 @@ class CheckUtilsTest {
     @BeforeAll
     static void initSpringContext() {
         ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
-        when(beanFactory.getBean(Validator.class)).thenReturn(mock(Validator.class));
+        Validator mockValidator = mock(Validator.class);
+        when(beanFactory.getBean(Validator.class)).thenReturn(mockValidator);
         SpringContextTestHolder.inject(beanFactory);
     }
 
@@ -71,7 +72,8 @@ class CheckUtilsTest {
     @Test
     @DisplayName("throwIfExists 对非 null 抛出异常且保留实体名原文（锁定当前行为：不剥离 DO）")
     void shouldThrowWhenRecordExists() {
-        assertThatThrownBy(() -> CheckUtils.throwIfExists(new Object(), "UserDO", "id", 1L))
+        Object target = new Object();
+        assertThatThrownBy(() -> CheckUtils.throwIfExists(target, "UserDO", "id", 1L))
             .isInstanceOf(BusinessException.class)
             .hasMessage("id 为 [1] 的 UserDO 记录已存在");
     }

@@ -107,7 +107,7 @@ class MultipartFileUtilsTest {
                 throw new IOException("stream broken");
             }
         };
-        // IoUtil.copy 先将 IOException 包装为 IORuntimeException 抛出，不落入 createFileItem 的 catch (IOException)
+        // IoUtil.copy 会把底层流错误包装为 IORuntimeException 向上抛出，createFileItem 内对流错误的捕获分支不会命中
         assertThatThrownBy(() -> MultipartFileUtils.createFileItem(brokenStream, "a.txt"))
             .isInstanceOf(IORuntimeException.class)
             .hasMessageContaining("stream broken");

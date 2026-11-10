@@ -102,10 +102,7 @@ class MapUtilsTest {
         Map<String, Object> from = new HashMap<>();
         from.put("child", fromChild);
         Map<String, Object> merged = MapUtils.mergeMap(to, from);
-        assertThat(merged).containsKey("child");
-        Map<?, ?> mergedChild = (Map<?, ?>) merged.get("child");
-        assertThat(mergedChild.get("a")).isEqualTo(1);
-        assertThat(mergedChild.get("b")).isEqualTo(2);
+        assertThat(merged).containsEntry("child", Map.of("a", 1, "b", 2));
     }
 
     @Test

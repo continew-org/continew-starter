@@ -73,6 +73,8 @@ class ReflectUtilsTest {
     void shouldCollectNonStaticFieldNames() {
         List<String> names = ReflectUtils.getNonStaticFieldsName(ChildBean.class);
         assertThat(names).containsExactly("parentField", "childField", "parentField");
+        // staticField 与实例字段并存：其未被收集，读引用同时锁定该 fixture 字段存在
+        assertThat(ParentBean.staticField).isNull();
     }
 
     @Test
@@ -83,6 +85,11 @@ class ReflectUtilsTest {
             .containsExactly("parentField", "childField", "parentField");
         assertThat(fields).extracting(Field::getDeclaringClass)
             .containsExactly(ChildBean.class, ChildBean.class, ParentBean.class);
+        // 同名字段并存：直接字段访问绑定子类声明的字段，父类 getter 读的是父类字段，二者互不影响
+        ChildBean bean = new ChildBean();
+        bean.parentField = "shadow";
+        assertThat(bean.parentField).isEqualTo("shadow");
+        assertThat(bean.getParentField()).isNull();
     }
 
     @Test

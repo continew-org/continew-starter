@@ -18,7 +18,6 @@ package top.continew.starter.core.util;
 
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -56,8 +55,8 @@ class ValidatorTest {
     @BeforeAll
     static void initSpringContext() {
         ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
-        when(beanFactory.getBean(jakarta.validation.Validator.class))
-            .thenReturn(mock(jakarta.validation.Validator.class));
+        jakarta.validation.Validator mockValidator = mock(jakarta.validation.Validator.class);
+        when(beanFactory.getBean(jakarta.validation.Validator.class)).thenReturn(mockValidator);
         SpringContextTestHolder.inject(beanFactory);
         // 静态字段随首次类初始化固化，须对固化实例打桩以保证与同 JVM 内初始化顺序无关
         jakartaValidator = (jakarta.validation.Validator) ReflectionTestUtils
@@ -75,7 +74,7 @@ class ValidatorTest {
     void shouldThrowWhenViolationExists() {
         ConstraintViolation<Object> violation = mock(ConstraintViolation.class);
         Object target = new Object();
-        when(jakartaValidator.validate(eq(target))).thenReturn(Set.of(violation));
+        when(jakartaValidator.validate(target)).thenReturn(Set.of(violation));
         assertThatThrownBy(() -> Validator.validate(target))
             .isInstanceOf(ConstraintViolationException.class);
     }

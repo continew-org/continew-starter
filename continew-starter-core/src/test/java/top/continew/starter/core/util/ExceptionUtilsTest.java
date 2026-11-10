@@ -17,6 +17,7 @@
 package top.continew.starter.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import org.junit.jupiter.api.DisplayName;
@@ -117,8 +118,9 @@ class ExceptionUtilsTest {
     @DisplayName("exToThrow 在异常时抛出 mapper 转换后的异常")
     void shouldThrowMappedException() {
         Exception cause = new IllegalStateException("boom");
-        assertThatThrownBy(() -> ExceptionUtils.exToThrow(failingSupplier(cause),
-            BusinessException::new)).isInstanceOf(BusinessException.class)
+        ExceptionUtils.ExSupplier<String> failing = failingSupplier(cause);
+        assertThatThrownBy(() -> ExceptionUtils.exToThrow(failing, BusinessException::new))
+            .isInstanceOf(BusinessException.class)
             .hasCause(cause);
     }
 
@@ -132,8 +134,8 @@ class ExceptionUtilsTest {
     @Test
     @DisplayName("printException 对 null 异常与非 Future 任务不执行任何动作")
     void shouldDoNothingForPlainRunnable() {
-        ExceptionUtils.printException(() -> {
-        }, null);
+        assertThatCode(() -> ExceptionUtils.printException(() -> {
+        }, null)).doesNotThrowAnyException();
     }
 
     @Test
@@ -141,7 +143,8 @@ class ExceptionUtilsTest {
     void shouldLogCancelledFutureSilently() {
         FutureTask<String> cancelled = new FutureTask<>(() -> "x");
         cancelled.cancel(true);
-        ExceptionUtils.printException(cancelled, null);
+        assertThatCode(() -> ExceptionUtils.printException(cancelled, null))
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -151,7 +154,8 @@ class ExceptionUtilsTest {
             throw new IllegalStateException("task failed");
         });
         failed.run();
-        ExceptionUtils.printException(failed, null);
+        assertThatCode(() -> ExceptionUtils.printException(failed, null))
+            .doesNotThrowAnyException();
     }
 
     @Test
@@ -165,7 +169,7 @@ class ExceptionUtilsTest {
     @Test
     @DisplayName("printException 直接传入异常时原样记录")
     void shouldLogDirectThrowable() {
-        ExceptionUtils.printException(() -> {
-        }, new IllegalStateException("direct"));
+        assertThatCode(() -> ExceptionUtils.printException(() -> {
+        }, new IllegalStateException("direct"))).doesNotThrowAnyException();
     }
 }

@@ -50,7 +50,8 @@ class ValidationUtilsTest {
     @BeforeAll
     static void initSpringContext() {
         ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
-        when(beanFactory.getBean(Validator.class)).thenReturn(mock(Validator.class));
+        Validator mockValidator = mock(Validator.class);
+        when(beanFactory.getBean(Validator.class)).thenReturn(mockValidator);
         SpringContextTestHolder.inject(beanFactory);
     }
 

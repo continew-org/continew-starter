@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.core.env.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -52,37 +54,30 @@ class GeneralPropertySourceFactoryTest {
         return new EncodedResource(resource);
     }
 
+    @ParameterizedTest(name = "[{index}] {0}")
+    @CsvSource({
+        "property-source-factory/test-config.yml, test-config.yml",
+        "property-source-factory/test-config.yaml, test-config.yaml",
+        "property-source-factory/test-config.properties, class path resource [property-source-factory/test-config.properties]"})
+    @DisplayName("扩展名路由：yml/yaml 按 YAML 加载并以文件名命名，properties 回退父类以资源描述命名")
+    void shouldRoutePropertySourceNameByExtension(String location, String expectedName)
+        throws IOException {
+        PropertySource<?> source = factory.createPropertySource(null, classPathResource(location));
+        assertThat(source.getName()).isEqualTo(expectedName);
+        assertThat(source.getProperty("provider.name")).isEqualTo("continew");
+    }
+
     @Test
-    @DisplayName("yml 扩展名按 YAML 加载扁平化属性")
-    void shouldLoadYamlPropertySourceForYmlExtension() throws IOException {
-        PropertySource<?> source = factory
+    @DisplayName("yml 扩展名按 YAML 加载时数值属性被解析为 Integer，properties 路由无此转换")
+    void shouldParseNumericValueAsIntegerForYamlRoute() throws IOException {
+        PropertySource<?> yamlSource = factory
             .createPropertySource(null,
                 classPathResource("property-source-factory/test-config.yml"));
-        assertThat(source.getName()).isEqualTo("test-config.yml");
-        assertThat(source.getProperty("provider.name")).isEqualTo("continew");
-        assertThat(source.getProperty("provider.version")).isEqualTo(3);
-    }
-
-    @Test
-    @DisplayName("yaml 扩展名同样按 YAML 加载")
-    void shouldLoadYamlPropertySourceForYamlExtension() throws IOException {
-        PropertySource<?> source = factory
-            .createPropertySource(null,
-                classPathResource("property-source-factory/test-config.yaml"));
-        assertThat(source.getName()).isEqualTo("test-config.yaml");
-        assertThat(source.getProperty("provider.name")).isEqualTo("continew");
-    }
-
-    @Test
-    @DisplayName("properties 扩展名回退父类按 properties 加载")
-    void shouldFallbackToPropertiesForPropertiesExtension() throws IOException {
-        PropertySource<?> source = factory
+        assertThat(yamlSource.getProperty("provider.version")).isEqualTo(3);
+        PropertySource<?> propertiesSource = factory
             .createPropertySource(null,
                 classPathResource("property-source-factory/test-config.properties"));
-        // Spring 6.1+ 的父类实现以资源描述作为 PropertySource 名称
-        assertThat(source.getName())
-            .isEqualTo("class path resource [property-source-factory/test-config.properties]");
-        assertThat(source.getProperty("provider.name")).isEqualTo("continew");
+        assertThat(propertiesSource.getProperty("provider.version")).isEqualTo("3");
     }
 
     @Test

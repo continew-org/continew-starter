@@ -40,8 +40,8 @@ class TemplateUtilsTest {
     @Test
     @DisplayName("render 在无模板引擎实现时抛出 TemplateException（锁定当前行为）")
     void shouldThrowWhenNoTemplateEngineOnClasspath() {
-        assertThatThrownBy(
-            () -> TemplateUtils.render("demo-template.txt", Map.of("name", "continew")))
+        Map<String, Object> params = Map.of("name", "continew");
+        assertThatThrownBy(() -> TemplateUtils.render("demo-template.txt", params))
             .isInstanceOf(TemplateException.class)
             .hasMessageContaining("No template found");
     }
@@ -49,8 +49,8 @@ class TemplateUtilsTest {
     @Test
     @DisplayName("render 三参重载在无模板引擎实现时同样抛出 TemplateException")
     void shouldThrowForParentPathOverloadWhenNoEngine() {
-        assertThatThrownBy(() -> TemplateUtils
-            .render("templates", "demo-template.txt", Map.of("name", "continew")))
+        Map<String, Object> params = Map.of("name", "continew");
+        assertThatThrownBy(() -> TemplateUtils.render("templates", "demo-template.txt", params))
             .isInstanceOf(TemplateException.class);
     }
 }

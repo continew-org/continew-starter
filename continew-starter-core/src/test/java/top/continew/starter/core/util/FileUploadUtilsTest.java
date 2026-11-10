@@ -87,7 +87,7 @@ class FileUploadUtilsTest {
             MediaType.TEXT_PLAIN_VALUE, "upload".getBytes(StandardCharsets.UTF_8));
         File dest = FileUploadUtils.upload(multipartFile, tempDir.toString(), false);
         assertThat(dest).isNotNull();
-        assertThat(dest.getParentFile()).isEqualTo(tempDir.toFile());
+        assertThat(dest).hasParent(tempDir.toFile());
         assertThat(dest.getName()).matches(UUID_NAME_PATTERN);
     }
 

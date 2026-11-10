@@ -107,7 +107,7 @@ class ExpressionUtilsTest {
     @DisplayName("ExpressionInvokeContext 读写 method、args 与 target")
     void shouldAccessInvokeContextFields() throws NoSuchMethodException {
         Method method = addMethod();
-        Object[] args = new Object[] {1, 2};
+        Object[] args = {1, 2};
         Object target = new SampleService();
         ExpressionInvokeContext context = new ExpressionInvokeContext(method, args, target);
         assertThat(context.getMethod()).isSameAs(method);

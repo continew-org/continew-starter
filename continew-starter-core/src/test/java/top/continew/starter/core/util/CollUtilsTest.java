@@ -25,7 +25,6 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -94,7 +93,6 @@ class CollUtilsTest {
     @Test
     @DisplayName("mapToList 保留重复映射结果")
     void shouldKeepDuplicatesWhenMapToList() {
-        Collection<String> collection = Collections.singleton("aa");
         List<Integer> result = CollUtils.mapToList(Arrays.asList("aa", "bb"), value -> 2);
         assertThat(result).containsExactly(2, 2);
     }
