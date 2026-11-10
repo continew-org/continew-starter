@@ -86,8 +86,9 @@ class ExcelUtilsTest {
         HttpServletResponse response = mock(HttpServletResponse.class);
         when(response.getOutputStream()).thenThrow(new IOException("模拟输出流故障"));
 
-        assertThatThrownBy(() -> ExcelUtils.export(List.of(new ExportRow("张三", 18)), "用户",
-            ExportRow.class, response))
+        List<ExportRow> rows = List.of(new ExportRow("张三", 18));
+
+        assertThatThrownBy(() -> ExcelUtils.export(rows, "用户", ExportRow.class, response))
             .isInstanceOf(BaseException.class)
             .hasMessage("导出 Excel 出现错误");
     }

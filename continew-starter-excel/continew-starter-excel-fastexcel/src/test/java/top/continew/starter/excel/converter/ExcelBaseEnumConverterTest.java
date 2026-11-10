@@ -121,6 +121,8 @@ class ExcelBaseEnumConverterTest {
 
     static class EnumFixture {
 
+        // 仅供反射按名获取 Field（转换器依赖 field.getType() 解析枚举类型），静态分析无法识别反射访问
+        @SuppressWarnings("unused")
         private Gender gender;
     }
 }
