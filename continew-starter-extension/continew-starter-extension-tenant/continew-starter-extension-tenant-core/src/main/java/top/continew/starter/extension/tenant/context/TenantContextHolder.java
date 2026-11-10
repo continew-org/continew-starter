@@ -16,7 +16,6 @@
 
 package top.continew.starter.extension.tenant.context;
 
-import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.ttl.TransmittableThreadLocal;
 import top.continew.starter.core.util.SpringUtils;
 import top.continew.starter.extension.tenant.autoconfigure.TenantProperties;
@@ -109,7 +108,12 @@ public class TenantContextHolder {
     public static TenantIsolationLevel getIsolationLevel() {
         return Optional.ofNullable(getContext())
             .map(TenantContext::getIsolationLevel)
-            .orElse(SpringUtil.getBean(TenantProperties.class).getIsolationLevel());
+            .orElseGet(() -> {
+                // 兜底语义：TenantProperties 未装配时回退默认行级隔离，兜底值不可为 null
+                TenantProperties properties = SpringUtils.getBean(TenantProperties.class, true);
+                return properties != null ? properties.getIsolationLevel()
+                    : TenantIsolationLevel.LINE;
+            });
     }
 
     /**
