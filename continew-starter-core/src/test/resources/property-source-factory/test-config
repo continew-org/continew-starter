@@ -1,0 +1,3 @@
+# 供 GeneralPropertySourceFactoryTest 使用的无扩展名配置样例
+provider.name=continew
+provider.version=3
