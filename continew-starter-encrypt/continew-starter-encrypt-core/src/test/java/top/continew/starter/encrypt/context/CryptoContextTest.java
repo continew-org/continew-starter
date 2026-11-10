@@ -102,7 +102,6 @@ class CryptoContextTest {
     @DisplayName("与 null 及其他类型比较不相等")
     void shouldNotBeEqualToNullOrOtherType() {
         CryptoContext context = newFullContext();
-        assertThat(context).isNotEqualTo(null);
-        assertThat(context).isNotEqualTo("not-a-context");
+        assertThat(context).isNotEqualTo(null).isNotEqualTo("not-a-context");
     }
 }
