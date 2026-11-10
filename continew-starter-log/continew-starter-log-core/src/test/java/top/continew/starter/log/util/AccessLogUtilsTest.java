@@ -116,9 +116,9 @@ class AccessLogUtilsTest {
         RecordableHttpRequest request = mock(RecordableHttpRequest.class);
         when(request.getParams()).thenReturn("{\"username\":\"admin\",\"password\":\"p@ss\"}");
         String param = AccessLogUtils.getParam(request, properties);
-        assertThat(param).contains("\"password\":\"***\"");
-        assertThat(param).contains("\"username\":\"admin\"");
-        assertThat(param).doesNotContain("p@ss");
+        assertThat(param).contains("\"password\":\"***\"")
+            .contains("\"username\":\"admin\"")
+            .doesNotContain("p@ss");
     }
 
     /**
@@ -152,8 +152,7 @@ class AccessLogUtilsTest {
         RecordableHttpRequest request = mock(RecordableHttpRequest.class);
         when(request.getParams()).thenReturn("{\"k\":\"abcdefghijk\",\"s\":\"abc\"}");
         String param = AccessLogUtils.getParam(request, properties);
-        assertThat(param).contains("\"k\":\"abcde...\"");
-        assertThat(param).contains("\"s\":\"abc\"");
+        assertThat(param).contains("\"k\":\"abcde...\"").contains("\"s\":\"abc\"");
     }
 
     /**

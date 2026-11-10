@@ -24,6 +24,7 @@ import org.junit.jupiter.api.Test;
 import top.continew.starter.log.model.LogRecord;
 
 import java.time.Instant;
+import java.util.List;
 
 /**
  * {@link DefaultLogDao} 内存持久层测试
@@ -50,7 +51,7 @@ class DefaultLogDaoTest {
     @DisplayName("记录的日志可查询到")
     void addedRecordShouldBeListed() {
         DefaultLogDao dao = new DefaultLogDao();
-        dao.add(record("新增用户"));
+        dao.add(newRecord("新增用户"));
         assertThat(dao.list()).extracting(LogRecord::getDescription).containsExactly("新增用户");
     }
 
@@ -61,8 +62,8 @@ class DefaultLogDaoTest {
     @DisplayName("默认降序：最新记录在前")
     void listShouldBeNewestFirstByDefault() {
         DefaultLogDao dao = new DefaultLogDao();
-        dao.add(record("第一条"));
-        dao.add(record("第二条"));
+        dao.add(newRecord("第一条"));
+        dao.add(newRecord("第二条"));
         assertThat(dao.list()).extracting(LogRecord::getDescription)
             .containsExactly("第二条", "第一条");
     }
@@ -75,8 +76,8 @@ class DefaultLogDaoTest {
     void listShouldKeepInsertionOrderWhenReverseDisabled() {
         DefaultLogDao dao = new DefaultLogDao();
         dao.setReverse(false);
-        dao.add(record("第一条"));
-        dao.add(record("第二条"));
+        dao.add(newRecord("第一条"));
+        dao.add(newRecord("第二条"));
         assertThat(dao.list()).extracting(LogRecord::getDescription)
             .containsExactly("第一条", "第二条");
     }
@@ -89,9 +90,9 @@ class DefaultLogDaoTest {
     void shouldDropOldestRecordWhenCapacityExceededInReverseMode() {
         DefaultLogDao dao = new DefaultLogDao();
         dao.setCapacity(2);
-        dao.add(record("第一条"));
-        dao.add(record("第二条"));
-        dao.add(record("第三条"));
+        dao.add(newRecord("第一条"));
+        dao.add(newRecord("第二条"));
+        dao.add(newRecord("第三条"));
         assertThat(dao.list()).extracting(LogRecord::getDescription)
             .containsExactly("第三条", "第二条");
     }
@@ -105,9 +106,9 @@ class DefaultLogDaoTest {
         DefaultLogDao dao = new DefaultLogDao();
         dao.setReverse(false);
         dao.setCapacity(2);
-        dao.add(record("第一条"));
-        dao.add(record("第二条"));
-        dao.add(record("第三条"));
+        dao.add(newRecord("第一条"));
+        dao.add(newRecord("第二条"));
+        dao.add(newRecord("第三条"));
         assertThat(dao.list()).extracting(LogRecord::getDescription)
             .containsExactly("第二条", "第三条");
     }
@@ -120,10 +121,10 @@ class DefaultLogDaoTest {
     void shouldTrimToNewCapacityAfterCapacityShrunk() {
         DefaultLogDao dao = new DefaultLogDao();
         dao.setCapacity(2);
-        dao.add(record("第一条"));
-        dao.add(record("第二条"));
+        dao.add(newRecord("第一条"));
+        dao.add(newRecord("第二条"));
         dao.setCapacity(1);
-        dao.add(record("第三条"));
+        dao.add(newRecord("第三条"));
         assertThat(dao.list()).extracting(LogRecord::getDescription).containsExactly("第三条");
     }
 
@@ -134,12 +135,14 @@ class DefaultLogDaoTest {
     @DisplayName("list 返回不可变快照（锁定当前行为）")
     void listShouldReturnImmutableSnapshot() {
         DefaultLogDao dao = new DefaultLogDao();
-        dao.add(record("新增用户"));
-        assertThatThrownBy(() -> dao.list().add(record("外部追加")))
+        dao.add(newRecord("新增用户"));
+        List<LogRecord> snapshot = dao.list();
+        LogRecord externalRecord = newRecord("外部追加");
+        assertThatThrownBy(() -> snapshot.add(externalRecord))
             .isInstanceOf(UnsupportedOperationException.class);
     }
 
-    private LogRecord record(String description) {
+    private LogRecord newRecord(String description) {
         LogRecord logRecord = new LogRecord(Instant.now(), null, null, null);
         logRecord.setDescription(description);
         return logRecord;

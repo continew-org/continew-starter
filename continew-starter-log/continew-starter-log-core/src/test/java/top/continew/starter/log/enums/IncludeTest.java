@@ -22,6 +22,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 /**
  * {@link Include} 枚举测试
  *
@@ -46,7 +48,8 @@ class IncludeTest {
     @Test
     @DisplayName("默认包含信息不可修改（锁定当前行为）")
     void defaultIncludesShouldBeUnmodifiable() {
-        assertThatThrownBy(() -> Include.defaultIncludes().add(Include.REQUEST_BODY))
+        Set<Include> defaultIncludes = Include.defaultIncludes();
+        assertThatThrownBy(() -> defaultIncludes.add(Include.REQUEST_BODY))
             .isInstanceOf(UnsupportedOperationException.class);
     }
 

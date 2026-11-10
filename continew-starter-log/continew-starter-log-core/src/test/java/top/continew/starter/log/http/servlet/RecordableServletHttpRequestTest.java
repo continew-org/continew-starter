@@ -20,6 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import top.continew.starter.core.wrapper.RepeatReadRequestWrapper;
 
@@ -70,39 +72,21 @@ class RecordableServletHttpRequestTest {
     }
 
     /**
-     * 合法查询字符串应原样拼接到 URL
+     * 查询字符串按预期拼接：合法原样、URI 非法字符编码后拼接、非 ASCII 原样保留（锁定当前行为）
+     *
+     * @param queryString      底层请求的查询字符串
+     * @param expectedRawQuery  预期拼接后的 URL 查询部分
      */
-    @Test
-    @DisplayName("合法查询字符串原样拼接")
-    void urlShouldAppendLegalQueryStringAsIs() {
+    @ParameterizedTest(name = "[{index}] 查询串「{0}」拼接为「{1}」")
+    @CsvSource({
+        "'a=1&b=2', 'a=1&b=2'",
+        "'name=zhang san', 'name=zhang%20san'",
+        "'name=张三', 'name=张三'"})
+    void urlShouldAppendQueryStringAsExpected(String queryString, String expectedRawQuery) {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users");
-        request.setQueryString("a=1&b=2");
+        request.setQueryString(queryString);
         RecordableServletHttpRequest recordable = new RecordableServletHttpRequest(request);
-        assertThat(recordable.getUrl().getRawQuery()).isEqualTo("a=1&b=2");
-    }
-
-    /**
-     * 含空格等 URI 非法字符的查询字符串应编码后拼接，不再抛解析异常
-     */
-    @Test
-    @DisplayName("URI 非法字符查询编码后拼接")
-    void urlShouldEncodeIllegalCharactersInQueryString() {
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users");
-        request.setQueryString("name=zhang san");
-        RecordableServletHttpRequest recordable = new RecordableServletHttpRequest(request);
-        assertThat(recordable.getUrl().getRawQuery()).isEqualTo("name=zhang%20san");
-    }
-
-    /**
-     * 锁定当前行为：非 ASCII 查询串在当前 JDK 下可被 URI 直接接受并原样保留（不触发编码回退）
-     */
-    @Test
-    @DisplayName("非 ASCII 查询串原样保留（锁定当前行为）")
-    void urlShouldKeepNonAsciiQueryStringAsIs() {
-        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/api/users");
-        request.setQueryString("name=张三");
-        RecordableServletHttpRequest recordable = new RecordableServletHttpRequest(request);
-        assertThat(recordable.getUrl().getRawQuery()).isEqualTo("name=张三");
+        assertThat(recordable.getUrl().getRawQuery()).isEqualTo(expectedRawQuery);
     }
 
     /**
