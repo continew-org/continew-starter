@@ -299,7 +299,3 @@ ContiNew 系列项目采用清晰的分支策略，确保开发与维护有序�
 
 - 遵循 <a href="https://github.com/continew-org/continew-starter/blob/dev/LICENSE" target="_blank">LGPL-3.0</a> 开源许可协议
 - Copyright © 2022-present <a href="https://charles7c.top" target="_blank">Charles7c</a>
-
-## GitHub Star 趋势
-
-![GitHub Star 趋势](https://starchart.cc/charles7c/continew-starter.svg)
