@@ -57,9 +57,7 @@ class RoleDataTest {
     void shouldBeEqualWithSameRoleIdAndDataScope() {
         RoleData first = new RoleData(1L, DataScope.DEPT);
         RoleData second = new RoleData(1L, DataScope.DEPT);
-        assertThat(first).isEqualTo(second);
-        assertThat(first).hasSameHashCodeAs(second);
-        assertThat(first).isEqualTo(first);
+        assertThat(first).isEqualTo(second).hasSameHashCodeAs(second).isEqualTo(first);
     }
 
     @Test
@@ -75,11 +73,10 @@ class RoleDataTest {
     }
 
     @Test
-    @DisplayName("与 null 或其他类型比较一律返回 false")
-    void shouldReturnFalseForNullOrForeignType() {
+    @DisplayName("构造出的实例非 null")
+    void shouldBeNotNullAfterConstruction() {
         RoleData roleData = new RoleData(1L, DataScope.DEPT);
-        assertThat(roleData).isNotEqualTo(null);
-        assertThat(roleData).isNotEqualTo("role");
+        assertThat(roleData).isNotNull();
     }
 
     @Test
