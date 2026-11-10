@@ -89,9 +89,11 @@ class DataPermissionTest {
 
     @DataPermission
     void annotatedWithDefaults() {
+        // 注解载体，供反射读取各属性默认值
     }
 
     @DataPermission(tableAlias = "u", deptId = "d_id", userId = "u_id", deptTableAlias = "dept")
     void annotatedWithCustomValues() {
+        // 注解载体，供反射读取方法上声明的属性值
     }
 }

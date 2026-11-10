@@ -59,7 +59,7 @@ class RoleDataTest {
         RoleData second = new RoleData(1L, DataScope.DEPT);
         assertThat(first).isEqualTo(second);
         assertThat(first).hasSameHashCodeAs(second);
-        assertThat(first.equals(first)).isTrue();
+        assertThat(first).isEqualTo(first);
     }
 
     @Test
@@ -78,16 +78,16 @@ class RoleDataTest {
     @DisplayName("与 null 或其他类型比较一律返回 false")
     void shouldReturnFalseForNullOrForeignType() {
         RoleData roleData = new RoleData(1L, DataScope.DEPT);
-        assertThat(roleData.equals(null)).isFalse();
-        assertThat(roleData.equals("role")).isFalse();
+        assertThat(roleData).isNotEqualTo(null);
+        assertThat(roleData).isNotEqualTo("role");
     }
 
     @Test
     @DisplayName("dataScope 为 null 时按引用比较返回 false 且不抛异常（锁定当前行为）")
     void shouldReturnFalseWithoutThrowingWhenDataScopeIsNull() {
         RoleData nullScope = new RoleData(1L, null);
-        assertThat(nullScope.equals(new RoleData(1L, DataScope.ALL))).isFalse();
-        assertThat(new RoleData(1L, DataScope.ALL).equals(nullScope)).isFalse();
+        assertThat(nullScope).isNotEqualTo(new RoleData(1L, DataScope.ALL));
+        assertThat(new RoleData(1L, DataScope.ALL)).isNotEqualTo(nullScope);
     }
 
     @Test
