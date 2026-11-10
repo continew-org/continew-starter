@@ -14,4 +14,12 @@
 
     <name>${project.artifactId}</name>
     <description>ContiNew Starter Excel 文件处理模块 - 核心模块</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
