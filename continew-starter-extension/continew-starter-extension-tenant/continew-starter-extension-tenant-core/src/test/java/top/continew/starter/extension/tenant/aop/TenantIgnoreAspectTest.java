@@ -72,7 +72,8 @@ class TenantIgnoreAspectTest {
     @DisplayName("业务逻辑抛异常时忽略标记仍恢复 false，异常向上传播")
     void shouldRestoreIgnoreWhenProceedFails() throws Throwable {
         when(joinPoint.proceed()).thenThrow(new IllegalStateException("boom"));
-        assertThatThrownBy(() -> aspect.around(joinPoint, tenantIgnore()))
+        TenantIgnore annotation = tenantIgnore();
+        assertThatThrownBy(() -> aspect.around(joinPoint, annotation))
             .isInstanceOf(IllegalStateException.class)
             .hasMessage("boom");
         assertThat(TenantContextHolder.isIgnore()).isFalse();
@@ -98,6 +99,7 @@ class TenantIgnoreAspectTest {
          */
         @TenantIgnore
         public void action() {
+            // 方法体不会执行，切面只读取注解元数据
         }
     }
 }

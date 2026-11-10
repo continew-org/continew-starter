@@ -155,12 +155,14 @@ class TenantInterceptorTest {
          */
         @TenantIgnore
         public void annotated() {
+            // 方法体不会执行，仅作为方法级注解的反射取样锚点
         }
 
         /**
          * 无注解方法
          */
         public void plain() {
+            // 方法体不会执行，作为无注解场景的对照取样
         }
     }
 
@@ -174,6 +176,7 @@ class TenantInterceptorTest {
          * 样例方法
          */
         public void action() {
+            // 方法体不会执行，仅用于类级注解载体的反射取样
         }
     }
 }
