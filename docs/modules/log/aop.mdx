@@ -47,7 +47,7 @@ public Resp<Void> add(@Valid @RequestBody UserReq req) {
 | `exclude-patterns` | `List<String>` | 空 | 放行路由（Ant 风格路径） |
 | `access-log.enabled` | `boolean` | `false` | 是否打印访问日志 |
 | `access-log.print-request-param` | `boolean` | `false` | 访问日志是否打印请求参数 |
-| `access-log.param-sensitive` | `boolean` | `false` | 是否过滤敏感参数 |
+| `access-log.param-sensitive` | `boolean` | `false` | 是否过滤敏感参数；开启并配置敏感字段后，仅能解析为 JSON 对象或数组的参数会被记录，其余参数因无法按字段脱敏而跳过 |
 | `access-log.sensitive-params` | `List<String>` | 空 | 敏感参数字段列表（精确匹配、区分大小写） |
 | `access-log.long-param-truncate` | `boolean` | `false` | 是否自动截断超长参数值 |
 | `access-log.long-param-threshold` | `int` | `2000` | 超长参数检测阈值（字符） |
