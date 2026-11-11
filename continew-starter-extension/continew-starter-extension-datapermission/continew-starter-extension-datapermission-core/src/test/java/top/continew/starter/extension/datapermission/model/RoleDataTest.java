@@ -73,10 +73,13 @@ class RoleDataTest {
     }
 
     @Test
-    @DisplayName("构造出的实例非 null")
-    void shouldBeNotNullAfterConstruction() {
+    @DisplayName("与 null 或其他类型比较返回 false")
+    void shouldReturnFalseWhenComparedWithNullOrForeignType() {
         RoleData roleData = new RoleData(1L, DataScope.DEPT);
-        assertThat(roleData).isNotNull();
+        boolean equalToNull = roleData.equals(null);
+        assertThat(equalToNull).isFalse();
+        Object foreignType = "role";
+        assertThat(roleData).isNotEqualTo(foreignType);
     }
 
     @Test
