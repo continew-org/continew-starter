@@ -17,7 +17,7 @@
 package top.continew.starter.auth.refresh.token.it;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,10 +33,12 @@ import top.continew.starter.auth.refresh.token.exception.RefreshTokenException;
 import top.continew.starter.auth.refresh.token.model.AuthSecurityVersion;
 import top.continew.starter.auth.refresh.token.model.IssuedAccessToken;
 import top.continew.starter.auth.refresh.token.model.RefreshIssueResult;
+import top.continew.starter.auth.refresh.token.model.RefreshSession;
 import top.continew.starter.auth.refresh.token.service.impl.RefreshTokenServiceImpl;
 import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec;
 
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Refresh Token 重放保护真实 Redis 行为集成测试。
@@ -80,9 +82,12 @@ class RefreshTokenReplayProtectionIT extends RefreshTokenRedisSupport {
         awaitKeyExpiry(ROTATION_PREFIX + oldParsed.fingerprint());
 
         // 宽限期外的旧令牌重放：请求被拒，会话被撤销并留下 KICKOUT 原因标记
+        MockHttpServletResponse replayResponse = new MockHttpServletResponse();
+        Function<RefreshSession, IssuedAccessToken> kickoutIssuer =
+            ignored -> new IssuedAccessToken(
+                "it-access-2", 900, null);
         RefreshTokenException exception = assertThrows(RefreshTokenException.class,
-            () -> service.rotate(oldToken, new MockHttpServletResponse(),
-                ignored -> new IssuedAccessToken("it-access-2", 900, null)));
+            () -> service.rotate(oldToken, replayResponse, kickoutIssuer));
         assertEquals(HttpStatus.UNAUTHORIZED, exception.getStatus());
 
         assertNull(rawValue(DATA_PREFIX + sessionId));
@@ -94,9 +99,11 @@ class RefreshTokenReplayProtectionIT extends RefreshTokenRedisSupport {
         assertIndexNotContains(CLIENT_INDEX_PREFIX + "it-web", sessionId);
 
         // 会话已不存在：合法持有的新令牌同样失效
-        assertThrows(RefreshTokenException.class, () -> service.rotate(newToken,
-            new MockHttpServletResponse(), ignored -> new IssuedAccessToken("it-access-3", 900,
-                null)));
+        MockHttpServletResponse revokedResponse = new MockHttpServletResponse();
+        Function<RefreshSession, IssuedAccessToken> deadIssuer = ignored -> new IssuedAccessToken(
+            "it-access-3", 900, null);
+        assertThrows(RefreshTokenException.class,
+            () -> service.rotate(newToken, revokedResponse, deadIssuer));
     }
 
     @Test
@@ -110,9 +117,11 @@ class RefreshTokenReplayProtectionIT extends RefreshTokenRedisSupport {
             bodyPolicy("it-web"), new AuthSecurityVersion(0, 0, 0), new MockHttpServletResponse());
 
         String forgedToken = sessionId + "." + "A".repeat(43);
-        assertThrows(RefreshTokenException.class, () -> service.rotate(forgedToken,
-            new MockHttpServletResponse(), ignored -> new IssuedAccessToken("it-access-forged",
-                900, null)));
+        MockHttpServletResponse forgedResponse = new MockHttpServletResponse();
+        Function<RefreshSession, IssuedAccessToken> forgedIssuer = ignored -> new IssuedAccessToken(
+            "it-access-forged", 900, null);
+        assertThrows(RefreshTokenException.class,
+            () -> service.rotate(forgedToken, forgedResponse, forgedIssuer));
         // 伪造凭证不得撤销会话：会话记录保持、无失效原因标记，仅凭公开 sessionId 无法强制下线
         assertNotNull(rawValue(DATA_PREFIX + sessionId));
         assertNull(rawValue(REASON_PREFIX + sessionId));
@@ -121,7 +130,7 @@ class RefreshTokenReplayProtectionIT extends RefreshTokenRedisSupport {
         RefreshIssueResult legit = service.rotate(oldToken, new MockHttpServletResponse(),
             ignored -> new IssuedAccessToken("it-access-legit", 900, null));
         assertEquals("it-access-legit", legit.getAccessToken());
-        assertFalse(JSONUtil.parseObj(rawValue(DATA_PREFIX + sessionId)).getStr(
-            "currentTokenFingerprint").equals(codec.parse(oldToken).fingerprint()));
+        assertNotEquals(codec.parse(oldToken).fingerprint(), JSONUtil.parseObj(rawValue(
+            DATA_PREFIX + sessionId)).getStr("currentTokenFingerprint"));
     }
 }

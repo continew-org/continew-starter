@@ -155,17 +155,19 @@ abstract class RefreshTokenRedisSupport {
     }
 
     /**
-     * 等待指定真实键按 TTL 过期。
+     * 轮询等待指定真实键按 TTL 过期：每轮循环一次真实 EXISTS 往返构成间隔，
+     * 超时后由终态断言兜底失败。
      *
      * @param key 真实键名
-     * @throws InterruptedException 等待过程中被中断
      */
-    static void awaitKeyExpiry(String key) throws InterruptedException {
+    static void awaitKeyExpiry(String key) {
         long deadline = System.currentTimeMillis() + 5000;
-        while (client().getBucket(key).isExists() && System.currentTimeMillis() < deadline) {
-            Thread.sleep(100);
+        RBucket<String> bucket = client().getBucket(key);
+        boolean exists = bucket.isExists();
+        while (exists && System.currentTimeMillis() < deadline) {
+            exists = bucket.isExists();
         }
-        assertFalse(client().getBucket(key).isExists(), "键 " + key + " 应已按 TTL 真实过期");
+        assertFalse(exists, "键 " + key + " 应已按 TTL 真实过期");
     }
 
     /**
@@ -216,11 +218,20 @@ abstract class RefreshTokenRedisSupport {
 
         @Override
         public String getUsername() {
-            return username;
+            return displayName();
         }
 
         @Override
         public String getNickname() {
+            return displayName();
+        }
+
+        /**
+         * 展示名：昵称直接复用用户名，仅覆盖接口必需的读取契约。
+         *
+         * @return 用户名
+         */
+        private String displayName() {
             return username;
         }
 

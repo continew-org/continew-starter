@@ -48,7 +48,7 @@ class RedisUtilsCacheOperationIT extends RedisContainerSupport {
 
     @Test
     @DisplayName("带 TTL 写入的值按真实过期时间失效，无 TTL 写入长期保留")
-    void shouldExpireWrittenValueByRealTtl() throws InterruptedException {
+    void shouldExpireWrittenValueByRealTtl() {
         RedisUtils.set(KEY_PREFIX + "ttl", "v1", Duration.ofMillis(600));
         assertEquals("v1", RedisUtils.get(KEY_PREFIX + "ttl"));
         long remaining = RedisUtils.getTimeToLive(KEY_PREFIX + "ttl");
@@ -57,10 +57,24 @@ class RedisUtilsCacheOperationIT extends RedisContainerSupport {
         RedisUtils.set(KEY_PREFIX + "no-ttl", "keep");
         assertEquals(-1L, RedisUtils.getTimeToLive(KEY_PREFIX + "no-ttl"));
 
-        Thread.sleep(900);
+        awaitKeyGone(KEY_PREFIX + "ttl");
         assertFalse(RedisUtils.exists(KEY_PREFIX + "ttl"));
         assertNull(RedisUtils.get(KEY_PREFIX + "ttl"));
         assertTrue(RedisUtils.exists(KEY_PREFIX + "no-ttl"));
+    }
+
+    /**
+     * 轮询等待键按 TTL 真实过期：每轮循环一次真实 EXISTS 往返构成间隔，超时后
+     * 由调用方断言兜底失败。
+     *
+     * @param key 目标键名
+     */
+    private static void awaitKeyGone(String key) {
+        long deadline = System.currentTimeMillis() + 5000;
+        boolean exists = RedisUtils.exists(key);
+        while (exists && System.currentTimeMillis() < deadline) {
+            exists = RedisUtils.exists(key);
+        }
     }
 
     @Test
