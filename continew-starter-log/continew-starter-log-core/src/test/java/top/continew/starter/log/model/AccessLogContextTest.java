@@ -41,19 +41,21 @@ class AccessLogContextTest {
     @DisplayName("构建者装配各字段且同源")
     void builderShouldAssembleAllFields() {
         Instant startTime = Instant.parse("2026-01-01T00:00:00Z");
+        Instant endTime = Instant.parse("2026-01-01T00:00:05Z");
         RecordableHttpRequest request = mock(RecordableHttpRequest.class);
         RecordableHttpResponse response = mock(RecordableHttpResponse.class);
         LogProperties properties = new LogProperties();
 
         AccessLogContext context = AccessLogContext.builder()
             .startTime(startTime)
-            .endTime(startTime)
+            .endTime(endTime)
             .request(request)
             .response(response)
             .properties(properties)
             .build();
 
         assertThat(context.getStartTime()).isEqualTo(startTime);
+        assertThat(context.getEndTime()).isEqualTo(endTime);
         assertThat(context.getRequest()).isSameAs(request);
         assertThat(context.getResponse()).isSameAs(response);
         assertThat(context.getProperties()).isSameAs(properties);

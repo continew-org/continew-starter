@@ -18,10 +18,15 @@ package top.continew.starter.log.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
+import cn.hutool.extra.spring.SpringUtil;
+import net.dreamlu.mica.ip2region.core.Ip2regionSearcher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import top.continew.starter.log.enums.Include;
 import top.continew.starter.log.http.RecordableHttpRequest;
 import top.continew.starter.log.http.RecordableHttpResponse;
@@ -119,15 +124,22 @@ class LogRecordTest {
     }
 
     /**
-     * 锁定当前行为：外网 IP 无归属地解析器（ip2region Bean 缺失）时归属地为 null 而非抛异常
+     * 外网 IP 无归属地解析器（ip2region Bean 缺失）时归属地为 null 而非抛异常
      */
     @Test
-    @DisplayName("外网 IP 无解析器时归属地为 null（锁定当前行为）")
+    @DisplayName("外网 IP 无解析器时归属地为 null")
     void addressShouldBeNullWhenPublicIpCannotBeResolved() {
         RecordableHttpRequest request = mock(RecordableHttpRequest.class);
         when(request.getIp()).thenReturn("8.8.8.8");
-        LogRequest logRequest = new LogRequest(request, Set.of(Include.IP_ADDRESS));
-        assertThat(logRequest.getAddress()).isNull();
+        // SpringUtil 持有 JVM 级静态上下文，显式固定 Bean 缺失路径，避免依赖测试执行顺序
+        try (MockedStatic<SpringUtil> springUtil = mockStatic(SpringUtil.class)) {
+            springUtil.when(() -> SpringUtil.getBean(Ip2regionSearcher.class))
+                .thenThrow(new NoSuchBeanDefinitionException(Ip2regionSearcher.class));
+            LogRequest logRequest = new LogRequest(request, Set.of(Include.IP_ADDRESS));
+            assertThat(logRequest.getAddress()).isNull();
+            // 确认异常确实产生于解析器查找，而非地址解析被整体跳过
+            springUtil.verify(() -> SpringUtil.getBean(Ip2regionSearcher.class));
+        }
     }
 
     /**
