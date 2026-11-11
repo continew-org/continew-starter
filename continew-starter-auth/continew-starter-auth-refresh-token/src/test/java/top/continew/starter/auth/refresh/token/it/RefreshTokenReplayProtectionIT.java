@@ -66,7 +66,7 @@ class RefreshTokenReplayProtectionIT extends RefreshTokenRedisSupport {
 
     @Test
     @DisplayName("宽限期过期后重放旧令牌：撤销会话、键位清理、新令牌随之失效")
-    void shouldKickoutSessionWhenReplayingExpiredOldToken() throws InterruptedException {
+    void shouldKickoutSessionWhenReplayingExpiredOldToken() {
         RefreshTokenProperties properties = testProperties(1);
         RefreshTokenServiceImpl service = newService(properties, List.of());
         RefreshTokenCodec codec = new RefreshTokenCodec(properties);
