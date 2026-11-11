@@ -51,8 +51,8 @@ jobs:
           PY
           )
           echo "Integration tests executed (excluding skipped): $total"
-          if [ "$total" -lt 2 ]; then
-            echo "::error::真实执行的集成测试用例数（$total）低于下限（2），可能全部被跳过"
+          if [ "$total" -lt 19 ]; then
+            echo "::error::真实执行的集成测试用例数（$total）低于下限（19），可能全部被跳过"
             exit 1
           fi
       - name: Upload test and coverage reports
