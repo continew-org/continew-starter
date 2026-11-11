@@ -165,7 +165,8 @@ class IdempotentAspectTest {
             redisUtils.when(() -> RedisUtils.setIfAbsent(anyString(), any(), any()))
                 .thenReturn(false);
             ProceedingJoinPoint joinPoint = joinPoint("namedCreate", "A123");
-            assertThatThrownBy(() -> aspect.around(joinPoint, annotation("namedCreate")))
+            Idempotent idempotent = annotation("namedCreate");
+            assertThatThrownBy(() -> aspect.around(joinPoint, idempotent))
                 .isInstanceOf(IdempotentException.class)
                 .hasMessage("重复提交");
             verify(joinPoint, never()).proceed();
@@ -181,8 +182,9 @@ class IdempotentAspectTest {
             // CALLS_REAL_METHODS 下未 stub 的 delete 会打到 mock RedissonClient，需显式接管
             redisUtils.when(() -> RedisUtils.delete(anyString())).thenReturn(true);
             ProceedingJoinPoint joinPoint = joinPoint("create", "A123");
+            Idempotent idempotent = annotation("create");
             when(joinPoint.proceed()).thenThrow(new IllegalStateException("业务异常"));
-            assertThatThrownBy(() -> aspect.around(joinPoint, annotation("create")))
+            assertThatThrownBy(() -> aspect.around(joinPoint, idempotent))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("业务异常");
             // 目标方法失败必须回删 Key，否则失败结果会被幂等窗口挡住无法重试
@@ -233,7 +235,8 @@ class IdempotentAspectTest {
         try (MockedStatic<RedisUtils> redisUtils =
             mockStatic(RedisUtils.class, CALLS_REAL_METHODS)) {
             ProceedingJoinPoint joinPoint = joinPoint("keyedCreate", (String) null);
-            assertThatThrownBy(() -> aspect.around(joinPoint, annotation("keyedCreate")))
+            Idempotent idempotent = annotation("keyedCreate");
+            assertThatThrownBy(() -> aspect.around(joinPoint, idempotent))
                 .isInstanceOf(IdempotentException.class)
                 .hasMessage("幂等 Key 解析错误");
             redisUtils.verify(() -> RedisUtils.setIfAbsent(anyString(), any(), any()), never());
@@ -247,6 +250,6 @@ class IdempotentAspectTest {
      * @return 匹配器描述的参数值
      */
     private static String eqKey(String key) {
-        return argThat(actual -> key.equals(actual));
+        return argThat(key::equals);
     }
 }

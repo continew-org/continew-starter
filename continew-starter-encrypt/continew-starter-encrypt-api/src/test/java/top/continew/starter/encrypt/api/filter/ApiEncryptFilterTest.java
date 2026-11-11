@@ -106,14 +106,11 @@ class ApiEncryptFilterTest {
     /**
      * 构造模拟请求，携带合法的 RSA 加密密钥头与 AES 加密请求体。
      *
-     * @param httpMethod     HTTP 方法
-     * @param methodName     处理器方法名
-     * @param withSecretKey  是否携带密钥头
+     * @param httpMethod    HTTP 方法
+     * @param withSecretKey 是否携带密钥头
      * @return 模拟请求
      */
-    private MockHttpServletRequest request(String httpMethod, String methodName,
-        boolean withSecretKey)
-        throws NoSuchMethodException {
+    private MockHttpServletRequest request(String httpMethod, boolean withSecretKey) {
         MockHttpServletRequest request = new MockHttpServletRequest(httpMethod, "/test");
         if (withSecretKey) {
             request.addHeader(SECRET_KEY_HEADER, encryptedSecretKey);
@@ -157,35 +154,35 @@ class ApiEncryptFilterTest {
     @Test
     void getShouldNotWrapRequestOrResponse() throws Exception {
         MockHttpServletResponse response =
-            doFilter(request("GET", "encryptAll", true), handlerMethod("encryptAll"), null);
+            doFilter(request("GET", true), handlerMethod("encryptAll"), null);
         assertThat(response).isNotInstanceOf(ResponseBodyEncryptWrapper.class);
     }
 
     @Test
     void postWithSecretKeyShouldWrapRequest() throws Exception {
         // response=false 的注解方法：仅请求侧替换为解密包装器
-        MockHttpServletRequest request = request("POST", "encryptRequestOnly", true);
+        MockHttpServletRequest request = request("POST", true);
         doFilter(request, handlerMethod("encryptRequestOnly"), null);
         assertThat(chainRequest.get()).isInstanceOf(RequestBodyDecryptWrapper.class);
     }
 
     @Test
     void putWithSecretKeyShouldWrapRequest() throws Exception {
-        MockHttpServletRequest request = request("PUT", "encryptRequestOnly", true);
+        MockHttpServletRequest request = request("PUT", true);
         doFilter(request, handlerMethod("encryptRequestOnly"), null);
         assertThat(chainRequest.get()).isInstanceOf(RequestBodyDecryptWrapper.class);
     }
 
     @Test
     void postWithoutSecretKeyShouldNotWrapRequest() throws Exception {
-        MockHttpServletRequest request = request("POST", "encryptAll", false);
+        MockHttpServletRequest request = request("POST", false);
         doFilter(request, handlerMethod("encryptAll"), null);
         assertThat(chainRequest.get()).isNotInstanceOf(RequestBodyDecryptWrapper.class);
     }
 
     @Test
     void responseEncryptShouldWriteCipherAndExposeHeader() throws Exception {
-        MockHttpServletRequest request = request("POST", "encryptAll", true);
+        MockHttpServletRequest request = request("POST", true);
         MockHttpServletResponse response =
             doFilter(request, handlerMethod("encryptAll"), (req, resp) -> {
                 try {
@@ -204,7 +201,7 @@ class ApiEncryptFilterTest {
 
     @Test
     void responseWithoutAnnotationShouldStayPlain() throws Exception {
-        MockHttpServletRequest request = request("POST", "plain", true);
+        MockHttpServletRequest request = request("POST", true);
         MockHttpServletResponse response =
             doFilter(request, handlerMethod("plain"), (req, resp) -> {
                 try {

@@ -102,7 +102,7 @@ class RequestBodyDecryptWrapperTest {
     }
 
     @Test
-    void asyncReadFlagsShouldBeLockedFalse() throws Exception {
+    void asyncReadFlagsShouldBeLockedFalse() {
         // 锁定当前行为：同步解密输入流不支持异步读监听，就绪标记恒为 false
         assertThat(wrapper().getInputStream().isFinished()).isFalse();
         assertThat(wrapper().getInputStream().isReady()).isFalse();
