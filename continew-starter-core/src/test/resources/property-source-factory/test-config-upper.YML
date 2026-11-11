@@ -1,0 +1,3 @@
+# 供 GeneralPropertySourceFactoryTest 使用的大写扩展名配置样例（独立文件名，Windows 大小写不敏感）
+provider.name=continew
+provider.version=3

@@ -1,0 +1,4 @@
+# 供 GeneralPropertySourceFactoryTest 使用的 YAML 配置样例（yaml 扩展名）
+provider:
+  name: continew
+  version: 3
