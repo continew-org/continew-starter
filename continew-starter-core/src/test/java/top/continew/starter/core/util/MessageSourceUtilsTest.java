@@ -19,12 +19,15 @@ package top.continew.starter.core.util;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
@@ -45,17 +48,21 @@ import java.util.Locale;
 class MessageSourceUtilsTest {
 
     /**
+     * 受控的 MessageSource，同时用于校验参数是否透传
+     */
+    private static final MessageSource MESSAGE_SOURCE = mock(MessageSource.class);
+
+    /**
      * 注入 mock 容器上下文，为 MessageSourceUtils 类的静态初始化提供 MessageSource
      */
     @BeforeAll
     static void initSpringContext() {
-        MessageSource messageSource = mock(MessageSource.class);
-        when(messageSource.getMessage(any(), any(Object[].class), any(Locale.class)))
+        when(MESSAGE_SOURCE.getMessage(any(), any(Object[].class), any(Locale.class)))
             .thenAnswer(invocation -> "消息[" + invocation.getArgument(0) + "]");
-        when(messageSource.getMessage(eq("missing.code"), any(Object[].class), any(Locale.class)))
+        when(MESSAGE_SOURCE.getMessage(eq("missing.code"), any(Object[].class), any(Locale.class)))
             .thenThrow(new NoSuchMessageException("missing.code"));
         ConfigurableListableBeanFactory beanFactory = mock(ConfigurableListableBeanFactory.class);
-        when(beanFactory.getBean(MessageSource.class)).thenReturn(messageSource);
+        when(beanFactory.getBean(MessageSource.class)).thenReturn(MESSAGE_SOURCE);
         SpringContextTestHolder.inject(beanFactory);
     }
 
@@ -69,8 +76,14 @@ class MessageSourceUtilsTest {
     @Test
     @DisplayName("getMessage 携带参数时参数透传给 MessageSource")
     void shouldPassArgsToMessageSource() {
-        assertThat(MessageSourceUtils.getMessage("user.not.exists", 1L))
-            .isEqualTo("消息[user.not.exists]");
+        // 同类其他用例也会以相同编码调用，清空调用记录后才能断言单次透传
+        clearInvocations(MESSAGE_SOURCE);
+        String message = MessageSourceUtils.getMessage("user.not.exists", 1L);
+        assertThat(message).isEqualTo("消息[user.not.exists]");
+        ArgumentCaptor<Object[]> argsCaptor = ArgumentCaptor.forClass(Object[].class);
+        verify(MESSAGE_SOURCE)
+            .getMessage(eq("user.not.exists"), argsCaptor.capture(), any(Locale.class));
+        assertThat(argsCaptor.getValue()).containsExactly(1L);
     }
 
     @Test

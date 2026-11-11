@@ -17,14 +17,22 @@
 package top.continew.starter.core.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTimeoutPreemptively;
 
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import top.continew.starter.core.exception.BusinessException;
 
+import java.time.Duration;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -132,44 +140,158 @@ class ExceptionUtilsTest {
     }
 
     @Test
-    @DisplayName("printException 对 null 异常与非 Future 任务不执行任何动作")
+    @DisplayName("printException 对 null 异常与非 Future 任务不记录任何日志")
     void shouldDoNothingForPlainRunnable() {
-        assertThatCode(() -> ExceptionUtils.printException(() -> {
-        }, null)).doesNotThrowAnyException();
+        ListAppender<ILoggingEvent> appender = attachLogAppender();
+        try {
+            ExceptionUtils.printException(() -> {
+            }, null);
+            assertThat(appender.list).isEmpty();
+        } finally {
+            detachLogAppender(appender);
+        }
     }
 
     @Test
     @DisplayName("printException 对已取消的 FutureTask 记录 CancellationException 而不抛出")
     void shouldLogCancelledFutureSilently() {
-        FutureTask<String> cancelled = new FutureTask<>(() -> "x");
-        cancelled.cancel(true);
-        assertThatCode(() -> ExceptionUtils.printException(cancelled, null))
-            .doesNotThrowAnyException();
+        ListAppender<ILoggingEvent> appender = attachLogAppender();
+        try {
+            FutureTask<String> cancelled = new FutureTask<>(() -> "x");
+            cancelled.cancel(true);
+            ExceptionUtils.printException(cancelled, null);
+            assertThat(appender.list).hasSize(1);
+            assertThat(appender.list.get(0).getThrowableProxy().getClassName())
+                .isEqualTo(CancellationException.class.getName());
+        } finally {
+            detachLogAppender(appender);
+        }
     }
 
     @Test
     @DisplayName("printException 对执行失败的 FutureTask 提取包装异常的 cause 记录")
     void shouldLogExecutionExceptionCauseSilently() {
-        FutureTask<String> failed = new FutureTask<>(() -> {
-            throw new IllegalStateException("task failed");
-        });
-        failed.run();
-        assertThatCode(() -> ExceptionUtils.printException(failed, null))
-            .doesNotThrowAnyException();
+        ListAppender<ILoggingEvent> appender = attachLogAppender();
+        try {
+            FutureTask<String> failed = new FutureTask<>(() -> {
+                throw new IllegalStateException("task failed");
+            });
+            failed.run();
+            ExceptionUtils.printException(failed, null);
+            assertThat(appender.list).hasSize(1);
+            assertThat(appender.list.get(0).getThrowableProxy().getClassName())
+                .isEqualTo(IllegalStateException.class.getName());
+            assertThat(appender.list.get(0).getThrowableProxy().getMessage())
+                .isEqualTo("task failed");
+        } finally {
+            detachLogAppender(appender);
+        }
     }
 
     @Test
     @DisplayName("printException 对未执行的 FutureTask 跳过 get 阻塞")
     void shouldSkipUnfinishedFuture() {
         FutureTask<String> running = new FutureTask<>(() -> "x");
-        ExceptionUtils.printException(running, null);
+        // isDone() 守卫若被移除，get() 会永久阻塞，超时让回归以失败而非挂起暴露
+        assertTimeoutPreemptively(Duration.ofSeconds(2),
+            () -> ExceptionUtils.printException(running, null));
         assertThat(running.isDone()).isFalse();
     }
 
     @Test
     @DisplayName("printException 直接传入异常时原样记录")
     void shouldLogDirectThrowable() {
-        assertThatCode(() -> ExceptionUtils.printException(() -> {
-        }, new IllegalStateException("direct"))).doesNotThrowAnyException();
+        ListAppender<ILoggingEvent> appender = attachLogAppender();
+        try {
+            ExceptionUtils.printException(() -> {
+            }, new IllegalStateException("direct"));
+            assertThat(appender.list).hasSize(1);
+            assertThat(appender.list.get(0).getThrowableProxy().getClassName())
+                .isEqualTo(IllegalStateException.class.getName());
+            assertThat(appender.list.get(0).getThrowableProxy().getMessage()).isEqualTo("direct");
+        } finally {
+            detachLogAppender(appender);
+        }
+    }
+
+    @Test
+    @DisplayName("printException 遇到中断异常时恢复中断标志且不记录日志")
+    void shouldRestoreInterruptFlagWithoutLogging() {
+        ListAppender<ILoggingEvent> appender = attachLogAppender();
+        try {
+            ExceptionUtils.printException(new InterruptingFuture(), null);
+            assertThat(Thread.currentThread().isInterrupted()).isTrue();
+            assertThat(appender.list).isEmpty();
+        } finally {
+            detachLogAppender(appender);
+            // 中断标志会带到后续用例，这里必须清除
+            Thread.interrupted();
+        }
+    }
+
+    /**
+     * 挂载日志收集器，用于断言 printException 实际记录的异常类型
+     *
+     * @return 已启动的日志收集器
+     */
+    private static ListAppender<ILoggingEvent> attachLogAppender() {
+        ListAppender<ILoggingEvent> appender = new ListAppender<>();
+        appender.start();
+        logger().addAppender(appender);
+        return appender;
+    }
+
+    /**
+     * 卸载日志收集器
+     *
+     * @param appender 日志收集器
+     */
+    private static void detachLogAppender(ListAppender<ILoggingEvent> appender) {
+        logger().detachAppender(appender);
+    }
+
+    /**
+     * 获取 ExceptionUtils 使用的 Logger
+     *
+     * @return logback Logger
+     */
+    private static Logger logger() {
+        return (Logger) LoggerFactory.getLogger(ExceptionUtils.class);
+    }
+
+    /**
+     * isDone() 为 true 但 get() 抛 InterruptedException 的 Future，用于覆盖中断分支
+     */
+    private static class InterruptingFuture implements Future<String>, Runnable {
+
+        @Override
+        public boolean cancel(boolean mayInterruptIfRunning) {
+            return false;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return false;
+        }
+
+        @Override
+        public boolean isDone() {
+            return true;
+        }
+
+        @Override
+        public String get() throws InterruptedException {
+            throw new InterruptedException("interrupted");
+        }
+
+        @Override
+        public String get(long timeout, TimeUnit unit) throws InterruptedException {
+            throw new InterruptedException("interrupted");
+        }
+
+        @Override
+        public void run() {
+            // 仅作为 Future 与 Runnable 载体，执行路径由用例直接调用 printException 驱动
+        }
     }
 }
