@@ -14,4 +14,13 @@
 
     <name>${project.artifactId}</name>
     <description>ContiNew Starter 扩展模块 - 数据权限 - 核心模块</description>
+
+    <dependencies>
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 </project>
