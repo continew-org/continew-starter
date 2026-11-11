@@ -344,7 +344,7 @@ Spring Cache 实现未定义独立的 `@ConfigurationProperties` 类，直接使
 | `continew-starter.log.access-log.long-param-threshold` | `int` | `2000` | 超长参数检测阈值（字符），仅在截断启用时生效 |
 | `continew-starter.log.access-log.long-param-max-length` | `int` | `50` | 超长参数最大保留长度（字符），仅在截断启用时生效 |
 | `continew-starter.log.access-log.long-param-suffix` | `String` | `...` | 截断后追加的后缀符号，仅在截断启用时生效 |
-| `continew-starter.log.access-log.param-sensitive` | `boolean` | `false` | 是否过滤敏感参数 |
+| `continew-starter.log.access-log.param-sensitive` | `boolean` | `false` | 是否过滤敏感参数；开启并配置敏感字段后，仅能解析为 JSON 对象或数组的参数会被记录，其余参数因无法按字段脱敏而跳过 |
 | `continew-starter.log.access-log.sensitive-params` | `List<String>` | `[]` | 敏感参数字段列表（如 `password,token`，精确匹配且区分大小写） |
 
 ## JSON 模块
