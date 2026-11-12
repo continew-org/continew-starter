@@ -110,23 +110,34 @@ class DefaultRateLimiterNameGeneratorTest {
         return DefaultRateLimiterNameGeneratorTest.class.getDeclaredMethod(name, parameterTypes);
     }
 
+    /*
+     * 以下五个方法仅承载方法签名，由 methodOf 经反射取出 Method 供生成器读取名称与参数
+     * 描述符。它们没有 Java 层面的直接调用，参数也只在 Method#getParameterTypes 中被消费，
+     * 故需抑制 Sonar 对「未使用私有方法」与「未使用参数」的误报；删除任一方法或形参都会
+     * 使对应描述符断言失去被测输入。
+     */
+    @SuppressWarnings("java:S1144")
     private void noArgs() {
         // 仅承载方法签名，供反射生成名称
     }
 
+    @SuppressWarnings({"java:S1144", "java:S1172"})
     private void withPrimitives(int i, long l, boolean b, char c, short s, double d, float f,
         byte y) {
         // 仅承载方法签名，供反射生成名称
     }
 
+    @SuppressWarnings({"java:S1144", "java:S1172"})
     private void withObjects(String name, Integer count) {
         // 仅承载方法签名，供反射生成名称
     }
 
+    @SuppressWarnings({"java:S1144", "java:S1172"})
     private void withArrays(String[] names, int[] codes) {
         // 仅承载方法签名，供反射生成名称
     }
 
+    @SuppressWarnings({"java:S1144", "java:S1172"})
     private void withNestedArray(int[][] matrix) {
         // 仅承载方法签名，供反射生成名称
     }

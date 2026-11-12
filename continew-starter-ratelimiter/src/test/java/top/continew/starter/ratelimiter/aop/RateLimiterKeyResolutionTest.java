@@ -195,9 +195,8 @@ class RateLimiterKeyResolutionTest {
     void shouldAppendClusterIdAndUpdateRateTypeForClusterType() throws Throwable {
         when(this.redissonClient.getId()).thenReturn("cluster-node-1");
         RateLimiter annotation = this.annotationOf("annotatedWithClusterType");
-        RRateLimiter rRateLimiter =
-            this.staleLimiterOf(annotation, new RateLimiterConfig(RateType.OVERALL,
-                0L, (long) annotation.rate()));
+        RRateLimiter rRateLimiter = this.staleLimiterOf(new RateLimiterConfig(RateType.OVERALL,
+            0L, (long) annotation.rate()));
         this.aspect.aroundRateLimiter(this.joinPointOf("annotatedWithClusterType"), annotation);
         assertThat(this.capturedCacheKey()).isEqualTo("RateLimiter:key-cluster:cluster-node-1");
         verify(rRateLimiter).setRate(RateType.PER_CLIENT, Integer.MAX_VALUE, Duration.ZERO);
@@ -295,9 +294,8 @@ class RateLimiterKeyResolutionTest {
     @Test
     void shouldUpdateRateWhenOnlyIntervalDiffers() throws Throwable {
         RateLimiter annotation = this.annotationOf("annotatedIntervalDiff");
-        RRateLimiter rRateLimiter =
-            this.staleLimiterOf(annotation, new RateLimiterConfig(RateType.OVERALL,
-                600L, 10L));
+        RRateLimiter rRateLimiter = this.staleLimiterOf(new RateLimiterConfig(RateType.OVERALL,
+            600L, 10L));
         this.aspect.aroundRateLimiter(this.joinPointOf("annotatedIntervalDiff"), annotation);
         verify(rRateLimiter).setRate(RateType.OVERALL, 10, Duration.ofMillis(500));
     }
@@ -308,9 +306,8 @@ class RateLimiterKeyResolutionTest {
     @Test
     void shouldUpdateRateWhenOnlyRateDiffers() throws Throwable {
         RateLimiter annotation = this.annotationOf("annotatedRateDiff");
-        RRateLimiter rRateLimiter =
-            this.staleLimiterOf(annotation, new RateLimiterConfig(RateType.OVERALL,
-                500L, 5L));
+        RRateLimiter rRateLimiter = this.staleLimiterOf(new RateLimiterConfig(RateType.OVERALL,
+            500L, 5L));
         this.aspect.aroundRateLimiter(this.joinPointOf("annotatedRateDiff"), annotation);
         verify(rRateLimiter).setRate(RateType.OVERALL, 10, Duration.ofMillis(500));
     }
@@ -358,11 +355,10 @@ class RateLimiterKeyResolutionTest {
     /**
      * 构造持有过期配置的限流器替身，令牌获取保持成功。
      *
-     * @param annotation 限流注解
      * @param staleConfig 过期的限流器配置
      * @return 限流器替身
      */
-    private RRateLimiter staleLimiterOf(RateLimiter annotation, RateLimiterConfig staleConfig) {
+    private RRateLimiter staleLimiterOf(RateLimiterConfig staleConfig) {
         RRateLimiter rRateLimiter = mock(RRateLimiter.class);
         when(rRateLimiter.getConfig()).thenReturn(staleConfig);
         when(rRateLimiter.tryAcquire()).thenReturn(true);
