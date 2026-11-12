@@ -30,6 +30,7 @@ import top.continew.starter.core.exception.BadRequestException;
 import top.continew.starter.core.util.ReflectUtils;
 import top.continew.starter.core.util.validation.ValidationUtils;
 import top.continew.starter.data.annotation.Query;
+import top.continew.starter.data.enums.LogicalRelation;
 import top.continew.starter.data.enums.QueryType;
 
 import java.lang.reflect.Field;
@@ -159,9 +160,23 @@ public class QueryWrapperHelper {
                 parse(queryType, columnName, fieldValue, consumers);
                 return consumers;
             }
-            // 解析多列查询
+            // 解析多列查询：按注解声明的逻辑关系组合列条件，默认 OR 使多列命中任一即可
+            LogicalRelation logicalRelation = queryAnnotation.logicalRelation();
+            List<Consumer<QueryWrapper>> columnConsumers = new ArrayList<>();
             for (String column : columns) {
-                parse(queryType, column, fieldValue, consumers);
+                parse(queryType, column, fieldValue, columnConsumers);
+            }
+            if (logicalRelation == LogicalRelation.AND) {
+                // 逐列 AND：各列条件独立追加，与外层其它字段条件保持 AND
+                consumers.addAll(columnConsumers);
+            } else {
+                // 多列 OR：列条件整体归入一个嵌套分组，保证与外层其它字段条件仍为 AND
+                if (!columnConsumers.isEmpty()) {
+                    consumers.add(q -> {
+                        columnConsumers.get(0).accept(q);
+                        columnConsumers.subList(1, columnConsumers.size()).forEach(q::or);
+                    });
+                }
             }
             return consumers;
         } catch (BadRequestException e) {

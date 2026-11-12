@@ -46,5 +46,11 @@
             <artifactId>continew-starter-test-support</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- MySQL 驱动（Testcontainers 容器连接与 JDBC 探针，仅测试使用） -->
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
