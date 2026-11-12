@@ -52,7 +52,7 @@ class DataMpServiceImplIT extends MySqlSupport {
             ItUser user = user(1L, "junit_u1", "单元一号", 10L, ItUserStatus.ENABLED);
             assertThat(service.save(user)).isTrue();
             Map<String, Object> raw = rawRow(1L);
-            assertThat(raw.get("username")).isEqualTo("junit_u1");
+            assertThat(raw).containsEntry("username", "junit_u1");
             assertThat(((Number) raw.get("dept_id")).longValue()).isEqualTo(10L);
             assertThat(((Number) raw.get("status")).intValue()).isEqualTo(1);
             assertThat(((Number) raw.get("deleted")).intValue()).isZero();
@@ -82,20 +82,20 @@ class DataMpServiceImplIT extends MySqlSupport {
             ItUser update = user(1L, "junit_u1", "单元一号改", 30L, ItUserStatus.LOCKED);
             assertThat(service.updateById(update)).isTrue();
             Map<String, Object> raw = rawRow(1L);
-            assertThat(raw.get("nickname")).isEqualTo("单元一号改");
+            assertThat(raw).containsEntry("nickname", "单元一号改");
             assertThat(((Number) raw.get("dept_id")).longValue()).isEqualTo(30L);
             assertThat(((Number) raw.get("status")).intValue()).isEqualTo(2);
 
             ItUser renamed = user(1L, "junit_u1", "单元一号再改", 30L, ItUserStatus.LOCKED);
             assertThat(service.saveOrUpdate(renamed)).isTrue();
-            assertThat(rawRow(1L).get("nickname")).isEqualTo("单元一号再改");
+            assertThat(rawRow(1L)).containsEntry("nickname", "单元一号再改");
 
             Optional<ItUser> one =
                 service.getOneOpt(new QueryWrapper<ItUser>().eq("dept_id", 30L), false);
             assertThat(one).isPresent();
             assertThat(one.get().getId()).isEqualTo(1L);
             Map<String, Object> row = service.getMap(new QueryWrapper<ItUser>().eq("id", 2L));
-            assertThat(row.get("username")).isEqualTo("junit_u2");
+            assertThat(row).containsEntry("username", "junit_u2");
             Long count =
                 service.getObj(new QueryWrapper<ItUser>().select("count(*)"), obj -> ((Number) obj)
                     .longValue());

@@ -75,8 +75,8 @@ class TenantLineIsolationIT extends MySqlSupport {
 
             ItTenantUser rename = user(1L, "junit_u1改");
             assertThat(mapper.updateById(rename)).isEqualTo(1);
-            assertThat(rawUserRow(1L).get("username")).isEqualTo("junit_u1改");
-            assertThat(rawUserRow(2L).get("username")).isEqualTo("junit_u2");
+            assertThat(rawUserRow(1L)).containsEntry("username", "junit_u1改");
+            assertThat(rawUserRow(2L)).containsEntry("username", "junit_u2");
 
             assertThat(mapper.deleteById(2L)).isZero();
             assertThat(rawUserRow(2L)).isNotEmpty();

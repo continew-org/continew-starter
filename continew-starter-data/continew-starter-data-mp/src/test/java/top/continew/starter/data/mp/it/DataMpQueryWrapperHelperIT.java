@@ -116,10 +116,11 @@ class DataMpQueryWrapperHelperIT extends MySqlSupport {
             assertThat(ascByDept).extracting(ItUser::getId).containsExactly(1L, 2L, 3L, 4L);
 
             UserQuery injected = new UserQuery();
-            assertThatThrownBy(
-                () -> QueryWrapperHelper.build(injected, Sort.by("id; drop table mp_it_user")))
+            Sort injectedSort = Sort.by("id; drop table mp_it_user");
+            assertThatThrownBy(() -> QueryWrapperHelper.build(injected, injectedSort))
                 .isInstanceOf(BadRequestException.class);
-            assertThatThrownBy(() -> QueryWrapperHelper.sort(wrapper, Sort.by("bad prop")))
+            Sort badSort = Sort.by("bad prop");
+            assertThatThrownBy(() -> QueryWrapperHelper.sort(wrapper, badSort))
                 .isInstanceOf(BadRequestException.class);
         });
     }

@@ -52,9 +52,9 @@ class DataMfBaseMapperIT extends MySqlSupport {
             ItUser second = user(2L, "junit_u2", "单元二号改", 50L, 2L);
             assertThat(mapper.updateBatchById(List.of(first, second))).isTrue();
             assertThat(((Number) rawUserRow(1L).get("dept_id")).longValue()).isEqualTo(40L);
-            assertThat(rawUserRow(1L).get("nickname")).isEqualTo("单元一号改");
+            assertThat(rawUserRow(1L)).containsEntry("nickname", "单元一号改");
             assertThat(((Number) rawUserRow(2L).get("dept_id")).longValue()).isEqualTo(50L);
-            assertThat(rawUserRow(2L).get("nickname")).isEqualTo("单元二号改");
+            assertThat(rawUserRow(2L)).containsEntry("nickname", "单元二号改");
         });
     }
 

@@ -50,8 +50,8 @@ class DataMpBatchOperationIT extends MySqlSupport {
                 user(3L, "单元三号", 20L, ItUserStatus.LOCKED));
             assertThat(service.saveBatch(users, 2)).isTrue();
             assertThat(rawCount()).isEqualTo(3L);
-            assertThat(rawRow(3L).get("username")).isEqualTo("junit_u3");
-            assertThat(((Number) rawRow(2L).get("status")).intValue()).isEqualTo(0);
+            assertThat(rawRow(3L)).containsEntry("username", "junit_u3");
+            assertThat(((Number) rawRow(2L).get("status")).intValue()).isZero();
         });
     }
 
@@ -68,9 +68,9 @@ class DataMpBatchOperationIT extends MySqlSupport {
             ItUser fresh = user(2L, "单元二号", 10L, ItUserStatus.DISABLED);
             assertThat(service.saveOrUpdateBatch(List.of(existing, fresh), 1)).isTrue();
             assertThat(rawCount()).isEqualTo(2L);
-            assertThat(rawRow(1L).get("nickname")).isEqualTo("单元一号改");
+            assertThat(rawRow(1L)).containsEntry("nickname", "单元一号改");
             assertThat(((Number) rawRow(1L).get("dept_id")).longValue()).isEqualTo(30L);
-            assertThat(rawRow(2L).get("username")).isEqualTo("junit_u2");
+            assertThat(rawRow(2L)).containsEntry("username", "junit_u2");
         });
     }
 
@@ -89,7 +89,7 @@ class DataMpBatchOperationIT extends MySqlSupport {
             assertThat(service.updateBatchById(List.of(first, second), 1)).isTrue();
             assertThat(((Number) rawRow(1L).get("dept_id")).longValue()).isEqualTo(40L);
             assertThat(((Number) rawRow(1L).get("status")).intValue()).isEqualTo(2);
-            assertThat(rawRow(2L).get("nickname")).isEqualTo("单元二号改");
+            assertThat(rawRow(2L)).containsEntry("nickname", "单元二号改");
             assertThat(((Number) rawRow(2L).get("status")).intValue()).isEqualTo(1);
         });
     }
@@ -109,7 +109,7 @@ class DataMpBatchOperationIT extends MySqlSupport {
 
             ItUser renamed = user(1L, "单元一号改", 10L, ItUserStatus.ENABLED);
             assertThat(mapper.updateBatchById(List.of(renamed))).isTrue();
-            assertThat(rawRow(1L).get("nickname")).isEqualTo("单元一号改");
+            assertThat(rawRow(1L)).containsEntry("nickname", "单元一号改");
 
             List<ItUser> matched = mapper.lambdaQuery().eq(ItUser::getDeptId, 20L).list();
             assertThat(matched).hasSize(1);

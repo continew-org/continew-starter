@@ -48,7 +48,7 @@ class DataMfServiceImplIT extends MySqlSupport {
             ItUser user = user(1L, "junit_u1", "单元一号", 10L, 1L);
             assertThat(service.save(user)).isTrue();
             Map<String, Object> raw = rawUserRow(1L);
-            assertThat(raw.get("username")).isEqualTo("junit_u1");
+            assertThat(raw).containsEntry("username", "junit_u1");
             assertThat(((Number) raw.get("dept_id")).longValue()).isEqualTo(10L);
             assertThat(((Number) raw.get("deleted")).intValue()).isZero();
 
@@ -72,7 +72,7 @@ class DataMfServiceImplIT extends MySqlSupport {
             ItUser update = user(1L, "junit_u1", "单元一号改", 30L, 1L);
             assertThat(service.updateById(update)).isTrue();
             Map<String, Object> raw = rawUserRow(1L);
-            assertThat(raw.get("nickname")).isEqualTo("单元一号改");
+            assertThat(raw).containsEntry("nickname", "单元一号改");
             assertThat(((Number) raw.get("dept_id")).longValue()).isEqualTo(30L);
             assertThat(((Number) raw.get("create_user")).longValue()).isEqualTo(1L);
         });
