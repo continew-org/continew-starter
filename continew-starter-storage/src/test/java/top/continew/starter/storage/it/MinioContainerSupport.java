@@ -58,7 +58,8 @@ abstract class MinioContainerSupport {
     private static final Path MULTIPART_TEMP_DIR = createMultipartTempDir();
 
     private static final MinIOContainer MINIO = new MinIOContainer(
-        DockerImageName.parse(ContainerImages.MINIO_IMAGE));
+        DockerImageName.parse(ContainerImages.MINIO_IMAGE)
+            .asCompatibleSubstituteFor("minio/minio"));
     private static volatile OssStorageStrategy sharedStrategy;
     private static volatile S3Client probeClient;
 
