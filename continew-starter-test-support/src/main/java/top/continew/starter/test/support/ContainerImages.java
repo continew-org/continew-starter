@@ -37,9 +37,10 @@ public final class ContainerImages {
     public static final String MYSQL_IMAGE = "mysql:8.0";
 
     /**
-     * MinIO 容器镜像（S3 协议兼容对象存储）
+     * MinIO 容器镜像（S3 协议兼容对象存储）：MinIO FOSS 官方镜像已终止发布，
+     * Docker Hub 在发的最后版本即此 tag，更新版本不再产出官方镜像
      */
-    public static final String MINIO_IMAGE = "minio/minio:RELEASE.2025-07-23T15-54-02Z";
+    public static final String MINIO_IMAGE = "minio/minio:RELEASE.2025-05-24T07-50-32Z";
 
     /**
      * HiveMQ 容器镜像（MQTT Broker，官方 Testcontainers 模块 CI 同版本）
