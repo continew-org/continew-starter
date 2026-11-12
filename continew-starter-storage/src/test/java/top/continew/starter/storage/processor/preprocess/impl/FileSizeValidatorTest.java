@@ -41,8 +41,8 @@ class FileSizeValidatorTest {
     void shouldRejectFileOverLimit() {
         UploadContext context = contextWithSize(11L * 1024 * 1024);
 
-        StorageException error = assertThrows(StorageException.class, () -> FileSizeValidator
-            .maxMB(10)
+        FileSizeValidator validator = FileSizeValidator.maxMB(10);
+        StorageException error = assertThrows(StorageException.class, () -> validator
             .validate(context));
         assertTrue(error.getMessage().contains("文件大小超过限制"), "异常应说明超限，实际："
             + error.getMessage());
@@ -60,12 +60,14 @@ class FileSizeValidatorTest {
     @DisplayName("工厂方法按对应单位换算上限（以真实文件大小的边界行为验证）")
     void shouldConvertFactoryUnitsByBoundaryBehavior() {
         assertDoesNotThrow(() -> FileSizeValidator.maxKB(1).validate(contextWithSize(1024)));
-        assertThrows(StorageException.class, () -> FileSizeValidator.maxKB(1)
-            .validate(contextWithSize(1025)));
+        FileSizeValidator kbValidator = FileSizeValidator.maxKB(1);
+        UploadContext oversizeKb = contextWithSize(1025);
+        assertThrows(StorageException.class, () -> kbValidator.validate(oversizeKb));
 
         assertDoesNotThrow(() -> FileSizeValidator.maxMB(1).validate(contextWithSize(1024 * 1024)));
-        assertThrows(StorageException.class, () -> FileSizeValidator.maxMB(1)
-            .validate(contextWithSize(1024 * 1024 + 1)));
+        FileSizeValidator mbValidator = FileSizeValidator.maxMB(1);
+        UploadContext oversizeMb = contextWithSize(1024 * 1024 + 1);
+        assertThrows(StorageException.class, () -> mbValidator.validate(oversizeMb));
     }
 
     @Test
@@ -73,8 +75,9 @@ class FileSizeValidatorTest {
     void shouldPreserveConfiguredLimitOnCreate() {
         FileSizeValidator validator = FileSizeValidator.maxSize(100);
         assertDoesNotThrow(() -> validator.create().validate(contextWithSize(100)));
-        assertThrows(StorageException.class, () -> validator.create()
-            .validate(contextWithSize(101)));
+        FileSizeValidator created = validator.create();
+        UploadContext oversize = contextWithSize(101);
+        assertThrows(StorageException.class, () -> created.validate(oversize));
     }
 
     @Test

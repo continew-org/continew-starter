@@ -18,6 +18,7 @@ package top.continew.starter.messaging.mqtt.it;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -145,7 +146,10 @@ class MqttGatewayIT extends HivemqContainerSupport {
         producer.sendToMqtt(retainedTopic, 1, true, payload);
         mqttOptions.addTopic(retainedTopic, 1);
 
-        MqttAwait.awaitRetained(plainListener, retainedTopic, payload);
+        MqttMessage message = MqttAwait.awaitRetained(plainListener, retainedTopic, payload);
+        assertEquals(retainedTopic, message.getTopic());
+        assertEquals(payload, message.getPayload());
+        assertTrue(message.getRetained());
 
         // 发布 0 字节保留消息清除 broker 残留，避免污染后续轮次
         producer.sendToMqtt(retainedTopic, 1, true, "");

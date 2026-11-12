@@ -132,8 +132,10 @@ class OssMultipartUploadIT extends MinioContainerSupport {
         tampered.setPartNumber(1);
         tampered.setPartETag("deadbeef-not-real");
         tampered.setSuccess(true);
-        assertThrows(StorageException.class, () -> oss.completeMultipartUpload(BUCKET, key, init
-            .getUploadId(), List.of(tampered), true));
+        List<MultipartUploadResp> parts = List.of(tampered);
+        String uploadId = init.getUploadId();
+        assertThrows(StorageException.class, () -> oss.completeMultipartUpload(BUCKET, key,
+            uploadId, parts, true));
 
         oss.abortMultipartUpload(BUCKET, key, init.getUploadId());
     }

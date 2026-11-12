@@ -93,8 +93,8 @@ class TopicUtilsTest {
     @DisplayName("validateTopicFilter 集合逐项校验")
     void shouldValidateFilterList() {
         assertDoesNotThrow(() -> TopicUtils.validateTopicFilter(List.of("a/b", "a/+")));
-        assertThrows(MqttException.class,
-            () -> TopicUtils.validateTopicFilter(List.of("a/b", "a b")));
+        List<String> filters = List.of("a/b", "a b");
+        assertThrows(MqttException.class, () -> TopicUtils.validateTopicFilter(filters));
     }
 
     @Test

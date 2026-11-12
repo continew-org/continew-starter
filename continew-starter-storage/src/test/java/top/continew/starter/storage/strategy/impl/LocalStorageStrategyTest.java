@@ -96,7 +96,7 @@ class LocalStorageStrategyTest {
 
     @Test
     @DisplayName("getFileInfo 返回真实文件大小、MD5 ETag 与访问 URL，缺失文件返回 null")
-    void shouldExposeRealFileInfoWithMd5Etag() throws IOException {
+    void shouldExposeRealFileInfoWithMd5Etag() {
         String path = "info.txt";
         byte[] content = "hello".getBytes(StandardCharsets.UTF_8);
         strategy.upload(bucketDir.toString(), path, file("info.txt", content));
@@ -115,7 +115,7 @@ class LocalStorageStrategyTest {
 
     @Test
     @DisplayName("list 按前缀过滤真实文件并受 maxKeys 限制")
-    void shouldListWithPrefixAndMaxKeys() throws IOException {
+    void shouldListWithPrefixAndMaxKeys() {
         String bucket = bucketDir.toString();
         strategy.upload(bucket, "media/a.txt", file("a.txt", "1".getBytes(StandardCharsets.UTF_8)));
         strategy.upload(bucket, "media/b.txt", file("b.txt", "2".getBytes(StandardCharsets.UTF_8)));
@@ -146,7 +146,7 @@ class LocalStorageStrategyTest {
 
     @Test
     @DisplayName("delete 移除文件并自底向上清理空父目录")
-    void shouldDeleteFileAndEmptyParentDirectories() throws IOException {
+    void shouldDeleteFileAndEmptyParentDirectories() {
         String bucket = bucketDir.toString();
         strategy.upload(bucket, "deep/nested/a/b.txt", file("b.txt", "x"
             .getBytes(StandardCharsets.UTF_8)));
@@ -174,14 +174,15 @@ class LocalStorageStrategyTest {
         assertFalse(strategy.exists(bucket, "batch/one.txt"));
         assertFalse(strategy.exists(bucket, "batch/two.txt"));
 
+        List<String> occupied = List.of("batch/occupied");
         StorageException error = assertThrows(StorageException.class, () -> strategy
-            .batchDelete(bucket, List.of("batch/occupied")));
+            .batchDelete(bucket, occupied));
         assertTrue(error.getMessage().contains("batch/occupied"), "异常应指明失败路径");
     }
 
     @Test
     @DisplayName("路径穿越（../）在写入前被拒绝且不落盘")
-    void shouldRejectPathTraversalOnUpload() throws IOException {
+    void shouldRejectPathTraversalOnUpload() {
         String bucket = bucketDir.toString();
         MockMultipartFile malicious = file("escape.txt", "evil".getBytes(StandardCharsets.UTF_8));
 

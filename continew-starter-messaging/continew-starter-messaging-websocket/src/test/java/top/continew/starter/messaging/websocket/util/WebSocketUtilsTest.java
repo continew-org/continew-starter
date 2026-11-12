@@ -157,7 +157,7 @@ class WebSocketUtilsTest {
         verify(second).sendMessage(any());
     }
 
-    private static WebSocketSession openSession() throws IOException {
+    private static WebSocketSession openSession() {
         WebSocketSession session = mock(WebSocketSession.class);
         when(session.isOpen()).thenReturn(true);
         return session;

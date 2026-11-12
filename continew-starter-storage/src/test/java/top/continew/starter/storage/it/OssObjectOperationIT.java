@@ -32,6 +32,7 @@ import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import top.continew.starter.storage.common.exception.StorageException;
 import top.continew.starter.storage.domain.model.resp.FileInfo;
+import top.continew.starter.storage.strategy.impl.OssStorageStrategy;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -186,18 +187,19 @@ class OssObjectOperationIT extends MinioContainerSupport {
     @DisplayName("桶不存在：写读列操作包装为 StorageException，exists/getFileInfo 按真实 404 返回缺失语义")
     void shouldHandleMissingBucketWithRealServerErrors() {
         String key = randomPrefix() + "any.txt";
+        OssStorageStrategy oss = strategy();
+        MockMultipartFile file = of("any.txt", "text/plain", "x".getBytes(StandardCharsets.UTF_8));
 
-        StorageException uploadError = assertThrows(StorageException.class, () -> strategy()
-            .upload(MISSING_BUCKET, key, of("any.txt", "text/plain", "x"
-                .getBytes(StandardCharsets.UTF_8))));
+        StorageException uploadError = assertThrows(StorageException.class, () -> oss.upload(
+            MISSING_BUCKET, key, file));
         assertEquals(404, ((S3Exception) uploadError.getCause()).statusCode());
 
-        StorageException downloadError = assertThrows(StorageException.class, () -> strategy()
-            .download(MISSING_BUCKET, key));
+        StorageException downloadError = assertThrows(StorageException.class, () -> oss.download(
+            MISSING_BUCKET, key));
         assertEquals(404, ((S3Exception) downloadError.getCause()).statusCode());
 
-        StorageException listError = assertThrows(StorageException.class, () -> strategy()
-            .list(MISSING_BUCKET, key, 10));
+        StorageException listError = assertThrows(StorageException.class, () -> oss.list(
+            MISSING_BUCKET, key, 10));
         assertEquals(404, ((S3Exception) listError.getCause()).statusCode());
 
         // MinIO 对缺失桶的 HeadObject 返回 404，策略按对象缺失语义收敛为 false/null

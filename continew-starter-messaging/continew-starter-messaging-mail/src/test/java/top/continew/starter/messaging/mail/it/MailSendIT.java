@@ -28,6 +28,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -201,6 +202,9 @@ class MailSendIT extends GreenMailContainerSupport {
         MailConfig sslConfig = plainConfig();
         sslConfig.setSslEnabled(true);
         sslConfig.setSslPort(GreenMailContainerSupport.smtpsPort());
+        // socketFactory.port 生效后明文端口不参与连接；置为不可用端口，SSL 属性一旦失效
+        // 连接必然失败，防止用例静默降级为明文 SMTP
+        sslConfig.setPort(1);
         // GreenMail 使用自签证书，主机名校验无法对容器地址通过，预置关闭该检查
         sslConfig.getProperties().put("mail.smtp.ssl.checkserveridentity", "false");
         String subject = "smtps-" + UUID.randomUUID();
@@ -264,11 +268,18 @@ class MailSendIT extends GreenMailContainerSupport {
     }
 
     /**
-     * 邮件测试应用：仅依赖真实自动配置装配 {@link JavaMailSenderImpl}。
+     * 邮件测试应用：仅依赖真实自动配置装配 {@link JavaMailSenderImpl}；注册的
+     * {@link MailConfigurer} 读取 {@code mailConfig}，使配置切换经 MailUtils 发送链路
+     * 的 getMailSender 重放真实生效（未注册该 bean 时配置通道不生效）。
      */
     @SpringBootConfiguration
     @EnableAutoConfiguration
     static class MailTestApp {
+
+        @Bean
+        MailConfigurer mailConfigurer() {
+            return () -> mailConfig;
+        }
     }
 
     private record Mailbox(String email, String login, String password) {
