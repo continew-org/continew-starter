@@ -36,6 +36,23 @@ public final class ContainerImages {
      */
     public static final String MYSQL_IMAGE = "mysql:8.0";
 
+    /**
+     * MinIO 容器镜像（S3 协议兼容对象存储）：MinIO 官方 FOSS 镜像已停止匿名发布
+     * （Docker Hub/quay.io 对既有 tag 返回 404/unauthorized），改用官方 Testcontainers
+     * 模块兼容的 Pigsty silo（AGPL MinIO fork 持续跟进构建，latest 为其唯一滚动 tag）
+     */
+    public static final String MINIO_IMAGE = "pgsty/silo:latest";
+
+    /**
+     * HiveMQ 容器镜像（MQTT Broker，官方 Testcontainers 模块 CI 同版本）
+     */
+    public static final String HIVEMQ_IMAGE = "hivemq/hivemq4:4.7.4";
+
+    /**
+     * GreenMail standalone 容器镜像（内置 SMTP/SMTPS/POP3/IMAP 与管理 REST API）
+     */
+    public static final String GREENMAIL_IMAGE = "greenmail/standalone:2.1.3";
+
     private ContainerImages() {
     }
 }
