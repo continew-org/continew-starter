@@ -17,7 +17,6 @@
 package top.continew.starter.extension.datapermission.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowableOfType;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -83,7 +82,7 @@ class RoleDataTest {
     }
 
     @Test
-    @DisplayName("dataScope 为 null 时按引用比较返回 false 且不抛异常（锁定当前行为）")
+    @DisplayName("dataScope 为 null 时 equals 返回 false 且不抛异常")
     void shouldReturnFalseWithoutThrowingWhenDataScopeIsNull() {
         RoleData nullScope = new RoleData(1L, null);
         assertThat(nullScope).isNotEqualTo(new RoleData(1L, DataScope.ALL));
@@ -91,22 +90,27 @@ class RoleDataTest {
     }
 
     @Test
-    @DisplayName("roleId 为 null 时 equals 抛 NPE（锁定当前行为）")
-    void shouldThrowNpeOnEqualsWhenRoleIdIsNull() {
+    @DisplayName("roleId 为 null 时 equals 返回 false 且不抛异常，反向比较亦然")
+    void shouldReturnFalseWithoutThrowingWhenRoleIdIsNull() {
         RoleData nullRoleId = new RoleData(null, DataScope.ALL);
-        Throwable thrown = catchThrowableOfType(NullPointerException.class, () -> nullRoleId
-            .equals(new RoleData(1L, DataScope.ALL)));
-        assertThat(thrown).isNotNull();
+        assertThat(nullRoleId).isNotEqualTo(new RoleData(1L, DataScope.ALL));
+        assertThat(new RoleData(1L, DataScope.ALL)).isNotEqualTo(nullRoleId);
     }
 
     @Test
-    @DisplayName("roleId 或 dataScope 为 null 时 hashCode 抛 NPE（锁定当前行为）")
-    void shouldThrowNpeOnHashCodeWhenFieldIsNull() {
+    @DisplayName("roleId 或 dataScope 为 null 时 hashCode 不抛异常且与相等性一致")
+    void shouldComputeHashCodeWithoutThrowingWhenFieldIsNull() {
         RoleData nullRoleId = new RoleData(null, DataScope.ALL);
         RoleData nullScope = new RoleData(1L, null);
-        assertThat(catchThrowableOfType(NullPointerException.class, nullRoleId::hashCode))
-            .isNotNull();
-        assertThat(catchThrowableOfType(NullPointerException.class, nullScope::hashCode))
-            .isNotNull();
+        assertThat(nullRoleId.hashCode()).isEqualTo(new RoleData(null, DataScope.ALL).hashCode());
+        assertThat(nullScope.hashCode()).isEqualTo(new RoleData(1L, null).hashCode());
+        assertThat(nullRoleId).hasSameHashCodeAs(new RoleData(null, DataScope.ALL));
+        assertThat(nullScope).hasSameHashCodeAs(new RoleData(1L, null));
+    }
+
+    @Test
+    @DisplayName("roleId 与 dataScope 均为 null 时同构造对象等价")
+    void shouldBeEqualWhenBothFieldsNull() {
+        assertThat(new RoleData(null, null)).isEqualTo(new RoleData(null, null));
     }
 }

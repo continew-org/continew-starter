@@ -18,6 +18,8 @@ package top.continew.starter.extension.datapermission.model;
 
 import top.continew.starter.extension.datapermission.enums.DataScope;
 
+import java.util.Objects;
+
 /**
  * 角色数据
  *
@@ -66,13 +68,11 @@ public class RoleData {
             return false;
         }
         RoleData roleData = (RoleData) o;
-        return roleId.equals(roleData.roleId) && dataScope == roleData.dataScope;
+        return Objects.equals(roleId, roleData.roleId) && dataScope == roleData.dataScope;
     }
 
     @Override
     public int hashCode() {
-        int result = roleId.hashCode();
-        result = 31 * result + dataScope.hashCode();
-        return result;
+        return Objects.hash(roleId, dataScope);
     }
 }

@@ -122,9 +122,39 @@ class RsaEncryptorTest {
     }
 
     @Test
-    @DisplayName("公钥与私钥均未配置时，Hutool 自动生成随机密钥对，加密仍返回非空密文")
-    void shouldEncryptWithGeneratedKeyPairWhenKeysMissing() {
+    @DisplayName("公钥与私钥均未配置时加密快速失败并给出配置提示")
+    void shouldFailFastWhenEncryptWithoutAnyKey() {
         RsaEncryptor encryptor = newEncryptor(null, null);
+        assertThatThrownBy(() -> encryptor.encrypt("secret")).isInstanceOf(CryptoException.class)
+            .hasMessageContaining("公钥");
+    }
+
+    @Test
+    @DisplayName("公钥与私钥均未配置时解密快速失败并给出配置提示")
+    void shouldFailFastWhenDecryptWithoutAnyKey() {
+        RsaEncryptor encryptor = newEncryptor(null, null);
+        assertThatThrownBy(() -> encryptor.decrypt("ciphertext"))
+            .isInstanceOf(CryptoException.class)
+            .hasMessageContaining("私钥");
+    }
+
+    @Test
+    @DisplayName("仅配置公钥时加密正常，解密快速失败并提示私钥缺失")
+    void shouldEncryptWhenOnlyPublicKeyConfigured() {
+        RsaEncryptor encryptor = newEncryptor(publicKey, null);
         assertThat(encryptor.encrypt("secret")).isNotBlank();
+        assertThatThrownBy(() -> encryptor.decrypt("ciphertext"))
+            .isInstanceOf(CryptoException.class)
+            .hasMessageContaining("私钥");
+    }
+
+    @Test
+    @DisplayName("仅配置私钥时解密正常，加密快速失败并提示公钥缺失")
+    void shouldDecryptWhenOnlyPrivateKeyConfigured() {
+        RsaEncryptor encryptor = newEncryptor(null, privateKey);
+        String ciphertext = newEncryptor(publicKey, privateKey).encrypt("secret");
+        assertThat(encryptor.decrypt(ciphertext)).isEqualTo("secret");
+        assertThatThrownBy(() -> encryptor.encrypt("secret")).isInstanceOf(CryptoException.class)
+            .hasMessageContaining("公钥");
     }
 }
