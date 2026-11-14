@@ -61,8 +61,7 @@ class ServerInfoUtilsTest {
     @DisplayName("getMacAddress 正常返回 MAC 格式集合，硬件地址不可用的网卡被跳过")
     void shouldCollectMacAddressSet() throws Exception {
         Set<String> macAddresses = ServerInfoUtils.getMacAddress();
-        assertThat(macAddresses).isNotNull();
-        assertThat(macAddresses).doesNotContainNull();
+        assertThat(macAddresses).isNotNull().doesNotContainNull();
         for (String macAddress : macAddresses) {
             assertThat(macAddress).matches("([0-9A-F]{2}-){5}[0-9A-F]{2}");
         }
