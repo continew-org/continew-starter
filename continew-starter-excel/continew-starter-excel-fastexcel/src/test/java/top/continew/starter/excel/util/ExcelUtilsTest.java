@@ -81,6 +81,21 @@ class ExcelUtilsTest {
     }
 
     @Test
+    @DisplayName("export 走真实入口时超长 Long 经大数值写转换器转为文本，读回不截断")
+    void shouldPreserveLargeLongThroughExportEntry() {
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        long largeId = 6101234567890123789L;
+        List<ExportRow> rows = List.of(new ExportRow("张三", 18, largeId));
+
+        ExcelUtils.export(rows, "用户", ExportRow.class, response);
+
+        List<ExportRow> readRows = readRows(response.getContentAsByteArray());
+        assertThat(readRows).hasSize(1);
+        assertThat(readRows.get(0).getId()).as("超过 15 位的 Long 经真实导出入口不丢精度")
+            .isEqualTo(largeId);
+    }
+
+    @Test
     @DisplayName("锁定当前行为：导出异常时抛出 BaseException 并重置响应")
     void shouldThrowBaseExceptionWhenExportFails() throws IOException {
         HttpServletResponse response = mock(HttpServletResponse.class);
@@ -115,12 +130,21 @@ class ExcelUtilsTest {
         @ExcelProperty("年龄")
         private Integer age;
 
+        @ExcelProperty("ID")
+        private Long id;
+
         public ExportRow() {
         }
 
         public ExportRow(String nickname, Integer age) {
             this.nickname = nickname;
             this.age = age;
+        }
+
+        public ExportRow(String nickname, Integer age, Long id) {
+            this.nickname = nickname;
+            this.age = age;
+            this.id = id;
         }
 
         public String getNickname() {
@@ -137,6 +161,14 @@ class ExcelUtilsTest {
 
         public void setAge(Integer age) {
             this.age = age;
+        }
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
         }
     }
 }

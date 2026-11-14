@@ -16,25 +16,30 @@
 
 package top.continew.starter.excel.converter;
 
-import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.NumberUtil;
 import cn.idev.excel.converters.Converter;
 import cn.idev.excel.enums.CellDataTypeEnum;
 import cn.idev.excel.metadata.GlobalConfiguration;
-import cn.idev.excel.metadata.data.ReadCellData;
 import cn.idev.excel.metadata.data.WriteCellData;
 import cn.idev.excel.metadata.property.ExcelContentProperty;
 
 /**
- * Excel 大数值转换器
+ * Excel 大数值写端转换器
  * <p>
- * Excel 中对长度超过 15 位的数值输入是有限制的，从 16 位开始无论录入什么数字均会变为 0，因此输入时只能以文本的形式进行录入
+ * Excel 中超过 15 位的数值从第 16 位起一律归零，超出长度的 {@code Long} 写入 NUMBER 单元格会被 xlsx double 精度截断，
+ * 因此写端按长度分流：超过 15 位走 STRING 单元格，其余走 NUMBER 单元格。
+ * </p>
+ * <p>
+ * 写端按 {@code (Java 类型, 目标单元格类型)} 查找转换器，普通写路径的目标单元格类型为 null，内置 LongNumberConverter
+ * 按 {@code (Long, NUMBER)} 注册无法命中该查找。本转换器以 {@code null} 作为支持的单元格类型占用 {@code (Long, null)}
+ * 槽位，使分流逻辑接入真实写路径。该查找行为属 fastexcel 实现细节（未在文档承诺），上游升级后需通过 ExcelUtils
+ * 导出往返用例回归验证。
  * </p>
  *
  * @author Charles7c
- * @since 1.0.0
+ * @since 3.1.0
  */
-public class ExcelBigNumberConverter implements Converter<Long> {
+public class ExcelBigNumberWriteConverter implements Converter<Long> {
 
     /**
      * Excel 输入数值长度限制
@@ -46,24 +51,14 @@ public class ExcelBigNumberConverter implements Converter<Long> {
         return Long.class;
     }
 
+    /**
+     * 返回 null 以占用写端 {@code (Long, null)} 转换器槽位
+     */
     @Override
     public CellDataTypeEnum supportExcelTypeKey() {
-        return CellDataTypeEnum.STRING;
+        return null;
     }
 
-    /**
-     * 转换为 Java 数据（读取 Excel）
-     */
-    @Override
-    public Long convertToJavaData(ReadCellData<?> cellData,
-        ExcelContentProperty contentProperty,
-        GlobalConfiguration globalConfiguration) {
-        return Convert.toLong(cellData.getData());
-    }
-
-    /**
-     * 转换为 Excel 数据（写入 Excel）
-     */
     @Override
     public WriteCellData<Object> convertToExcelData(Long value,
         ExcelContentProperty contentProperty,

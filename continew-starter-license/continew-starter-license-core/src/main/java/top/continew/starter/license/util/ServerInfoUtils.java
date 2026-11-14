@@ -331,6 +331,7 @@ public class ServerInfoUtils {
 
     /**
      * <p>获取Mac地址</p>
+     * <p>硬件地址不可用的网卡（返回 null/空）不进入结果集合，不产生 null 元素</p>
      *
      * @return List&lt;String&gt; Mac地址
      * @throws SocketException 获取网络接口信息失败
@@ -339,6 +340,7 @@ public class ServerInfoUtils {
         // 获取所有网络接口
         Set<InetAddress> inetAddresses = getLocalAllInetAddress();
         if (CollectionUtil.isNotEmpty(inetAddresses)) {
+            // mapToSet 默认过滤 null 元素，硬件地址不可用的网卡在此处被跳过
             return CollUtils.mapToSet(inetAddresses, ServerInfoUtils::getMacByInetAddress);
         }
         return Collections.emptySet();
@@ -367,7 +369,16 @@ public class ServerInfoUtils {
      */
     private static String getMacByInetAddress(InetAddress inetAddr) {
         try {
-            byte[] mac = NetworkInterface.getByInetAddress(inetAddr).getHardwareAddress();
+            NetworkInterface networkInterface = NetworkInterface.getByInetAddress(inetAddr);
+            // 虚拟网卡或不可达网卡可能拿不到硬件地址，跳过而不是抛 NPE
+            if (networkInterface == null) {
+                return null;
+            }
+            byte[] mac = networkInterface.getHardwareAddress();
+            // 硬件地址不可用（返回 null）或不适用于 MAC 采集（空数组）时跳过
+            if (mac == null || mac.length == 0) {
+                return null;
+            }
             StringBuilder stringBuilder = new StringBuilder();
             for (int i = 0; i < mac.length; i++) {
                 if (i != 0) {

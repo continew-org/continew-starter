@@ -17,13 +17,20 @@
 package top.continew.starter.license.util;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import top.continew.starter.license.exception.LicenseException;
+import org.mockito.MockedStatic;
 import top.continew.starter.license.model.LicenseExtraModel;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -51,23 +58,91 @@ class ServerInfoUtilsTest {
     }
 
     @Test
-    @DisplayName("getMacAddress 正常时返回 MAC 格式集合，硬件地址不可用时报 NPE")
+    @DisplayName("getMacAddress 正常返回 MAC 格式集合，硬件地址不可用的网卡被跳过")
     void shouldCollectMacAddressSet() throws Exception {
-        Throwable thrown = catchThrowable(ServerInfoUtils::getMacAddress);
-        if (thrown == null) {
+        Set<String> macAddresses = ServerInfoUtils.getMacAddress();
+        assertThat(macAddresses).isNotNull().doesNotContainNull();
+        for (String macAddress : macAddresses) {
+            assertThat(macAddress).matches("([0-9A-F]{2}-){5}[0-9A-F]{2}");
+        }
+    }
+
+    @Test
+    @DisplayName("按地址未找到网卡时跳过，不抛 NPE 也不进入集合")
+    void shouldSkipWhenNicNotFoundByInetAddress() throws Exception {
+        try (MockedStatic<NetworkInterface> mocked = mockStatic(NetworkInterface.class)) {
+            InetAddress address = InetAddress.getByName("192.168.1.10");
+            NetworkInterface nic = mock(NetworkInterface.class);
+            when(nic.getInetAddresses()).thenReturn(Collections.enumeration(Collections
+                .singletonList(address)));
+            mocked.when(NetworkInterface::getNetworkInterfaces)
+                .thenReturn(Collections.enumeration(Collections.singletonList(nic)));
+            mocked.when(() -> NetworkInterface.getByInetAddress(any())).thenReturn(null);
+
             Set<String> macAddresses = ServerInfoUtils.getMacAddress();
+
             assertThat(macAddresses).isNotNull();
-            for (String macAddress : macAddresses) {
-                // 锁定当前行为：接口抛 SocketException 时元素为 null（疑似缺陷，另行记录）
-                if (macAddress == null) {
-                    continue;
-                }
-                assertThat(macAddress).matches("([0-9A-F]{2}-){5}[0-9A-F]{2}");
-            }
-        } else {
-            // 锁定当前行为：接口硬件地址不可用时 getHardwareAddress 返回 null 引发 NPE
-            // （疑似缺陷：NPE 不在 getMacByInetAddress 的 SocketException 捕获范围内，另行记录）
-            assertThat(thrown).isInstanceOf(NullPointerException.class);
+            assertThat(macAddresses).isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("网卡 getHardwareAddress 返回 null 时跳过该网卡，不抛 NPE 也不进入集合")
+    void shouldSkipNicWithNullHardwareAddress() throws Exception {
+        try (MockedStatic<NetworkInterface> mocked = mockStatic(NetworkInterface.class)) {
+            InetAddress address = InetAddress.getByName("192.168.1.10");
+            NetworkInterface nic = mock(NetworkInterface.class);
+            when(nic.getInetAddresses()).thenReturn(Collections.enumeration(Collections
+                .singletonList(address)));
+            when(nic.getHardwareAddress()).thenReturn(null);
+            mocked.when(NetworkInterface::getNetworkInterfaces)
+                .thenReturn(Collections.enumeration(Collections.singletonList(nic)));
+            mocked.when(() -> NetworkInterface.getByInetAddress(any())).thenReturn(nic);
+
+            Set<String> macAddresses = ServerInfoUtils.getMacAddress();
+
+            assertThat(macAddresses).isNotNull();
+            assertThat(macAddresses).isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("网卡 getHardwareAddress 返回空数组时跳过该网卡，不产生空串元素")
+    void shouldSkipNicWithEmptyHardwareAddress() throws Exception {
+        try (MockedStatic<NetworkInterface> mocked = mockStatic(NetworkInterface.class)) {
+            InetAddress address = InetAddress.getByName("192.168.1.10");
+            NetworkInterface nic = mock(NetworkInterface.class);
+            when(nic.getInetAddresses()).thenReturn(Collections.enumeration(Collections
+                .singletonList(address)));
+            when(nic.getHardwareAddress()).thenReturn(new byte[0]);
+            mocked.when(NetworkInterface::getNetworkInterfaces)
+                .thenReturn(Collections.enumeration(Collections.singletonList(nic)));
+            mocked.when(() -> NetworkInterface.getByInetAddress(any())).thenReturn(nic);
+
+            Set<String> macAddresses = ServerInfoUtils.getMacAddress();
+
+            assertThat(macAddresses).isNotNull();
+            assertThat(macAddresses).isEmpty();
+        }
+    }
+
+    @Test
+    @DisplayName("网卡 getHardwareAddress 抛 SocketException 时跳过该网卡，整体采集不失败")
+    void shouldSkipNicThrowingSocketException() throws Exception {
+        try (MockedStatic<NetworkInterface> mocked = mockStatic(NetworkInterface.class)) {
+            InetAddress address = InetAddress.getByName("192.168.1.10");
+            NetworkInterface nic = mock(NetworkInterface.class);
+            when(nic.getInetAddresses()).thenReturn(Collections.enumeration(Collections
+                .singletonList(address)));
+            when(nic.getHardwareAddress()).thenThrow(new SocketException("模拟网卡硬件地址不可用"));
+            mocked.when(NetworkInterface::getNetworkInterfaces)
+                .thenReturn(Collections.enumeration(Collections.singletonList(nic)));
+            mocked.when(() -> NetworkInterface.getByInetAddress(any())).thenReturn(nic);
+
+            Set<String> macAddresses = ServerInfoUtils.getMacAddress();
+
+            assertThat(macAddresses).isNotNull();
+            assertThat(macAddresses).isEmpty();
         }
     }
 
@@ -84,33 +159,26 @@ class ServerInfoUtilsTest {
     }
 
     @Test
-    @DisplayName("getServerInfos 正常时组装全部校验信息，采集异常时包装为 LicenseException")
+    @DisplayName("getServerInfos 正常组装全部校验信息且 MAC 集合无 null 元素")
     void shouldAssembleLicenseExtraModel() {
-        Throwable thrown = catchThrowable(ServerInfoUtils::getServerInfos);
-        if (thrown == null) {
-            LicenseExtraModel serverInfos = ServerInfoUtils.getServerInfos();
-            assertThat(serverInfos).isNotNull();
-            assertThat(serverInfos.getIpAddress()).isNotNull();
-            assertThat(serverInfos.getMacAddress()).isNotNull();
-            assertThat(serverInfos.getCpuSerial()).isNotNull();
-            assertThat(serverInfos.getMainBoardSerial()).isNotNull();
-        } else {
-            // 锁定当前行为：任一硬件信息采集异常时整体失败并包装为 LicenseException
-            assertThat(thrown).isInstanceOf(LicenseException.class);
-        }
+        LicenseExtraModel serverInfos = ServerInfoUtils.getServerInfos();
+        assertThat(serverInfos).isNotNull();
+        assertThat(serverInfos.getIpAddress()).isNotNull();
+        assertThat(serverInfos.getMacAddress()).isNotNull();
+        assertThat(serverInfos.getMacAddress()).doesNotContainNull();
+        assertThat(serverInfos.getCpuSerial()).isNotNull();
+        assertThat(serverInfos.getMainBoardSerial()).isNotNull();
     }
 
     @Test
-    @DisplayName("getServerInfos 二次调用与首轮行为一致，命中缓存不改变结果")
+    @DisplayName("getServerInfos 二次调用命中静态缓存，各校验信息集合为同一引用")
     void shouldReuseCachedServerInfos() {
-        Throwable firstThrown = catchThrowable(ServerInfoUtils::getServerInfos);
-        Throwable secondThrown = catchThrowable(ServerInfoUtils::getServerInfos);
-        // 锁定当前行为：静态容器缓存使重复调用复用首轮结果，成功或失败语义跨调用保持
-        if (firstThrown == null) {
-            assertThat(secondThrown).isNull();
-        } else {
-            assertThat(firstThrown).isInstanceOf(LicenseException.class);
-            assertThat(secondThrown).isInstanceOf(LicenseException.class);
-        }
+        LicenseExtraModel first = ServerInfoUtils.getServerInfos();
+        LicenseExtraModel second = ServerInfoUtils.getServerInfos();
+        assertThat(second).isNotNull();
+        assertThat(second.getIpAddress()).isSameAs(first.getIpAddress());
+        assertThat(second.getMacAddress()).isSameAs(first.getMacAddress());
+        assertThat(second.getCpuSerial()).isSameAs(first.getCpuSerial());
+        assertThat(second.getMainBoardSerial()).isSameAs(first.getMainBoardSerial());
     }
 }

@@ -24,7 +24,7 @@ import cn.idev.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import top.continew.starter.core.exception.BaseException;
-import top.continew.starter.excel.converter.ExcelBigNumberConverter;
+import top.continew.starter.excel.converter.ExcelBigNumberWriteConverter;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Collections;
@@ -86,9 +86,11 @@ public class ExcelUtils {
                 .autoCloseStream(false)
                 // 自动适配宽度
                 .registerWriteHandler(new LongestMatchColumnWidthStyleStrategy())
-                // 自动转换大数值
-                .registerConverter(new ExcelBigNumberConverter())
                 .sheet(sheetName)
+                // 写端按 (Long, 目标单元格类型) 查找转换器，普通写路径目标类型为 null，
+                // 需在 sheet 级注册 supportExcelTypeKey 为 null 的实例占用该槽位，
+                // 使超过 15 位的大数值真正走 STRING 单元格，避开 xlsx double 精度截断
+                .registerConverter(new ExcelBigNumberWriteConverter())
                 .excludeColumnFieldNames(excludeColumnFieldNames)
                 .doWrite(list);
         } catch (Exception e) {

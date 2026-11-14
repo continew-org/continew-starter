@@ -30,13 +30,13 @@ ExcelUtils.export(list, "用户列表", "用户信息", Set.of("password"), User
 
 - 文件名自动追加时间戳（`文件名_yyyyMMddHHmmss.xlsx`）并进行 URL 编码，以 `Content-Disposition: attachment` 写入响应；
 - 注册 `LongestMatchColumnWidthStyleStrategy`，按内容自动适配列宽；
-- 注册 `ExcelBigNumberConverter`，自动转换大数值。
+- 注册 `ExcelBigNumberWriteConverter`，写入时自动转换大数值；
 
 ## 数据类型转换器
 
-模块在 `top.continew.starter.excel.converter` 包下内置三个转换器，除大数值转换器已随导出自动注册外，其余可在实体字段上通过 `@ExcelProperty(converter = ...)` 按需指定。
+模块在 `top.continew.starter.excel.converter` 包下内置三个转换器，大数值写转换器已随导出自动注册，其余可在实体字段上通过 `@ExcelProperty(converter = ...)` 按需指定。
 
-**大数值转换器 `ExcelBigNumberConverter`**：解决 Excel 中超过 15 位数字的精度问题（Excel 对超过 15 位的数值从第 16 位起一律归零），因此写入时将超长 `Long` 转为文本，读取时再转回 `Long`（见 `ExcelBigNumberConverter.java:42` 的 `MAX_LENGTH = 15`）。
+**大数值写转换器 `ExcelBigNumberWriteConverter`**：解决 Excel 中超过 15 位数字的精度问题（Excel 对超过 15 位的数值从第 16 位起一律归零），写入时将超长 `Long` 转为文本单元格（见 `MAX_LENGTH = 15`），导出（`ExcelUtils.export`）自动注册。读取方向无需转换器：fastexcel 内置转换器已能正确读取文本与数值单元格中的 `Long`。
 
 **集合转换器 `ExcelListConverter`**：仅适合 `List<基本类型>` 与逗号分隔字符串（`xxx,xxx`）之间的互相转换（见 `ExcelListConverter.java` 类注释）。
 
