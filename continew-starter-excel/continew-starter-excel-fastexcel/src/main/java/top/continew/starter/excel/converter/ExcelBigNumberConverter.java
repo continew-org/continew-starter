@@ -30,6 +30,10 @@ import cn.idev.excel.metadata.property.ExcelContentProperty;
  * <p>
  * Excel 中对长度超过 15 位的数值输入是有限制的，从 16 位开始无论录入什么数字均会变为 0，因此输入时只能以文本的形式进行录入
  * </p>
+ * <p>
+ * 本转换器按 {@code (Long, STRING)} 注册，仅覆盖 STRING 单元格的读取与写入；NUMBER 单元格的读写由 fastexcel 内置
+ * LongNumberConverter 按 {@code (Long, NUMBER)} 处理，二者按单元格类型各司其职
+ * </p>
  *
  * @author Charles7c
  * @since 1.0.0
@@ -53,12 +57,19 @@ public class ExcelBigNumberConverter implements Converter<Long> {
 
     /**
      * 转换为 Java 数据（读取 Excel）
+     * <p>
+     * 真实读取链路中 fastexcel 不填充 {@link ReadCellData#getData()}，数值与文本分别存放于 numberValue 与 stringValue，
+     * 此处从单元格真实存放字段取值；NUMBER 取整行为与内置 LongNumberConverter 一致（非整数截断）
+     * </p>
      */
     @Override
     public Long convertToJavaData(ReadCellData<?> cellData,
         ExcelContentProperty contentProperty,
         GlobalConfiguration globalConfiguration) {
-        return Convert.toLong(cellData.getData());
+        if (cellData.getType() == CellDataTypeEnum.NUMBER) {
+            return Convert.toLong(cellData.getNumberValue());
+        }
+        return Convert.toLong(cellData.getStringValue());
     }
 
     /**
