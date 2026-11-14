@@ -52,7 +52,7 @@
 
         <!-- File Storage Versions -->
         <x-file-storage.version>2.3.0</x-file-storage.version>
-        <aws-sdk.version>2.57.9</aws-sdk.version>
+        <aws-sdk.version>2.59.1</aws-sdk.version>
         <thumbnails.version>0.4.21</thumbnails.version>
 
         <!-- Validation and Response Processing Versions -->
@@ -60,7 +60,7 @@
         <crane4j.version>2.10.0</crane4j.version>
 
         <!-- API Documentation Versions -->
-        <nextdoc4j.version>1.5.0</nextdoc4j.version>
+        <nextdoc4j.version>1.5.1</nextdoc4j.version>
         <springdoc.version>3.2.0</springdoc.version>
         <swagger.version>2.2.55</swagger.version>
 
@@ -70,7 +70,7 @@
 
         <!-- HTTP Client and Utilities Versions -->
         <ttl.version>2.14.5</ttl.version>
-        <ip2region.version>4.1.0</ip2region.version>
+        <ip2region.version>4.1.2</ip2region.version>
         <hutool.version>5.8.48</hutool.version>
         <sensitive-word.version>0.29.5</sensitive-word.version>
         <snakeyaml.version>2.7</snakeyaml.version>
@@ -79,8 +79,8 @@
         <commons-fileupload.version>1.6.0</commons-fileupload.version>
 
         <!-- Testing Versions -->
-        <rest-assured.version>5.5.6</rest-assured.version>
-        <groovy.version>4.0.22</groovy.version>
+        <rest-assured.version>5.5.7</rest-assured.version>
+        <groovy.version>4.0.33</groovy.version>
 
         <!-- Security Vulnerability Fix Versions -->
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
@@ -89,10 +89,10 @@
         <fastjson.version>1.2.84</fastjson.version>
 
         <!-- Maven Plugin Versions -->
-        <flatten.version>1.8.0</flatten.version>
+        <flatten.version>1.9.0</flatten.version>
         <sonar.version>5.8.0.7211</sonar.version>
         <jacoco.version>0.8.16</jacoco.version>
-        <spotless.version>3.10.4</spotless.version>
+        <spotless.version>3.11.0</spotless.version>
         <checkstyle.version>14.4.0</checkstyle.version>
         <checkstyle-plugin.version>3.6.0</checkstyle-plugin.version>
         <spotbugs.version>4.10.5.0</spotbugs.version>

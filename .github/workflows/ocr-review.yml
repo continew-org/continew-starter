@@ -109,13 +109,13 @@ jobs:
       - name: Get GitHub App token
         id: app-token
         if: ${{ vars.OCR_USE_GITHUB_APP == 'true' }}
-        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ secrets.CR_BOT_APP_CLIENT_ID }}
           private-key: ${{ secrets.CR_BOT_APP_PRIVATE_KEY }}
 
       - name: Run OpenCodeReview
-        uses: alibaba/open-code-review@375f64cd6f67a48a135da83cfcf59c52669a09cb # v1.13.3
+        uses: alibaba/open-code-review@0e9060da66af36a96a15516e76a001953095318b # v1.13.9
         with:
           ocr_version: '1.13.3'
           llm_url: ${{ secrets.OCR_LLM_URL }}
