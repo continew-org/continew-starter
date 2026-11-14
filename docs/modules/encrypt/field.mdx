@@ -81,6 +81,7 @@ continew-starter:
 
 - **启动期校验（严格模式）**：对称加密算法（`AES`、`DES`、`PBE_WITH_MD5_AND_DES`）要求全局密钥 `continew-starter.encrypt.field.password` 必须配置且长度合法（`AES` 为 16/24/32 字节、`DES` 为 8 字节、`PBE_WITH_MD5_AND_DES` 仅要求非空），不满足时启动失败，异常信息指向具体配置项。
 - **运行期（严格模式）**：加密或解密失败时抛出 `top.continew.starter.encrypt.field.exception.FieldEncryptException`，异常信息包含字段名与算法，不会返回原值写入或读出。
+- **RSA 密钥按方向校验**：加密依赖公钥、解密依赖私钥，对应方向密钥缺失（含空白串）时在调用期快速失败并给出配置提示，不会自动生成随机密钥（否则密文无法解密）。仅配置公钥（只加密）或仅配置私钥（只解密）属合法部署。
 - **降级模式（`fail-fast: false`）**：跳过启动期校验，运行期失败仅记录警告日志并返回原值，与早期版本行为一致。敏感字段可能以明文落库，仅在存量密文兼容场景下使用。
 
 ## 使用 @FieldEncrypt 注解

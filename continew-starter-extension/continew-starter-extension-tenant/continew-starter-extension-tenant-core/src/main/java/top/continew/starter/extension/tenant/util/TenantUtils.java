@@ -43,14 +43,22 @@ public class TenantUtils {
      * 适用于在非租户逻辑中执行有租户逻辑的业务逻辑。
      * </p>
      *
-     * @param tenantId 租户 ID
+     * @param tenantId 租户 ID，租户启用时必填
      * @param runnable 业务逻辑
+     * @throws IllegalArgumentException 业务逻辑为 null，或租户启用时租户 ID 为 null
      */
     public static void execute(Long tenantId, Runnable runnable) {
+        if (runnable == null) {
+            throw new IllegalArgumentException("业务逻辑（runnable）不能为空");
+        }
         // 未启用租户，直接执行业务逻辑
         if (TenantContextHolder.isTenantDisabled()) {
             runnable.run();
             return;
+        }
+        // 租户启用时租户 ID 必须提供，避免在下游查询时以裸 NPE 暴露
+        if (tenantId == null) {
+            throw new IllegalArgumentException("租户 ID 不能为空：租户已启用，请传入有效的租户 ID");
         }
         // 原租户上下文
         TenantContext oldContext = TenantContextHolder.getContext();
@@ -88,8 +96,12 @@ public class TenantUtils {
      * </p>
      *
      * @param runnable 业务逻辑
+     * @throws IllegalArgumentException 业务逻辑为 null
      */
     public static void executeIgnore(Runnable runnable) {
+        if (runnable == null) {
+            throw new IllegalArgumentException("业务逻辑（runnable）不能为空");
+        }
         // 未启用或忽略租户，直接执行业务逻辑
         if (TenantContextHolder.isTenantDisabled() || TenantContextHolder.isIgnore()) {
             runnable.run();

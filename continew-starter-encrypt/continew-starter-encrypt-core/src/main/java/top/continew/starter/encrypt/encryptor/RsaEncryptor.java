@@ -17,6 +17,8 @@
 package top.continew.starter.encrypt.encryptor;
 
 import cn.hutool.core.codec.Base64;
+import cn.hutool.core.text.CharSequenceUtil;
+import cn.hutool.crypto.CryptoException;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.asymmetric.KeyType;
 import top.continew.starter.encrypt.context.CryptoContext;
@@ -27,6 +29,9 @@ import java.nio.charset.StandardCharsets;
  * RSA 加密器
  * <p>
  * 非对称加密算法，由罗纳德·李维斯特（Ron Rivest）、阿迪·沙米尔（Adi Shamir）和伦纳德·阿德曼（Leonard Adleman）于1977年提出，安全性基于大数因子分解问题的困难性。
+ * </p>
+ * <p>
+ * 加密依赖公钥、解密依赖私钥，对应方向密钥未配置时快速失败，不自动生成随机密钥。
  * </p>
  *
  * @author Charles7c
@@ -47,13 +52,20 @@ public class RsaEncryptor extends AbstractEncryptor {
 
     @Override
     public String encrypt(String plaintext) {
-        return Base64.encode(
-            SecureUtil.rsa(null, context.getPublicKey()).encrypt(plaintext, KeyType.PublicKey));
+        String publicKey = context.getPublicKey();
+        if (CharSequenceUtil.isBlank(publicKey)) {
+            throw new CryptoException("RSA 公钥未配置，无法加密，请为加密上下文配置公钥");
+        }
+        return Base64.encode(SecureUtil.rsa(null, publicKey).encrypt(plaintext, KeyType.PublicKey));
     }
 
     @Override
     public String decrypt(String ciphertext) {
-        return new String(SecureUtil.rsa(context.getPrivateKey(), null)
+        String privateKey = context.getPrivateKey();
+        if (CharSequenceUtil.isBlank(privateKey)) {
+            throw new CryptoException("RSA 私钥未配置，无法解密，请为加密上下文配置私钥");
+        }
+        return new String(SecureUtil.rsa(privateKey, null)
             .decrypt(Base64.decode(ciphertext), KeyType.PrivateKey), StandardCharsets.UTF_8);
     }
 }

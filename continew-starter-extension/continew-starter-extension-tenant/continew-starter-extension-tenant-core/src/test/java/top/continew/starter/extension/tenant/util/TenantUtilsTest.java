@@ -197,6 +197,45 @@ class TenantUtilsTest {
         assertThat(TenantContextHolder.isIgnore()).isFalse();
     }
 
+    @Test
+    @DisplayName("租户启用时执行传入 null 租户 ID 抛 IllegalArgumentException")
+    void shouldThrowIllegalArgumentWhenTenantIdIsNull() {
+        try (MockedStatic<SpringUtil> springUtil = mockStatic(SpringUtil.class)) {
+            stubTenantEnabled(springUtil);
+            AtomicBoolean executed = new AtomicBoolean(false);
+            assertThatThrownBy(() -> TenantUtils.execute(null, () -> executed.set(true)))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("租户 ID");
+            assertThat(executed.get()).isFalse();
+        }
+        assertThat(TenantContextHolder.getContext()).isNull();
+        assertThat(TenantContextHolder.isIgnore()).isFalse();
+    }
+
+    @Test
+    @DisplayName("execute 与 executeIgnore 传入 null 业务逻辑抛 IllegalArgumentException")
+    void shouldThrowIllegalArgumentWhenRunnableIsNull() {
+        assertThatThrownBy(() -> TenantUtils.execute(9L, null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("runnable");
+        assertThatThrownBy(() -> TenantUtils.executeIgnore(null))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("runnable");
+    }
+
+    @Test
+    @DisplayName("租户未启用时执行传入 null 租户 ID 仍直接执行业务逻辑")
+    void shouldRunDirectlyWhenTenantDisabledAndTenantIdIsNull() {
+        AtomicBoolean executed = new AtomicBoolean(false);
+        try (MockedStatic<SpringUtil> springUtil = mockStatic(SpringUtil.class)) {
+            stubTenantDisabled(springUtil);
+            TenantUtils.execute(null, () -> executed.set(true));
+            assertThat(executed.get()).isTrue();
+        }
+        assertThat(TenantContextHolder.getContext()).isNull();
+        assertThat(TenantContextHolder.isIgnore()).isFalse();
+    }
+
     /**
      * 构造目标租户上下文
      *
