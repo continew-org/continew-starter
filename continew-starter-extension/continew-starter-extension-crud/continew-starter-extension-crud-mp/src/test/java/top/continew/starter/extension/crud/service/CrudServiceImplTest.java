@@ -344,10 +344,12 @@ class CrudServiceImplTest {
     @Test
     void shouldSkipAfterDeleteHookWhenMapperFails() {
         doThrow(new RuntimeException("db down")).when(mapper).deleteByIds(anyCollection());
+        List<Long> ids = List.of(1L);
 
-        assertThatThrownBy(() -> service.delete(List.of(1L))).isInstanceOf(RuntimeException.class)
+        assertThatThrownBy(() -> service.delete(ids)).isInstanceOf(RuntimeException.class)
             .hasMessage("db down");
         assertThat(service.hookCalls).containsExactly("beforeDelete");
+        verify(mapper).deleteByIds(ids);
     }
 
     /**
@@ -405,8 +407,8 @@ class CrudServiceImplTest {
         LabelValueResp resp = respList.get(0);
         assertThat(resp.getLabel()).isEqualTo("alice");
         assertThat(resp.getValue()).isEqualTo(1L);
-        Map<?, ?> extra = (Map<?, ?>) resp.getExtra();
-        assertThat(extra.get("description")).isEqualTo("d1");
+        assertThat((Map<String, Object>) (Map<?, ?>) resp.getExtra()).containsEntry("description",
+            "d1");
     }
 
     /**
