@@ -54,8 +54,7 @@ public class RsaEncryptor extends AbstractEncryptor {
     public String encrypt(String plaintext) {
         String publicKey = context.getPublicKey();
         if (CharSequenceUtil.isBlank(publicKey)) {
-            throw new CryptoException("RSA 公钥未配置，无法加密，请为加密上下文配置公钥"
-                + "（禁止自动生成随机密钥，否则密文无法解密）");
+            throw new CryptoException("RSA 公钥未配置，无法加密，请为加密上下文配置公钥");
         }
         return Base64.encode(SecureUtil.rsa(null, publicKey).encrypt(plaintext, KeyType.PublicKey));
     }
@@ -64,8 +63,7 @@ public class RsaEncryptor extends AbstractEncryptor {
     public String decrypt(String ciphertext) {
         String privateKey = context.getPrivateKey();
         if (CharSequenceUtil.isBlank(privateKey)) {
-            throw new CryptoException("RSA 私钥未配置，无法解密，请为加密上下文配置私钥"
-                + "（禁止自动生成随机密钥）");
+            throw new CryptoException("RSA 私钥未配置，无法解密，请为加密上下文配置私钥");
         }
         return new String(SecureUtil.rsa(privateKey, null)
             .decrypt(Base64.decode(ciphertext), KeyType.PrivateKey), StandardCharsets.UTF_8);
