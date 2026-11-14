@@ -102,8 +102,6 @@ class RoleDataTest {
     void shouldComputeHashCodeWithoutThrowingWhenFieldIsNull() {
         RoleData nullRoleId = new RoleData(null, DataScope.ALL);
         RoleData nullScope = new RoleData(1L, null);
-        assertThat(nullRoleId.hashCode()).isEqualTo(new RoleData(null, DataScope.ALL).hashCode());
-        assertThat(nullScope.hashCode()).isEqualTo(new RoleData(1L, null).hashCode());
         assertThat(nullRoleId).hasSameHashCodeAs(new RoleData(null, DataScope.ALL));
         assertThat(nullScope).hasSameHashCodeAs(new RoleData(1L, null));
     }
