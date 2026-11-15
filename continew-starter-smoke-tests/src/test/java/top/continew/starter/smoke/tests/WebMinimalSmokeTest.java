@@ -34,7 +34,22 @@ import org.springframework.http.ResponseEntity;
  * @author Charles7c
  * @since 3.1.0
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(properties = {
+    "spring.autoconfigure.exclude=org.redisson.spring.starter.RedissonAutoConfigurationV2,"
+        + "org.redisson.spring.starter.RedissonAutoConfigurationV4,"
+        + "top.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration,"
+        + "top.continew.starter.auth.satoken.autoconfigure.SaTokenAutoConfiguration,"
+        + "top.continew.starter.data.autoconfigure.MybatisPlusAutoConfiguration,"
+        + "com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration,"
+        + "top.continew.starter.extension.tenant.autoconfigure.TenantAutoConfiguration,"
+        + "top.continew.starter.extension.datapermission.autoconfigure.DataPermissionAutoConfiguration,"
+        + "top.continew.starter.encrypt.field.autoconfigure.FieldEncryptAutoConfiguration,"
+        + "top.continew.starter.log.autoconfigure.LogAutoConfiguration,"
+        + "top.continew.starter.trace.autoconfigure.TraceAutoConfiguration,"
+        + "top.continew.starter.storage.autoconfigure.StorageAutoConfiguration,"
+        + "top.continew.starter.messaging.mail.autoconfigure.MailAutoConfiguration,"
+        + "top.continew.starter.messaging.websocket.autoconfigure.WebSocketAutoConfiguration"},
+    webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureTestRestTemplate
 class WebMinimalSmokeTest {
 
