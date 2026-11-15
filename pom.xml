@@ -170,7 +170,9 @@
             </build>
         </profile>
         <!-- 覆盖率模式：激活 JaCoCo 采集测试覆盖率并生成 target/site/jacoco 报告，
-             与 sonar profile 并存（sonar 自行激活 JaCoCo），供 integration workflow 与本地分析使用 -->
+             与 sonar profile 并存（sonar 自行激活 JaCoCo），供 integration workflow 与本地分析使用。
+             覆盖率门禁经 SonarCloud Quality Gate 对新代码设阈值（行覆盖 80% / 分支覆盖 70%），
+             不在此加 jacoco check：check 只支持全量口径，会误伤存量代码。 -->
         <profile>
             <id>coverage</id>
             <build>
