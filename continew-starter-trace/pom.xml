@@ -22,10 +22,14 @@
             <artifactId>continew-starter-core</artifactId>
         </dependency>
 
-        <!-- Micrometer Tracing Brave（Spring Boot 官方 Brave 自动装配模块，桥接实现由其传递引入，版本由 Spring Boot BOM 管理） -->
+        <!-- 官方 starter 的 POM 不传递 Brave 桥实现，须显式声明 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-micrometer-tracing-brave</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
         </dependency>
 
         <!-- 测试依赖 -->
