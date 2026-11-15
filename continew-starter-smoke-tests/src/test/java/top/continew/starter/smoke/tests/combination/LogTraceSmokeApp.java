@@ -95,18 +95,22 @@ public class LogTraceSmokeApp {
 
             @Override
             public void logDescription(LogRecord logRecord, Method targetMethod) {
+                // 冒烟场景不落日志，仅验证装配贯通
             }
 
             @Override
             public void logModule(LogRecord logRecord, Method targetMethod, Class<?> targetClass) {
+                // 冒烟场景不落日志，仅验证装配贯通
             }
 
             @Override
             public void accessLogStart(AccessLogContext accessLogContext) {
+                // 冒烟场景不落日志，仅验证装配贯通
             }
 
             @Override
             public void accessLogFinish(AccessLogContext accessLogContext) {
+                // 冒烟场景不落日志，仅验证装配贯通
             }
 
             @Override
