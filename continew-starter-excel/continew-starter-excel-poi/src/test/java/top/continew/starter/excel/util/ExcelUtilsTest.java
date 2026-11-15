@@ -143,6 +143,14 @@ class ExcelUtilsTest {
             this.nickname = nickname;
             this.age = age;
         }
+
+        public String getNickname() {
+            return nickname;
+        }
+
+        public Integer getAge() {
+            return age;
+        }
     }
 
     /**
@@ -212,8 +220,7 @@ class ExcelUtilsTest {
         File file = ExcelUtils.exportFile(dir.getPath() + "/", "用户表", List
             .of(new UserEntity("张三", 18, 1), new UserEntity("李四", 25, 2)));
 
-        assertThat(file).isNotNull();
-        assertThat(file.getName()).isEqualTo("用户表.xlsx");
+        assertThat(file).isNotNull().hasName("用户表.xlsx");
 
         JSONArray array = ExcelUtils.readFile(file);
         assertThat(array).hasSize(2);
@@ -334,8 +341,7 @@ class ExcelUtilsTest {
         File file = new File(dir, "plain.xlsx");
         ExcelUtils.exportFile(file, sheetData);
 
-        assertThat(file).exists();
-        assertThat(file.length()).isPositive();
+        assertThat(file).exists().isNotEmpty();
 
         Map<String, JSONArray> many = ExcelUtils.readFileManySheet(file);
         assertThat(many.get("plain.xlsx").getJSONObject(0).getStr("列A")).isEqualTo("a1");
@@ -377,10 +383,8 @@ class ExcelUtilsTest {
         JSONArray array = ExcelUtils.readFile(toFile(response.getContentAsByteArray(),
             "sorted.xlsx"));
         assertThat((java.util.Map<String, Object>) (Object) array.getJSONObject(0))
-            .containsKey("姓名");
-        assertThat((java.util.Map<String, Object>) (Object) array.getJSONObject(0))
-            .containsKey("年龄");
-        assertThat((java.util.Map<String, Object>) (Object) array.getJSONObject(0))
+            .containsKey("姓名")
+            .containsKey("年龄")
             .containsKey("性别");
     }
 
