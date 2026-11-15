@@ -69,6 +69,16 @@ class MailConfigApplyTest {
     }
 
     /**
+     * 用默认 apply 逻辑的空 MailConfigurer（getMailConfig 与本测试无关，返回 null）。
+     *
+     * @param config 邮件配置
+     * @param sender 邮件发送器
+     */
+    private void apply(MailConfig config, JavaMailSenderImpl sender) {
+        new NoopMailConfigurer().apply(config, sender);
+    }
+
+    /**
      * 合法配置应完整映射协议/主机/端口/账号。
      */
     @Test
@@ -77,13 +87,7 @@ class MailConfigApplyTest {
         MailConfig config = validConfig();
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
 
-        new MailConfigurer() {
-
-            @Override
-            public MailConfig getMailConfig() {
-                return null;
-            }
-        }.apply(config, sender);
+        apply(config, sender);
 
         assertThat(sender.getProtocol()).isEqualTo("smtp");
         assertThat(sender.getHost()).isEqualTo("smtp.example.com");
@@ -101,13 +105,8 @@ class MailConfigApplyTest {
         MailConfig config = validConfig();
         config.setProtocol("pop3");
 
-        assertThatThrownBy(() -> new MailConfigurer() {
-
-            @Override
-            public MailConfig getMailConfig() {
-                return null;
-            }
-        }.apply(config, new JavaMailSenderImpl())).isInstanceOf(BadRequestException.class)
+        JavaMailSenderImpl sender = new JavaMailSenderImpl();
+        assertThatThrownBy(() -> apply(config, sender)).isInstanceOf(BadRequestException.class)
             .hasMessageContaining("不支持的邮件发送协议");
     }
 
@@ -117,31 +116,18 @@ class MailConfigApplyTest {
     @Test
     @DisplayName("apply 校验必填项")
     void shouldValidateRequiredFields() {
-        JavaMailSenderImpl sender = new JavaMailSenderImpl();
-
         MailConfig noHost = new MailConfig();
         noHost.setProtocol("smtp");
         noHost.setPort(465);
         noHost.setUsername("user");
         noHost.setPassword("secret");
-        assertThatThrownBy(() -> new MailConfigurer() {
-
-            @Override
-            public MailConfig getMailConfig() {
-                return null;
-            }
-        }.apply(noHost, sender)).isInstanceOf(BadRequestException.class)
+        JavaMailSenderImpl sender = new JavaMailSenderImpl();
+        assertThatThrownBy(() -> apply(noHost, sender)).isInstanceOf(BadRequestException.class)
             .hasMessageContaining("服务器地址不能为空");
 
         MailConfig noUser = validConfig();
         noUser.setUsername("");
-        assertThatThrownBy(() -> new MailConfigurer() {
-
-            @Override
-            public MailConfig getMailConfig() {
-                return null;
-            }
-        }.apply(noUser, sender)).isInstanceOf(BadRequestException.class)
+        assertThatThrownBy(() -> apply(noUser, sender)).isInstanceOf(BadRequestException.class)
             .hasMessageContaining("用户名不能为空");
     }
 
@@ -156,13 +142,7 @@ class MailConfigApplyTest {
         config.setSslPort(465);
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
 
-        new MailConfigurer() {
-
-            @Override
-            public MailConfig getMailConfig() {
-                return null;
-            }
-        }.apply(config, sender);
+        apply(config, sender);
 
         Properties properties = sender.getJavaMailProperties();
         assertThat(properties.get("mail.smtp.auth")).isEqualTo(Boolean.TRUE);
@@ -180,13 +160,8 @@ class MailConfigApplyTest {
         MailConfig config = validConfig();
         config.setSslEnabled(true);
 
-        assertThatThrownBy(() -> new MailConfigurer() {
-
-            @Override
-            public MailConfig getMailConfig() {
-                return null;
-            }
-        }.apply(config, new JavaMailSenderImpl())).isInstanceOf(BadRequestException.class)
+        JavaMailSenderImpl sender = new JavaMailSenderImpl();
+        assertThatThrownBy(() -> apply(config, sender)).isInstanceOf(BadRequestException.class)
             .hasMessageContaining("SSL端口不能为空");
     }
 
@@ -200,14 +175,19 @@ class MailConfigApplyTest {
         config.setDefaultEncoding(StandardCharsets.UTF_8);
 
         JavaMailSenderImpl sender = new JavaMailSenderImpl();
-        new MailConfigurer() {
-
-            @Override
-            public MailConfig getMailConfig() {
-                return null;
-            }
-        }.apply(config, sender);
+        apply(config, sender);
 
         assertThat(sender.getDefaultEncoding()).isEqualTo("UTF-8");
+    }
+
+    /**
+     * 仅承载 default apply 逻辑的空实现（getMailConfig 与 apply 测试无关）。
+     */
+    static class NoopMailConfigurer implements MailConfigurer {
+
+        @Override
+        public MailConfig getMailConfig() {
+            return null;
+        }
     }
 }
