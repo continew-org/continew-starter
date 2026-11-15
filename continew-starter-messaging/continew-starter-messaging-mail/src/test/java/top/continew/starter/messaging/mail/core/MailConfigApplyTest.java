@@ -145,10 +145,9 @@ class MailConfigApplyTest {
         apply(config, sender);
 
         Properties properties = sender.getJavaMailProperties();
-        assertThat(properties.get("mail.smtp.auth")).isEqualTo(Boolean.TRUE);
-        assertThat(properties.getProperty("mail.smtp.socketFactory.class"))
-            .isEqualTo("javax.net.ssl.SSLSocketFactory");
-        assertThat(properties.get("mail.smtp.socketFactory.port")).isEqualTo(465);
+        assertThat(properties).containsEntry("mail.smtp.auth", Boolean.TRUE)
+            .containsEntry("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory")
+            .containsEntry("mail.smtp.socketFactory.port", 465);
     }
 
     /**
