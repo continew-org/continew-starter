@@ -396,7 +396,7 @@ class RefreshTokenConcurrentRotationTest {
         for (Future<?> future : futures) {
             future.get(30, TimeUnit.SECONDS);
         }
-        assertTrue(done.get() == totalThreads, "并发任务未全部完成");
+        assertEquals(totalThreads, done.get(), "并发任务未全部完成");
         executor.shutdown();
         assertTrue(executor.awaitTermination(5, TimeUnit.SECONDS), "执行器未正常关闭");
     }
