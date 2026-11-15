@@ -52,4 +52,5 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./mvnw -B verify -Psonar
+        # qualitygate.wait 让 CI 等待 SonarCloud 门禁结果，未达标（新代码行覆盖 <80% / 分支覆盖 <70% 等）时任务失败
+        run: ./mvnw -B verify -Psonar -Dsonar.qualitygate.wait=true
