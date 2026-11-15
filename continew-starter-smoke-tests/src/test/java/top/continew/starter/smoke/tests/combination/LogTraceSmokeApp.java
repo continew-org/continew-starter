@@ -72,17 +72,20 @@ public class LogTraceSmokeApp {
 
             @Override
             public boolean isRecord(Method targetMethod, Class<?> targetClass) {
+                // 冒烟场景不记录操作日志，start/finish 不会被调用，返回 null 安全
                 return false;
             }
 
             @Override
             public LogRecord.Started start(Instant startTime, HttpServletRequest request) {
+                // isRecord 恒为 false，本方法不可达
                 return null;
             }
 
             @Override
             public LogRecord finish(LogRecord.Started started, Instant endTime,
                 HttpServletResponse response, Set<Include> includes) {
+                // isRecord 恒为 false，本方法不可达
                 return null;
             }
 
@@ -90,6 +93,7 @@ public class LogTraceSmokeApp {
             public LogRecord finish(LogRecord.Started started, Instant endTime,
                 HttpServletResponse response, Set<Include> includes, Method targetMethod,
                 Class<?> targetClass) {
+                // isRecord 恒为 false，本方法不可达
                 return null;
             }
 
