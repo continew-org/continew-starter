@@ -189,6 +189,18 @@ class MultiLevelCacheConcurrencyTest {
     }
 
     /**
+     * L1 关闭时容量视图恒为 0：不触碰任何本地缓存操作。
+     */
+    @Test
+    @DisplayName("L1 关闭时容量视图返回 0")
+    void shouldReturnZeroSizeWhenLocalDisabled() {
+        FakeRedisCacheWriter cacheWriter = newCacheWriter();
+        MultiLevelCache cache = (MultiLevelCache) newManager(cacheWriter, 0)
+            .getCache(CACHE_NAME);
+        assertEquals(0, cache.drainLocalAndGetEstimatedSize(), "L1 未启用时容量视图应恒为 0");
+    }
+
+    /**
      * 并发执行骨架：全员闸门同步后各自执行动作并统一回收异常。
      *
      * @param action 并发动作
