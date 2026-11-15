@@ -116,13 +116,12 @@
             <artifactId>spring-boot-restclient</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- data 组合的内存数据源（版本随 spring-boot-dependencies 管理） -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- log+trace 组合的真实 Tracer 桥（spring-boot-micrometer-tracing-brave 4.x 的 POM 未传递引入，须显式声明；版本随 spring-boot-dependencies 管理） -->
+        <!-- spring-boot-micrometer-tracing-brave 的 POM 不传递引入 Brave 桥，不显式声明时 Tracer 恒为 NOOP -->
         <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-brave</artifactId>
