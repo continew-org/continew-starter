@@ -24,6 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import top.continew.starter.core.constant.OrderedConstants;
 import top.continew.starter.core.constant.StringConstants;
@@ -33,7 +34,6 @@ import top.continew.starter.log.aspect.LogAspect;
 import top.continew.starter.log.dao.DefaultLogDao;
 import top.continew.starter.log.dao.LogDao;
 import top.continew.starter.log.filter.LogFilter;
-import top.continew.starter.log.handler.AopLogHandler;
 import top.continew.starter.log.handler.LogHandler;
 import top.continew.starter.log.model.LogProperties;
 
@@ -51,6 +51,7 @@ import jakarta.servlet.DispatcherType;
 @ConditionalOnEnabledLog
 @EnableConfigurationProperties(LogProperties.class)
 @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+@Import(LogHandlerConfiguration.class)
 public class LogAutoConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LogAutoConfiguration.class);
@@ -99,15 +100,6 @@ public class LogAutoConfiguration {
     @ConditionalOnMissingBean
     public AccessLogAspect accessLogAspect() {
         return new AccessLogAspect(logProperties, logHandler);
-    }
-
-    /**
-     * 日志处理器
-     */
-    @Bean
-    @ConditionalOnMissingBean
-    public LogHandler logHandler() {
-        return new AopLogHandler();
     }
 
     /**
