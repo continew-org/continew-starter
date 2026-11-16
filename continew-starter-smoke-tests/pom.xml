@@ -37,6 +37,66 @@
             <artifactId>continew-starter-json-jackson</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- 组合矩阵：cache + auth -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-cache-redisson</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-auth-satoken</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 组合矩阵：data + extension -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-data-mp</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-extension-tenant-mp</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-extension-datapermission-mp</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 组合矩阵：encrypt + web -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-encrypt-field</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 组合矩阵：log + trace -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-log-aop</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-trace</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 组合矩阵：messaging + storage -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-messaging-mail</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-messaging-websocket</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-storage</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -54,6 +114,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-restclient</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- spring-boot-micrometer-tracing-brave 的 POM 不传递引入 Brave 桥，不显式声明时 Tracer 恒为 NOOP -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
