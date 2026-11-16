@@ -99,7 +99,7 @@ class ProgressInputStreamTest {
     }
 
     @Test
-    void shouldPropagateReadFailureWithoutProgressCallback() throws IOException {
+    void shouldPropagateReadFailureWithoutProgressCallback() {
         UploadProgressListener listener = mock(UploadProgressListener.class);
         ProgressTracker tracker = new ProgressTracker(1, listener);
         InputStream failing = new InputStream() {
