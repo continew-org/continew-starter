@@ -20,11 +20,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.github.houbb.sensitive.word.api.IWordAllow;
 import com.github.houbb.sensitive.word.api.IWordDeny;
 import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.NoUniqueBeanDefinitionException;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +36,9 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import top.continew.starter.security.sensitivewords.service.DefaultSensitiveWordsService;
 import top.continew.starter.security.sensitivewords.service.NoOpSensitiveWordsService;
 import top.continew.starter.security.sensitivewords.service.SensitiveWordsService;
+import top.continew.starter.security.sensitivewords.support.RuntimeWordAllow;
+import top.continew.starter.security.sensitivewords.support.RuntimeWordDeny;
+import top.continew.starter.security.sensitivewords.support.SensitiveWordsDictionary;
 import top.continew.starter.security.sensitivewords.validation.SensitiveWords;
 
 import jakarta.validation.ConstraintViolation;
@@ -378,6 +383,56 @@ class SensitiveWordsAutoConfigurationTest {
                 assertThat(service.contains("静态词")).isTrue();
                 assertThat(service.contains("临时词")).isFalse();
             });
+    }
+
+    /**
+     * 多个自定义词库与白名单均纳入责任链
+     *
+     * <p>
+     * denyProvider 与 allowProvider 各自通过 orderedStream 注册，摘除任一注册链都会让
+     * 对应的自定义词失效。
+     * </p>
+     */
+    @Test
+    @DisplayName("多个自定义词库与白名单均纳入责任链")
+    void multipleCustomDictionariesRegistered() {
+        runner
+            .withPropertyValues("continew-starter.security.sensitive-words.use-default-deny=false",
+                "continew-starter.security.sensitive-words.deny-words=配置拦截词")
+            .withBean("denyOne", IWordDeny.class, () -> (IWordDeny) () -> List.of("自定义拒绝词一"))
+            .withBean("denyTwo", IWordDeny.class, () -> (IWordDeny) () -> List.of("自定义拒绝词二"))
+            .withBean("customAllow", IWordAllow.class,
+                () -> (IWordAllow) () -> List.of("配置拦截词"))
+            .run(context -> {
+                SensitiveWordsService service = context.getBean(SensitiveWordsService.class);
+                assertThat(service.contains("自定义拒绝词一")).isTrue();
+                assertThat(service.contains("自定义拒绝词二")).isTrue();
+                assertThat(service.contains("配置拦截词")).isFalse();
+            });
+    }
+
+    /**
+     * 引擎缺失时服务降级为空实现
+     *
+     * <p>
+     * 直接调用工厂方法构造「已启用但容器无引擎」的组合，覆盖 ObjectProvider 取空分支；
+     * 该分支在常规自动配置流程里无法出现，因为引擎 Bean 与服务 Bean 的启用条件一致。
+     * </p>
+     */
+    @SuppressWarnings("unchecked")
+    @Test
+    @DisplayName("引擎缺失时服务降级为空实现")
+    void sensitiveWordsServiceReturnsNoOpWhenEngineMissing() {
+        SensitiveWordsAutoConfiguration config = new SensitiveWordsAutoConfiguration();
+        ObjectProvider<SensitiveWordBs> emptyEngine = mock(ObjectProvider.class);
+        ObjectProvider<SensitiveWordsDictionary> dictionaries = mock(ObjectProvider.class);
+        SensitiveWordsProperties properties = new SensitiveWordsProperties();
+
+        SensitiveWordsService service = config.sensitiveWordsService(emptyEngine, dictionaries,
+            new RuntimeWordDeny(), new RuntimeWordAllow(), properties);
+
+        assertThat(service).isInstanceOf(NoOpSensitiveWordsService.class);
+        assertThat(service.refresh().denyStaticCount()).isZero();
     }
 
     /**

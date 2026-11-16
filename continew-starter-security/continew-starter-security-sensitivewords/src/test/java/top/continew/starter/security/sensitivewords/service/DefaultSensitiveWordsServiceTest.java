@@ -17,15 +17,28 @@
 package top.continew.starter.security.sensitivewords.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.clearInvocations;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
 import com.github.houbb.sensitive.word.api.IWordAllow;
 import com.github.houbb.sensitive.word.api.IWordDeny;
 import com.github.houbb.sensitive.word.bs.SensitiveWordBs;
 import com.github.houbb.sensitive.word.support.allow.WordAllows;
 import com.github.houbb.sensitive.word.support.deny.WordDenys;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 import top.continew.starter.security.sensitivewords.autoconfigure.SensitiveWordsProperties;
 import top.continew.starter.security.sensitivewords.model.SensitiveWordHit;
 import top.continew.starter.security.sensitivewords.model.SensitiveWordsRefreshResult;
@@ -59,6 +72,14 @@ class DefaultSensitiveWordsServiceTest {
 
     private RuntimeWordAllow runtimeWordAllow;
 
+    private SensitiveWordBs wordBs;
+
+    private ListAppender<ILoggingEvent> logAppender;
+
+    private Logger serviceLogger;
+
+    private Level originalLogLevel;
+
     private DefaultSensitiveWordsService service;
 
     @BeforeEach
@@ -82,13 +103,34 @@ class DefaultSensitiveWordsServiceTest {
                 runtimeWordDeny::getWords),
             staticDeny, WordAllows.chains(staticAllow, runtimeWordAllow::getWords),
             staticAllow);
-        SensitiveWordBs wordBs = SensitiveWordBs.newInstance()
+        wordBs = spy(SensitiveWordBs.newInstance()
             .wordDeny(dictionary.getDeny())
             .wordAllow(dictionary.getAllow())
             .wordFailFast(false)
-            .init();
+            .init());
         service =
             new DefaultSensitiveWordsService(wordBs, dictionary, runtimeWordDeny, runtimeWordAllow);
+
+        serviceLogger = (Logger) LoggerFactory.getLogger(DefaultSensitiveWordsService.class);
+        originalLogLevel = serviceLogger.getLevel();
+        serviceLogger.setLevel(Level.DEBUG);
+        logAppender = new ListAppender<>();
+        logAppender.start();
+        serviceLogger.addAppender(logAppender);
+    }
+
+    @AfterEach
+    void tearDown() {
+        serviceLogger.detachAppender(logAppender);
+        logAppender.stop();
+        serviceLogger.setLevel(originalLogLevel);
+    }
+
+    private long refreshLogCount(Level level) {
+        return logAppender.list.stream()
+            .filter(event -> event.getFormattedMessage().contains("敏感词库刷新"))
+            .filter(event -> event.getLevel() == level)
+            .count();
     }
 
     /**
@@ -464,5 +506,171 @@ class DefaultSensitiveWordsServiceTest {
         service.removeWordAllow("放行词");
         assertThat(service.contains("放行词")).isFalse();
         assertThat(runtimeWordAllow.getWords()).isEmpty();
+    }
+
+    /**
+     * 空白串不应进入检索引擎
+     *
+     * <p>
+     * 引擎对空白串恰好返回空结果，仅断言返回值无法区分「提前拦截」与「查引擎后碰巧无命中」；
+     * 对 spy 校验未触发检索才能锁定这条短路约束。
+     * </p>
+     */
+    @Test
+    @DisplayName("findFirst 空白串返回 null 且不查引擎")
+    void findFirstBlankReturnsNullWithoutEngineCall() {
+        assertThat(service.findFirst("   ")).isNull();
+        assertThat(service.findFirst("")).isNull();
+        assertThat(service.findFirst(null)).isNull();
+        verify(wordBs, never()).findFirst(any());
+    }
+
+    /**
+     * 命中串应返回引擎给出的完整词
+     */
+    @Test
+    @DisplayName("findFirst 命中时返回引擎结果")
+    void findFirstReturnsEngineResult() {
+        assertThat(service.findFirst("这是静态词")).isEqualTo("静态词");
+    }
+
+    /**
+     * 静态黑名单已提供的词不应重复写入引擎
+     *
+     * <p>
+     * 引擎字典本已含该词，重复 addWord 不改变可观测行为；用 spy 校验增量接口未被调用
+     * 才能锁定「静态词被过滤」这条约束。
+     * </p>
+     */
+    @Test
+    @DisplayName("addWord 静态库已含词不重复写入引擎")
+    void addWordDoesNotReaddStaticWord() {
+        service.addWord("静态词");
+        assertThat(runtimeWordDeny.getWords()).containsExactly("静态词");
+        verify(wordBs, never()).addWord(anyList());
+    }
+
+    /**
+     * 静态白名单已提供的词不应重复写入引擎
+     */
+    @Test
+    @DisplayName("addWordAllow 静态库已含词不重复写入引擎")
+    void addWordAllowDoesNotReaddStaticAllowWord() {
+        staticAllowWords.add("放行词");
+        service.refresh();
+        clearInvocations(wordBs);
+
+        service.addWordAllow("放行词");
+        assertThat(runtimeWordAllow.getWords()).containsExactly("放行词");
+        verify(wordBs, never()).addWordAllow(anyList());
+    }
+
+    /**
+     * 静态黑名单词无法删除时应留下告警
+     */
+    @Test
+    @DisplayName("removeWord 静态词触发告警")
+    void removeWordWarnsForStaticWord() {
+        service.removeWord("静态词");
+        assertThat(logAppender.list).anySatisfy(event -> {
+            assertThat(event.getLevel()).isEqualTo(Level.WARN);
+            assertThat(event.getFormattedMessage())
+                .contains("无法通过 removeWord 删除")
+                .contains("静态词");
+        });
+    }
+
+    /**
+     * 静态白名单词无法删除时应留下告警
+     */
+    @Test
+    @DisplayName("removeWordAllow 静态白名单词触发告警")
+    void removeWordAllowWarnsForStaticAllowWord() {
+        staticAllowWords.add("放行词");
+        service.refresh();
+        logAppender.list.clear();
+
+        service.removeWordAllow("放行词");
+        assertThat(logAppender.list).anySatisfy(event -> {
+            assertThat(event.getLevel()).isEqualTo(Level.WARN);
+            assertThat(event.getFormattedMessage())
+                .contains("无法通过 removeWordAllow 删除")
+                .contains("放行词");
+        });
+    }
+
+    /**
+     * 静态白名单加入的词应计入 allowAdded 差量
+     */
+    @Test
+    @DisplayName("refresh 检出 allowAdded 差量")
+    void refreshDetectsAllowAdded() {
+        staticAllowWords.add("放行词");
+
+        SensitiveWordsRefreshResult result = service.refresh();
+        assertThat(result.allowAdded()).isEqualTo(1);
+        assertThat(result.allowRemoved()).isZero();
+        assertThat(refreshLogCount(Level.INFO)).isEqualTo(2);
+    }
+
+    /**
+     * 静态白名单词被移除应计入 allowRemoved 差量
+     *
+     * <p>
+     * 该路径要在引擎里撤销先前加入的白名单词，覆盖增量解除接口。
+     * </p>
+     */
+    @Test
+    @DisplayName("refresh 检出 allowRemoved 差量并撤销引擎白名单")
+    void refreshDetectsAllowRemoved() {
+        staticAllowWords.add("放行词");
+        service.refresh();
+        clearInvocations(wordBs);
+        logAppender.list.clear();
+
+        staticAllowWords.remove("放行词");
+        SensitiveWordsRefreshResult result = service.refresh();
+        assertThat(result.allowRemoved()).isEqualTo(1);
+        assertThat(result.allowAdded()).isZero();
+        verify(wordBs).removeWordAllow(anyCollection());
+        assertThat(refreshLogCount(Level.INFO)).isEqualTo(2);
+    }
+
+    /**
+     * 静态白名单词被移除后重新拦截
+     */
+    @Test
+    @DisplayName("refresh 移除白名单词后该词重新被拦截")
+    void refreshAllowRemovedRestoresBlock() {
+        staticDenyWords.add("放行词");
+        staticAllowWords.add("放行词");
+        service.refresh();
+        assertThat(service.contains("放行词")).isFalse();
+
+        staticAllowWords.remove("放行词");
+        service.refresh();
+        assertThat(service.contains("放行词")).isTrue();
+    }
+
+    /**
+     * 无差量的刷新应走 debug 而非 info
+     *
+     * <p>
+     * 定时刷新会反复调用此方法，无变更时必须降级日志级别；四个差量条件任何一个取反都会让无变更刷新误入 info 分支。
+     * </p>
+     */
+    @Test
+    @DisplayName("refresh 无差量时只记 debug 日志")
+    void refreshWithoutChangesLogsDebugOnly() {
+        service.refresh();
+        logAppender.list.clear();
+
+        SensitiveWordsRefreshResult result = service.refresh();
+        assertThat(result.denyAdded()).isZero();
+        assertThat(result.denyRemoved()).isZero();
+        assertThat(result.allowAdded()).isZero();
+        assertThat(result.allowRemoved()).isZero();
+        assertThat(refreshLogCount(Level.INFO)).isZero();
+        assertThat(refreshLogCount(Level.DEBUG)).isEqualTo(2);
     }
 }
