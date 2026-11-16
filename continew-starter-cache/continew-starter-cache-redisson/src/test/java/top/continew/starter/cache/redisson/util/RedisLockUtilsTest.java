@@ -98,7 +98,7 @@ class RedisLockUtilsTest {
 
         @Test
         @DisplayName("连续获取锁复用双检锁缓存的客户端替身")
-        void shouldReuseInjectedClientAcrossAcquisitions() throws Exception {
+        void shouldReuseInjectedClientAcrossAcquisitions() {
             RedisLockUtils.tryLock("lock:a");
             RedisLockUtils.tryLockWithWatchdog("lock:b");
             verify(client).getLock("lock:a");
