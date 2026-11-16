@@ -297,6 +297,22 @@ public class MultiLevelCache extends AbstractValueAdaptingCache {
         return localCache != null;
     }
 
+    /**
+     * 触发本地 L1 的待决维护（容量淘汰等异步任务），随后返回估算条目数。
+     *
+     * <p>仅供容量视图与测试诊断使用：Caffeine 的淘汰依赖读写后的 maintenance
+     * 窗口，调用方需要确定性上限视图时先执行本方法。</p>
+     *
+     * @return 维护后的 L1 估算条目数，L1 未启用时返回 0
+     */
+    public long drainLocalAndGetEstimatedSize() {
+        if (localCache == null) {
+            return 0;
+        }
+        localCache.cleanUp();
+        return localCache.estimatedSize();
+    }
+
     private Object lookupRemote(Object key) {
         try {
             ValueWrapper wrapper = redisCache.get(key);
