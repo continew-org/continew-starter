@@ -120,11 +120,11 @@ public class ServletUtils extends JakartaServletUtil {
      */
     public static Map<String, String> getHeaderMap(HttpServletResponse response) {
         final Collection<String> headerNames = response.getHeaderNames();
-        final Map<String, String> headerMap = MapUtil.newHashMap(headerNames.size(), true);
+        final Map<String, String> headers = MapUtil.newHashMap(headerNames.size(), true);
         for (String name : headerNames) {
-            headerMap.put(name, response.getHeader(name));
+            headers.put(name, response.getHeader(name));
         }
-        return headerMap;
+        return headers;
     }
 
     /**

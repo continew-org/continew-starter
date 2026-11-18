@@ -112,19 +112,20 @@ public class ProcessorRegistry {
         List<T> result = new ArrayList<>();
 
         // 添加全局处理器
-        List<FileProcessor> globalList = processors.get(type);
-        if (globalList != null) {
-            globalList.stream().filter(p -> p.support(context)).map(p -> (T) p)
+        List<FileProcessor> globalProcessors = processors.get(type);
+        if (globalProcessors != null) {
+            globalProcessors.stream().filter(p -> p.support(context)).map(p -> (T) p)
                 .forEach(result::add);
         }
 
         // 添加平台特定处理器
         if (platform != null) {
-            Map<Class<?>, List<FileProcessor>> platformMap = platformProcessors.get(platform);
-            if (platformMap != null) {
-                List<FileProcessor> platformList = platformMap.get(type);
-                if (platformList != null) {
-                    platformList.stream().filter(p -> p.support(context)).map(p -> (T) p)
+            Map<Class<?>, List<FileProcessor>> processorsByPlatform =
+                platformProcessors.get(platform);
+            if (processorsByPlatform != null) {
+                List<FileProcessor> platformTypeProcessors = processorsByPlatform.get(type);
+                if (platformTypeProcessors != null) {
+                    platformTypeProcessors.stream().filter(p -> p.support(context)).map(p -> (T) p)
                         .forEach(result::add);
                 }
             }

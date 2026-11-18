@@ -705,28 +705,28 @@ public class OssStorageStrategy implements StorageStrategy {
      */
     private void validateParts(List<MultipartUploadResp> recordParts,
         List<MultipartUploadResp> s3Parts) {
-        Map<Integer, String> recordMap = recordParts.stream()
+        Map<Integer, String> partsByRecord = recordParts.stream()
             .collect(Collectors.toMap(MultipartUploadResp::getPartNumber,
                 MultipartUploadResp::getPartETag));
 
-        Map<Integer, String> s3Map = s3Parts.stream()
+        Map<Integer, String> partsByS3 = s3Parts.stream()
             .collect(Collectors.toMap(MultipartUploadResp::getPartNumber,
                 MultipartUploadResp::getPartETag));
 
         // 检查分片数量
-        if (recordMap.size() != s3Map.size()) {
+        if (partsByRecord.size() != partsByS3.size()) {
             throw new StorageException(
-                String.format("分片数量不一致: 本地记录=%d, S3=%d", recordMap.size(), s3Map.size()));
+                String.format("分片数量不一致: 本地记录=%d, S3=%d", partsByRecord.size(), partsByS3.size()));
         }
 
         // 检查每个分片
         List<Integer> missingParts = new ArrayList<>();
         List<Integer> mismatchParts = new ArrayList<>();
 
-        for (Map.Entry<Integer, String> entry : recordMap.entrySet()) {
+        for (Map.Entry<Integer, String> entry : partsByRecord.entrySet()) {
             Integer partNumber = entry.getKey();
             String recordETag = entry.getValue();
-            String s3ETag = s3Map.get(partNumber);
+            String s3ETag = partsByS3.get(partNumber);
 
             if (s3ETag == null) {
                 missingParts.add(partNumber);

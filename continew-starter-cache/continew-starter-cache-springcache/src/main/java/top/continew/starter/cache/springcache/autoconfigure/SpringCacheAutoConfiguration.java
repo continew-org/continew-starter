@@ -115,11 +115,11 @@ public class SpringCacheAutoConfiguration implements CachingConfigurer {
     public KeyGenerator keyGenerator() {
         return (target, method, params) -> {
             String key = CharSequenceUtil.toUnderlineCase(method.getName()).toUpperCase();
-            Map<String, Object> paramMap = MapUtil.newHashMap(params.length);
+            Map<String, Object> paramsByIndex = MapUtil.newHashMap(params.length);
             for (int i = 0; i < params.length; i++) {
-                paramMap.put(String.valueOf(i), params[i]);
+                paramsByIndex.put(String.valueOf(i), params[i]);
             }
-            return "%s:%s".formatted(key, DigestUtil.sha256Hex(JSONUtil.toJsonStr(paramMap)));
+            return "%s:%s".formatted(key, DigestUtil.sha256Hex(JSONUtil.toJsonStr(paramsByIndex)));
         };
     }
 

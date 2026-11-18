@@ -134,6 +134,7 @@ Sonar 分析使用 `./mvnw verify -Psonar`（激活 JaCoCo），日常 `./mvnw v
 | 内联全限定名 | **禁止**（`InlineFullyQualifiedName`：与依赖库同名时应调整类名，而非内联全限定名绕过） |
 | 格式化豁免 | `// @formatter:off` 与 `// @formatter:on` 之间的代码不参与格式化 |
 | 命名 | `style/` 配置文件与 agent 技能统一使用 `ocn-` 前缀（OCN = OpenContiNew），第三方技能除外 |
+| 命名约定 | 局部变量与参数命名遵循 [`style/STYLE.md`](style/STYLE.md)「命名约定」段；不改对外接口参数、配置键、JSON 字段、DO/DTO/VO 字段 |
 
 ### 注释风格
 

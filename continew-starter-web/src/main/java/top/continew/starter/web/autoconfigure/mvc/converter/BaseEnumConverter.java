@@ -31,17 +31,17 @@ import java.util.Map;
  */
 public class BaseEnumConverter<T extends BaseEnum> implements Converter<String, T> {
 
-    private final Map<String, T> enumMap = new HashMap<>();
+    private final Map<String, T> enumsByValue = new HashMap<>();
 
     public BaseEnumConverter(Class<T> enumType) {
         T[] enums = enumType.getEnumConstants();
         for (T e : enums) {
-            enumMap.put(String.valueOf(e.getValue()), e);
+            enumsByValue.put(String.valueOf(e.getValue()), e);
         }
     }
 
     @Override
     public T convert(String source) {
-        return enumMap.get(source);
+        return enumsByValue.get(source);
     }
 }

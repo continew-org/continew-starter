@@ -140,9 +140,9 @@ public class ExcelUtils {
     private static <T> List<T> getBeanList(JSONArray array, Class<T> clazz)
         throws ReflectiveOperationException {
         List<T> list = new ArrayList<>();
-        Map<Integer, String> uniqueMap = new HashMap<>(16);
+        Map<Integer, String> uniqueKeyByRow = new HashMap<>(16);
         for (int i = 0; i < array.size(); i++) {
-            list.add(getBean(clazz, array.getJSONObject(i), uniqueMap));
+            list.add(getBean(clazz, array.getJSONObject(i), uniqueKeyByRow));
         }
         return list;
     }
@@ -153,15 +153,15 @@ public class ExcelUtils {
      * @param <T>        目标类型
      * @param c          目标类
      * @param obj        行数据
-     * @param uniqueMap  唯一性映射（行号 -> 唯一键）
+     * @param uniqueKeyByRow  唯一性映射（行号 -> 唯一键）
      * @return 填充后的对象
      * @throws ReflectiveOperationException 反射实例化失败时抛出
      */
-    private static <T> T getBean(Class<T> c, JSONObject obj, Map<Integer, String> uniqueMap)
+    private static <T> T getBean(Class<T> c, JSONObject obj, Map<Integer, String> uniqueKeyByRow)
         throws ReflectiveOperationException {
         T t = c.newInstance();
         Field[] fields = c.getDeclaredFields();
-        List<String> errMsgList = new ArrayList<>();
+        List<String> errorMessages = new ArrayList<>();
         boolean hasRowTipsField = false;
         StringBuilder uniqueBuilder = new StringBuilder();
         int rowNum = 0;
@@ -181,17 +181,17 @@ public class ExcelUtils {
                 field.set(t, obj.toString());
             } else {
                 // 设置对应属性值
-                setFieldValue(t, field, obj, uniqueBuilder, errMsgList);
+                setFieldValue(t, field, obj, uniqueBuilder, errorMessages);
             }
         }
         // 数据唯一性校验
-        checkUniqueness(uniqueMap, uniqueBuilder, rowNum, errMsgList);
+        checkUniqueness(uniqueKeyByRow, uniqueBuilder, rowNum, errorMessages);
         // 失败处理
-        if (errMsgList.isEmpty() && !hasRowTipsField) {
+        if (errorMessages.isEmpty() && !hasRowTipsField) {
             return t;
         }
         // 设置错误信息
-        String errMsg = String.join(";", errMsgList);
+        String errMsg = String.join(";", errorMessages);
         for (Field field : fields) {
             if (field.getName().equals(ROW_TIPS)) {
                 field.setAccessible(true);
@@ -204,26 +204,26 @@ public class ExcelUtils {
     /**
      * 校验当前行唯一键是否与历史行重复，重复则记录错误信息，否则登记到唯一性映射
      *
-     * @param uniqueMap     唯一性映射（行号 -> 唯一键）
+     * @param uniqueKeyByRow     唯一性映射（行号 -> 唯一键）
      * @param uniqueBuilder 当前行唯一键构建器
      * @param rowNum        当前行号
-     * @param errMsgList    错误信息列表
+     * @param errorMessages    错误信息列表
      */
-    private static void checkUniqueness(Map<Integer, String> uniqueMap,
+    private static void checkUniqueness(Map<Integer, String> uniqueKeyByRow,
         StringBuilder uniqueBuilder,
         int rowNum,
-        List<String> errMsgList) {
+        List<String> errorMessages) {
         if (uniqueBuilder.isEmpty()) {
             return;
         }
         String uniqueKey = uniqueBuilder.toString();
-        if (!uniqueMap.containsValue(uniqueKey)) {
-            uniqueMap.put(rowNum, uniqueKey);
+        if (!uniqueKeyByRow.containsValue(uniqueKey)) {
+            uniqueKeyByRow.put(rowNum, uniqueKey);
             return;
         }
-        for (Entry<Integer, String> entry : uniqueMap.entrySet()) {
+        for (Entry<Integer, String> entry : uniqueKeyByRow.entrySet()) {
             if (entry.getValue().contentEquals(uniqueBuilder)) {
-                errMsgList.add(String.format("数据唯一性校验失败,(%s)与第%s行重复)", uniqueKey,
+                errorMessages.add(String.format("数据唯一性校验失败,(%s)与第%s行重复)", uniqueKey,
                     entry.getKey()));
             }
         }
@@ -233,7 +233,7 @@ public class ExcelUtils {
         Field field,
         JSONObject obj,
         StringBuilder uniqueBuilder,
-        List<String> errMsgList) {
+        List<String> errorMessages) {
         // 获取 ExcelImport 注解属性
         ExcelImport annotation = field.getAnnotation(ExcelImport.class);
         if (annotation == null) {
@@ -255,7 +255,7 @@ public class ExcelUtils {
         // 判断是否必填
         boolean require = annotation.required();
         if (require && val.isEmpty()) {
-            errMsgList.add(String.format("[%s]不能为空", cname));
+            errorMessages.add(String.format("[%s]不能为空", cname));
             return;
         }
         // 数据唯一性获取
@@ -270,16 +270,16 @@ public class ExcelUtils {
         // 判断是否超过最大长度
         int maxLength = annotation.maxLength();
         if (maxLength > 0 && val.length() > maxLength) {
-            errMsgList
+            errorMessages
                 .add(String.format("[%s]长度不能超过%s个字符(当前%s个字符)", cname, maxLength, val.length()));
         }
         // 判断当前属性是否有映射关系
-        val = matchKvValue(annotation, val, cname, errMsgList);
+        val = matchKvValue(annotation, val, cname, errorMessages);
         if (val == null) {
             return;
         }
         // 其余情况根据类型赋值
-        assignValueByType(t, field, val, cname, errMsgList);
+        assignValueByType(t, field, val, cname, errorMessages);
     }
 
     /**
@@ -288,23 +288,23 @@ public class ExcelUtils {
      * @param annotation 字段上的 ExcelImport 注解
      * @param val        单元格值
      * @param cname      列名
-     * @param errMsgList 错误信息列表
+     * @param errorMessages 错误信息列表
      * @return 映射后的值，不匹配返回 {@code null}
      */
     private static String matchKvValue(ExcelImport annotation,
         String val,
         String cname,
-        List<String> errMsgList) {
-        LinkedHashMap<String, String> kvMap = getKvMap(annotation.kv());
-        if (kvMap.isEmpty()) {
+        List<String> errorMessages) {
+        LinkedHashMap<String, String> entries = getKvMap(annotation.kv());
+        if (entries.isEmpty()) {
             return val;
         }
-        for (Entry<String, String> kvEntry : kvMap.entrySet()) {
+        for (Entry<String, String> kvEntry : entries.entrySet()) {
             if (kvEntry.getValue().equals(val)) {
                 return kvEntry.getKey();
             }
         }
-        errMsgList.add(String.format("[%s]的值不正确(当前值为%s)", cname, val));
+        errorMessages.add(String.format("[%s]的值不正确(当前值为%s)", cname, val));
         return null;
     }
 
@@ -316,13 +316,13 @@ public class ExcelUtils {
      * @param field     字段
      * @param val       单元格值
      * @param cname     列名
-     * @param errMsgList 错误信息列表
+     * @param errorMessages 错误信息列表
      */
     private static <T> void assignValueByType(T t,
         Field field,
         String val,
         String cname,
-        List<String> errMsgList) {
+        List<String> errorMessages) {
         String fieldClassName = field.getType().getSimpleName();
         try {
             if ("String".equalsIgnoreCase(fieldClassName)) {
@@ -330,7 +330,7 @@ public class ExcelUtils {
             } else if ("boolean".equalsIgnoreCase(fieldClassName)) {
                 field.set(t, Boolean.valueOf(val));
             } else if ("int".equalsIgnoreCase(fieldClassName) || "Integer".equals(fieldClassName)) {
-                field.set(t, parseInteger(val, cname, errMsgList));
+                field.set(t, parseInteger(val, cname, errorMessages));
             } else if ("double".equalsIgnoreCase(fieldClassName)) {
                 field.set(t, Double.valueOf(val));
             } else if ("long".equalsIgnoreCase(fieldClassName)) {
@@ -350,14 +350,14 @@ public class ExcelUtils {
      *
      * @param val        单元格值
      * @param cname      列名
-     * @param errMsgList 错误信息列表
+     * @param errorMessages 错误信息列表
      * @return 解析后的整数，格式错误返回 {@code null}
      */
-    private static Integer parseInteger(String val, String cname, List<String> errMsgList) {
+    private static Integer parseInteger(String val, String cname, List<String> errorMessages) {
         try {
             return Integer.valueOf(val);
         } catch (NumberFormatException e) {
-            errMsgList.add(String.format("[%s]的值格式不正确(当前值为%s)", cname, val));
+            errorMessages.add(String.format("[%s]的值格式不正确(当前值为%s)", cname, val));
             return null;
         }
     }
@@ -430,14 +430,14 @@ public class ExcelUtils {
         // 尾行下标
         int rowEnd = sheet.getLastRowNum();
         // 获取表头字段映射
-        Map<Integer, String> keyMap = resolveHeadKeyMap(sheet.getRow(rowStart));
+        Map<Integer, String> fieldByColumnIndex = resolveHeadKeyMap(sheet.getRow(rowStart));
         // 如果表头没有数据则不进行解析
-        if (keyMap.isEmpty()) {
+        if (fieldByColumnIndex.isEmpty()) {
             return new JSONArray();
         }
         // 如果首行与尾行相同，表明只有一行，返回表头数据
         if (rowStart == rowEnd) {
-            return buildSingleHeaderRow(keyMap);
+            return buildSingleHeaderRow(fieldByColumnIndex);
         }
         // 获取每行JSON对象的值
         JSONArray array = new JSONArray();
@@ -446,7 +446,7 @@ public class ExcelUtils {
             if (eachRow == null) {
                 continue;
             }
-            JSONObject obj = buildRowData(eachRow, i, keyMap);
+            JSONObject obj = buildRowData(eachRow, i, fieldByColumnIndex);
             if (obj != null) {
                 array.add(obj);
             }
@@ -461,31 +461,31 @@ public class ExcelUtils {
      * @return 单元格下标到字段名的映射
      */
     private static Map<Integer, String> resolveHeadKeyMap(Row headRow) {
-        Map<Integer, String> keyMap = new HashMap<>();
+        Map<Integer, String> fieldByColumnIndex = new HashMap<>();
         if (headRow == null) {
-            return keyMap;
+            return fieldByColumnIndex;
         }
         for (int j = headRow.getFirstCellNum(); j < headRow.getLastCellNum(); j++) {
             String val = getCellValue(headRow.getCell(j));
             if (val != null && !val.trim().isEmpty()) {
-                keyMap.put(j, val);
+                fieldByColumnIndex.put(j, val);
             }
         }
-        return keyMap;
+        return fieldByColumnIndex;
     }
 
     /**
      * 构建仅有表头时的单行数据（字段值均为空串）
      *
-     * @param keyMap 单元格下标到字段名的映射
+     * @param fieldByColumnIndex 单元格下标到字段名的映射
      * @return 单行数据
      */
-    private static JSONArray buildSingleHeaderRow(Map<Integer, String> keyMap) {
+    private static JSONArray buildSingleHeaderRow(Map<Integer, String> fieldByColumnIndex) {
         JSONArray array = new JSONArray();
         JSONObject obj = new JSONObject();
         // 添加行号
         obj.putOnce(ROW_NUM, 1);
-        for (Entry<Integer, String> keyEntry : keyMap.entrySet()) {
+        for (Entry<Integer, String> keyEntry : fieldByColumnIndex.entrySet()) {
             obj.set(keyEntry.getValue(), "");
         }
         array.add(obj);
@@ -497,15 +497,16 @@ public class ExcelUtils {
      *
      * @param eachRow  当前行
      * @param rowIndex 行下标
-     * @param keyMap   单元格下标到字段名的映射
+     * @param fieldByColumnIndex   单元格下标到字段名的映射
      * @return 行数据，空行返回 {@code null}
      */
-    private static JSONObject buildRowData(Row eachRow, int rowIndex, Map<Integer, String> keyMap) {
+    private static JSONObject buildRowData(Row eachRow, int rowIndex,
+        Map<Integer, String> fieldByColumnIndex) {
         JSONObject obj = new JSONObject();
         // 添加行号
         obj.set(ROW_NUM, rowIndex + 1);
         boolean rowHasData = false;
-        for (Entry<Integer, String> keyEntry : keyMap.entrySet()) {
+        for (Entry<Integer, String> keyEntry : fieldByColumnIndex.entrySet()) {
             String val = getCellValue(eachRow.getCell(keyEntry.getKey()));
             // 存在非空数据时，表明该行非空行
             if (val != null && !val.isEmpty()) {
@@ -582,27 +583,27 @@ public class ExcelUtils {
         Class<T> clazz,
         boolean isContainExample) {
         // 获取表头字段
-        List<ExcelClassField> headFieldList = getExcelClassFieldList(clazz);
+        List<ExcelClassField> headFields = getExcelClassFieldList(clazz);
         // 获取表头数据和示例数据
-        List<List<Object>> sheetDataList = new ArrayList<>();
-        List<Object> headList = new ArrayList<>();
-        List<Object> exampleList = new ArrayList<>();
-        Map<Integer, List<String>> selectMap = new LinkedHashMap<>();
-        for (int i = 0; i < headFieldList.size(); i++) {
-            ExcelClassField each = headFieldList.get(i);
-            headList.add(each.getName());
-            exampleList.add(each.getExample());
-            Map<String, String> kvMap = each.getKvMap();
-            if (kvMap != null && !kvMap.isEmpty()) {
-                selectMap.put(i, new ArrayList<>(kvMap.values()));
+        List<List<Object>> sheetData = new ArrayList<>();
+        List<Object> head = new ArrayList<>();
+        List<Object> example = new ArrayList<>();
+        Map<Integer, List<String>> optionsByColumnIndex = new LinkedHashMap<>();
+        for (int i = 0; i < headFields.size(); i++) {
+            ExcelClassField each = headFields.get(i);
+            head.add(each.getName());
+            example.add(each.getExample());
+            Map<String, String> entries = each.getKvMap();
+            if (entries != null && !entries.isEmpty()) {
+                optionsByColumnIndex.put(i, new ArrayList<>(entries.values()));
             }
         }
-        sheetDataList.add(headList);
+        sheetData.add(head);
         if (isContainExample) {
-            sheetDataList.add(exampleList);
+            sheetData.add(example);
         }
         // 导出数据
-        export(response, fileName, sheetName, sheetDataList, selectMap);
+        export(response, fileName, sheetName, sheetData, optionsByColumnIndex);
     }
 
     private static <T> List<ExcelClassField> getExcelClassFieldList(Class<T> clazz) {
@@ -646,17 +647,17 @@ public class ExcelUtils {
      */
     private static List<ExcelClassField> assembleHeadFields(
         Map<Integer, List<ExcelClassField>> groupedBySort) {
-        List<Integer> sortList = new ArrayList<>(groupedBySort.keySet());
-        sortList.sort(Comparator.naturalOrder());
-        List<ExcelClassField> headFieldList = new ArrayList<>();
-        for (Integer sort : sortList) {
+        List<Integer> sortKeys = new ArrayList<>(groupedBySort.keySet());
+        sortKeys.sort(Comparator.naturalOrder());
+        List<ExcelClassField> headFields = new ArrayList<>();
+        for (Integer sort : sortKeys) {
             for (ExcelClassField cf : groupedBySort.get(sort)) {
                 if (cf.getHasAnnotation() == 1) {
-                    headFieldList.add(cf);
+                    headFields.add(cf);
                 }
             }
         }
-        return headFieldList;
+        return headFields;
     }
 
     private static ExcelClassField getExcelClassField(Field field) {
@@ -692,9 +693,9 @@ public class ExcelUtils {
     }
 
     private static LinkedHashMap<String, String> getKvMap(String kv) {
-        LinkedHashMap<String, String> kvMap = new LinkedHashMap<>();
+        LinkedHashMap<String, String> entries = new LinkedHashMap<>();
         if (kv.isEmpty()) {
-            return kvMap;
+            return entries;
         }
         String[] kvs = kv.split(";");
         for (String each : kvs) {
@@ -703,11 +704,11 @@ public class ExcelUtils {
                 String k = eachKv[0];
                 String v = eachKv[1];
                 if (!k.isEmpty() && !v.isEmpty()) {
-                    kvMap.put(k, v);
+                    entries.put(k, v);
                 }
             }
         }
-        return kvMap;
+        return entries;
     }
 
     /**
@@ -787,58 +788,58 @@ public class ExcelUtils {
 
     private static <T> List<List<Object>> getSheetData(List<T> list) {
         // 获取表头字段
-        List<ExcelClassField> excelClassFieldList = getExcelClassFieldList(list.get(0).getClass());
-        List<String> headFieldList = new ArrayList<>();
-        List<Object> headList = new ArrayList<>();
-        Map<String, ExcelClassField> headFieldMap = new HashMap<>();
-        for (ExcelClassField each : excelClassFieldList) {
+        List<ExcelClassField> excelClassFields = getExcelClassFieldList(list.get(0).getClass());
+        List<String> headFields = new ArrayList<>();
+        List<Object> head = new ArrayList<>();
+        Map<String, ExcelClassField> fieldByName = new HashMap<>();
+        for (ExcelClassField each : excelClassFields) {
             String fieldName = each.getFieldName();
-            headFieldList.add(fieldName);
-            headFieldMap.put(fieldName, each);
-            headList.add(each.getName());
+            headFields.add(fieldName);
+            fieldByName.put(fieldName, each);
+            head.add(each.getName());
         }
         // 添加表头名称
-        List<List<Object>> sheetDataList = new ArrayList<>();
-        sheetDataList.add(headList);
+        List<List<Object>> sheetData = new ArrayList<>();
+        sheetData.add(head);
         // 获取表数据
         for (T t : list) {
-            Map<String, Object> fieldDataMap = getFieldDataMap(t);
-            Set<String> fieldDataKeys = fieldDataMap.keySet();
-            List<Object> rowList = new ArrayList<>();
-            for (String headField : headFieldList) {
+            Map<String, Object> fieldData = getFieldDataMap(t);
+            Set<String> fieldDataKeys = fieldData.keySet();
+            List<Object> row = new ArrayList<>();
+            for (String headField : headFields) {
                 if (fieldDataKeys.contains(headField)) {
-                    Object data = fieldDataMap.get(headField);
+                    Object data = fieldData.get(headField);
                     if (data == null) {
-                        rowList.add("");
+                        row.add("");
                     } else {
-                        addCellValue(rowList, headFieldMap.get(headField), data);
+                        addCellValue(row, fieldByName.get(headField), data);
                     }
                 }
             }
-            sheetDataList.add(rowList);
+            sheetData.add(row);
         }
-        return sheetDataList;
+        return sheetData;
     }
 
     /**
      * 根据字段映射关系将数据转换为单元格值并追加到当前行
      *
-     * @param rowList 当前行数据
-     * @param cf      表头字段映射配置
-     * @param data    字段值
+     * @param row  当前行数据
+     * @param cf   表头字段映射配置
+     * @param data 字段值
      */
-    private static void addCellValue(List<Object> rowList, ExcelClassField cf, Object data) {
+    private static void addCellValue(List<Object> row, ExcelClassField cf, Object data) {
         // 判断是否有映射关系
-        Map<String, String> kvMap = cf.getKvMap();
-        if (kvMap == null || kvMap.isEmpty()) {
-            rowList.add(data);
+        Map<String, String> entries = cf.getKvMap();
+        if (entries == null || entries.isEmpty()) {
+            row.add(data);
             return;
         }
-        String val = kvMap.get(data.toString());
+        String val = entries.get(data.toString());
         if (isNumeric(val)) {
-            rowList.add(Double.valueOf(val));
+            row.add(Double.valueOf(val));
         } else {
-            rowList.add(val);
+            row.add(val);
         }
     }
 
@@ -865,11 +866,11 @@ public class ExcelUtils {
      * @param fileName 文件名
      */
     public static void exportEmpty(HttpServletResponse response, String fileName) {
-        List<List<Object>> sheetDataList = new ArrayList<>();
-        List<Object> headList = new ArrayList<>();
-        headList.add("导出无数据");
-        sheetDataList.add(headList);
-        export(response, fileName, sheetDataList);
+        List<List<Object>> sheetData = new ArrayList<>();
+        List<Object> head = new ArrayList<>();
+        head.add("导出无数据");
+        sheetData.add(head);
+        export(response, fileName, sheetData);
     }
 
     public static void exportManySheet(HttpServletResponse response,
@@ -935,8 +936,8 @@ public class ExcelUtils {
             return;
         }
         // 导出数据
-        List<List<Object>> sheetDataList = getSheetData(list);
-        export(response, fileName, sheetDataList);
+        List<List<Object>> sheetData = getSheetData(list);
+        export(response, fileName, sheetData);
     }
 
     public static void export(HttpServletResponse response,
@@ -949,13 +950,13 @@ public class ExcelUtils {
     private static void export(HttpServletResponse response,
         File file,
         String fileName,
-        Map<String, List<List<Object>>> sheetMap,
-        Map<Integer, List<String>> selectMap) {
+        Map<String, List<List<Object>>> sheetsByName,
+        Map<Integer, List<String>> optionsByColumnIndex) {
         // 整个 Excel 表格 book 对象
         SXSSFWorkbook book = new SXSSFWorkbook();
         // 每个 Sheet 页
-        for (Entry<String, List<List<Object>>> entry : sheetMap.entrySet()) {
-            renderSheet(book, entry.getKey(), entry.getValue(), selectMap);
+        for (Entry<String, List<List<Object>>> entry : sheetsByName.entrySet()) {
+            renderSheet(book, entry.getKey(), entry.getValue(), optionsByColumnIndex);
         }
         // 写数据
         writeWorkbook(response, file, fileName, book);
@@ -964,27 +965,27 @@ public class ExcelUtils {
     /**
      * 渲染单个 Sheet：创建表头/数据行单元格、合并单元格并设置下拉列表
      *
-     * @param book          工作簿
-     * @param sheetName     sheet 名
-     * @param sheetDataList 导出数据
-     * @param selectMap     下拉列表数据（列下标 -> 选项）
+     * @param book                 工作簿
+     * @param sheetName            sheet 名
+     * @param sheetData            导出数据
+     * @param optionsByColumnIndex 下拉列表数据（列下标 -> 选项）
      */
     private static void renderSheet(SXSSFWorkbook book,
         String sheetName,
-        List<List<Object>> sheetDataList,
-        Map<Integer, List<String>> selectMap) {
+        List<List<Object>> sheetData,
+        Map<Integer, List<String>> optionsByColumnIndex) {
         Sheet sheet = book.createSheet(sheetName);
         Drawing<?> patriarch = sheet.createDrawingPatriarch();
         CellStyle headStyle = createHeadStyle(book);
         CellStyle rowStyle = createRowStyle(book);
         // 设置表格列宽度（默认为15个字节）
         sheet.setDefaultColumnWidth(15);
-        int[][] mergeArray = buildMergeArray(book, sheet, patriarch, sheetDataList, headStyle,
+        int[][] mergeArray = buildMergeArray(book, sheet, patriarch, sheetData, headStyle,
             rowStyle);
         // 合并单元格
         mergeCells(sheet, mergeArray);
         // 设置下拉列表
-        setSelect(sheet, selectMap);
+        setSelect(sheet, optionsByColumnIndex);
     }
 
     /**
@@ -1018,28 +1019,28 @@ public class ExcelUtils {
     /**
      * 逐行逐单元格写入数据，并返回单元格合并算法数组
      *
-     * @param book          工作簿
-     * @param sheet         当前 sheet 页
-     * @param patriarch     绘图容器
-     * @param sheetDataList 导出数据
-     * @param headStyle     表头样式
-     * @param rowStyle      表身样式
+     * @param book      工作簿
+     * @param sheet     当前 sheet 页
+     * @param patriarch 绘图容器
+     * @param sheetData 导出数据
+     * @param headStyle 表头样式
+     * @param rowStyle  表身样式
      * @return 单元格合并算法数组
      */
     private static int[][] buildMergeArray(SXSSFWorkbook book,
         Sheet sheet,
         Drawing<?> patriarch,
-        List<List<Object>> sheetDataList,
+        List<List<Object>> sheetData,
         CellStyle headStyle,
         CellStyle rowStyle) {
-        int rowLength = sheetDataList.size();
-        int columnLength = sheetDataList.get(0).size();
+        int rowLength = sheetData.size();
+        int columnLength = sheetData.get(0).size();
         int[][] mergeArray = new int[rowLength][columnLength];
         for (int i = 0; i < rowLength; i++) {
             Row row = sheet.createRow(i);
-            List<Object> rowList = sheetDataList.get(i);
-            for (int j = 0; j < rowList.size(); j++) {
-                Object o = rowList.get(j);
+            List<Object> rowData = sheetData.get(i);
+            for (int j = 0; j < rowData.size(); j++) {
+                Object o = rowData.get(j);
                 int v = 0;
                 if (o instanceof URL url) {
                     // 如果要导出图片的话, 链接需要传递 URL 对象
@@ -1263,12 +1264,13 @@ public class ExcelUtils {
         return format.format(date);
     }
 
-    private static void setSelect(Sheet sheet, Map<Integer, List<String>> selectMap) {
-        if (selectMap == null || selectMap.isEmpty()) {
+    private static void setSelect(Sheet sheet,
+        Map<Integer, List<String>> optionsByColumnIndex) {
+        if (optionsByColumnIndex == null || optionsByColumnIndex.isEmpty()) {
             return;
         }
-        Set<Entry<Integer, List<String>>> entrySet = selectMap.entrySet();
-        for (Entry<Integer, List<String>> entry : entrySet) {
+        Set<Entry<Integer, List<String>>> entries = optionsByColumnIndex.entrySet();
+        for (Entry<Integer, List<String>> entry : entries) {
             int y = entry.getKey();
             List<String> list = entry.getValue();
             if (list == null || list.isEmpty()) {

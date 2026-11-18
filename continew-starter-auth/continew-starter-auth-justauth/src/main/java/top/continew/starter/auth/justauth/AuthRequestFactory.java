@@ -156,13 +156,14 @@ public class AuthRequestFactory {
             return;
         }
 
-        Map<String, JustAuthHttpProperties.JustAuthProxyConfig> proxyConfigMap =
+        Map<String, JustAuthHttpProperties.JustAuthProxyConfig> proxyConfigBySource =
             httpConfig.getProxy();
-        if (CollUtil.isEmpty(proxyConfigMap)) {
+        if (CollUtil.isEmpty(proxyConfigBySource)) {
             return;
         }
 
-        JustAuthHttpProperties.JustAuthProxyConfig proxyConfig = proxyConfigMap.get(authSource);
+        JustAuthHttpProperties.JustAuthProxyConfig proxyConfig =
+            proxyConfigBySource.get(authSource);
         if (null == proxyConfig) {
             return;
         }

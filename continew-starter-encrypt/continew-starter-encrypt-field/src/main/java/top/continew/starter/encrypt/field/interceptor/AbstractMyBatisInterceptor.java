@@ -69,25 +69,25 @@ public abstract class AbstractMyBatisInterceptor {
             return Collections.emptyMap();
         }
         return COLUMN_ENCRYPT_CACHE.computeIfAbsent(entityClass, clazz -> {
-            Map<String, FieldEncrypt> columnMap = new HashMap<>();
+            Map<String, FieldEncrypt> annotationsByColumn = new HashMap<>();
             TableInfo tableInfo = TableInfoHelper.getTableInfo(clazz);
             if (tableInfo == null) {
                 for (Field field : ReflectUtil.getFields(clazz)) {
                     FieldEncrypt fieldEncrypt = field.getAnnotation(FieldEncrypt.class);
                     if (fieldEncrypt != null) {
-                        columnMap.put(field.getName().toLowerCase(), fieldEncrypt);
+                        annotationsByColumn.put(field.getName().toLowerCase(), fieldEncrypt);
                     }
                 }
-                return columnMap;
+                return annotationsByColumn;
             }
             for (TableFieldInfo fieldInfo : tableInfo.getFieldList()) {
                 Field field = fieldInfo.getField();
                 FieldEncrypt fieldEncrypt = field.getAnnotation(FieldEncrypt.class);
                 if (fieldEncrypt != null) {
-                    columnMap.put(fieldInfo.getColumn().toLowerCase(), fieldEncrypt);
+                    annotationsByColumn.put(fieldInfo.getColumn().toLowerCase(), fieldEncrypt);
                 }
             }
-            return columnMap;
+            return annotationsByColumn;
         });
     }
 
@@ -99,18 +99,19 @@ public abstract class AbstractMyBatisInterceptor {
      */
     protected Map<String, FieldEncrypt> getGlobalColumnEncryptAnnotations() {
         return GLOBAL_COLUMN_ENCRYPT_CACHE.computeIfAbsent(GLOBAL_COLUMN_CACHE_KEY, key -> {
-            Map<String, FieldEncrypt> columnMap = new HashMap<>();
+            Map<String, FieldEncrypt> annotationsByColumn = new HashMap<>();
             Collection<TableInfo> tableInfos = TableInfoHelper.getTableInfos();
             for (TableInfo tableInfo : tableInfos) {
                 for (TableFieldInfo fieldInfo : tableInfo.getFieldList()) {
                     Field field = fieldInfo.getField();
                     FieldEncrypt fieldEncrypt = field.getAnnotation(FieldEncrypt.class);
                     if (fieldEncrypt != null) {
-                        columnMap.putIfAbsent(fieldInfo.getColumn().toLowerCase(), fieldEncrypt);
+                        annotationsByColumn.putIfAbsent(fieldInfo.getColumn().toLowerCase(),
+                            fieldEncrypt);
                     }
                 }
             }
-            return columnMap;
+            return annotationsByColumn;
         });
     }
 
@@ -154,7 +155,7 @@ public abstract class AbstractMyBatisInterceptor {
             if (method == null) {
                 return Collections.emptyMap();
             }
-            Map<String, FieldEncrypt> encryptMap = new HashMap<>();
+            Map<String, FieldEncrypt> annotationsByParameter = new HashMap<>();
             Parameter[] parameters = method.getParameters();
             for (int i = 0; i < parameters.length; i++) {
                 Parameter parameter = parameters[i];
@@ -163,12 +164,12 @@ public abstract class AbstractMyBatisInterceptor {
                     continue;
                 }
                 String parameterName = this.getParameterName(parameter);
-                encryptMap.put(parameterName, fieldEncrypt);
+                annotationsByParameter.put(parameterName, fieldEncrypt);
                 if (String.class.equals(parameter.getType())) {
-                    encryptMap.put("param" + (i + 1), fieldEncrypt);
+                    annotationsByParameter.put("param" + (i + 1), fieldEncrypt);
                 }
             }
-            return encryptMap;
+            return annotationsByParameter;
         });
     }
 

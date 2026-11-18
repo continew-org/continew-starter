@@ -123,19 +123,19 @@ public class BehaviorCaptchaAutoConfiguration {
      * @return key：图片文件名称；value：图片
      */
     private static Map<String, String> getResourcesImagesFile(String path) {
-        Map<String, String> imgMap = new HashMap<>();
+        Map<String, String> imagesByType = new HashMap<>();
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         try {
             Resource[] resources = resolver.getResources(path);
             for (Resource resource : resources) {
                 String imageName = resource.getFilename();
                 byte[] imageValue = FileUtil.readBytes(resource.getFile());
-                imgMap.put(imageName, Base64.encode(imageValue));
+                imagesByType.put(imageName, Base64.encode(imageValue));
             }
         } catch (Exception e) {
             LOGGER.error("读取路径为 [{}] 下的图片文件失败", path, e);
         }
-        return imgMap;
+        return imagesByType;
     }
 
     @PostConstruct

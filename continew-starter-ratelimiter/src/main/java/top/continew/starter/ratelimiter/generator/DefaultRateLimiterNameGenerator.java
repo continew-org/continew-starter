@@ -30,11 +30,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultRateLimiterNameGenerator implements RateLimiterNameGenerator {
 
-    protected final ConcurrentHashMap<Method, String> nameMap = new ConcurrentHashMap<>();
+    protected final ConcurrentHashMap<Method, String> namesByMethod = new ConcurrentHashMap<>();
 
     @Override
     public String generate(Object target, Method method, Object... args) {
-        return nameMap.computeIfAbsent(method, key -> {
+        return namesByMethod.computeIfAbsent(method, key -> {
             final StringBuilder nameSb = new StringBuilder();
             String className = method.getDeclaringClass().getName();
             nameSb.append(ClassUtil.getShortClassName(className));

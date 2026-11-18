@@ -68,8 +68,8 @@ public class QueryWrapperHelper {
             return queryWrapper;
         }
         // 获取查询条件中所有的字段
-        List<Field> fieldList = ReflectUtils.getNonStaticFields(query.getClass());
-        return build(query, fieldList, queryWrapper);
+        List<Field> fields = ReflectUtils.getNonStaticFields(query.getClass());
+        return build(query, fields, queryWrapper);
     }
 
     /**
@@ -99,8 +99,8 @@ public class QueryWrapperHelper {
             }
         }
         // 获取查询条件中所有的字段
-        List<Field> fieldList = ReflectUtils.getNonStaticFields(query.getClass());
-        return build(query, fieldList, queryWrapper);
+        List<Field> fields = ReflectUtils.getNonStaticFields(query.getClass());
+        return build(query, fields, queryWrapper);
     }
 
     /**
