@@ -46,12 +46,12 @@ class OssStorageStrategyPartPayloadTest {
         Object differentPath = payload(new byte[] {1, 2, 3}, Path.of("b"), 3L);
         Object differentSize = payload(new byte[] {1, 2, 3}, Path.of("a"), 4L);
 
-        assertThat(payload).isSameAs(payload);
-        assertThat(payload).isEqualTo(equal);
-        assertThat(payload).isNotEqualTo(differentBytes);
-        assertThat(payload).isNotEqualTo(differentPath);
-        assertThat(payload).isNotEqualTo(differentSize);
-        assertThat(payload).isNotEqualTo("not a payload");
+        assertThat(payload)
+            .isEqualTo(equal)
+            .isNotEqualTo(differentBytes)
+            .isNotEqualTo(differentPath)
+            .isNotEqualTo(differentSize)
+            .isNotEqualTo("not a payload");
     }
 
     @Test
