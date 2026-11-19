@@ -35,6 +35,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * Servlet 工具类测试
@@ -103,5 +104,18 @@ class ServletUtilsTest {
         assertThatThrownBy(() -> ServletUtils.writeJson(response, "长时间未操作，请重新登录"))
             .isInstanceOf(UtilException.class)
             .hasCauseInstanceOf(IOException.class);
+    }
+
+    @Test
+    @DisplayName("getHeaderMap 按响应头名称收集头值")
+    void shouldCollectResponseHeadersByName() {
+        HttpServletResponse response = mock(HttpServletResponse.class);
+        when(response.getHeaderNames()).thenReturn(List.of("Content-Type", "X-Trace"));
+        when(response.getHeader("Content-Type")).thenReturn("application/json");
+        when(response.getHeader("X-Trace")).thenReturn("trace-1");
+
+        assertThat(ServletUtils.getHeaderMap(response))
+            .containsEntry("Content-Type", "application/json")
+            .containsEntry("X-Trace", "trace-1");
     }
 }
