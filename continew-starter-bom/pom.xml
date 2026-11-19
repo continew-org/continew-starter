@@ -15,7 +15,7 @@
     <properties>
         <revision>3.1.0-SNAPSHOT</revision>
         <!-- 无 parent 链，无法继承根父 POM 属性，发版相关版本需与 continew-starter-dependencies 同步 -->
-        <flatten.version>1.8.0</flatten.version>
+        <flatten.version>1.9.0</flatten.version>
         <maven-gpg-plugin.version>3.2.8</maven-gpg-plugin.version>
         <central-publishing-maven-plugin.version>0.12.0</central-publishing-maven-plugin.version>
     </properties>
