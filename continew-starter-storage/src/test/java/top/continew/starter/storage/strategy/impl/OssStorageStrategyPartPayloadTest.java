@@ -46,12 +46,12 @@ class OssStorageStrategyPartPayloadTest {
         Object differentPath = payload(new byte[] {1, 2, 3}, Path.of("b"), 3L);
         Object differentSize = payload(new byte[] {1, 2, 3}, Path.of("a"), 4L);
 
-        assertThat(payload.equals(payload)).isTrue();
-        assertThat(payload.equals(equal)).isTrue();
-        assertThat(payload.equals(differentBytes)).isFalse();
-        assertThat(payload.equals(differentPath)).isFalse();
-        assertThat(payload.equals(differentSize)).isFalse();
-        assertThat(payload.equals("not a payload")).isFalse();
+        assertThat(payload).isSameAs(payload);
+        assertThat(payload).isEqualTo(equal);
+        assertThat(payload).isNotEqualTo(differentBytes);
+        assertThat(payload).isNotEqualTo(differentPath);
+        assertThat(payload).isNotEqualTo(differentSize);
+        assertThat(payload).isNotEqualTo("not a payload");
     }
 
     @Test
@@ -60,7 +60,7 @@ class OssStorageStrategyPartPayloadTest {
         Object payload = payload(new byte[] {1, 2, 3}, Path.of("a"), 3L);
         Object equal = payload(new byte[] {1, 2, 3}, Path.of("a"), 3L);
 
-        assertThat(payload.hashCode()).isEqualTo(equal.hashCode());
+        assertThat(payload).hasSameHashCodeAs(equal);
     }
 
     private static Object payload(byte[] bytes, Path tempFile, long size) throws Exception {
