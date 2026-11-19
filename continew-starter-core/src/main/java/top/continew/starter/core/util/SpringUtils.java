@@ -162,13 +162,13 @@ public class SpringUtils {
         // 获取已经注册的映射
         final HandlerMapping resourceHandlerMapping = applicationContext
             .getBean("resourceHandlerMapping", HandlerMapping.class);
-        final Map<String, Object> oldHandlerMap = (Map<String, Object>) ReflectUtil
+        final Map<String, Object> oldHandlersByPath = (Map<String, Object>) ReflectUtil
             .getFieldValue(resourceHandlerMapping, "handlerMap");
         // 移除之前注册的映射
         for (Map.Entry<String, String> entry : handlerMap.entrySet()) {
             String pathPattern =
                 CharSequenceUtil.appendIfMissing(entry.getKey(), StringConstants.PATH_PATTERN);
-            oldHandlerMap.remove(pathPattern);
+            oldHandlersByPath.remove(pathPattern);
         }
     }
 
@@ -182,7 +182,7 @@ public class SpringUtils {
         // 获取已经注册的映射
         final HandlerMapping resourceHandlerMapping = applicationContext
             .getBean("resourceHandlerMapping", HandlerMapping.class);
-        final Map<String, Object> oldHandlerMap = (Map<String, Object>) ReflectUtil
+        final Map<String, Object> oldHandlersByPath = (Map<String, Object>) ReflectUtil
             .getFieldValue(resourceHandlerMapping, "handlerMap");
         // 重新注册映射
         final ServletContext servletContext = applicationContext.getBean(ServletContext.class);
@@ -199,17 +199,18 @@ public class SpringUtils {
             String pathPattern =
                 CharSequenceUtil.appendIfMissing(CharSequenceUtil.removeSuffix(entry
                     .getKey(), StringConstants.SLASH), StringConstants.PATH_PATTERN);
-            oldHandlerMap.remove(pathPattern);
+            oldHandlersByPath.remove(pathPattern);
             // 重新注册映射
             String resourceLocations =
                 CharSequenceUtil.appendIfMissing(entry.getValue(), StringConstants.SLASH);
             resourceHandlerRegistry.addResourceHandler(pathPattern)
                 .addResourceLocations("file:" + resourceLocations);
         }
-        final Map<String, ?> additionalUrlMap = ReflectUtil
+        final Map<String, ?> additionalUrlsByPattern = ReflectUtil
             .<SimpleUrlHandlerMapping>invoke(resourceHandlerRegistry, "getHandlerMapping")
             .getUrlMap();
-        ReflectUtil.<Void>invoke(resourceHandlerMapping, "registerHandlers", additionalUrlMap);
+        ReflectUtil.<Void>invoke(resourceHandlerMapping, "registerHandlers",
+            additionalUrlsByPattern);
     }
 
     /**

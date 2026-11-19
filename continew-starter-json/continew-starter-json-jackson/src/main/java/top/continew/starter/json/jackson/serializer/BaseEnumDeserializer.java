@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 public class BaseEnumDeserializer extends ValueDeserializer<BaseEnum> {
 
     private final Class<? extends BaseEnum> fieldTypeClass;
-    private final Map<String, BaseEnum> valueMap;
+    private final Map<String, BaseEnum> enumsByValue;
 
     public BaseEnumDeserializer() {
         this(null);
@@ -49,7 +49,7 @@ public class BaseEnumDeserializer extends ValueDeserializer<BaseEnum> {
 
     public BaseEnumDeserializer(Class<? extends BaseEnum> fieldTypeClass) {
         this.fieldTypeClass = fieldTypeClass;
-        this.valueMap = this.initValueMap(fieldTypeClass);
+        this.enumsByValue = this.initValueMap(fieldTypeClass);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class BaseEnumDeserializer extends ValueDeserializer<BaseEnum> {
     @Override
     public BaseEnum deserialize(JsonParser jsonParser,
         DeserializationContext deserializationContext) {
-        if (fieldTypeClass == null || valueMap.isEmpty()) {
+        if (fieldTypeClass == null || enumsByValue.isEmpty()) {
             return null;
         }
 
@@ -80,7 +80,7 @@ public class BaseEnumDeserializer extends ValueDeserializer<BaseEnum> {
             return null;
         }
 
-        BaseEnum baseEnum = valueMap.get(value);
+        BaseEnum baseEnum = enumsByValue.get(value);
         if (baseEnum == null) {
             throw InvalidFormatException
                 .from(jsonParser,
@@ -92,7 +92,7 @@ public class BaseEnumDeserializer extends ValueDeserializer<BaseEnum> {
     }
 
     /**
-     * 初始化 valueMap
+     * 初始化 enumsByValue
      * <p>将枚举的 value 映射为枚举实例</p>
      *
      * @param enumClass 枚举类

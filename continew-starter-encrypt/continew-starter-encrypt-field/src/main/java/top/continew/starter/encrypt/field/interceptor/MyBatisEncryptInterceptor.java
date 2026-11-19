@@ -212,19 +212,21 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
     private Object interceptSelect(Invocation invocation,
         MappedStatement mappedStatement,
         Object parameterObject) throws InvocationTargetException, IllegalAccessException {
-        if (!(parameterObject instanceof Map<?, ?> parameterMap)) {
+        if (!(parameterObject instanceof Map<?, ?> parameters)) {
             return invocation.proceed();
         }
         CryptoSnapshot snapshot = new CryptoSnapshot();
-        Map<String, FieldEncrypt> encryptParameterMap = super.getEncryptParameters(mappedStatement);
-        Map<Object, Object> newParameterMap = this.newParameterMap(parameterMap);
+        Map<String, FieldEncrypt> annotationsByParameter = super.getEncryptParameters(
+            mappedStatement);
+        Map<Object, Object> encryptedParameters = this.newParameterMap(parameters);
         IdentityHashMap<Object, Object> copyCache = new IdentityHashMap<>();
         try {
-            for (Map.Entry<?, ?> entry : parameterMap.entrySet()) {
-                newParameterMap.put(entry.getKey(), this.resolveQueryValue(entry.getKey(),
-                    entry.getValue(), encryptParameterMap, mappedStatement, snapshot, copyCache));
+            for (Map.Entry<?, ?> entry : parameters.entrySet()) {
+                encryptedParameters.put(entry.getKey(), this.resolveQueryValue(entry.getKey(),
+                    entry.getValue(), annotationsByParameter, mappedStatement, snapshot,
+                    copyCache));
             }
-            invocation.getArgs()[1] = newParameterMap;
+            invocation.getArgs()[1] = encryptedParameters;
             return invocation.proceed();
         } finally {
             // Wrapper 的条件参数在查询完成后恢复原值，加密失败时不残留密文
@@ -236,15 +238,15 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      * 构造与原参数同语义的参数容器：ParamMap 保持缺键抛出 BindingException 的拼写检查语义，
      * 其余场景使用普通 HashMap
      *
-     * @param parameterMap 原参数 Map
+     * @param parameters 原参数 Map
      * @return 新参数容器
      */
     @SuppressWarnings("unchecked")
-    private Map<Object, Object> newParameterMap(Map<?, ?> parameterMap) {
-        if (parameterMap instanceof MapperMethod.ParamMap) {
+    private Map<Object, Object> newParameterMap(Map<?, ?> parameters) {
+        if (parameters instanceof MapperMethod.ParamMap) {
             return new MapperMethod.ParamMap();
         }
-        return new HashMap<>(parameterMap.size());
+        return HashMap.newHashMap(parameters.size());
     }
 
     /**
@@ -253,20 +255,20 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      *
      * @param parameterName       参数名
      * @param parameterValue      参数值
-     * @param encryptParameterMap 参数级加密注解映射
-     * @param mappedStatement     映射语句
-     * @param snapshot            快照
-     * @param copyCache           拷贝缓存
+     * @param annotationsByParameter 参数级加密注解映射
+     * @param mappedStatement        映射语句
+     * @param snapshot               快照
+     * @param copyCache              拷贝缓存
      * @return 处理后的参数值
      */
     private Object resolveQueryValue(Object parameterName,
         Object parameterValue,
-        Map<String, FieldEncrypt> encryptParameterMap,
+        Map<String, FieldEncrypt> annotationsByParameter,
         MappedStatement mappedStatement,
         CryptoSnapshot snapshot,
         IdentityHashMap<Object, Object> copyCache) {
         if (parameterValue instanceof String str) {
-            FieldEncrypt fieldEncrypt = encryptParameterMap.get(String.valueOf(parameterName));
+            FieldEncrypt fieldEncrypt = annotationsByParameter.get(String.valueOf(parameterName));
             if (fieldEncrypt != null) {
                 return this.doEncrypt(str, fieldEncrypt, String.valueOf(parameterName));
             }
@@ -279,15 +281,15 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         if (parameterValue == null || ClassUtil.isBasicType(parameterValue.getClass())) {
             return parameterValue;
         }
-        List<Field> fieldList = super.getEncryptFields(parameterValue.getClass());
-        if (fieldList.isEmpty()) {
+        List<Field> fields = super.getEncryptFields(parameterValue.getClass());
+        if (fields.isEmpty()) {
             return parameterValue;
         }
         if (copyCache.containsKey(parameterValue)) {
             return copyCache.get(parameterValue);
         }
         Object copy = this.copyEntity(parameterValue);
-        this.encryptEntity(fieldList, copy);
+        this.encryptEntity(fields, copy);
         copyCache.put(parameterValue, copy);
         return copy;
     }
@@ -304,8 +306,9 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         MappedStatement mappedStatement,
         CryptoSnapshot snapshot) {
         Class<?> entityClass = this.getEntityClass(wrapper, mappedStatement);
-        Map<String, FieldEncrypt> columnMap = super.getColumnEncryptAnnotations(entityClass);
-        if (columnMap.isEmpty()) {
+        Map<String, FieldEncrypt> annotationsByColumn = super.getColumnEncryptAnnotations(
+            entityClass);
+        if (annotationsByColumn.isEmpty()) {
             return;
         }
         String sqlSegment = wrapper.getSqlSegment();
@@ -313,7 +316,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             return;
         }
         for (String segment : this.splitConditionSegments(sqlSegment)) {
-            this.encryptQueryCondition(wrapper, segment, columnMap, snapshot);
+            this.encryptQueryCondition(wrapper, segment, annotationsByColumn, snapshot);
         }
     }
 
@@ -382,14 +385,14 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      * 加密单个查询条件段的参数值：定位首个占位符并向前解析操作符结构，
      * IN 等多占位符条件段的全部参数值同属该列
      *
-     * @param wrapper   Wrapper 参数
-     * @param segment   条件段
-     * @param columnMap 列名到加密注解映射
-     * @param snapshot  快照
+     * @param wrapper             Wrapper 参数
+     * @param segment             条件段
+     * @param annotationsByColumn 列名到加密注解映射
+     * @param snapshot            快照
      */
     private void encryptQueryCondition(AbstractWrapper wrapper,
         String segment,
-        Map<String, FieldEncrypt> columnMap,
+        Map<String, FieldEncrypt> annotationsByColumn,
         CryptoSnapshot snapshot) {
         int placeholderStart = segment.indexOf(PARAM_MARKER);
         if (placeholderStart < 0) {
@@ -405,7 +408,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             return;
         }
         String columnName = segment.substring(nameStart, nameEnd).replace("`", "");
-        FieldEncrypt fieldEncrypt = columnMap.get(columnName.toLowerCase());
+        FieldEncrypt fieldEncrypt = annotationsByColumn.get(columnName.toLowerCase());
         if (fieldEncrypt == null) {
             return;
         }
@@ -594,8 +597,8 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         MappedStatement mappedStatement,
         CryptoSnapshot snapshot,
         IdentityHashMap<Object, Object> copyCache) {
-        if (value instanceof Map<?, ?> parameterMap) {
-            return this.encryptParameterMap(parameterMap, mappedStatement, snapshot, copyCache);
+        if (value instanceof Map<?, ?> parameters) {
+            return this.encryptParameterMap(parameters, mappedStatement, snapshot, copyCache);
         }
         if (value instanceof Collection<?> collection) {
             return this.encryptParameterCollection(collection, mappedStatement, snapshot,
@@ -606,12 +609,12 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             return this.encryptParameterArray((Object[]) value, mappedStatement, snapshot,
                 copyCache);
         }
-        List<Field> fieldList = super.getEncryptFields(valueClass);
-        if (fieldList.isEmpty()) {
+        List<Field> fields = super.getEncryptFields(valueClass);
+        if (fields.isEmpty()) {
             return null;
         }
         Object copy = this.copyEntity(value);
-        this.encryptEntity(fieldList, copy);
+        this.encryptEntity(fields, copy);
         copyCache.put(value, copy);
         return copy;
     }
@@ -619,24 +622,24 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
     /**
      * 加密 Map 参数：键值逐项解析，返回承载加密拷贝的新容器
      *
-     * @param parameterMap    参数 Map
+     * @param parameters      参数 Map
      * @param mappedStatement 映射语句
      * @param snapshot        快照
      * @param copyCache       拷贝缓存
      * @return 新参数容器
      */
-    private Map<Object, Object> encryptParameterMap(Map<?, ?> parameterMap,
+    private Map<Object, Object> encryptParameterMap(Map<?, ?> parameters,
         MappedStatement mappedStatement,
         CryptoSnapshot snapshot,
         IdentityHashMap<Object, Object> copyCache) {
-        Map<Object, Object> newParameterMap = this.newParameterMap(parameterMap);
+        Map<Object, Object> encryptedParameters = this.newParameterMap(parameters);
         // 先登记新容器再遍历，自引用参数可命中缓存而不会无限递归
-        copyCache.put(parameterMap, newParameterMap);
-        for (Map.Entry<?, ?> entry : parameterMap.entrySet()) {
-            newParameterMap.put(entry.getKey(), this.resolveValue(entry.getValue(),
+        copyCache.put(parameters, encryptedParameters);
+        for (Map.Entry<?, ?> entry : parameters.entrySet()) {
+            encryptedParameters.put(entry.getKey(), this.resolveValue(entry.getValue(),
                 mappedStatement, snapshot, copyCache));
         }
-        return newParameterMap;
+        return encryptedParameters;
     }
 
     /**
@@ -709,11 +712,11 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
     /**
      * 加密实体字段（作用于拷贝实体）
      *
-     * @param fieldList 加密字段列表
-     * @param entity    实体拷贝
+     * @param fields 加密字段列表
+     * @param entity 实体拷贝
      */
-    private void encryptEntity(List<Field> fieldList, Object entity) {
-        for (Field field : fieldList) {
+    private void encryptEntity(List<Field> fields, Object entity) {
+        for (Field field : fields) {
             Object fieldValue = ReflectUtil.getFieldValue(entity, field);
             String strValue = fieldValue == null ? null : String.valueOf(fieldValue);
             if (CharSequenceUtil.isBlank(strValue)) {
@@ -744,8 +747,9 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             return;
         }
         Class<?> entityClass = this.getEntityClass(wrapper, mappedStatement);
-        Map<String, FieldEncrypt> columnMap = super.getColumnEncryptAnnotations(entityClass);
-        if (columnMap.isEmpty()) {
+        Map<String, FieldEncrypt> annotationsByColumn = super.getColumnEncryptAnnotations(
+            entityClass);
+        if (annotationsByColumn.isEmpty()) {
             return;
         }
         int cursor = 0;
@@ -754,8 +758,8 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             if (placeholderStart < 0) {
                 break;
             }
-            cursor = this.encryptWrapperPair(wrapper, sqlSet, placeholderStart, columnMap,
-                snapshot);
+            cursor = this.encryptWrapperPair(wrapper, sqlSet, placeholderStart,
+                annotationsByColumn, snapshot);
         }
     }
 
@@ -765,15 +769,15 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
      *
      * @param wrapper          Wrapper 参数
      * @param sqlSet           SET 片段
-     * @param placeholderStart 占位符起点
-     * @param columnMap        列名到加密注解映射
-     * @param snapshot         快照
+     * @param placeholderStart    占位符起点
+     * @param annotationsByColumn 列名到加密注解映射
+     * @param snapshot            快照
      * @return 继续扫描的位置
      */
     private int encryptWrapperPair(AbstractWrapper wrapper,
         String sqlSet,
         int placeholderStart,
-        Map<String, FieldEncrypt> columnMap,
+        Map<String, FieldEncrypt> annotationsByColumn,
         CryptoSnapshot snapshot) {
         int valueKeyStart = placeholderStart + PARAM_MARKER.length();
         int valueKeyEnd = sqlSet.indexOf('}', valueKeyStart);
@@ -792,7 +796,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
             return next;
         }
         String columnName = sqlSet.substring(nameStart, cursor).replace("`", "");
-        FieldEncrypt fieldEncrypt = columnMap.get(columnName.toLowerCase());
+        FieldEncrypt fieldEncrypt = annotationsByColumn.get(columnName.toLowerCase());
         if (fieldEncrypt == null) {
             return next;
         }

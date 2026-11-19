@@ -33,7 +33,7 @@ public class ExceptionAliasRegister {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionAliasRegister.class);
 
-    private final Map<Class<? extends Throwable>, ExceptionAliasFor> aliasForMap =
+    private final Map<Class<? extends Throwable>, ExceptionAliasFor> aliasesByType =
         new ConcurrentHashMap<>();
 
     /**
@@ -51,7 +51,7 @@ public class ExceptionAliasRegister {
                 .getName());
         }
         for (Class<? extends Throwable> aliasFor : exceptionAliasFor.aliasFor()) {
-            aliasForMap.put(aliasFor, exceptionAliasFor);
+            aliasesByType.put(aliasFor, exceptionAliasFor);
         }
         return this;
     }
@@ -63,6 +63,6 @@ public class ExceptionAliasRegister {
      * @return 异常别名，未注册时返回 {@code null}
      */
     public ExceptionAliasFor getExceptionAliasFor(Class<? extends Throwable> throwableClass) {
-        return aliasForMap.get(throwableClass);
+        return aliasesByType.get(throwableClass);
     }
 }

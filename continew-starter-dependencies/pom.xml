@@ -935,6 +935,12 @@
                 -->
                 <sonar.issue.ignore.multicriteria.S5738-springutils.ruleKey>java:S5738</sonar.issue.ignore.multicriteria.S5738-springutils.ruleKey>
                 <sonar.issue.ignore.multicriteria.S5738-springutils.resourceKey>**/core/util/SpringUtils.java</sonar.issue.ignore.multicriteria.S5738-springutils.resourceKey>
+                <!--
+                    CPD：crud-mp 与 crud-mf 的 CrudServiceImpl 是同一套 CRUD 契约在 MyBatis-Plus / MyBatis-Flex
+                    上的并行实现，方法体结构天然一致；两者都被改动时新增行数会把既有并行块计为新代码重复。
+                    该重复是 ORM 双实现的固有形态而非复制粘贴坏味道，故从 CPD 检测中排除。
+                -->
+                <sonar.cpd.exclusions>**/extension/crud/service/CrudServiceImpl.java</sonar.cpd.exclusions>
             </properties>
             <activation>
                 <activeByDefault>false</activeByDefault>

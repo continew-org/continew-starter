@@ -141,9 +141,9 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
     private void writeFormParameter(String name, String[] values) throws IOException {
         this.cachedContent.write(URLEncoder.encode(name, characterEncoding)
             .getBytes(StandardCharsets.UTF_8));
-        List<String> valueList = Arrays.asList(values);
-        for (int i = 0; i < valueList.size(); i++) {
-            String value = valueList.get(i);
+        List<String> formValues = Arrays.asList(values);
+        for (int i = 0; i < formValues.size(); i++) {
+            String value = formValues.get(i);
             if (value == null) {
                 continue;
             }
@@ -151,7 +151,7 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
                 .getBytes(StandardCharsets.UTF_8));
             this.cachedContent.write(URLEncoder.encode(value, characterEncoding)
                 .getBytes(StandardCharsets.UTF_8));
-            if (i < valueList.size() - 1) {
+            if (i < formValues.size() - 1) {
                 this.cachedContent.write(StringConstants.AMP
                     .getBytes(StandardCharsets.UTF_8));
             }

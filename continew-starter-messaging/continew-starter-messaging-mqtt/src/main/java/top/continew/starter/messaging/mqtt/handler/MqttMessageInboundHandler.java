@@ -59,7 +59,8 @@ public class MqttMessageInboundHandler
     private static final Logger LOGGER = LoggerFactory.getLogger(MqttMessageInboundHandler.class);
 
     // 精确匹配的topic -> 监听器映射（用于@MqttListener注解的监听器）
-    private final Map<String, MqttMessageConsumer> annotatedListenerMap = new ConcurrentHashMap<>();
+    private final Map<String, MqttMessageConsumer> annotatedListenersByTopic =
+        new ConcurrentHashMap<>();
 
     // 所有实现了MqttMessageListener的Bean列表（用于动态订阅）
     private final List<MqttMessageConsumer> allListeners;
@@ -102,7 +103,7 @@ public class MqttMessageInboundHandler
     private boolean handleAnnotatedListeners(String topic, MqttMessage mqttMessage) {
         boolean handled = false;
 
-        for (Map.Entry<String, MqttMessageConsumer> entry : annotatedListenerMap.entrySet()) {
+        for (Map.Entry<String, MqttMessageConsumer> entry : annotatedListenersByTopic.entrySet()) {
             String topicFilter = entry.getKey();
             try {
                 if (isTopicMatch(topicFilter, topic)) {
@@ -155,7 +156,7 @@ public class MqttMessageInboundHandler
      * @return 是否为注解监听器
      */
     private boolean isAnnotatedListener(MqttMessageConsumer listener) {
-        return annotatedListenerMap.containsValue(listener);
+        return annotatedListenersByTopic.containsValue(listener);
     }
 
     /**
@@ -197,7 +198,7 @@ public class MqttMessageInboundHandler
                 String topic = resolvePlaceholder(mqttListener.topic());
                 int qos = resolveQos(mqttListener.qos());
                 mqttOptions.addTopic(topic, qos);
-                annotatedListenerMap.put(topic, mqttMessageConsumer);
+                annotatedListenersByTopic.put(topic, mqttMessageConsumer);
             } else {
                 LOGGER.info("发现无注解监听器: {}，将接收所有动态订阅的消息", clazz.getSimpleName());
             }

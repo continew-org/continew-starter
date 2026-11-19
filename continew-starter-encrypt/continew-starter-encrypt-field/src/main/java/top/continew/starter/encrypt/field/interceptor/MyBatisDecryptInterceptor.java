@@ -56,16 +56,11 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
         if (!(invocation.getTarget() instanceof ResultSetHandler)) {
             return obj;
         }
-        // 处理查询结果
-        if (obj instanceof List<?> resultList) {
-            // 处理列表结果
-            this.decryptList(resultList);
-        } else if (obj instanceof Map<?, ?> resultMap) {
-            // 处理 map 结果（resultType=map 的单行结果）
-            this.decryptMapRow(this.toMutableRow(resultMap));
-        } else {
-            // 处理单个对象结果
-            this.decryptObject(obj);
+        // 处理查询结果：列表、Map 行与单对象分别解密
+        switch (obj) {
+            case List<?> results -> this.decryptList(results);
+            case Map<?, ?> resultByColumn -> this.decryptMapRow(this.toMutableRow(resultByColumn));
+            default -> this.decryptObject(obj);
         }
         return obj;
     }
@@ -73,13 +68,13 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
     /**
      * 解密列表结果
      *
-     * @param resultList 结果列表
+     * @param results 结果列表
      */
-    private void decryptList(List<?> resultList) {
-        if (CollUtil.isEmpty(resultList)) {
+    private void decryptList(List<?> results) {
+        if (CollUtil.isEmpty(results)) {
             return;
         }
-        for (Object result : resultList) {
+        for (Object result : results) {
             decryptObject(result);
         }
     }
@@ -98,17 +93,17 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
             return;
         }
         // resultType=map 的结果行为 Map，按实体声明的加密列按键解密
-        if (result instanceof Map<?, ?> resultMap) {
-            this.decryptMapRow(this.toMutableRow(resultMap));
+        if (result instanceof Map<?, ?> resultByColumn) {
+            this.decryptMapRow(this.toMutableRow(resultByColumn));
             return;
         }
         // 获取所有字符串类型、需要解密的、有值字段
-        List<Field> fieldList = super.getEncryptFields(result);
-        if (fieldList.isEmpty()) {
+        List<Field> fields = super.getEncryptFields(result);
+        if (fields.isEmpty()) {
             return;
         }
         // 解密处理
-        for (Field field : fieldList) {
+        for (Field field : fields) {
             Object fieldValue = ReflectUtil.getFieldValue(result, field);
             if (fieldValue != null) {
                 String strValue = String.valueOf(fieldValue);
@@ -128,13 +123,13 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
      */
     @SuppressWarnings("unchecked")
     private void decryptMapRow(Map<Object, Object> row) {
-        Map<String, FieldEncrypt> columnMap = super.getGlobalColumnEncryptAnnotations();
-        if (columnMap.isEmpty()) {
+        Map<String, FieldEncrypt> annotationsByColumn = super.getGlobalColumnEncryptAnnotations();
+        if (annotationsByColumn.isEmpty()) {
             return;
         }
         for (Map.Entry<Object, Object> entry : row.entrySet()) {
             String columnName = String.valueOf(entry.getKey()).toLowerCase();
-            FieldEncrypt fieldEncrypt = columnMap.get(columnName);
+            FieldEncrypt fieldEncrypt = annotationsByColumn.get(columnName);
             Object value = entry.getValue();
             if (fieldEncrypt == null || !(value instanceof String strValue)
                 || CharSequenceUtil.isBlank(strValue)) {
@@ -147,11 +142,11 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
     /**
      * 转换为键值可替换的结果行视图
      *
-     * @param resultMap 结果 Map
+     * @param source 结果 Map
      * @return 可替换键值的 Map
      */
     @SuppressWarnings("unchecked")
-    private Map<Object, Object> toMutableRow(Map<?, ?> resultMap) {
-        return (Map<Object, Object>) resultMap;
+    private Map<Object, Object> toMutableRow(Map<?, ?> source) {
+        return (Map<Object, Object>) source;
     }
 }

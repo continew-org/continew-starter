@@ -115,11 +115,11 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
         QueryWrapper<T> queryWrapper = this.buildQueryWrapper(query);
         // 设置排序
         this.sort(queryWrapper, sortQuery);
-        List<T> entityList = baseMapper.selectList(queryWrapper);
+        List<T> entities = baseMapper.selectList(queryWrapper);
         if (super.getEntityClass() == targetClass) {
-            return (List<E>) entityList;
+            return (List<E>) entities;
         }
-        return BeanUtil.copyToList(entityList, targetClass);
+        return BeanUtil.copyToList(entities, targetClass);
     }
 
     @Override
@@ -216,7 +216,7 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
         CheckUtils.throwIfNull(dictModel, "请添加并配置 @DictModel 字典结构信息");
         List<L> list = this.list(query, sortQuery);
         // 解析映射
-        List<LabelValueResp> respList = new ArrayList<>(list.size());
+        List<LabelValueResp> responses = new ArrayList<>(list.size());
         String labelKey = dictModel.labelKey().contains(StringConstants.DOT)
             ? CharSequenceUtil.subAfter(dictModel.labelKey(), StringConstants.DOT, true)
             : dictModel.labelKey();
@@ -235,18 +235,18 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
                 .toCamelCase(labelKey))));
             labelValueResp.setValue(
                 ReflectUtil.getFieldValue(entity, CharSequenceUtil.toCamelCase(valueKey)));
-            respList.add(labelValueResp);
+            responses.add(labelValueResp);
             if (CollUtil.isEmpty(extraFieldNames)) {
                 continue;
             }
             // 额外数据
-            Map<String, Object> extraMap = MapUtil.newHashMap(dictModel.extraKeys().length);
+            Map<String, Object> extra = MapUtil.newHashMap(dictModel.extraKeys().length);
             for (String extraFieldName : extraFieldNames) {
-                extraMap.put(extraFieldName, ReflectUtil.getFieldValue(entity, extraFieldName));
+                extra.put(extraFieldName, ReflectUtil.getFieldValue(entity, extraFieldName));
             }
-            labelValueResp.setExtra(extraMap);
+            labelValueResp.setExtra(extra);
         }
-        return respList;
+        return responses;
     }
 
     /**
@@ -440,12 +440,12 @@ public class CrudServiceImpl<M extends BaseMapper<T>, T extends BaseIdDO, L, D, 
         tree.setWeight(ReflectUtil.invoke(node, CharSequenceUtil.genGetter(treeField.weightKey())));
         // 如果构建简单树结构，则不包含扩展字段
         if (!isSimple) {
-            List<Field> fieldList = ReflectUtils.getNonStaticFields(listClass);
-            fieldList.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(),
+            List<Field> fields = ReflectUtils.getNonStaticFields(listClass);
+            fields.removeIf(f -> CharSequenceUtil.equalsAnyIgnoreCase(f.getName(),
                 treeField.value(), treeField
                     .parentIdKey(),
                 treeField.nameKey(), treeField.weightKey(), treeField.childrenKey()));
-            fieldList.forEach(f -> tree.putExtra(f.getName(),
+            fields.forEach(f -> tree.putExtra(f.getName(),
                 ReflectUtil.invoke(node, CharSequenceUtil.genGetter(f
                     .getName()))));
         }

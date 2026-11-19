@@ -199,13 +199,13 @@ public class GlobalExceptionResolver {
     }
 
     private ExceptionAliasConfig getAliasConfig(Class<? extends Throwable> throwableClass) {
-        Map<Class<?>, ExceptionAliasConfig> aliasConfigMap = properties
+        Map<Class<?>, ExceptionAliasConfig> configsByExceptionType = properties
             .getExceptionAliasConfigMap();
-        if (CollectionUtils.isEmpty(aliasConfigMap)) {
+        if (CollectionUtils.isEmpty(configsByExceptionType)) {
             return null;
         }
         for (Class<?> type = throwableClass; type != null; type = type.getSuperclass()) {
-            ExceptionAliasConfig aliasConfig = aliasConfigMap.get(type);
+            ExceptionAliasConfig aliasConfig = configsByExceptionType.get(type);
             if (aliasConfig != null) {
                 return aliasConfig;
             }

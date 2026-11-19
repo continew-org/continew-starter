@@ -53,11 +53,11 @@ public class IpUtils {
         if (ipInfo == null) {
             return null;
         }
-        Set<String> regionSet =
+        Set<String> regions =
             CollUtil.newLinkedHashSet(ipInfo.getCountry(), ipInfo
                 .getProvince(), ipInfo.getCity(), ipInfo.getIsp());
-        regionSet.removeIf(Objects::isNull);
-        return String.join(StringConstants.PIPE, regionSet);
+        regions.removeIf(Objects::isNull);
+        return String.join(StringConstants.PIPE, regions);
     }
 
     /**

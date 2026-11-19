@@ -91,14 +91,14 @@ public abstract class AbstractLogHandler implements LogHandler {
         Set<Include> includes,
         Method targetMethod,
         Class<?> targetClass) {
-        Set<Include> includeSet = this.getIncludes(includes, targetMethod, targetClass);
-        LogRecord logRecord = this.finish(started, endTime, response, includeSet);
+        Set<Include> effectiveIncludes = this.getIncludes(includes, targetMethod, targetClass);
+        LogRecord logRecord = this.finish(started, endTime, response, effectiveIncludes);
         // 记录日志描述
-        if (includeSet.contains(Include.DESCRIPTION)) {
+        if (effectiveIncludes.contains(Include.DESCRIPTION)) {
             this.logDescription(logRecord, targetMethod);
         }
         // 记录所属模块
-        if (includeSet.contains(Include.MODULE)) {
+        if (effectiveIncludes.contains(Include.MODULE)) {
             this.logModule(logRecord, targetMethod, targetClass);
         }
         return logRecord;
@@ -169,16 +169,16 @@ public abstract class AbstractLogHandler implements LogHandler {
     public Set<Include> getIncludes(Set<Include> includes, Method targetMethod,
         Class<?> targetClass) {
         Log classLog = AnnotationUtil.getAnnotation(targetClass, Log.class);
-        Set<Include> includeSet = new HashSet<>(includes);
+        Set<Include> effectiveIncludes = new HashSet<>(includes);
         if (classLog != null) {
-            this.processInclude(includeSet, classLog);
+            this.processInclude(effectiveIncludes, classLog);
         }
         // 方法级注解优先级高于类级注解
         Log methodLog = AnnotationUtil.getAnnotation(targetMethod, Log.class);
         if (methodLog != null) {
-            this.processInclude(includeSet, methodLog);
+            this.processInclude(effectiveIncludes, methodLog);
         }
-        return includeSet;
+        return effectiveIncludes;
     }
 
     /**

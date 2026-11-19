@@ -28,14 +28,19 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
+import org.springframework.mock.web.MockServletContext;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.accept.ContentNegotiationManager;
+import org.springframework.web.context.support.GenericWebApplicationContext;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.handler.SimpleUrlHandlerMapping;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 import org.springframework.web.servlet.resource.ResourceHttpRequestHandler;
+import org.springframework.web.util.UrlPathHelper;
 
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
@@ -212,6 +217,32 @@ class SpringUtilsTest {
                     RequestMappingHandlerMapping.class))
                 .thenReturn(handlerMapping);
             assertThat(SpringUtils.getHandlerMethod(request)).isSameAs(handlerMethod);
+        }
+    }
+
+    @Test
+    @DisplayName("registerResourceHandler 注册静态资源映射并移除旧映射")
+    void shouldRegisterResourceHandler() {
+        SimpleUrlHandlerMapping mapping = new SimpleUrlHandlerMapping();
+        Map<Object, Object> handlerMap = new HashMap<>();
+        ResourceHttpRequestHandler oldHandler = mock(ResourceHttpRequestHandler.class);
+        handlerMap.put("/static/**", oldHandler);
+        ReflectionTestUtils.setField(mapping, "handlerMap", handlerMap);
+
+        try (MockedStatic<SpringUtil> springUtil = mockStatic(SpringUtil.class)) {
+            GenericWebApplicationContext context = new GenericWebApplicationContext();
+            ServletContext servletContext = new MockServletContext();
+            context.setServletContext(servletContext);
+            context.getBeanFactory().registerSingleton("resourceHandlerMapping", mapping);
+            context.getBeanFactory().registerSingleton("mvcContentNegotiationManager",
+                new ContentNegotiationManager());
+            context.getBeanFactory().registerSingleton("mvcUrlPathHelper", new UrlPathHelper());
+            context.refresh();
+            springUtil.when(SpringUtil::getApplicationContext).thenReturn(context);
+
+            SpringUtils.registerResourceHandler(Map.of("/static", "/data/static"));
+
+            assertThat(mapping.getHandlerMap().get("/static/**")).isNotSameAs(oldHandler);
         }
     }
 

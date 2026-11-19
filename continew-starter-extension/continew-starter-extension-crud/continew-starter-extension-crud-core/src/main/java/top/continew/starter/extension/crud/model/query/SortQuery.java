@@ -115,8 +115,8 @@ public class SortQuery implements Serializable {
         if (CharSequenceUtil.contains(sort[0], StringConstants.COMMA)) {
             // e.g "sort=createTime,desc&sort=name,asc"
             for (String s : sort) {
-                List<String> sortList = CharSequenceUtil.splitTrim(s, StringConstants.COMMA);
-                orders.add(this.getOrder(sortList.get(0), sortList.get(1)));
+                List<String> sorts = CharSequenceUtil.splitTrim(s, StringConstants.COMMA);
+                orders.add(this.getOrder(sorts.get(0), sorts.get(1)));
             }
         } else {
             // e.g "sort=createTime,desc"

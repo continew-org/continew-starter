@@ -99,7 +99,8 @@ public class AuthRequestFactory {
 
         Map<String, JustAuthExtendProperties.ExtendRequestConfig> extendConfig =
             properties.getExtend().getConfig();
-        Map<String, JustAuthExtendProperties.ExtendRequestConfig> upperConfig = new HashMap<>(6);
+        Map<String, JustAuthExtendProperties.ExtendRequestConfig> upperConfig =
+            HashMap.newHashMap(6);
         extendConfig.forEach((k, v) -> upperConfig.put(k.toUpperCase(), v));
         JustAuthExtendProperties.ExtendRequestConfig extendRequestConfig =
             upperConfig.get(upperSource);
@@ -156,13 +157,14 @@ public class AuthRequestFactory {
             return;
         }
 
-        Map<String, JustAuthHttpProperties.JustAuthProxyConfig> proxyConfigMap =
+        Map<String, JustAuthHttpProperties.JustAuthProxyConfig> proxyConfigBySource =
             httpConfig.getProxy();
-        if (CollUtil.isEmpty(proxyConfigMap)) {
+        if (CollUtil.isEmpty(proxyConfigBySource)) {
             return;
         }
 
-        JustAuthHttpProperties.JustAuthProxyConfig proxyConfig = proxyConfigMap.get(authSource);
+        JustAuthHttpProperties.JustAuthProxyConfig proxyConfig =
+            proxyConfigBySource.get(authSource);
         if (null == proxyConfig) {
             return;
         }

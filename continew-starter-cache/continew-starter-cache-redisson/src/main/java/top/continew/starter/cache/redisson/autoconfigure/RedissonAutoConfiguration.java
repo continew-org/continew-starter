@@ -110,8 +110,8 @@ public class RedissonAutoConfiguration {
         }
         // 下方配置如果为空，则使用 Redis 的配置
         if (CollUtil.isEmpty(clusterServersConfig.getNodeAddresses())) {
-            List<String> nodeList = redisProperties.getCluster().getNodes();
-            nodeList.stream().map(node -> protocolPrefix + node)
+            List<String> nodes = redisProperties.getCluster().getNodes();
+            nodes.stream().map(node -> protocolPrefix + node)
                 .forEach(clusterServersConfig::addNodeAddress);
         }
         // 兼容 Redis 没配置密码的情况
@@ -142,8 +142,8 @@ public class RedissonAutoConfiguration {
         }
         // 下方配置如果为空，则使用 Redis 的配置
         if (CollUtil.isEmpty(sentinelServersConfig.getSentinelAddresses())) {
-            List<String> nodeList = redisProperties.getSentinel().getNodes();
-            nodeList.stream().map(node -> protocolPrefix + node)
+            List<String> nodes = redisProperties.getSentinel().getNodes();
+            nodes.stream().map(node -> protocolPrefix + node)
                 .forEach(sentinelServersConfig::addSentinelAddress);
         }
         // 兼容 Redis 没配置密码的情况
