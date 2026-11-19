@@ -99,7 +99,8 @@ public class AuthRequestFactory {
 
         Map<String, JustAuthExtendProperties.ExtendRequestConfig> extendConfig =
             properties.getExtend().getConfig();
-        Map<String, JustAuthExtendProperties.ExtendRequestConfig> upperConfig = new HashMap<>(6);
+        Map<String, JustAuthExtendProperties.ExtendRequestConfig> upperConfig =
+            HashMap.newHashMap(6);
         extendConfig.forEach((k, v) -> upperConfig.put(k.toUpperCase(), v));
         JustAuthExtendProperties.ExtendRequestConfig extendRequestConfig =
             upperConfig.get(upperSource);

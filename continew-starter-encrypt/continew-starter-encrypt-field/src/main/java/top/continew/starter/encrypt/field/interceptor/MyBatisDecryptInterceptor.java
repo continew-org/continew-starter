@@ -56,16 +56,11 @@ public class MyBatisDecryptInterceptor extends AbstractMyBatisInterceptor implem
         if (!(invocation.getTarget() instanceof ResultSetHandler)) {
             return obj;
         }
-        // 处理查询结果
-        if (obj instanceof List<?> results) {
-            // 处理列表结果
-            this.decryptList(results);
-        } else if (obj instanceof Map<?, ?> resultByColumn) {
-            // 处理 map 结果（resultType=map 的单行结果）
-            this.decryptMapRow(this.toMutableRow(resultByColumn));
-        } else {
-            // 处理单个对象结果
-            this.decryptObject(obj);
+        // 处理查询结果：列表、Map 行与单对象分别解密
+        switch (obj) {
+            case List<?> results -> this.decryptList(results);
+            case Map<?, ?> resultByColumn -> this.decryptMapRow(this.toMutableRow(resultByColumn));
+            default -> this.decryptObject(obj);
         }
         return obj;
     }

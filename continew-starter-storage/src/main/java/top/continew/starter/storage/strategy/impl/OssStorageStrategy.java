@@ -853,14 +853,10 @@ public class OssStorageStrategy implements StorageStrategy {
 
         @Override
         public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof PartPayload other)) {
-                return false;
-            }
-            return size == other.size && Objects.equals(tempFile, other.tempFile)
-                && Arrays.equals(bytes, other.bytes);
+            return this == o
+                || o instanceof PartPayload(byte[] otherBytes, Path otherTempFile, long otherSize)
+                    && size == otherSize && Objects.equals(tempFile, otherTempFile)
+                    && Arrays.equals(bytes, otherBytes);
         }
 
         @Override

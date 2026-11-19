@@ -246,7 +246,7 @@ public class MyBatisEncryptInterceptor extends AbstractMyBatisInterceptor implem
         if (parameters instanceof MapperMethod.ParamMap) {
             return new MapperMethod.ParamMap();
         }
-        return new HashMap<>(parameters.size());
+        return HashMap.newHashMap(parameters.size());
     }
 
     /**

@@ -140,7 +140,7 @@ public class ExcelUtils {
     private static <T> List<T> getBeanList(JSONArray array, Class<T> clazz)
         throws ReflectiveOperationException {
         List<T> list = new ArrayList<>();
-        Map<Integer, String> uniqueKeyByRow = new HashMap<>(16);
+        Map<Integer, String> uniqueKeyByRow = HashMap.newHashMap(16);
         for (int i = 0; i < array.size(); i++) {
             list.add(getBean(clazz, array.getJSONObject(i), uniqueKeyByRow));
         }
