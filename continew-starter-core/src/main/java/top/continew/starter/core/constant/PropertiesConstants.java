@@ -200,6 +200,21 @@ public class PropertiesConstants {
      */
     public static final String TENANT = CONTINEW_STARTER + StringConstants.DOT + "tenant";
 
+    /**
+     * 开放接口配置
+     */
+    public static final String OPENAPI = CONTINEW_STARTER + StringConstants.DOT + "openapi";
+
+    /**
+     * 开放接口-验签配置
+     */
+    public static final String OPENAPI_SIGN = OPENAPI + StringConstants.DOT + "sign";
+
+    /**
+     * 开放接口-重放防护配置
+     */
+    public static final String OPENAPI_REPLAY = OPENAPI + StringConstants.DOT + "replay";
+
     private PropertiesConstants() {
     }
 }

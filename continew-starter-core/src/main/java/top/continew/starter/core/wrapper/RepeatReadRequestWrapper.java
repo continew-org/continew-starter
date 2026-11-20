@@ -68,6 +68,23 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
      * @throws IllegalArgumentException if the request is null
      */
     public RepeatReadRequestWrapper(HttpServletRequest request) throws IOException {
+        this(request, -1);
+    }
+
+    /**
+     * 构造包装器并按 {@code maxBytes} 有界缓存请求体
+     *
+     * <p>拷贝请求体时累计超过 {@code maxBytes} 立即终止并抛出
+     * {@link RequestBodySizeExceededException}，不等待流读完，用于在无 Content-Length
+     * （如 chunked 传输）时限制内存占用；{@code maxBytes} 为负时与单参构造等价（无界）。
+     * multipart 请求不拷贝请求体，不受该上限约束。</p>
+     *
+     * @param request  the {@link HttpServletRequest} to be wrapped.
+     * @param maxBytes 请求体缓存大小上限（字节），负数表示无界
+     * @throws RequestBodySizeExceededException 请求体超过上限
+     * @throws IllegalArgumentException         if the request is null
+     */
+    public RepeatReadRequestWrapper(HttpServletRequest request, long maxBytes) throws IOException {
         super(request);
         this.characterEncoding = request.getCharacterEncoding() != null
             ? request.getCharacterEncoding()
@@ -81,9 +98,33 @@ public class RepeatReadRequestWrapper extends HttpServletRequestWrapper {
             if (ServletUtils.isForm(request)) {
                 writeRequestParametersToCachedContent();
             } else {
-                StreamUtils.copy(request.getInputStream(), cachedContent);
+                copyBodyToCache(request.getInputStream(), maxBytes);
             }
             contentCachingInputStream = new ContentCachingInputStream(cachedContent.toByteArray());
+        }
+    }
+
+    /**
+     * 拷贝请求体到缓存，{@code maxBytes} 为负时无界，否则累计超过上限即抛出超限异常
+     *
+     * @param in       请求输入流
+     * @param maxBytes 请求体缓存大小上限（字节），负数表示无界
+     * @throws IOException 读取失败或超过上限
+     */
+    private void copyBodyToCache(InputStream in, long maxBytes) throws IOException {
+        if (maxBytes < 0) {
+            StreamUtils.copy(in, cachedContent);
+            return;
+        }
+        byte[] buffer = new byte[StreamUtils.BUFFER_SIZE];
+        long total = 0;
+        int read;
+        while ((read = in.read(buffer)) != -1) {
+            total += read;
+            if (total > maxBytes) {
+                throw new RequestBodySizeExceededException(maxBytes);
+            }
+            cachedContent.write(buffer, 0, read);
         }
     }
 

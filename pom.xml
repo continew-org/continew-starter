@@ -54,6 +54,7 @@
         <module>continew-starter-storage</module>
         <module>continew-starter-license</module>
         <module>continew-starter-extension</module>
+        <module>continew-starter-openapi</module>
         <!-- 仅测试用途模块：只在聚合 POM 注册，不进 BOM，不发布 -->
         <module>continew-starter-test-support</module>
         <module>continew-starter-smoke-tests</module>

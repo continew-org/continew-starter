@@ -15,6 +15,7 @@
     "encrypt",
     "security",
     "captcha",
+    "openapi",
     "---稳定性与可观测---",
     "ratelimiter",
     "idempotent",

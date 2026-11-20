@@ -1,0 +1,23 @@
+--- ### 开放接口签名配置（https://continew.top/docs/starter/modules/openapi）
+continew-starter:
+  openapi:
+    # 是否启用开放接口验签（缺省视为关闭，使用方必须显式开启）
+    enabled: false
+    # 验签过滤器拦截的路径模式（仅支持 Servlet url-pattern 语法，Ant 风格 ** 不会生效）
+    include-paths: /open/*
+    # 协议标识，当前唯一取值
+    algorithm: OCN1-HMAC-SHA256
+    sign:
+      # 时间戳允许窗口（秒）
+      timestamp-window: 300
+      # 额外时钟偏差容忍（秒）
+      clock-skew: 0
+      # 请求体大小上限（字节）
+      max-body-size: 1048576
+      # 签名头长度上限（字节）
+      max-header-size: 4096
+      # query 长度上限（字节）
+      max-query-size: 8192
+    replay:
+      # nonce 占位有效期（秒），应不小于时间戳窗口（含时钟偏差）的两倍
+      nonce-ttl: 600

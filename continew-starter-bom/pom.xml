@@ -322,6 +322,13 @@
                 <artifactId>continew-starter-extension-tenant-core</artifactId>
                 <version>${revision}</version>
             </dependency>
+
+            <!-- 开放接口签名认证模块 -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>continew-starter-openapi</artifactId>
+                <version>${revision}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
