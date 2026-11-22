@@ -113,7 +113,7 @@ public class CollUtils {
         Function<? super T, ? extends R> func,
         boolean ignoreNull) {
         if (CollUtil.isEmpty(collection)) {
-            return new HashSet<>(0);
+            return HashSet.newHashSet(0);
         }
         Stream<T> stream = collection.stream();
         if (ignoreNull) {
