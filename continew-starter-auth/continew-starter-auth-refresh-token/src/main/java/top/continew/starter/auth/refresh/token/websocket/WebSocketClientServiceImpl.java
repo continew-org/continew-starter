@@ -16,22 +16,25 @@
 
 package top.continew.starter.auth.refresh.token.websocket;
 
+import static org.springframework.web.socket.WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL;
+
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServletServerHttpRequest;
 import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
 import top.continew.starter.auth.refresh.token.support.AccessTokenClaimsReader;
 import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec;
+import top.continew.starter.auth.refresh.token.support.WebSocketTokenExtractor;
 import top.continew.starter.core.exception.BusinessException;
 import top.continew.starter.messaging.websocket.core.WebSocketClientService;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * WebSocket 握手的当前登录用户 Provider。
  *
- * <p>握手请求必须携带有效 Access Token，且其绑定的认证会话未失效，否则拒绝建立
- * 实时连接。客户端 ID 使用 Access Token 的服务端指纹而非原始凭证：该值会作为 DAO
- * 索引键进入连接生命周期日志，凭证与可记录标识必须分离；原始 Token 经
- * {@link WebSocketCredentialRegistry} 登记，供撤销广播与周期校验反查。</p>
+ * <p>握手仅校验选中的 Access Token。登录主体和绑定会话均有效时，以令牌指纹作为
+ * 可记录的客户端 ID，原始凭证经 {@link WebSocketCredentialRegistry} 登记，供撤销广播
+ * 与周期校验反查。</p>
  *
  * @author Charles7c
  * @author luoqiz
@@ -52,15 +55,23 @@ public class WebSocketClientServiceImpl implements WebSocketClientService {
 
     @Override
     public String getClientId(ServletServerHttpRequest request) {
-        HttpServletRequest servletRequest = request.getServletRequest();
-        String token = servletRequest.getParameter("token");
-        if (token == null || token.isBlank()
+        String token = WebSocketTokenExtractor.extract(request);
+        if (token == null
             || AccessTokenClaimsReader.resolveLoginIdQuietly(token) == null
             || accessSessionValidator.isInvalid(token)) {
             throw new BusinessException("登录已过期，请重新登录");
         }
+        normalizeProtocolHeaders(request.getHeaders());
         String clientId = tokenCodec.fingerprint(token);
         credentialRegistry.register(clientId, token);
         return clientId;
+    }
+
+    private static void normalizeProtocolHeaders(HttpHeaders headers) {
+        List<String> values = headers.getOrEmpty(SEC_WEBSOCKET_PROTOCOL);
+        if (values.size() > 1) {
+            // Spring 只对单行协议头拆分逗号，合并同名头须保留候选的声明顺序。
+            headers.set(SEC_WEBSOCKET_PROTOCOL, String.join(", ", values));
+        }
     }
 }
