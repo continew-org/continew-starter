@@ -26,7 +26,8 @@ import java.io.InputStream;
  * <p>
  * 最多代理 {@code limit} 字节供下游读取。默认软限：达到上限返回 -1 视同 EOF；
  * 硬限模式（{@link #BoundedInputStream(InputStream, long, boolean)}）下底层还有
- * 剩余数据时抛 {@link IOException}，用于按读取侧严格限制内容长度。不主动关闭底层流。
+ * 剩余数据时抛 {@link IOException}，用于按读取侧严格限制内容长度。达到限额不
+ * 主动关闭底层流；调用 close 会级联关闭底层流。
  * </p>
  *
  * @author echo
@@ -85,6 +86,9 @@ public class BoundedInputStream extends FilterInputStream {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
+        if (len == 0) {
+            return 0;
+        }
         if (count >= limit) {
             return beyond();
         }
@@ -94,6 +98,17 @@ public class BoundedInputStream extends FilterInputStream {
             count += n;
         }
         return n;
+    }
+
+    @Override
+    public boolean markSupported() {
+        return false;
+    }
+
+    @Override
+    public synchronized void reset() throws IOException {
+        // reset 重读会使已计量字节重复计数，禁用
+        throw new IOException("限长流不支持 mark/reset");
     }
 
     @Override

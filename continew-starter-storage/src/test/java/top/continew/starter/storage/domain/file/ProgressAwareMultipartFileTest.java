@@ -21,8 +21,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
@@ -98,8 +96,7 @@ class ProgressAwareMultipartFileTest {
         InOrder inOrder = inOrder(listener);
         inOrder.verify(listener).onStart();
         inOrder.verify(listener).onProgress((long) CONTENT.length, (long) CONTENT.length, 100);
-        // 仅读取不判定完成，完成由上传方显式触发
-        verify(listener, never()).onComplete();
+        inOrder.verify(listener).onComplete();
     }
 
     @Test

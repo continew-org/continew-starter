@@ -28,7 +28,7 @@ import java.util.List;
 public class ZipImportResp {
 
     /**
-     * 已扫描条目总数（含目录条目）
+     * 已扫描条目总数（含目录条目与因条目数上限被拒绝的首条，与明细一一对应）
      */
     private long total;
 

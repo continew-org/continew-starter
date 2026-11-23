@@ -308,7 +308,7 @@ class LocalStorageStrategyTest {
     }
 
     @Test
-    @DisplayName("uploadStream 读取中断不破坏既有文件，暂存文件被清理")
+    @DisplayName("uploadStream 读取中断不破坏既有文件，自有暂存被清理")
     void shouldKeepExistingFileWhenStreamFails() throws IOException {
         String bucket = bucketDir.toString();
         byte[] old = "old-content".getBytes(StandardCharsets.UTF_8);
@@ -339,7 +339,27 @@ class LocalStorageStrategyTest {
         assertThrows(StorageException.class, () -> strategy.uploadStream(bucket, "same.bin",
             failing, "application/octet-stream", -1));
         assertArrayEquals(old, readAll("same.bin"), "失败不得破坏既有文件");
-        assertFalse(Files.exists(bucketDir.resolve("same.bin.upload-tmp")), "暂存文件须清理");
+        try (var stream = Files.list(bucketDir)) {
+            assertTrue(stream.noneMatch(p -> p.getFileName().toString().endsWith(".upload-tmp")),
+                "自有暂存文件须全部清理");
+        }
+    }
+
+    @Test
+    @DisplayName("uploadStream 不触碰同名的 .upload-tmp 普通对象")
+    void shouldNotTouchExistingUploadTmpObject() throws IOException {
+        String bucket = bucketDir.toString();
+        byte[] tmpContent = "belongs-to-user".getBytes(StandardCharsets.UTF_8);
+        strategy.upload(bucket, "same.bin.upload-tmp",
+            file("same.bin.upload-tmp", tmpContent));
+
+        strategy.uploadStream(bucket, "same.bin",
+            new ByteArrayInputStream("new".getBytes(StandardCharsets.UTF_8)),
+            "application/octet-stream", -1);
+
+        assertArrayEquals(tmpContent, readAll("same.bin.upload-tmp"),
+            "既有 .upload-tmp 对象不得被改写或删除");
+        assertArrayEquals("new".getBytes(StandardCharsets.UTF_8), readAll("same.bin"));
     }
 
     /**

@@ -18,6 +18,7 @@ package top.continew.starter.storage.core;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -60,6 +61,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.CRC32;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -262,8 +264,8 @@ class FileStorageServiceStreamTest {
     }
 
     @Test
-    @DisplayName("importZip 单条超限记失败且不上传")
-    void shouldRecordFailureWhenEntryExceedsLimit() throws IOException {
+    @DisplayName("importZip 单条超解压大小记失败并停止导入")
+    void shouldStopWhenEntryExceedsSizeLimit() throws IOException {
         this.properties.setZipImportMaxEntryBytes(4);
         Map<String, byte[]> entries = new LinkedHashMap<>();
         entries.put("big.bin", "0123456789".getBytes(StandardCharsets.UTF_8));
@@ -273,9 +275,79 @@ class FileStorageServiceStreamTest {
         ZipImportResp resp = this.service.importZip(PLATFORM, "bucket", null,
             new ByteArrayInputStream(zip));
 
-        assertEquals(1, resp.getSuccess());
+        // 单条超限即终止，后续条目不再处理，此前无成功上传
+        assertEquals(1, resp.getTotal());
+        assertEquals(0, resp.getSuccess());
         assertEquals(1, resp.getFailed());
-        assertEquals(List.of("ok.bin"), this.strategy.uploadedPaths);
+        assertTrue(this.strategy.uploadedPaths.isEmpty());
+    }
+
+    @Test
+    @DisplayName("importZip 单条正好达到上限视为成功")
+    void shouldAcceptEntryAtExactSizeLimit() throws IOException {
+        this.properties.setZipImportMaxEntryBytes(10);
+        Map<String, byte[]> entries = new LinkedHashMap<>();
+        entries.put("ok.bin", "0123456789".getBytes(StandardCharsets.UTF_8));
+        byte[] zip = buildZip(entries);
+
+        ZipImportResp resp = this.service.importZip(PLATFORM, "bucket", null,
+            new ByteArrayInputStream(zip));
+
+        assertEquals(1, resp.getSuccess());
+        assertEquals(0, resp.getFailed());
+    }
+
+    @Test
+    @DisplayName("importZip 被跳过 STORED 条目的排空超限记该条一次失败并停止")
+    void shouldCountSkippedStoredEntryAgainstTotal() throws IOException {
+        this.properties.setZipImportMaxTotalBytes(5);
+        Map<String, byte[]> entries = new LinkedHashMap<>();
+        entries.put("../bad.bin", "12345678".getBytes(StandardCharsets.UTF_8));
+        entries.put("ok.bin", "ab".getBytes(StandardCharsets.UTF_8));
+        byte[] zip = buildStoredZip(entries);
+
+        ZipImportResp resp = this.service.importZip(PLATFORM, "bucket", null,
+            new ByteArrayInputStream(zip));
+
+        // 排空经计量 read 超总量限制：同一非法名条目只计一次失败
+        assertEquals(1, resp.getTotal());
+        assertEquals(0, resp.getSuccess());
+        assertEquals(1, resp.getFailed());
+        assertTrue(resp.getEntries().get(0).getError().contains("总解压大小限制"));
+        assertTrue(this.strategy.uploadedPaths.isEmpty());
+    }
+
+    @Test
+    @DisplayName("importZip 被跳过 DEFLATED 条目的排空超限记该条一次失败并停止")
+    void shouldCountSkippedDeflatedEntryAgainstTotal() throws IOException {
+        this.properties.setZipImportMaxTotalBytes(5);
+        Map<String, byte[]> entries = new LinkedHashMap<>();
+        entries.put("../bad.bin", "12345678".getBytes(StandardCharsets.UTF_8));
+        entries.put("ok.bin", "ab".getBytes(StandardCharsets.UTF_8));
+        byte[] zip = buildZip(entries);
+
+        ZipImportResp resp = this.service.importZip(PLATFORM, "bucket", null,
+            new ByteArrayInputStream(zip));
+
+        assertEquals(1, resp.getTotal());
+        assertEquals(0, resp.getSuccess());
+        assertEquals(1, resp.getFailed());
+        assertTrue(resp.getEntries().get(0).getError().contains("总解压大小限制"));
+        assertTrue(this.strategy.uploadedPaths.isEmpty());
+    }
+
+    @Test
+    @DisplayName("importZip 尾部 STORED 条目成功导入")
+    void shouldImportStoredEntry() throws IOException {
+        Map<String, byte[]> entries = new LinkedHashMap<>();
+        entries.put("raw.bin", "stored-data".getBytes(StandardCharsets.UTF_8));
+        byte[] zip = buildStoredZip(entries);
+
+        ZipImportResp resp = this.service.importZip(PLATFORM, "bucket", null,
+            new ByteArrayInputStream(zip));
+
+        assertEquals(1, resp.getSuccess());
+        assertEquals(List.of("raw.bin"), this.strategy.uploadedPaths);
     }
 
     @Test
@@ -329,9 +401,81 @@ class FileStorageServiceStreamTest {
         ZipImportResp resp = this.service.importZip(PLATFORM, "bucket", null,
             new ByteArrayInputStream(zip));
 
-        assertEquals(1, resp.getTotal());
+        // 首条被拒条目计入 total 并留痕，其内容不读取
+        assertEquals(2, resp.getTotal());
         assertEquals(1, resp.getSuccess());
         assertEquals(1, resp.getFailed());
+        assertEquals("b.bin", resp.getEntries().get(1).getName());
+        assertEquals(List.of("a.bin"), this.strategy.uploadedPaths);
+    }
+
+    @Test
+    @DisplayName("importZip 源流关闭失败按归档级错误抛出")
+    void shouldExposeSourceCloseFailure() throws IOException {
+        Map<String, byte[]> entries = new LinkedHashMap<>();
+        entries.put("a.bin", "aa".getBytes(StandardCharsets.UTF_8));
+        TrackingInputStream zipSource = new TrackingInputStream(buildZip(entries));
+        zipSource.throwOnClose = true;
+
+        StorageException e = assertThrows(StorageException.class,
+            () -> this.service.importZip(PLATFORM, "bucket", null, zipSource));
+
+        assertInstanceOf(IOException.class, e.getCause());
+        assertTrue(zipSource.closed);
+        assertEquals(List.of("a.bin"), this.strategy.uploadedPaths);
+    }
+
+    @Test
+    @DisplayName("importZip 下一条目头部损坏按归档级错误抛出")
+    void shouldThrowOnCorruptedNextEntryHeader() throws IOException {
+        Map<String, byte[]> entries = new LinkedHashMap<>();
+        entries.put("a.bin", "aa".getBytes(StandardCharsets.UTF_8));
+        entries.put("b.bin", "bb".getBytes(StandardCharsets.UTF_8));
+        byte[] zip = buildZip(entries);
+        // 第二个本地文件头（PK\x03\x04）的压缩方法字段改为非法值
+        int firstHeader = indexOf(zip, new byte[] {0x50, 0x4B, 3, 4}, 0);
+        int secondHeader = indexOf(zip, new byte[] {0x50, 0x4B, 3, 4},
+            firstHeader + 4);
+        zip[secondHeader + 8] = 99;
+        zip[secondHeader + 9] = 0;
+
+        StorageException e = assertThrows(StorageException.class,
+            () -> this.service.importZip(PLATFORM, "bucket", null,
+                new ByteArrayInputStream(zip)));
+
+        assertInstanceOf(IOException.class, e.getCause());
+        assertEquals(List.of("a.bin"), this.strategy.uploadedPaths);
+    }
+
+    @Test
+    @DisplayName("importZip 配置 Long.MAX_VALUE 限额正常导入")
+    void shouldImportWithMaxValueLimits() throws IOException {
+        this.properties.setZipImportMaxEntryBytes(Long.MAX_VALUE);
+        this.properties.setZipImportMaxTotalBytes(Long.MAX_VALUE);
+        Map<String, byte[]> entries = new LinkedHashMap<>();
+        entries.put("a.bin", "aa".getBytes(StandardCharsets.UTF_8));
+        entries.put("b.bin", "bb".getBytes(StandardCharsets.UTF_8));
+        byte[] zip = buildZip(entries);
+
+        ZipImportResp resp = this.service.importZip(PLATFORM, "bucket", null,
+            new ByteArrayInputStream(zip));
+
+        assertEquals(2, resp.getSuccess());
+        assertEquals(0, resp.getFailed());
+    }
+
+    @Test
+    @DisplayName("importZip 父路径尾斜杠规范化后按单斜杠拼接")
+    void shouldStripTrailingSlashOfParentPath() throws IOException {
+        Map<String, byte[]> entries = new LinkedHashMap<>();
+        entries.put("a.txt", "A".getBytes(StandardCharsets.UTF_8));
+        byte[] zip = buildZip(entries);
+
+        ZipImportResp resp = this.service.importZip(PLATFORM, "bucket", "folder/",
+            new ByteArrayInputStream(zip));
+
+        assertEquals(1, resp.getSuccess());
+        assertEquals(List.of("folder/a.txt"), this.strategy.uploadedPaths);
     }
 
     @Test
@@ -382,11 +526,38 @@ class FileStorageServiceStreamTest {
     }
 
     /**
+     * 构造 STORED（未压缩）内存 ZIP 包
+     *
+     * @param entries 条目名到内容的映射（迭代顺序即写入顺序）
+     * @return ZIP 字节
+     * @throws IOException 写入失败时抛出
+     */
+    private static byte[] buildStoredZip(Map<String, byte[]> entries) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try (ZipOutputStream zos = new ZipOutputStream(out)) {
+            for (Map.Entry<String, byte[]> e : entries.entrySet()) {
+                CRC32 crc = new CRC32();
+                crc.update(e.getValue());
+                ZipEntry entry = new ZipEntry(e.getKey());
+                entry.setMethod(ZipEntry.STORED);
+                entry.setSize(e.getValue().length);
+                entry.setCompressedSize(e.getValue().length);
+                entry.setCrc(crc.getValue());
+                zos.putNextEntry(entry);
+                zos.write(e.getValue());
+                zos.closeEntry();
+            }
+        }
+        return out.toByteArray();
+    }
+
+    /**
      * 可观测关闭状态的字节输入流
      */
     private static class TrackingInputStream extends ByteArrayInputStream {
 
         private boolean closed;
+        private boolean throwOnClose;
 
         TrackingInputStream(byte[] buf) {
             super(buf);
@@ -396,7 +567,30 @@ class FileStorageServiceStreamTest {
         public void close() throws IOException {
             closed = true;
             super.close();
+            if (throwOnClose) {
+                throw new IOException("模拟源流关闭失败");
+            }
         }
+    }
+
+    /**
+     * 定位字节序列首次出现的位置
+     *
+     * @param haystack 被搜索数组
+     * @param needle   目标序列
+     * @param from     起始下标（含）
+     * @return 首次出现下标，未找到返回 -1
+     */
+    private static int indexOf(byte[] haystack, byte[] needle, int from) {
+        outer: for (int i = from; i <= haystack.length - needle.length; i++) {
+            for (int j = 0; j < needle.length; j++) {
+                if (haystack[i + j] != needle[j]) {
+                    continue outer;
+                }
+            }
+            return i;
+        }
+        return -1;
     }
 
     /**

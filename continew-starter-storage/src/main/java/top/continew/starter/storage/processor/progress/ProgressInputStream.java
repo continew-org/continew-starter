@@ -57,6 +57,10 @@ public class ProgressInputStream extends FilterInputStream {
     @Override
     public void close() throws IOException {
         super.close();
+        // 默认语义关闭即完成；手动判定模式由调用方显式 complete/error
+        if (!tracker.isManualCompletion()) {
+            tracker.complete();
+        }
     }
 
     /**

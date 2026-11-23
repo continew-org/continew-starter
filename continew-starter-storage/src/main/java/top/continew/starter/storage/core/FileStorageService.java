@@ -41,6 +41,8 @@ import top.continew.starter.storage.domain.model.resp.MultipartUploadResp;
 import top.continew.starter.storage.domain.model.resp.StrategyStatusResp;
 import top.continew.starter.storage.domain.model.resp.ZipImportResp;
 import top.continew.starter.storage.engine.StorageStrategyRouter;
+import top.continew.starter.storage.operation.FileOperation;
+import top.continew.starter.storage.operation.FilesOperation;
 import top.continew.starter.storage.processor.preprocess.FileNameGenerator;
 import top.continew.starter.storage.processor.preprocess.FilePathGenerator;
 import top.continew.starter.storage.processor.preprocess.FileValidator;
@@ -198,6 +200,28 @@ public class FileStorageService {
      */
     public UploadPretreatment of(Object obj) {
         return createPretreatment(obj, null, null);
+    }
+
+    /**
+     * 单文件链式操作
+     *
+     * @param bucket 存储桶
+     * @param path   路径
+     * @return 单文件链式操作
+     */
+    public FileOperation file(String bucket, String path) {
+        return new FileOperation(this, bucket, path);
+    }
+
+    /**
+     * 多文件链式操作
+     *
+     * @param bucket 存储桶
+     * @param paths  路径列表（调用方列表会被快照，后续外部变更不影响本次操作）
+     * @return 多文件链式操作
+     */
+    public FilesOperation files(String bucket, List<String> paths) {
+        return new FilesOperation(this, bucket, paths);
     }
 
     /**
@@ -542,7 +566,7 @@ public class FileStorageService {
                 bounded);
             streamFile.setActualSize(bounded.getCount());
             if (listener != null) {
-                return new ProgressAwareMultipartFile(tempFile, false, listener);
+                return new ProgressAwareMultipartFile(tempFile, false, listener, true);
             }
             return tempFile;
         } catch (IOException e) {
@@ -587,7 +611,7 @@ public class FileStorageService {
         // 单次读的流式文件不能进内存缓存，仅在有监听器时补进度包装
         if (file instanceof InputStreamMultipartFile) {
             if (listener != null) {
-                context.setFile(new ProgressAwareMultipartFile(file, false, listener));
+                context.setFile(new ProgressAwareMultipartFile(file, false, listener, true));
             }
             return;
         }
@@ -597,7 +621,7 @@ public class FileStorageService {
 
         // 如果有进度监听器，使用 ProgressAwareMultipartFile
         if (listener != null) {
-            context.setFile(new ProgressAwareMultipartFile(file, needCache, listener));
+            context.setFile(new ProgressAwareMultipartFile(file, needCache, listener, true));
         } else if (!(file instanceof EnhancedMultipartFile)) {
             // 否则只使用 EnhancedMultipartFile 提供缓存
             context.setFile(EnhancedMultipartFile.wrap(file, needCache));
@@ -1373,10 +1397,15 @@ public class FileStorageService {
      *
      * <p>
      * 流式解包：逐条上传，不做整包内存缓冲。条目名做目录穿越校验（空名、绝对路径、
-     * Windows 驱动器路径、".." 段），非法名按失败条目记录并继续；同名目标对象会被
-     * 覆盖。全部解压字节（含被跳过条目的隐式读取）计入统一预算：总字节或条目数
-     * （含目录条目）超限时记失败并停止导入，此前已成功的对象保留、不做回滚；
-     * 单条超大小限制记失败并继续读取后续条目。
+     * Windows 驱动器路径、".." 段）；目录与非法名条目先经受预算的 closeEntry 排空
+     * 再记失败继续，排空超限记失败并停止，同一条目只计一次。同名目标对象会被覆盖。
+     * 解压侧在读取侧计量：所有途经字节按单条与全包两层硬限，读取请求钳到剩余
+     * 额度外仅多探测 1 字节；任一层超限时把当前条目记失败并停止导入，此前已成功
+     * 的对象保留、不做回滚。total 与明细一一对应，含因条目数上限被拒绝的条目。
+     * </p>
+     * <p>
+     * 归档级错误（下一条目头部损坏、源流关闭失败等）不折算成条目失败，包装为
+     * {@link StorageException} 抛出，已上传对象同样不回滚。
      * </p>
      *
      * @param platform   平台编码
@@ -1384,71 +1413,73 @@ public class FileStorageService {
      * @param parentPath 导入后对象存放的父级路径（可空，为根）
      * @param zipSource  ZIP 输入流（由本方法关闭）
      * @return 导入结果（总数、成功、失败与逐条明细）
+     * @throws StorageException 归档级读取失败或源流关闭失败时抛出
      */
     public ZipImportResp importZip(String platform, String bucket, String parentPath,
         InputStream zipSource) {
-        StorageStrategy strategy = router.route(platform);
-        String normalizedParent = StrUtil.isBlank(parentPath) ? StringConstants.EMPTY
-            : ZipFileUtils.normalizeEntryName(parentPath);
-        long maxEntries = properties.getZipImportMaxEntries();
-        long maxEntryBytes = properties.getZipImportMaxEntryBytes();
-        long maxTotalBytes = properties.getZipImportMaxTotalBytes();
-
         ZipImportResp resp = new ZipImportResp();
-        // STORED 条目不经 Inflater，按其声明大小单独记账并入总预算
-        long storedBytes = 0;
 
-        try (BudgetedZipInputStream zin = new BudgetedZipInputStream(zipSource)) {
+        // zipSource 自进入方法即由本方法负责关闭，路由/父路径校验失败同样生效
+        try (BudgetedZipInputStream zin =
+            new BudgetedZipInputStream(zipSource, properties.getZipImportMaxEntryBytes(),
+                properties.getZipImportMaxTotalBytes())) {
+            StorageStrategy strategy = router.route(platform);
+            // 父路径规范化后剥尾斜杠，避免与条目名拼出连续斜杠
+            String normalizedParent = StrUtil.isBlank(parentPath) ? StringConstants.EMPTY
+                : StrUtil.removeSuffix(ZipFileUtils.normalizeEntryName(parentPath),
+                    StringConstants.SLASH);
+            long maxEntries = properties.getZipImportMaxEntries();
             ZipEntry entry;
             while ((entry = zin.getNextEntry()) != null) {
                 String entryName = entry.getName();
-                if (resp.getTotal() + 1 > maxEntries) {
-                    resp.addEntry(entryName, false, 0L,
-                        "超过条目数限制: " + maxEntries);
-                    break;
-                }
                 resp.setTotal(resp.getTotal() + 1);
-                if (entry.isDirectory()) {
-                    resp.addEntry(entryName, false, 0L, "目录条目不导入");
-                    continue;
-                }
-                if (entry.getMethod() == ZipEntry.STORED && entry.getSize() > 0) {
-                    storedBytes += entry.getSize();
-                }
-                // 上一条目的尾部隐式解压计入预算后才可见，超限即停，此前成功保留
-                if (zin.decompressedBytes() + storedBytes > maxTotalBytes) {
-                    resp.addEntry(entryName, false, 0L,
-                        "超过总解压大小限制: " + maxTotalBytes + " 字节");
+                if (resp.getTotal() > maxEntries) {
+                    // 首条被拒条目计入 total 并留痕，但不读取其内容
+                    resp.addEntry(entryName, false, 0L, "超过条目数限制: " + maxEntries);
                     break;
                 }
+
+                String skipReason;
                 String normalizedName;
-                try {
-                    normalizedName = ZipFileUtils.normalizeEntryName(entryName);
-                } catch (StorageException e) {
-                    resp.addEntry(entryName, false, 0L, e.getMessage());
+                if (entry.isDirectory()) {
+                    skipReason = "目录条目不导入";
+                    normalizedName = null;
+                } else {
+                    try {
+                        normalizedName = ZipFileUtils.normalizeEntryName(entryName);
+                        skipReason = null;
+                    } catch (StorageException e) {
+                        normalizedName = null;
+                        skipReason = e.getMessage();
+                    }
+                }
+                if (skipReason != null) {
+                    // 显式经计量 read 排空被跳过条目：排空失败记该条一次失败并停止，
+                    // 错误归当前条目而非积压到下一条目头部
+                    try {
+                        zin.closeEntry();
+                    } catch (IOException e) {
+                        resp.addEntry(entryName, false, 0L, e.getMessage());
+                        break;
+                    }
+                    resp.addEntry(entryName, false, 0L, skipReason);
                     continue;
                 }
                 String targetPath = StrUtil.isBlank(normalizedParent) ? normalizedName
                     : normalizedParent + StringConstants.SLASH + normalizedName;
 
-                // 先把条目物化到临时文件计量大小，超限时只多读上限+1字节，不触碰任何既有对象
-                long boundedLimit = maxEntryBytes == Long.MAX_VALUE ? Long.MAX_VALUE
-                    : maxEntryBytes + 1;
-                TempFileMultipartFile temp = TempFileMultipartFile.materialize(entryName,
-                    normalizedName, guessZipEntryContentType(normalizedName),
-                    new BoundedInputStream(zin, boundedLimit));
+                // 读取侧已按单条/全包硬限计量，物化到临时文件后才可能触碰目标对象；
+                // 任一层超限或读取失败都记该条失败并停止导入，不触碰既有对象
+                TempFileMultipartFile temp;
+                try {
+                    temp = TempFileMultipartFile.materialize(entryName, normalizedName,
+                        guessZipEntryContentType(normalizedName), zin);
+                } catch (IOException e) {
+                    resp.addEntry(entryName, false, 0L, e.getMessage());
+                    break;
+                }
                 try {
                     long entryBytes = temp.getSize();
-                    if (entryBytes > maxEntryBytes) {
-                        resp.addEntry(entryName, false, entryBytes,
-                            "超过单条大小限制: " + maxEntryBytes + " 字节");
-                        continue;
-                    }
-                    if (zin.decompressedBytes() + storedBytes > maxTotalBytes) {
-                        resp.addEntry(entryName, false, entryBytes,
-                            "超过总解压大小限制: " + maxTotalBytes + " 字节");
-                        break;
-                    }
                     try {
                         // 同名目标对象覆盖写入，已存在对象不特殊保护
                         strategy.upload(bucket, targetPath, temp);
@@ -1462,45 +1493,66 @@ public class FileStorageService {
                 }
             }
         } catch (IOException e) {
-            throw new StorageException("ZIP 导入失败: " + e.getMessage(), e);
+            // 下一条目头部损坏或源流关闭失败属归档级错误，不归到上一条目
+            throw new StorageException("ZIP 导入读取失败: " + e.getMessage(), e);
         }
         return resp;
     }
 
     /**
-     * 带解压字节统计的 ZIP 输入流：通过 Inflater 真实已输出字节数记账，
-     * 覆盖 getNextEntry 隐式排空被跳过条目时产生的解压数据
+     * 按读取侧计量的 ZIP 输入流：单条与全包两层硬限，读取请求钳到剩余额度外
+     * 仅多探测 1 字节判定超限。JDK 的 closeEntry 排空同样走 read，因此目录、
+     * 非法名、STORED 与 DEFLATED 条目一致受限；close 只关闭源流，不做排空。
      */
     private static class BudgetedZipInputStream extends ZipInputStream {
 
-        /**
-         * 此前条目已解压字节数：Inflater 在 getNextEntry 内被重置，
-         * 须在重置前把上一段记账，否则总量永远不增长
-         */
-        private long drainedBytes;
+        private final long entryLimit;
+        private final long totalLimit;
+        private long entryRead;
+        private long totalRead;
 
         /**
          * 构造预算统计流
          *
-         * @param in 源输入流（关闭本流即关闭源）
+         * @param in         源输入流（关闭本流即关闭源）
+         * @param entryLimit 单条解压字节上限
+         * @param totalLimit 全包解压字节上限
          */
-        BudgetedZipInputStream(InputStream in) {
+        BudgetedZipInputStream(InputStream in, long entryLimit, long totalLimit) {
             super(in);
+            this.entryLimit = entryLimit;
+            this.totalLimit = totalLimit;
         }
 
         @Override
         public ZipEntry getNextEntry() throws IOException {
-            this.drainedBytes += inf.getBytesWritten();
-            return super.getNextEntry();
+            // super 先 closeEntry 排空上一条目（走计量 read），返回后重置单条计数
+            ZipEntry entry = super.getNextEntry();
+            this.entryRead = 0;
+            return entry;
         }
 
-        /**
-         * 已解压字节总数（含被跳过条目的隐式读取）
-         *
-         * @return 解压字节总数
-         */
-        long decompressedBytes() {
-            return this.drainedBytes + inf.getBytesWritten();
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (len == 0) {
+                return 0;
+            }
+            // 剩余额度按减法计，防溢出；额度外仅多探测 1 字节判定超限
+            long remaining = Math.min(entryLimit - entryRead, totalLimit - totalRead);
+            int toRead = remaining >= len ? len : (int) (remaining + 1L);
+            int n = super.read(b, off, toRead);
+            if (n <= 0) {
+                return n;
+            }
+            if (n > entryLimit - entryRead) {
+                throw new IOException("ZIP 条目超过单条解压大小限制: " + entryLimit + " 字节");
+            }
+            if (n > totalLimit - totalRead) {
+                throw new IOException("ZIP 导入超过总解压大小限制: " + totalLimit + " 字节");
+            }
+            this.entryRead += n;
+            this.totalRead += n;
+            return n;
         }
     }
 

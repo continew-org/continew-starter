@@ -36,6 +36,8 @@ import top.continew.starter.storage.strategy.StorageStrategy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.channels.Channels;
+import java.nio.channels.SeekableByteChannel;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -151,19 +153,24 @@ public class LocalStorageStrategy implements StorageStrategy {
     public void uploadStream(String bucket, String path, InputStream inputStream,
         String contentType, long contentLength) {
         Path filePath = Paths.get(bucket, normalizePath(path));
-        // 流式内容先写同目录暂存，完整接收后再替换目标，失败不破坏既有文件
-        Path tempPath = filePath.resolveSibling(filePath.getFileName() + ".upload-tmp");
+        Path tempPath = null;
         try {
             Files.createDirectories(filePath.getParent());
+            // 流式内容先写同目录唯一暂存，完整接收后再替换目标；失败不破坏既有文件
+            // 且不触碰同目录其他对象的同名 .upload-tmp 数据
+            tempPath = Files.createTempFile(filePath.getParent(),
+                filePath.getFileName() + "-", ".upload-tmp");
             Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
             moveIntoPlace(tempPath, filePath);
         } catch (Exception e) {
             throw new StorageException(e.getMessage(), e);
         } finally {
-            try {
-                Files.deleteIfExists(tempPath);
-            } catch (IOException e) {
-                LOGGER.warn("清理上传暂存文件失败: {}", tempPath, e);
+            if (tempPath != null) {
+                try {
+                    Files.deleteIfExists(tempPath);
+                } catch (IOException e) {
+                    LOGGER.warn("清理上传暂存文件失败: {}", tempPath, e);
+                }
             }
         }
     }
@@ -204,17 +211,26 @@ public class LocalStorageStrategy implements StorageStrategy {
 
     @Override
     public InputStream downloadRange(String bucket, String path, long start, long end) {
+        if (start < 0 || end < start) {
+            throw new StorageException("下载范围非法: start=" + start + ", end=" + end);
+        }
         Path filePath = Paths.get(bucket, normalizePath(path));
         try {
             long fileSize = Files.size(filePath);
-            if (fileSize <= 0 || start >= fileSize || end < start) {
+            if (fileSize <= 0 || start >= fileSize) {
                 throw new StorageException("下载范围超出文件边界: start=" + start + ", end="
                     + end + ", size=" + fileSize);
             }
             long realEnd = Math.min(end, fileSize - 1);
-            InputStream in = Files.newInputStream(filePath);
-            in.skipNBytes(start);
-            return new BoundedInputStream(in, realEnd - start + 1);
+            SeekableByteChannel channel = Files.newByteChannel(filePath);
+            try {
+                channel.position(start);
+                return new BoundedInputStream(Channels.newInputStream(channel),
+                    realEnd - start + 1);
+            } catch (IOException | RuntimeException e) {
+                channel.close();
+                throw e;
+            }
         } catch (StorageException e) {
             throw e;
         } catch (IOException e) {

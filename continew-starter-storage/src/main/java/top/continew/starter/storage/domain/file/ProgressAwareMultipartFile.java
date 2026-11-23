@@ -38,6 +38,8 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
     private final UploadProgressListener progressListener;
     private volatile ProgressTracker progressTracker;
     private volatile boolean progressEnabled = false;
+    // 服务内部显式判定模式：上传成功/失败由服务层判定，不随读取进度或流关闭自动完成
+    private final boolean manualCompletion;
     private final Object progressLock = new Object();
 
     /**
@@ -52,8 +54,24 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
     public ProgressAwareMultipartFile(MultipartFile originalFile,
         boolean enableCache,
         UploadProgressListener progressListener) {
+        this(originalFile, enableCache, progressListener, false);
+    }
+
+    /**
+     * 构造进度监听包装文件
+     *
+     * @param originalFile     原始文件
+     * @param enableCache      是否缓存内容
+     * @param progressListener 进度监听器
+     * @param manualCompletion true 时上传完成由调用方显式判定（服务内部上传链路用）
+     */
+    public ProgressAwareMultipartFile(MultipartFile originalFile,
+        boolean enableCache,
+        UploadProgressListener progressListener,
+        boolean manualCompletion) {
         super(originalFile, enableCache);
         this.progressListener = progressListener;
+        this.manualCompletion = manualCompletion;
     }
 
     /**
@@ -68,7 +86,8 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
 
             // 切换到上传阶段时，重置进度追踪器
             if (phase == ReadPhase.UPLOAD && progressListener != null) {
-                this.progressTracker = new ProgressTracker(getSize(), progressListener);
+                this.progressTracker = new ProgressTracker(getSize(), progressListener,
+                    manualCompletion);
             }
         }
     }
@@ -97,7 +116,6 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
                 }
-                progressTracker.complete();
             }
         } else {
             super.transferTo(dest);

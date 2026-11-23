@@ -220,9 +220,15 @@ public class OssStorageStrategy implements StorageStrategy {
     public void uploadStream(String bucket, String path, InputStream inputStream,
         String contentType, long contentLength) {
         String key = normalizeKey(path);
+        if (contentLength > StorageConstant.S3_SINGLE_PUT_MAX_SIZE) {
+            // AWS 单次 PUT Object 上限 5 GiB：调用 SDK 与消费流之前先拒绝
+            throw new StorageException("流式上传大小 " + contentLength
+                + " 字节超过 S3 单次 PUT 上限 " + StorageConstant.S3_SINGLE_PUT_MAX_SIZE
+                + " 字节，请改用分片上传 API");
+        }
         try {
             if (contentLength >= 0) {
-                // 长度已知：单次 PUT，S3 PUT 上限 5GB 覆盖常规文件
+                // 长度已知：单次 PUT
                 PutObjectRequest.Builder requestBuilder = PutObjectRequest.builder()
                     .bucket(bucket)
                     .key(key)
