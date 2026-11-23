@@ -17,11 +17,15 @@
 package top.continew.starter.storage.strategy;
 
 import org.springframework.web.multipart.MultipartFile;
+import top.continew.starter.storage.common.exception.StorageException;
+import top.continew.starter.storage.common.util.ZipFileUtils;
+import top.continew.starter.storage.domain.file.ZipStreamInputStream;
 import top.continew.starter.storage.domain.model.resp.FileInfo;
 import top.continew.starter.storage.domain.model.resp.MultipartInitResp;
 import top.continew.starter.storage.domain.model.resp.MultipartUploadResp;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +47,39 @@ public interface StorageStrategy {
     void upload(String bucket, String path, MultipartFile file);
 
     /**
+     * 流式上传
+     *
+     * <p>
+     * 当文件源为不可重复读取的输入流时调用，策略不得对数据做全量内存缓冲。
+     * 入参 {@code contentLength} 为 -1 表示内容长度未知，实现应自行探测或按分片协议直传。
+     * </p>
+     *
+     * @param bucket        存储桶
+     * @param path          路径
+     * @param inputStream   文件输入流（单次可读，由调用方关闭）
+     * @param contentType   内容类型，允许为 null
+     * @param contentLength 内容长度，-1 表示未知
+     */
+    default void uploadStream(String bucket, String path, InputStream inputStream,
+        String contentType, long contentLength) {
+        throw new StorageException("存储策略 " + getPlatform() + " 不支持流式上传");
+    }
+
+    /**
+     * 是否支持流式上传（不可重复读取的单次流）
+     *
+     * <p>
+     * 不支持时服务层会将流物化为临时文件后回退到 {@link #upload(String, String, MultipartFile)}，
+     * 第三方策略可不实现流式上传保持兼容。
+     * </p>
+     *
+     * @return 是否支持
+     */
+    default boolean supportUploadStream() {
+        return false;
+    }
+
+    /**
      * 下载
      *
      * @param bucket 存储桶
@@ -52,13 +89,43 @@ public interface StorageStrategy {
     InputStream download(String bucket, String path);
 
     /**
-     * 批量下载到zip
+     * 字节范围下载
+     *
+     * <p>
+     * 返回闭区间 [{@code start}, {@code end}] 的内容流，调用方关闭返回流。
+     * 服务层只校验参数，文件大小解析、末端钳制与不存在/越界处理由策略自行决定。
+     * </p>
+     *
+     * @param bucket 存储桶
+     * @param path   路径
+     * @param start  起始字节偏移（含，从 0 计）
+     * @param end    结束字节偏移（含）
+     * @return 范围内容输入流
+     */
+    default InputStream downloadRange(String bucket, String path, long start, long end) {
+        throw new StorageException("存储策略 " + getPlatform() + " 不支持范围下载");
+    }
+
+    /**
+     * 批量下载为 ZIP 流
+     *
+     * <p>
+     * 默认实现基于 {@link #download(String, String)} 流式打包：消费方读取时才逐个拉取
+     * 源文件写入 ZIP，条目名取对象路径，重名自动追加 " (n)" 后缀。策略可覆盖定制
+     * （如批量获取、并发拉取）。ZIP 中央目录随条目数占用内存。返回流由调用方关闭。
+     * </p>
      *
      * @param bucket 存储桶
      * @param paths  路径列表
-     * @return 打包后的输入流
+     * @return ZIP 格式输入流
      */
-    InputStream batchDownload(String bucket, List<String> paths);
+    default InputStream batchDownload(String bucket, List<String> paths) {
+        List<String> pathList = paths == null ? List.of() : paths;
+        Map<String, Integer> nameCount = new HashMap<>();
+        return new ZipStreamInputStream(pathList, path -> download(bucket, path),
+            path -> ZipFileUtils.dedupEntryName(ZipFileUtils.normalizeEntryName(path),
+                nameCount));
+    }
 
     /**
      * 删除

@@ -50,6 +50,15 @@ public class FileSizeValidator implements FileValidator {
         return FileSizeValidator.class.getSimpleName();
     }
 
+    /**
+     * 大小上限（字节）
+     *
+     * @return 允许的最大文件字节数
+     */
+    public long getMaxSize() {
+        return maxSize;
+    }
+
     @Override
     public boolean support(UploadContext context) {
         return true;

@@ -82,8 +82,24 @@ public abstract class StorageStrategyDecorator<T extends StorageStrategy>
     }
 
     @Override
+    public void uploadStream(String bucket, String path, InputStream inputStream,
+        String contentType, long contentLength) {
+        getDelegate().uploadStream(bucket, path, inputStream, contentType, contentLength);
+    }
+
+    @Override
+    public boolean supportUploadStream() {
+        return getDelegate().supportUploadStream();
+    }
+
+    @Override
     public InputStream download(String bucket, String path) {
         return getDelegate().download(bucket, path);
+    }
+
+    @Override
+    public InputStream downloadRange(String bucket, String path, long start, long end) {
+        return getDelegate().downloadRange(bucket, path, start, end);
     }
 
     @Override

@@ -57,7 +57,8 @@ public class ProgressTracker {
     /**
      * 更新上传进度
      * <p>
-     * 累计已上传字节数，当百分比变化达到 1% 或字节数变化达到 1MB 阈值时回调监听器，达到 100% 时自动标记完成
+     * 累计已上传字节数，当百分比变化达到 1% 或字节数变化达到 1MB 阈值时回调监听器；
+     * 达到 100% 仅上报进度，完成与否由上传方通过 {@link #complete()} 显式判定
      *
      * @param bytes 本次新增的已上传字节数
      */
@@ -93,11 +94,6 @@ public class ProgressTracker {
         if (shouldNotify && lastPercentage.compareAndSet(lastPct, currentPercentage)) {
             lastNotifiedBytes.set(currentBytes);
             listener.onProgress(currentBytes, totalBytes, currentPercentage);
-
-            // 如果达到100%，标记完成
-            if (currentPercentage == 100) {
-                complete();
-            }
         }
     }
 

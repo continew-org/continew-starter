@@ -69,7 +69,7 @@ class ProgressTrackerTest {
     }
 
     @Test
-    void shouldAutoCompleteAtHundredPercent() {
+    void shouldNotifyHundredPercentWithoutAutoComplete() {
         UploadProgressListener listener = mock(UploadProgressListener.class);
         ProgressTracker tracker = new ProgressTracker(100, listener);
         tracker.start();
@@ -80,10 +80,11 @@ class ProgressTrackerTest {
         inOrder.verify(listener).onStart();
         inOrder.verify(listener).onProgress(50L, 100L, 50);
         inOrder.verify(listener).onProgress(100L, 100L, 100);
-        inOrder.verify(listener).onComplete();
+        // 100% 进度不再自动判定成功，完成由上传方显式 complete
+        verify(listener, never()).onComplete();
 
-        tracker.updateProgress(1);
         tracker.complete();
+        tracker.updateProgress(1);
         verify(listener, times(1)).onStart();
         verify(listener, times(1)).onComplete();
         verify(listener, times(2)).onProgress(anyLong(), anyLong(), anyInt());

@@ -34,10 +34,13 @@ import top.continew.starter.storage.common.exception.StorageException;
 import top.continew.starter.storage.domain.model.resp.FileInfo;
 import top.continew.starter.storage.strategy.impl.OssStorageStrategy;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 /**
  * OssStorageStrategy 对象级操作真实 MinIO 集成测试。
@@ -205,6 +208,122 @@ class OssObjectOperationIT extends MinioContainerSupport {
         // MinIO 对缺失桶的 HeadObject 返回 404，策略按对象缺失语义收敛为 false/null
         assertFalse(strategy().exists(MISSING_BUCKET, key));
         assertNull(strategy().getFileInfo(MISSING_BUCKET, key));
+    }
+
+    @Test
+    @DisplayName("downloadRange 返回真实服务端 Range 字节")
+    void shouldDownloadClosedRangeFromRealObject() throws IOException {
+        String key = randomPrefix() + "range.txt";
+        byte[] content = "0123456789".getBytes(StandardCharsets.UTF_8);
+        strategy().upload(BUCKET, key, of("range.txt", "text/plain", content));
+
+        try (InputStream in = strategy().downloadRange(BUCKET, key, 2, 5)) {
+            assertArrayEquals("2345".getBytes(StandardCharsets.UTF_8), in.readAllBytes());
+        }
+        try (InputStream in = strategy().downloadRange(BUCKET, key, 8, 100)) {
+            assertArrayEquals("89".getBytes(StandardCharsets.UTF_8), in.readAllBytes());
+        }
+    }
+
+    @Test
+    @DisplayName("uploadStream 已知长度走单次 PUT 且内容一致")
+    void shouldUploadStreamWithKnownLength() throws IOException {
+        String key = randomPrefix() + "stream-known.bin";
+        byte[] content = "known-length".getBytes(StandardCharsets.UTF_8);
+
+        strategy().uploadStream(BUCKET, key, new ByteArrayInputStream(content),
+            "application/octet-stream", content.length);
+
+        assertArrayEquals(content, probeObjectAsBytes(BUCKET, key));
+    }
+
+    @Test
+    @DisplayName("uploadStream 未知长度小流探测后单次 PUT，内容一致")
+    void shouldUploadSmallUnknownStreamViaProbe() throws IOException {
+        String key = randomPrefix() + "stream-small.bin";
+        byte[] content = "small-unknown".getBytes(StandardCharsets.UTF_8);
+
+        strategy().uploadStream(BUCKET, key, new ByteArrayInputStream(content),
+            "application/octet-stream", -1);
+
+        assertArrayEquals(content, probeObjectAsBytes(BUCKET, key));
+    }
+
+    @Test
+    @DisplayName("uploadStream 未知长度超探测阈值走真实分片上传，多片内容一致")
+    void shouldUploadLargeUnknownStreamViaMultipart() throws IOException {
+        String key = randomPrefix() + "stream-large.bin";
+        // 超过探测阈值（min(8KB阈值, 4KB分片)=4KB）且超过 S3 最小分片 5MB，验证多分片路径
+        byte[] content = new byte[6 * 1024 * 1024 + 123];
+        new Random(42).nextBytes(content);
+
+        strategy().uploadStream(BUCKET, key, new ByteArrayInputStream(content),
+            "application/octet-stream", -1);
+
+        assertArrayEquals(content, probeObjectAsBytes(BUCKET, key));
+    }
+
+    @Test
+    @DisplayName("uploadStream 中途读失败时中止分片上传，服务端无残留对象")
+    void shouldAbortMultipartWhenStreamFails() {
+        String key = randomPrefix() + "stream-fail.bin";
+        InputStream failing = new InputStream() {
+
+            private int emitted;
+
+            @Override
+            public int read() throws IOException {
+                throw new IOException("模拟流读取失败");
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                if (emitted >= 8 * 1024) {
+                    throw new IOException("模拟流读取失败");
+                }
+                int n = Math.min(len, 8 * 1024 - emitted);
+                Arrays.fill(b, off, off + n, (byte) 'x');
+                emitted += n;
+                return n;
+            }
+        };
+
+        assertThrows(StorageException.class, () -> strategy().uploadStream(BUCKET, key, failing,
+            "application/octet-stream", -1));
+        assertFalse(strategy().exists(BUCKET, key), "失败分片上传不得落库对象");
+    }
+
+    @Test
+    @DisplayName("uploadStream 空流（未知长度）落库为零字节对象")
+    void shouldUploadEmptyStreamAsZeroByteObject() throws IOException {
+        String key = randomPrefix() + "empty.bin";
+
+        strategy().uploadStream(BUCKET, key, new ByteArrayInputStream(new byte[0]),
+            "application/octet-stream", -1);
+
+        FileInfo info = strategy().getFileInfo(BUCKET, key);
+        assertEquals(0L, info.getSize(), "空流应生成零字节对象");
+        try (InputStream in = strategy().download(BUCKET, key)) {
+            assertEquals(0, in.readAllBytes().length);
+        }
+    }
+
+    @Test
+    @DisplayName("list 聚合超 1000 对象的真实多页结果")
+    void shouldAggregateOverThousandObjectsAcrossPages() {
+        String prefix = randomPrefix();
+        int total = 1050;
+        for (int i = 0; i < total; i++) {
+            strategy().upload(BUCKET, prefix + "p/" + i + ".txt",
+                of(i + ".txt", "text/plain", new byte[] {(byte) (i & 0x7F)}));
+        }
+
+        List<FileInfo> result = strategy().list(BUCKET, prefix + "p/", 2000);
+
+        assertEquals(total, result.size(), "跨页聚合须返回全部对象");
+        for (FileInfo info : result) {
+            assertTrue(info.getPath().startsWith(prefix + "p/"));
+        }
     }
 
     /**

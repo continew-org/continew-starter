@@ -97,10 +97,20 @@ public class ProgressAwareMultipartFile extends EnhancedMultipartFile {
                 while ((bytesRead = in.read(buffer)) != -1) {
                     out.write(buffer, 0, bytesRead);
                 }
+                progressTracker.complete();
             }
         } else {
             super.transferTo(dest);
         }
+    }
+
+    /**
+     * 获取当前进度追踪器（仅上传阶段且有监听器时非 null）
+     *
+     * @return 进度追踪器
+     */
+    public ProgressTracker getProgressTracker() {
+        return progressTracker;
     }
 
     /**

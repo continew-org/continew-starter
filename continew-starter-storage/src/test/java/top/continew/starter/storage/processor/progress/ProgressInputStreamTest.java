@@ -66,8 +66,8 @@ class ProgressInputStreamTest {
         inOrder.verify(listener).onProgress(1L, 3L, 33);
         inOrder.verify(listener).onProgress(2L, 3L, 66);
         inOrder.verify(listener).onProgress(3L, 3L, 100);
-        inOrder.verify(listener).onComplete();
-        verify(listener, times(1)).onComplete();
+        // 关闭不再自动判定成功，完成由调用方显式 complete
+        verify(listener, never()).onComplete();
     }
 
     @Test
@@ -84,7 +84,7 @@ class ProgressInputStreamTest {
             assertEquals(-1, in.read(buffer, 0, buffer.length));
         }
         verify(listener).onProgress((long) data.length, 11L, 100);
-        verify(listener).onComplete();
+        verify(listener, never()).onComplete();
     }
 
     @Test
@@ -95,7 +95,8 @@ class ProgressInputStreamTest {
             listener));
         in.close();
         verify(underlying, times(1)).close();
-        verify(listener, times(1)).onComplete();
+        // 不随关闭上报成功，避免流中断被误报为完成
+        verify(listener, never()).onComplete();
     }
 
     @Test

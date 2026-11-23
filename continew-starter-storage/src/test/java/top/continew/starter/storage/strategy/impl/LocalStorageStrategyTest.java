@@ -265,6 +265,83 @@ class LocalStorageStrategyTest {
         assertNotNull(init.getUploadId());
     }
 
+    @Test
+    @DisplayName("downloadRange 返回闭区间字节，end 超出文件长度按末尾截断")
+    void shouldDownloadClosedRangeWithClampedEnd() throws IOException {
+        String bucket = bucketDir.toString();
+        byte[] content = "0123456789".getBytes(StandardCharsets.UTF_8);
+        strategy.upload(bucket, "range.txt", file("range.txt", content));
+
+        try (InputStream in = strategy.downloadRange(bucket, "range.txt", 2, 5)) {
+            assertArrayEquals("2345".getBytes(StandardCharsets.UTF_8), in.readAllBytes());
+        }
+        try (InputStream in = strategy.downloadRange(bucket, "range.txt", 8, 100)) {
+            assertArrayEquals("89".getBytes(StandardCharsets.UTF_8), in.readAllBytes());
+        }
+    }
+
+    @Test
+    @DisplayName("downloadRange 起点越界或空文件时抛出异常")
+    void shouldRejectOutOfBoundsRange() {
+        String bucket = bucketDir.toString();
+        strategy.upload(bucket, "small.txt", file("small.txt", "ab"
+            .getBytes(StandardCharsets.UTF_8)));
+        strategy.upload(bucket, "empty.txt", file("empty.txt", new byte[0]));
+
+        assertThrows(StorageException.class, () -> strategy.downloadRange(bucket, "small.txt",
+            2, 5));
+        assertThrows(StorageException.class, () -> strategy.downloadRange(bucket, "empty.txt",
+            0, 0));
+    }
+
+    @Test
+    @DisplayName("uploadStream 直接落盘且宣称支持流式上传")
+    void shouldUploadStreamDirectly() throws IOException {
+        String bucket = bucketDir.toString();
+        byte[] content = "stream-content".getBytes(StandardCharsets.UTF_8);
+        assertTrue(strategy.supportUploadStream());
+
+        strategy.uploadStream(bucket, "stream.bin",
+            new ByteArrayInputStream(content), "application/octet-stream", -1);
+
+        assertArrayEquals(content, readAll("stream.bin"));
+    }
+
+    @Test
+    @DisplayName("uploadStream 读取中断不破坏既有文件，暂存文件被清理")
+    void shouldKeepExistingFileWhenStreamFails() throws IOException {
+        String bucket = bucketDir.toString();
+        byte[] old = "old-content".getBytes(StandardCharsets.UTF_8);
+        strategy.upload(bucket, "same.bin", file("same.bin", old));
+
+        InputStream failing = new InputStream() {
+
+            private int read;
+
+            @Override
+            public int read() {
+                if (read++ >= 4) {
+                    throw new IllegalStateException("模拟读取中断");
+                }
+                return 'x';
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) {
+                if (read++ >= 4) {
+                    throw new IllegalStateException("模拟读取中断");
+                }
+                b[off] = 'x';
+                return 1;
+            }
+        };
+
+        assertThrows(StorageException.class, () -> strategy.uploadStream(bucket, "same.bin",
+            failing, "application/octet-stream", -1));
+        assertArrayEquals(old, readAll("same.bin"), "失败不得破坏既有文件");
+        assertFalse(Files.exists(bucketDir.resolve("same.bin.upload-tmp")), "暂存文件须清理");
+    }
+
     /**
      * 构造测试上传文件。
      *

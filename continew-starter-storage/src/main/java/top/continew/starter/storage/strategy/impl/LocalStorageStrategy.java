@@ -27,6 +27,7 @@ import top.continew.starter.core.util.SpringUtils;
 import top.continew.starter.storage.autoconfigure.properties.LocalStorageConfig;
 import top.continew.starter.storage.common.constant.StorageConstant;
 import top.continew.starter.storage.common.exception.StorageException;
+import top.continew.starter.storage.common.util.BoundedInputStream;
 import top.continew.starter.storage.domain.model.resp.FileInfo;
 import top.continew.starter.storage.domain.model.resp.MultipartInitResp;
 import top.continew.starter.storage.domain.model.resp.MultipartUploadResp;
@@ -35,6 +36,7 @@ import top.continew.starter.storage.strategy.StorageStrategy;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -145,6 +147,48 @@ public class LocalStorageStrategy implements StorageStrategy {
         }
     }
 
+    @Override
+    public void uploadStream(String bucket, String path, InputStream inputStream,
+        String contentType, long contentLength) {
+        Path filePath = Paths.get(bucket, normalizePath(path));
+        // 流式内容先写同目录暂存，完整接收后再替换目标，失败不破坏既有文件
+        Path tempPath = filePath.resolveSibling(filePath.getFileName() + ".upload-tmp");
+        try {
+            Files.createDirectories(filePath.getParent());
+            Files.copy(inputStream, tempPath, StandardCopyOption.REPLACE_EXISTING);
+            moveIntoPlace(tempPath, filePath);
+        } catch (Exception e) {
+            throw new StorageException(e.getMessage(), e);
+        } finally {
+            try {
+                Files.deleteIfExists(tempPath);
+            } catch (IOException e) {
+                LOGGER.warn("清理上传暂存文件失败: {}", tempPath, e);
+            }
+        }
+    }
+
+    @Override
+    public boolean supportUploadStream() {
+        return true;
+    }
+
+    /**
+     * 将暂存文件移入目标位置：优先原子移动，不支持时回退普通覆盖移动
+     *
+     * @param tempPath 暂存文件
+     * @param filePath 目标文件
+     * @throws IOException 移动失败时抛出
+     */
+    private void moveIntoPlace(Path tempPath, Path filePath) throws IOException {
+        try {
+            Files.move(tempPath, filePath, StandardCopyOption.ATOMIC_MOVE,
+                StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(tempPath, filePath, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
     /**
      * 下载文件
      */
@@ -159,8 +203,23 @@ public class LocalStorageStrategy implements StorageStrategy {
     }
 
     @Override
-    public InputStream batchDownload(String bucket, List<String> paths) {
-        return null;
+    public InputStream downloadRange(String bucket, String path, long start, long end) {
+        Path filePath = Paths.get(bucket, normalizePath(path));
+        try {
+            long fileSize = Files.size(filePath);
+            if (fileSize <= 0 || start >= fileSize || end < start) {
+                throw new StorageException("下载范围超出文件边界: start=" + start + ", end="
+                    + end + ", size=" + fileSize);
+            }
+            long realEnd = Math.min(end, fileSize - 1);
+            InputStream in = Files.newInputStream(filePath);
+            in.skipNBytes(start);
+            return new BoundedInputStream(in, realEnd - start + 1);
+        } catch (StorageException e) {
+            throw e;
+        } catch (IOException e) {
+            throw new StorageException("本地范围读取失败: " + e.getMessage(), e);
+        }
     }
 
     /**

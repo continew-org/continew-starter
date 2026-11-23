@@ -27,6 +27,9 @@ description: continew-starter-storage 提供统一的文件存储抽象，支持
 | `multipart-upload-threshold` | 全局分片阈值（字节），超过该大小的文件走分片上传 | `10485760`（10MB） |
 | `multipart-upload-part-size` | 全局分片大小（字节） | `5242880`（5MB） |
 | `local-multipart-temp-dir` | 全局本地分片临时目录 | `/tmp` |
+| `zip-import-max-entries` | ZIP 导入最大条目数（解压侧限额） | `10000` |
+| `zip-import-max-entry-bytes` | ZIP 导入单条最大解压后大小（字节） | `536870912`（512MB） |
+| `zip-import-max-total-bytes` | ZIP 导入累计最大解压后大小（字节） | `2147483648`（2GB） |
 | `local` | 本地存储配置列表（可配置多个，见下文） | 空列表 |
 | `oss` | S3 对象存储配置列表（可配置多个，见下文） | 空列表 |
 
@@ -151,6 +154,37 @@ public class FileController {
 ```java
 fileStorageService.of(bytes, "avatar.png", "image/png").upload();
 fileStorageService.of(inputStream, "report.pdf", "application/pdf").upload();
+```
+
+输入流来源在上传完成后由服务层关闭，调用方不应重复关闭。流式文件只支持单次读取：当目标存储平台实现 `uploadStream` SPI（本地与 S3 内置策略均已实现）时按流式上传直传，长度未知的 S3 流超过探测阈值后自动转分片上传；第三方自定义策略未实现该 SPI 时，服务层自动把流物化为临时文件走常规上传。流式文件若请求缩略图，会先落盘为临时文件再上传以保证可复读。
+
+### 字节范围下载
+
+`downloadRange` 按 HTTP Range 风格返回闭区间 `[start, end]` 的内容流，`writeRangeDownload` 直接写入调用方提供的输出流（输出流由调用方关闭）。服务层统一做范围校验并把 `end` 钳制到文件末尾；起点超出文件长度或文件不存在时抛出 `StorageException`。
+
+```java
+// 读取第 0-1023 字节（闭区间）
+try (InputStream in = fileStorageService.downloadRange("minio", bucketName, path, 0, 1023)) {
+    in.transferTo(response.getOutputStream());
+}
+
+fileStorageService.writeRangeDownload("minio", bucketName, path, outputStream, 0, 1023);
+```
+
+`StorageStrategy` 默认 `downloadRange` 抛出不支持异常，本地与 S3 内置策略已实现。
+
+### 批量下载与 ZIP 导入
+
+`batchDownload` 以流式 ZIP 返回多个文件：消费方读取时才逐个拉取源文件写入 ZIP，条目名取对象路径，重名自动追加 ` (n)` 后缀；`writeBatchDownload` 写入调用方输出流。`importZip` 反向把 ZIP 包逐条导入存储：非法条目名（目录穿越等）记为失败并继续，同名目标覆盖写入；条目大小、总解压大小或条目数超 `zip-import-*` 限额时记失败并停止导入，此前已成功上传的对象保留不回滚。
+
+```java
+// 批量下载为 ZIP 流
+try (InputStream zip = fileStorageService.batchDownload("minio", bucketName, paths)) {
+    zip.transferTo(response.getOutputStream());
+}
+
+// 导入 ZIP 到指定目录
+ZipImportResp resp = fileStorageService.importZip("minio", bucketName, "imports", zipInputStream);
 ```
 
 `FileInfo` 包含平台（`platform`）、存储桶（`bucket`）、路径（`path`）、原始文件名（`originalFileName`）、访问 URL（`url`）、缩略图路径（`thumbnailPath`）等信息。

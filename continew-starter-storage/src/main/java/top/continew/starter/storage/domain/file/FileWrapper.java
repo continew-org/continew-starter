@@ -28,7 +28,6 @@ import top.continew.starter.storage.common.exception.StorageException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.Part;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
@@ -255,14 +254,10 @@ public class FileWrapper {
         }
 
         if (inputStream != null) {
-            try {
-                byte[] data = inputStream.readAllBytes();
-                return new EnhancedMultipartFile(getFilenameWithoutExtension(originalFilename),
-                    originalFilename,
-                    contentType, data);
-            } catch (IOException e) {
-                throw new StorageException("读取输入流失败", e);
-            }
+            // 流式来源不缓冲为字节数组，交给服务层按流式上传或物化落盘处理
+            return new InputStreamMultipartFile(getFilenameWithoutExtension(originalFilename),
+                originalFilename,
+                contentType, size, inputStream);
         }
 
         throw new IllegalStateException("无法转换为 MultipartFile");

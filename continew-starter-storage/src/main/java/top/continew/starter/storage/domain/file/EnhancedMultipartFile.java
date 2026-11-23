@@ -221,6 +221,15 @@ public class EnhancedMultipartFile implements MultipartFile {
     }
 
     /**
+     * 获取被包装的原始文件（包装模式下非 null）
+     *
+     * @return 原始 MultipartFile
+     */
+    public MultipartFile getOriginalFile() {
+        return originalFile;
+    }
+
+    /**
      * 获取缓存的字节数组（不触发加载）
      *
      * @return 缓存的字节数组，未缓存返回 null
