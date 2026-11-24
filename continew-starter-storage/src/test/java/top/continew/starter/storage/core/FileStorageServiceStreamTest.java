@@ -38,11 +38,15 @@ import top.continew.starter.storage.autoconfigure.properties.StorageProperties;
 import top.continew.starter.storage.common.exception.StorageException;
 import top.continew.starter.storage.domain.file.InputStreamMultipartFile;
 import top.continew.starter.storage.domain.file.TempFileMultipartFile;
+import top.continew.starter.storage.domain.model.context.UploadContext;
+import top.continew.starter.storage.domain.model.req.ThumbnailInfo;
 import top.continew.starter.storage.domain.model.resp.FileInfo;
 import top.continew.starter.storage.domain.model.resp.MultipartInitResp;
 import top.continew.starter.storage.domain.model.resp.MultipartUploadResp;
 import top.continew.starter.storage.domain.model.resp.ZipImportResp;
 import top.continew.starter.storage.engine.StorageStrategyRouter;
+import top.continew.starter.storage.processor.preprocess.FileValidator;
+import top.continew.starter.storage.processor.preprocess.ThumbnailProcessor;
 import top.continew.starter.storage.processor.preprocess.impl.FileSizeValidator;
 import top.continew.starter.storage.processor.progress.UploadProgressListener;
 import top.continew.starter.storage.processor.registry.ProcessorRegistry;
@@ -96,7 +100,7 @@ class FileStorageServiceStreamTest {
 
     @Test
     @DisplayName("流式文件在支持流式上传的策略下走 uploadStream，源流被关闭")
-    void shouldDispatchStreamFileToUploadStream() throws IOException {
+    void shouldDispatchStreamFileToUploadStream() {
         byte[] content = "stream-data".getBytes(StandardCharsets.UTF_8);
         TrackingInputStream in = new TrackingInputStream(content);
         this.strategy.streamSupport = true;
@@ -108,6 +112,65 @@ class FileStorageServiceStreamTest {
         assertNull(this.strategy.uploadedFile, "不应走常规 upload");
         assertArrayEquals(content, this.strategy.streamBytes);
         assertTrue(in.closed, "上传完成后源流应被关闭");
+    }
+
+    @Test
+    @DisplayName("存在内容读取型校验器时流式文件先物化，校验器拿到可复读文件")
+    void shouldMaterializeForContentReadingValidator() {
+        byte[] content = "v-content".getBytes(StandardCharsets.UTF_8);
+        this.service.addProcessor(new RecordingValidator());
+
+        this.service.of(new ByteArrayInputStream(content), "v.bin",
+            "application/octet-stream").upload();
+
+        assertTrue(this.strategy.uploadedFile instanceof TempFileMultipartFile,
+            "校验器读内容需可复读文件，应先物化");
+        org.junit.jupiter.api.Assertions.assertFalse(this.strategy.streamUploadCalled);
+    }
+
+    @Test
+    @DisplayName("流式文件加缩略图需求时物化为临时文件再走常规上传")
+    void shouldMaterializeStreamWhenThumbnailRequested() {
+        byte[] content = "thumb".getBytes(StandardCharsets.UTF_8);
+        this.service.addProcessor(new PassthroughThumbnailProcessor());
+
+        FileInfo info = this.service.of(new ByteArrayInputStream(content), "pic.bin",
+            "image/png").thumbnail(10, 10).upload();
+
+        // 缩略图需二次读取：主流物化为临时文件，随后主文件与缩略图各上传一次
+        assertEquals(2, this.strategy.uploadedPaths.size());
+        org.junit.jupiter.api.Assertions.assertFalse(this.strategy.streamUploadCalled);
+        org.junit.jupiter.api.Assertions.assertNotNull(info);
+
+    }
+
+    @Test
+    @DisplayName("物化路径读取源流失败时记为物化失败并关闭源流")
+    void shouldFailMaterializationWhenSourceReadFails() {
+        this.service.addProcessor(new RecordingValidator());
+        InputStream failing = new InputStream() {
+
+            private int emitted;
+
+            @Override
+            public int read() throws IOException {
+                throw new IOException("模拟流读取失败");
+            }
+
+            @Override
+            public int read(byte[] b, int off, int len) throws IOException {
+                if (emitted >= 4) {
+                    throw new IOException("模拟流读取失败");
+                }
+                int n = Math.min(len, 4 - emitted);
+                emitted += n;
+                return n;
+            }
+        };
+
+        UploadPretreatment pretreatment = this.service.of(failing, "m.bin",
+            "application/octet-stream");
+        assertThrows(StorageException.class, pretreatment::upload);
     }
 
     @Test
@@ -145,9 +208,10 @@ class FileStorageServiceStreamTest {
         this.strategy.streamSupport = true;
         TrackingInputStream in = new TrackingInputStream(
             "0123456789".getBytes(StandardCharsets.UTF_8));
+        UploadPretreatment pretreatment = this.service.of(in, "big.bin",
+            "application/octet-stream");
 
-        assertThrows(StorageException.class, () -> this.service.of(in, "big.bin",
-            "application/octet-stream").upload());
+        assertThrows(StorageException.class, pretreatment::upload);
         assertTrue(in.closed, "校验失败路径源流也必须关闭");
     }
 
@@ -161,8 +225,9 @@ class FileStorageServiceStreamTest {
         TrackingInputStream in = new TrackingInputStream(
             "0123456789".getBytes(StandardCharsets.UTF_8));
 
-        assertThrows(StorageException.class, () -> this.service.of(in, "fail.bin",
-            "application/octet-stream").onProgress(listener).upload());
+        UploadPretreatment pretreatment = this.service.of(in, "fail.bin",
+            "application/octet-stream").onProgress(listener);
+        assertThrows(StorageException.class, pretreatment::upload);
 
         assertTrue(in.closed);
         verify(listener).onError(any(Exception.class));
@@ -171,7 +236,7 @@ class FileStorageServiceStreamTest {
 
     @Test
     @DisplayName("流式上传成功显式 complete，未知长度回传实际读取字节数")
-    void shouldCompleteProgressAndReportActualSize() throws IOException {
+    void shouldCompleteProgressAndReportActualSize() {
         byte[] content = "0123456789".getBytes(StandardCharsets.UTF_8);
         this.strategy.streamSupport = true;
         this.strategy.fileSize = -1L;
@@ -439,9 +504,9 @@ class FileStorageServiceStreamTest {
         zip[secondHeader + 8] = 99;
         zip[secondHeader + 9] = 0;
 
+        ByteArrayInputStream zipIn = new ByteArrayInputStream(zip);
         StorageException e = assertThrows(StorageException.class,
-            () -> this.service.importZip(PLATFORM, "bucket", null,
-                new ByteArrayInputStream(zip)));
+            () -> this.service.importZip(PLATFORM, "bucket", null, zipIn));
 
         assertInstanceOf(IOException.class, e.getCause());
         assertEquals(List.of("a.bin"), this.strategy.uploadedPaths);
@@ -504,6 +569,91 @@ class FileStorageServiceStreamTest {
         assertEquals(1, resp.getSuccess());
         assertEquals(List.of("a.bin"), this.strategy.uploadedPaths);
         assertTrue(this.strategy.deletedPaths.isEmpty());
+    }
+
+    @Test
+    @DisplayName("importZip 无消息异常的上传失败如实记失败并继续下一条")
+    void shouldRecordNullMessageUploadFailureAndContinue() throws IOException {
+        // 策略对 bad.bin 抛无消息异常：成功/失败与消息分离，不得把 null 消息误判成功
+        this.strategy.uploadFailures.put("bad.bin", new StorageException((String) null));
+        Map<String, byte[]> entries = new LinkedHashMap<>();
+        entries.put("bad.bin", "aa".getBytes(StandardCharsets.UTF_8));
+        entries.put("ok.bin", "bb".getBytes(StandardCharsets.UTF_8));
+        byte[] zip = buildZip(entries);
+
+        ZipImportResp resp = this.service.importZip(PLATFORM, "bucket", null,
+            new ByteArrayInputStream(zip));
+
+        assertEquals(2, resp.getTotal());
+        assertEquals(1, resp.getSuccess());
+        assertEquals(1, resp.getFailed());
+        assertNull(resp.getEntries().get(0).getError(), "失败条目错误消息可为 null，但状态必为失败");
+        assertEquals(List.of("ok.bin"), this.strategy.uploadedPaths);
+    }
+
+    @Test
+    @DisplayName("直传路径源流恰由 closeStream 关闭一次")
+    void shouldCloseSourceStreamExactlyOnceOnDirectUpload() {
+        CountingCloseStream in = new CountingCloseStream(
+            "direct".getBytes(StandardCharsets.UTF_8));
+        this.strategy.streamSupport = true;
+
+        this.service.upload(PLATFORM, "bucket", "d.bin",
+            new InputStreamMultipartFile("file", "d.bin", "application/octet-stream", -1,
+                in));
+
+        assertTrue(this.strategy.streamUploadCalled);
+        assertEquals(1, in.closeCount, "直传源流应只关闭一次");
+    }
+
+    @Test
+    @DisplayName("物化路径源流恰由 closeStream 关闭一次")
+    void shouldCloseSourceStreamExactlyOnceOnMaterialize() {
+        CountingCloseStream in = new CountingCloseStream(
+            "mat".getBytes(StandardCharsets.UTF_8));
+        this.strategy.streamSupport = false;
+
+        this.service.upload(PLATFORM, "bucket", "m.bin",
+            new InputStreamMultipartFile("file", "m.bin", "application/octet-stream", -1,
+                in));
+
+        assertTrue(this.strategy.uploadedFile instanceof TempFileMultipartFile);
+        assertEquals(1, in.closeCount, "物化源流应只关闭一次");
+    }
+
+    @Test
+    @DisplayName("源流关闭失败仅记日志，不吞掉已成功的上传")
+    void shouldNotFailUploadWhenSourceCloseFails() {
+        this.strategy.streamSupport = true;
+        TrackingInputStream in = new TrackingInputStream(
+            "close-fail".getBytes(StandardCharsets.UTF_8));
+        in.throwOnClose = true;
+
+        // 上传成功路径源流关闭抛错：log-only，不得把落盘后成功误报为失败
+        this.service.upload(PLATFORM, "bucket", "c.bin",
+            new InputStreamMultipartFile("file", "c.bin", "application/octet-stream", -1,
+                in));
+
+        assertTrue(this.strategy.streamUploadCalled);
+        assertTrue(in.closed);
+    }
+
+    /**
+     * 记录 close() 调用次数的字节输入流
+     */
+    private static class CountingCloseStream extends ByteArrayInputStream {
+
+        private int closeCount;
+
+        CountingCloseStream(byte[] buf) {
+            super(buf);
+        }
+
+        @Override
+        public void close() throws IOException {
+            closeCount++;
+            super.close();
+        }
     }
 
     /**
@@ -594,6 +744,53 @@ class FileStorageServiceStreamTest {
     }
 
     /**
+     * 内容读取型校验器：除 FileSize/FileType 外即按"可能读内容"处理
+     */
+    private static class RecordingValidator implements FileValidator {
+
+        @Override
+        public String getName() {
+            return RecordingValidator.class.getSimpleName();
+        }
+
+        @Override
+        public boolean support(UploadContext context) {
+            return true;
+        }
+
+        @Override
+        public void validate(UploadContext context) {
+            // 记录不读内容；触发 hasContentReadingProcessors → 物化路径即可
+        }
+    }
+
+    /**
+     * 恒支持缩略图的假处理器：返回固定字节，不经图像解码
+     */
+    private static class PassthroughThumbnailProcessor implements ThumbnailProcessor {
+
+        @Override
+        public String getName() {
+            return PassthroughThumbnailProcessor.class.getSimpleName();
+        }
+
+        @Override
+        public boolean support(UploadContext context) {
+            return true;
+        }
+
+        @Override
+        public ThumbnailInfo process(UploadContext context, InputStream sourceInputStream) {
+            ThumbnailInfo info = new ThumbnailInfo();
+            info.setData(new byte[] {1, 2});
+            info.setFormat("png");
+            info.setWidth(10);
+            info.setHeight(10);
+            return info;
+        }
+    }
+
+    /**
      * 记录式假存储策略：只实现本测试覆盖的调用面，记录入参便于断言
      */
     private static class FakeStrategy implements StorageStrategy {
@@ -614,9 +811,14 @@ class FileStorageServiceStreamTest {
         private boolean batchDownloadCalled;
         private int streamFailsAt = -1;
         private byte[] customBatchZip;
+        private final Map<String, RuntimeException> uploadFailures = new HashMap<>();
 
         @Override
         public void upload(String bucket, String path, MultipartFile file) {
+            RuntimeException failure = this.uploadFailures.get(path);
+            if (failure != null) {
+                throw failure;
+            }
             this.uploadedFile = file;
             this.uploadedPaths.add(path);
         }
@@ -699,11 +901,13 @@ class FileStorageServiceStreamTest {
         @Override
         public void copy(String sourceBucket, String targetBucket, String sourcePath,
             String targetPath) {
+            // 假策略不需要复制行为
         }
 
         @Override
         public void move(String sourceBucket, String targetBucket, String sourcePath,
             String targetPath) {
+            // 假策略不需要移动行为
         }
 
         @Override
@@ -746,6 +950,7 @@ class FileStorageServiceStreamTest {
 
         @Override
         public void abortMultipartUpload(String bucket, String path, String uploadId) {
+            // 假策略不需要中止分片行为
         }
 
         @Override

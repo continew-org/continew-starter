@@ -227,7 +227,7 @@ class OssObjectOperationIT extends MinioContainerSupport {
 
     @Test
     @DisplayName("uploadStream 已知长度走单次 PUT 且内容一致")
-    void shouldUploadStreamWithKnownLength() throws IOException {
+    void shouldUploadStreamWithKnownLength() {
         String key = randomPrefix() + "stream-known.bin";
         byte[] content = "known-length".getBytes(StandardCharsets.UTF_8);
 
@@ -239,7 +239,7 @@ class OssObjectOperationIT extends MinioContainerSupport {
 
     @Test
     @DisplayName("uploadStream 未知长度小流探测后单次 PUT，内容一致")
-    void shouldUploadSmallUnknownStreamViaProbe() throws IOException {
+    void shouldUploadSmallUnknownStreamViaProbe() {
         String key = randomPrefix() + "stream-small.bin";
         byte[] content = "small-unknown".getBytes(StandardCharsets.UTF_8);
 
@@ -251,7 +251,7 @@ class OssObjectOperationIT extends MinioContainerSupport {
 
     @Test
     @DisplayName("uploadStream 未知长度超探测阈值走真实分片上传，多片内容一致")
-    void shouldUploadLargeUnknownStreamViaMultipart() throws IOException {
+    void shouldUploadLargeUnknownStreamViaMultipart() {
         String key = randomPrefix() + "stream-large.bin";
         // 超过探测阈值（min(8KB阈值, 4KB分片)=4KB）且超过 S3 最小分片 5MB，验证多分片路径
         byte[] content = new byte[6 * 1024 * 1024 + 123];
@@ -288,8 +288,9 @@ class OssObjectOperationIT extends MinioContainerSupport {
             }
         };
 
-        assertThrows(StorageException.class, () -> strategy().uploadStream(BUCKET, key, failing,
-            "application/octet-stream", -1));
+        OssStorageStrategy s3 = strategy();
+        assertThrows(StorageException.class,
+            () -> s3.uploadStream(BUCKET, key, failing, "application/octet-stream", -1));
         assertFalse(strategy().exists(BUCKET, key), "失败分片上传不得落库对象");
     }
 

@@ -23,9 +23,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermissions;
 
 /**
  * 落盘临时文件型 MultipartFile
@@ -42,6 +46,12 @@ public class TempFileMultipartFile implements MultipartFile {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TempFileMultipartFile.class);
 
+    // 仅 POSIX 平台在创建时把临时文件限为属主读写；其它平台传空属性，权限交给平台默认
+    private static final FileAttribute<?>[] TEMP_FILE_ATTRS = FileSystems.getDefault()
+        .supportedFileAttributeViews().contains("posix")
+            ? new FileAttribute<?>[] {PosixFilePermissions
+                .asFileAttribute(PosixFilePermissions.fromString("rw-------"))}
+            : new FileAttribute<?>[0];
     private final String name;
     private final String originalFilename;
     private final String contentType;
@@ -78,9 +88,10 @@ public class TempFileMultipartFile implements MultipartFile {
      */
     public static TempFileMultipartFile materialize(String name, String originalFilename,
         String contentType, InputStream in) throws IOException {
-        Path tempFile = Files.createTempFile("storage-upload-", ".tmp");
-        try {
-            long size = Files.copy(in, tempFile, StandardCopyOption.REPLACE_EXISTING);
+        Path tempFile = Files.createTempFile("storage-upload-", ".tmp", TEMP_FILE_ATTRS);
+        // 打开已建文件的输出流（不重建文件），写入期间属主权限不变
+        try (OutputStream out = Files.newOutputStream(tempFile)) {
+            long size = in.transferTo(out);
             return new TempFileMultipartFile(name, originalFilename, contentType, tempFile, size);
         } catch (IOException | RuntimeException e) {
             deleteQuietly(tempFile);

@@ -296,11 +296,12 @@ public class FileStorageService {
             long streamLimit = unwrapStreamFile(context.getFile()) == null ? Long.MAX_VALUE
                 : resolveStreamLimit(platform, context, customProcessors);
 
+            InputStreamMultipartFile streamFile = unwrapStreamFile(context.getFile());
             // 存在需要读取内容的自定义处理器时先限量物化，保证验证拿到可复读文件
-            if (unwrapStreamFile(context.getFile()) != null
+            if (streamFile != null
                 && hasContentReadingProcessors(platform, context, customProcessors)) {
                 context.setFile(
-                    materializeForRepeatableRead(context.getFile(), listener, streamLimit));
+                    materializeForRepeatableRead(streamFile, listener, streamLimit));
             }
 
             // 1. 执行文件验证（验证阶段）
@@ -321,10 +322,13 @@ public class FileStorageService {
                 prepareThumbnail(context, platform, customProcessors);
 
             // 缩略图需二次读取：不可复读的流式文件先限量物化为临时文件再上传
-            if (context.isGenerateThumbnail()
-                && unwrapStreamFile(context.getFile()) != null) {
-                context.setFile(materializeForRepeatableRead(context.getFile(), listener,
-                    streamLimit));
+            if (context.isGenerateThumbnail()) {
+                InputStreamMultipartFile streamFileForThumbnail =
+                    unwrapStreamFile(context.getFile());
+                if (streamFileForThumbnail != null) {
+                    context.setFile(materializeForRepeatableRead(streamFileForThumbnail,
+                        listener, streamLimit));
+                }
             }
 
             // 5. 执行实际上传
@@ -425,7 +429,10 @@ public class FileStorageService {
             } catch (IOException e) {
                 throw new StorageException("流式上传失败: " + e.getMessage(), e);
             }
-            BoundedInputStream bounded = new BoundedInputStream(raw, streamLimit, true);
+            // bounded 由 finally 中 streamFile.closeStream() 唯一关闭；TWR 会因
+            // FilterInputStream.close() 二次关闭源流，且 close 异常会误报落盘后失败
+            BoundedInputStream bounded =
+                new BoundedInputStream(raw, streamLimit, true);
             InputStream in = withProgress(bounded, file);
             ProgressTracker tracker = trackerOf(in);
             try {
@@ -468,36 +475,8 @@ public class FileStorageService {
         InputStreamMultipartFile streamFile, MultipartFile file, long streamLimit) {
         TempFileMultipartFile tempFile = null;
         try {
-            try {
-                InputStream raw = streamFile.getInputStream();
-                BoundedInputStream bounded =
-                    new BoundedInputStream(raw, streamLimit, true);
-                InputStream in = withProgress(bounded, file);
-                ProgressTracker tracker = trackerOf(in);
-                try {
-                    tempFile = TempFileMultipartFile.materialize(streamFile.getName(),
-                        streamFile.getOriginalFilename(), streamFile.getContentType(), in);
-                    streamFile.setActualSize(bounded.getCount());
-                    strategy.upload(bucket, path, tempFile);
-                    if (tracker != null) {
-                        tracker.complete();
-                    }
-                } catch (Exception e) {
-                    streamFile.setActualSize(bounded.getCount());
-                    if (tracker != null) {
-                        tracker.error(e);
-                    }
-                    if (e instanceof StorageException se) {
-                        throw se;
-                    }
-                    if (e instanceof IOException ioe) {
-                        throw new StorageException("流式上传物化失败: " + ioe.getMessage(), ioe);
-                    }
-                    throw e;
-                }
-            } catch (IOException e) {
-                throw new StorageException("流式上传物化失败: " + e.getMessage(), e);
-            }
+            tempFile = materializeViaStream(strategy, bucket, path, streamFile, file,
+                streamLimit);
         } finally {
             try {
                 streamFile.closeStream();
@@ -507,6 +486,78 @@ public class FileStorageService {
             if (tempFile != null) {
                 tempFile.delete();
             }
+        }
+    }
+
+    /**
+     * 以限量流物化临时文件并完成常规上传，进度成功/失败显式上报
+     *
+     * @param strategy    目标策略
+     * @param bucket      存储桶
+     * @param path        路径
+     * @param streamFile  单次读流文件
+     * @param file        原始包装文件
+     * @param streamLimit 流式内容读取上限
+     * @return 已上传的临时文件（调用方负责删除）
+     */
+    private TempFileMultipartFile materializeViaStream(StorageStrategy strategy,
+        String bucket, String path, InputStreamMultipartFile streamFile,
+        MultipartFile file, long streamLimit) {
+        // bounded 由调用方 finally 中 streamFile.closeStream() 唯一关闭，不在此 TWR
+        BoundedInputStream bounded;
+        try {
+            bounded =
+                new BoundedInputStream(streamFile.getInputStream(), streamLimit, true);
+        } catch (IOException e) {
+            throw new StorageException("流式上传物化失败: " + e.getMessage(), e);
+        }
+        InputStream in = withProgress(bounded, file);
+        ProgressTracker tracker = trackerOf(in);
+        return doUploadMaterialized(strategy, bucket, path, streamFile, bounded,
+            tracker, in);
+    }
+
+    /**
+     * 把限量流物化为临时文件并完成常规上传；上传失败时清理临时文件防泄漏
+     *
+     * @param strategy   目标策略
+     * @param bucket     存储桶
+     * @param path       路径
+     * @param streamFile 单次读流文件
+     * @param bounded    限量输入流
+     * @param tracker    进度追踪器（可空）
+     * @param in         已按需包装进度的限量流
+     * @return 已上传的临时文件（调用方负责删除）
+     */
+    private TempFileMultipartFile doUploadMaterialized(StorageStrategy strategy,
+        String bucket, String path, InputStreamMultipartFile streamFile,
+        BoundedInputStream bounded, ProgressTracker tracker, InputStream in) {
+        TempFileMultipartFile tempFile = null;
+        try {
+            tempFile = TempFileMultipartFile.materialize(streamFile.getName(),
+                streamFile.getOriginalFilename(), streamFile.getContentType(), in);
+            streamFile.setActualSize(bounded.getCount());
+            strategy.upload(bucket, path, tempFile);
+            if (tracker != null) {
+                tracker.complete();
+            }
+            return tempFile;
+        } catch (Exception e) {
+            // 物化成功但上传失败：方法内清理，避免泄漏临时文件
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+            streamFile.setActualSize(bounded.getCount());
+            if (tracker != null) {
+                tracker.error(e);
+            }
+            if (e instanceof StorageException se) {
+                throw se;
+            }
+            if (e instanceof IOException ioe) {
+                throw new StorageException("流式上传物化失败: " + ioe.getMessage(), ioe);
+            }
+            throw (RuntimeException) e;
         }
     }
 
@@ -549,16 +600,18 @@ public class FileStorageService {
     /**
      * 将不可复读的流式文件物化为临时文件（按 streamLimit 限量），并按需补回进度包装
      *
-     * @param file        当前上下文文件
+     * @param streamFile  已判空的流式文件
      * @param listener    进度监听器
      * @param streamLimit 流式内容读取上限
      * @return 可复读的 MultipartFile
      */
-    private MultipartFile materializeForRepeatableRead(MultipartFile file,
-        UploadProgressListener listener, long streamLimit) {
-        InputStreamMultipartFile streamFile = unwrapStreamFile(file);
+    private MultipartFile materializeForRepeatableRead(
+        InputStreamMultipartFile streamFile, UploadProgressListener listener,
+        long streamLimit) {
         try {
             InputStream raw = streamFile.getInputStream();
+            // bounded 由 finally 中 streamFile.closeStream() 唯一关闭；TWR 会因
+            // FilterInputStream.close() 二次关闭源流，且 close 异常会误报物化失败
             BoundedInputStream bounded =
                 new BoundedInputStream(raw, streamLimit, true);
             TempFileMultipartFile tempFile = TempFileMultipartFile.materialize(streamFile
@@ -1429,8 +1482,9 @@ public class FileStorageService {
                 : StrUtil.removeSuffix(ZipFileUtils.normalizeEntryName(parentPath),
                     StringConstants.SLASH);
             long maxEntries = properties.getZipImportMaxEntries();
+            boolean stopped = false;
             ZipEntry entry;
-            while ((entry = zin.getNextEntry()) != null) {
+            while (!stopped && (entry = zin.getNextEntry()) != null) {
                 String entryName = entry.getName();
                 resp.setTotal(resp.getTotal() + 1);
                 if (resp.getTotal() > maxEntries) {
@@ -1439,55 +1493,26 @@ public class FileStorageService {
                     break;
                 }
 
-                String skipReason;
-                String normalizedName;
-                if (entry.isDirectory()) {
-                    skipReason = "目录条目不导入";
-                    normalizedName = null;
-                } else {
-                    try {
-                        normalizedName = ZipFileUtils.normalizeEntryName(entryName);
-                        skipReason = null;
-                    } catch (StorageException e) {
-                        normalizedName = null;
-                        skipReason = e.getMessage();
-                    }
-                }
-                if (skipReason != null) {
-                    // 显式经计量 read 排空被跳过条目：排空失败记该条一次失败并停止，
-                    // 错误归当前条目而非积压到下一条目头部
-                    try {
-                        zin.closeEntry();
-                    } catch (IOException e) {
-                        resp.addEntry(entryName, false, 0L, e.getMessage());
-                        break;
-                    }
-                    resp.addEntry(entryName, false, 0L, skipReason);
+                ZipEntryCheck check = checkEntry(entry);
+                if (!check.importable()) {
+                    // 目录或非法名条目：排空成功记原因、排空失败记该条一次失败并停止
+                    stopped = !drainSkippedEntry(zin, resp, entryName, check.skipReason());
                     continue;
                 }
+                String normalizedName = check.name();
                 String targetPath = StrUtil.isBlank(normalizedParent) ? normalizedName
                     : normalizedParent + StringConstants.SLASH + normalizedName;
 
                 // 读取侧已按单条/全包硬限计量，物化到临时文件后才可能触碰目标对象；
                 // 任一层超限或读取失败都记该条失败并停止导入，不触碰既有对象
-                TempFileMultipartFile temp;
-                try {
-                    temp = TempFileMultipartFile.materialize(entryName, normalizedName,
-                        guessZipEntryContentType(normalizedName), zin);
-                } catch (IOException e) {
-                    resp.addEntry(entryName, false, 0L, e.getMessage());
-                    break;
+                TempFileMultipartFile temp = materializeZipEntry(zin, resp, entryName,
+                    normalizedName);
+                if (temp == null) {
+                    stopped = true;
+                    continue;
                 }
                 try {
-                    long entryBytes = temp.getSize();
-                    try {
-                        // 同名目标对象覆盖写入，已存在对象不特殊保护
-                        strategy.upload(bucket, targetPath, temp);
-                    } catch (Exception e) {
-                        resp.addEntry(entryName, false, entryBytes, e.getMessage());
-                        continue;
-                    }
-                    resp.addEntry(entryName, true, entryBytes, null);
+                    uploadZipEntry(strategy, bucket, targetPath, temp, resp, entryName);
                 } finally {
                     temp.delete();
                 }
@@ -1497,6 +1522,100 @@ public class FileStorageService {
             throw new StorageException("ZIP 导入读取失败: " + e.getMessage(), e);
         }
         return resp;
+    }
+
+    /**
+     * 校验条目：目录或非法名记为不可导入并返回原因，可导入返回规范化名
+     *
+     * @param entry ZIP 条目
+     * @return 校验结果（规范化名或拒绝原因）
+     */
+    private ZipEntryCheck checkEntry(ZipEntry entry) {
+        if (entry.isDirectory()) {
+            return new ZipEntryCheck(null, "目录条目不导入");
+        }
+        try {
+            return new ZipEntryCheck(ZipFileUtils.normalizeEntryName(entry.getName()),
+                null);
+        } catch (StorageException e) {
+            return new ZipEntryCheck(null, e.getMessage());
+        }
+    }
+
+    /**
+     * 条目校验结果
+     *
+     * @param name       规范化条目名（可导入时非 null）
+     * @param skipReason 拒绝原因（可导入时为 null）
+     */
+    private record ZipEntryCheck(String name, String skipReason) {
+
+        boolean importable() {
+            return name != null;
+        }
+    }
+
+    /**
+     * 经计量 read 排空被跳过的条目；成功记拒绝原因，失败记该条一次失败
+     *
+     * @param zin        计量 ZIP 输入流
+     * @param resp       导入结果
+     * @param entryName  条目名
+     * @param skipReason 拒绝原因
+     * @return 排空成功；排空失败时记该条一次失败并返回 false
+     */
+    private boolean drainSkippedEntry(BudgetedZipInputStream zin, ZipImportResp resp,
+        String entryName, String skipReason) {
+        try {
+            zin.closeEntry();
+            resp.addEntry(entryName, false, 0L, skipReason);
+            return true;
+        } catch (IOException e) {
+            resp.addEntry(entryName, false, 0L, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 物化单条 ZIP 条目到临时文件；读取超限或失败记该条一次失败并返回 null
+     *
+     * @param zin            计量 ZIP 输入流
+     * @param resp           导入结果
+     * @param entryName      原始条目名
+     * @param normalizedName 规范化条目名
+     * @return 临时文件；失败返回 null
+     */
+    private TempFileMultipartFile materializeZipEntry(BudgetedZipInputStream zin,
+        ZipImportResp resp, String entryName, String normalizedName) {
+        try {
+            return TempFileMultipartFile.materialize(entryName, normalizedName,
+                guessZipEntryContentType(normalizedName), zin);
+        } catch (IOException e) {
+            resp.addEntry(entryName, false, 0L, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 上传单条物化条目并记录结果；同名目标对象覆盖写入，已存在对象不特殊保护。
+     * 成功/失败与消息分离：无异常消息的失败也如实计为失败
+     *
+     * @param strategy   目标策略
+     * @param bucket     存储桶
+     * @param targetPath 目标路径
+     * @param temp       物化临时文件
+     * @param resp       导入结果
+     * @param entryName  原始条目名
+     */
+    private void uploadZipEntry(StorageStrategy strategy, String bucket,
+        String targetPath, TempFileMultipartFile temp, ZipImportResp resp,
+        String entryName) {
+        try {
+            strategy.upload(bucket, targetPath, temp);
+            resp.addEntry(entryName, true, temp.getSize(), null);
+        } catch (Exception e) {
+            resp.addEntry(entryName, false, temp.getSize(), e.getMessage());
+        }
     }
 
     /**

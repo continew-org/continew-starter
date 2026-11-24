@@ -261,12 +261,12 @@ class FileOperationTest {
     @Test
     @DisplayName("asZip 校验 .zip 后缀大小写不敏感与文件名非空")
     void shouldValidateZipSourcePath() {
-        assertThrows(StorageException.class,
-            () -> this.service.file("bucket", "dir/a.txt").asZip());
-        assertThrows(StorageException.class,
-            () -> this.service.file("bucket", "dir/.zip").asZip());
-        assertThrows(StorageException.class,
-            () -> this.service.file("bucket", "dir/a.zipx").asZip());
+        FileOperation txtOp = this.service.file("bucket", "dir/a.txt");
+        assertThrows(StorageException.class, txtOp::asZip);
+        FileOperation bareNameOp = this.service.file("bucket", "dir/.zip");
+        assertThrows(StorageException.class, bareNameOp::asZip);
+        FileOperation zipxOp = this.service.file("bucket", "dir/a.zipx");
+        assertThrows(StorageException.class, zipxOp::asZip);
         // 大写后缀合法
         this.service.file("bucket", "dir/A.ZIP").asZip();
     }
@@ -274,10 +274,10 @@ class FileOperationTest {
     @Test
     @DisplayName("asZip 非法源路径在构造期拒绝且不触发任何 IO")
     void shouldRejectIllegalZipPathWithoutIO() {
-        assertThrows(StorageException.class,
-            () -> this.service.file("bucket", "dir/../a.zip").asZip());
-        assertThrows(StorageException.class,
-            () -> this.service.file("bucket", null).asZip());
+        FileOperation traversalOp = this.service.file("bucket", "dir/../a.zip");
+        assertThrows(StorageException.class, traversalOp::asZip);
+        FileOperation nullOp = this.service.file("bucket", null);
+        assertThrows(StorageException.class, nullOp::asZip);
         assertTrue(this.strategy.downloadedPaths.isEmpty());
         assertTrue(this.strategy.uploadedPaths.isEmpty());
     }
@@ -319,8 +319,8 @@ class FileOperationTest {
         TrackingInputStream source = new TrackingInputStream(zip);
         this.strategy.downloadStreams.put("a.zip", source);
 
-        assertThrows(StorageException.class,
-            () -> this.service.file("bucket", "a.zip").asZip().importZip());
+        ZipFileOperation zipOp = this.service.file("bucket", "a.zip").asZip();
+        assertThrows(StorageException.class, zipOp::importZip);
         assertEquals(1, source.closeCount);
     }
 
@@ -494,6 +494,7 @@ class FileOperationTest {
 
         @Override
         public void abortMultipartUpload(String bucket, String path, String uploadId) {
+            // 假策略不需要中止分片行为
         }
 
         @Override

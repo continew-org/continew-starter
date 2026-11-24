@@ -142,8 +142,10 @@ public class LocalStorageStrategy implements StorageStrategy {
             // 创建目录
             Files.createDirectories(filePath.getParent());
 
-            // 复制文件
-            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            // file.getInputStream() 由本方法打开并负责关闭（TempFileMultipartFile 新开文件句柄）
+            try (InputStream in = file.getInputStream()) {
+                Files.copy(in, filePath, StandardCopyOption.REPLACE_EXISTING);
+            }
         } catch (Exception e) {
             throw new StorageException(e.getMessage(), e);
         }
@@ -222,19 +224,32 @@ public class LocalStorageStrategy implements StorageStrategy {
                     + end + ", size=" + fileSize);
             }
             long realEnd = Math.min(end, fileSize - 1);
-            SeekableByteChannel channel = Files.newByteChannel(filePath);
-            try {
-                channel.position(start);
-                return new BoundedInputStream(Channels.newInputStream(channel),
-                    realEnd - start + 1);
-            } catch (IOException | RuntimeException e) {
-                channel.close();
-                throw e;
-            }
+            return openRangeStream(filePath, start, realEnd - start + 1);
         } catch (StorageException e) {
             throw e;
         } catch (IOException e) {
             throw new StorageException("本地范围读取失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 打开限定范围的文件输入流：定位失败时关闭通道防泄漏
+     *
+     * @param filePath 文件路径
+     * @param start    起始偏移
+     * @param length   可读长度
+     * @return 限长输入流
+     * @throws IOException 打开或定位失败时抛出
+     */
+    private InputStream openRangeStream(Path filePath, long start,
+        long length) throws IOException {
+        SeekableByteChannel channel = Files.newByteChannel(filePath);
+        try {
+            channel.position(start);
+            return new BoundedInputStream(Channels.newInputStream(channel), length);
+        } catch (IOException | RuntimeException e) {
+            channel.close();
+            throw e;
         }
     }
 

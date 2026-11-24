@@ -199,13 +199,10 @@ public class OssStorageStrategy implements StorageStrategy {
             .key(key)
             .contentType(file.getContentType())
             .contentLength(file.getSize());
-
-        try {
-            // 执行上传
+        // RequestBody.fromInputStream 不接管流所有权，getInputStream 由本方法打开并关闭
+        try (InputStream in = file.getInputStream()) {
             s3Client.putObject(requestBuilder.build(),
-                RequestBody.fromInputStream(file.getInputStream(), file
-                    .getSize()));
-
+                RequestBody.fromInputStream(in, file.getSize()));
         } catch (Exception e) {
             throw new StorageException("S3上传异常" + e.getMessage(), e);
         }
@@ -276,8 +273,8 @@ public class OssStorageStrategy implements StorageStrategy {
     private void uploadStreamMultipart(String bucket, String key, InputStream inputStream,
         String contentType, byte[] head, int headSize) {
         // S3 要求除最后一片外每片至少 5MB，缓冲尺寸取下限 5MB
-        int partBufferSize = (int) Math.min(Math.max(multipartUploadPartSize, 5L * 1024 * 1024),
-            64L * 1024 * 1024);
+        int partBufferSize =
+            (int) Math.clamp(multipartUploadPartSize, 5L * 1024 * 1024, 64L * 1024 * 1024);
         String uploadId = null;
         try {
             CreateMultipartUploadResponse initResponse = s3Client
@@ -288,43 +285,9 @@ public class OssStorageStrategy implements StorageStrategy {
                     .build());
             uploadId = initResponse.uploadId();
 
-            List<CompletedPart> completedParts = new ArrayList<>();
-            byte[] buffer = new byte[partBufferSize];
-            int bufferSize = 0;
-            System.arraycopy(head, 0, buffer, 0, headSize);
-            bufferSize += headSize;
-
-            int partNumber = 1;
-            boolean eof = false;
-            while (!eof) {
-                int n = readUpTo(inputStream, buffer, bufferSize, partBufferSize - bufferSize);
-                if (n < 0) {
-                    eof = true;
-                } else {
-                    bufferSize += n;
-                }
-                // 凑满一片或已到流末尾时上传该片（末尾允许不足 5MB）
-                if (bufferSize == partBufferSize || (eof && bufferSize > 0)) {
-                    UploadPartResponse partResponse =
-                        s3Client.uploadPart(UploadPartRequest.builder()
-                            .bucket(bucket)
-                            .key(key)
-                            .uploadId(uploadId)
-                            .partNumber(partNumber)
-                            .contentLength((long) bufferSize)
-                            .build(),
-                            RequestBody
-                                .fromInputStream(new ByteArrayInputStream(buffer, 0, bufferSize),
-                                    bufferSize));
-                    completedParts.add(CompletedPart.builder()
-                        .partNumber(partNumber)
-                        .eTag(partResponse.eTag())
-                        .build());
-                    partNumber++;
-                    bufferSize = 0;
-                }
-            }
-
+            List<CompletedPart> completedParts =
+                streamParts(bucket, key, uploadId, inputStream, head, headSize,
+                    partBufferSize);
             if (completedParts.isEmpty()) {
                 throw new StorageException("S3流式上传异常: 无有效分片数据");
             }
@@ -335,21 +298,97 @@ public class OssStorageStrategy implements StorageStrategy {
                 .multipartUpload(multipartUpload -> multipartUpload.parts(completedParts))
                 .build());
         } catch (Exception e) {
-            if (uploadId != null) {
-                try {
-                    s3Client.abortMultipartUpload(AbortMultipartUploadRequest.builder()
-                        .bucket(bucket)
-                        .key(key)
-                        .uploadId(uploadId)
-                        .build());
-                } catch (Exception abortError) {
-                    LOGGER.warn("中止分片上传失败: uploadId={}", uploadId, abortError);
-                }
-            }
+            abortMultipartQuietly(bucket, key, uploadId);
             if (e instanceof StorageException storageException) {
                 throw storageException;
             }
             throw new StorageException("S3流式上传异常: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 以首块探测数据起片，按分片大小逐块直传余下内容
+     *
+     * @param bucket         存储桶
+     * @param key            规范化对象键
+     * @param uploadId       分片上传标识
+     * @param inputStream    剩余内容输入流
+     * @param head           已探测的首块数据
+     * @param headSize       首块数据实际长度
+     * @param partBufferSize 分片缓冲尺寸
+     * @return 已完成分片列表
+     * @throws IOException 读取源内容失败时抛出
+     */
+    private List<CompletedPart> streamParts(String bucket, String key, String uploadId,
+        InputStream inputStream, byte[] head, int headSize,
+        int partBufferSize) throws IOException {
+        List<CompletedPart> completedParts = new ArrayList<>();
+        byte[] buffer = new byte[partBufferSize];
+        System.arraycopy(head, 0, buffer, 0, headSize);
+        int bufferSize = headSize;
+        int partNumber = 1;
+        boolean eof = false;
+        while (!eof) {
+            int n = readUpTo(inputStream, buffer, bufferSize, partBufferSize - bufferSize);
+            if (n < 0) {
+                eof = true;
+            } else {
+                bufferSize += n;
+            }
+            // 凑满一片或已到流末尾时上传该片（末尾允许不足 5MB）
+            if (bufferSize == partBufferSize || (eof && bufferSize > 0)) {
+                completedParts
+                    .add(uploadOnePart(bucket, key, uploadId, partNumber, buffer, bufferSize));
+                partNumber++;
+                bufferSize = 0;
+            }
+        }
+        return completedParts;
+    }
+
+    /**
+     * 上传单个分片
+     *
+     * @param bucket     存储桶
+     * @param key        规范化对象键
+     * @param uploadId   分片上传标识
+     * @param partNumber 分片序号
+     * @param data       分片数据
+     * @param size       有效数据长度
+     * @return 已完成分片
+     */
+    private CompletedPart uploadOnePart(String bucket, String key, String uploadId,
+        int partNumber, byte[] data, int size) {
+        UploadPartResponse partResponse = s3Client.uploadPart(UploadPartRequest.builder()
+            .bucket(bucket)
+            .key(key)
+            .uploadId(uploadId)
+            .partNumber(partNumber)
+            .contentLength((long) size)
+            .build(),
+            RequestBody.fromInputStream(new ByteArrayInputStream(data, 0, size), size));
+        return CompletedPart.builder().partNumber(partNumber).eTag(partResponse.eTag()).build();
+    }
+
+    /**
+     * 中止分片上传，失败仅记日志（不掩盖原异常）
+     *
+     * @param bucket   存储桶
+     * @param key      规范化对象键
+     * @param uploadId 分片上传标识，null 表示尚未初始化成功
+     */
+    private void abortMultipartQuietly(String bucket, String key, String uploadId) {
+        if (uploadId == null) {
+            return;
+        }
+        try {
+            s3Client.abortMultipartUpload(AbortMultipartUploadRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .uploadId(uploadId)
+                .build());
+        } catch (Exception abortError) {
+            LOGGER.warn("中止分片上传失败: uploadId={}", uploadId, abortError);
         }
     }
 

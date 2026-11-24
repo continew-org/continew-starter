@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -49,13 +50,12 @@ public class ZipStreamInputStream extends InputStream {
 
     private final Iterator<String> paths;
     private final Function<String, InputStream> opener;
-    private final Function<String, String> entryNamer;
+    private final UnaryOperator<String> entryNamer;
     private final ChunkCollectingOutputStream sink = new ChunkCollectingOutputStream();
     private final ZipOutputStream zipOut = new ZipOutputStream(sink);
     private final byte[] copyBuffer = new byte[COPY_BUFFER_SIZE];
     private final byte[] singleByte = new byte[1];
-
-    private Deque<byte[]> pending;
+    private final Deque<byte[]> pending = new ArrayDeque<>();
     private byte[] currentChunk;
     private int currentOffset;
     private InputStream currentEntryStream;
@@ -69,11 +69,10 @@ public class ZipStreamInputStream extends InputStream {
      * @param entryNamer 由路径映射 ZIP 条目名（含去重）
      */
     public ZipStreamInputStream(List<String> paths, Function<String, InputStream> opener,
-        Function<String, String> entryNamer) {
+        UnaryOperator<String> entryNamer) {
         this.paths = paths.iterator();
         this.opener = opener;
         this.entryNamer = entryNamer;
-        this.pending = new ArrayDeque<>();
     }
 
     @Override
@@ -129,12 +128,11 @@ public class ZipStreamInputStream extends InputStream {
     private void nextChunk() throws IOException {
         while (currentChunk == null) {
             byte[] chunk = pending.poll();
-            if (chunk != null && chunk.length > 0) {
-                currentChunk = chunk;
-                currentOffset = 0;
-                continue;
-            }
             if (chunk != null) {
+                if (chunk.length > 0) {
+                    currentChunk = chunk;
+                    currentOffset = 0;
+                }
                 continue;
             }
             if (finished || !fill()) {
@@ -151,26 +149,35 @@ public class ZipStreamInputStream extends InputStream {
      */
     private boolean fill() throws IOException {
         while (!finished && pending.isEmpty()) {
-            if (currentEntryStream != null) {
-                int n = currentEntryStream.read(copyBuffer);
-                if (n >= 0) {
-                    zipOut.write(copyBuffer, 0, n);
-                    continue;
-                }
-                closeCurrentEntryStream();
-                zipOut.closeEntry();
-                continue;
-            }
-            if (paths.hasNext()) {
-                String path = paths.next();
-                zipOut.putNextEntry(new ZipEntry(entryNamer.apply(path)));
-                currentEntryStream = opener.apply(path);
-                continue;
-            }
-            zipOut.finish();
-            finished = true;
+            fillStep();
         }
         return !pending.isEmpty();
+    }
+
+    /**
+     * 推进一次 ZIP 生成：写当前条目内容、收尾当前条目、开启下一条目或收尾归档
+     *
+     * @throws IOException 读写失败时抛出
+     */
+    private void fillStep() throws IOException {
+        if (currentEntryStream != null) {
+            int n = currentEntryStream.read(copyBuffer);
+            if (n >= 0) {
+                zipOut.write(copyBuffer, 0, n);
+                return;
+            }
+            closeCurrentEntryStream();
+            zipOut.closeEntry();
+            return;
+        }
+        if (paths.hasNext()) {
+            String path = paths.next();
+            zipOut.putNextEntry(new ZipEntry(entryNamer.apply(path)));
+            currentEntryStream = opener.apply(path);
+            return;
+        }
+        zipOut.finish();
+        finished = true;
     }
 
     /**

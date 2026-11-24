@@ -81,6 +81,36 @@ class LocalStorageStrategyTest {
     }
 
     @Test
+    @DisplayName("范围下载返回闭区间内容，末端超界自动钳到文件尾")
+    void shouldDownloadClosedRange() throws IOException {
+        String path = "range.bin";
+        byte[] content = "0123456789".getBytes(StandardCharsets.UTF_8);
+        strategy.upload(bucketDir.toString(), path, file("range.bin", content));
+
+        try (InputStream in = strategy.downloadRange(bucketDir.toString(), path, 2, 4)) {
+            assertArrayEquals("234".getBytes(StandardCharsets.UTF_8), in.readAllBytes());
+        }
+        try (InputStream in = strategy.downloadRange(bucketDir.toString(), path, 8, 100)) {
+            assertArrayEquals("89".getBytes(StandardCharsets.UTF_8), in.readAllBytes());
+        }
+    }
+
+    @Test
+    @DisplayName("范围下载非法区间与越界起点均拒绝")
+    void shouldRejectIllegalRange() throws IOException {
+        String path = "range.bin";
+        strategy.upload(bucketDir.toString(), path,
+            file("range.bin", "0123".getBytes(StandardCharsets.UTF_8)));
+
+        assertThrows(StorageException.class,
+            () -> strategy.downloadRange(bucketDir.toString(), path, -1, 2));
+        assertThrows(StorageException.class,
+            () -> strategy.downloadRange(bucketDir.toString(), path, 5, 1));
+        assertThrows(StorageException.class,
+            () -> strategy.downloadRange(bucketDir.toString(), path, 10, 20));
+    }
+
+    @Test
     @DisplayName("上传后文件真实落盘，下载与存在性判定一致")
     void shouldUploadAndDownloadRoundtrip() throws IOException {
         String path = "docs/hello.txt";
@@ -92,6 +122,20 @@ class LocalStorageStrategyTest {
         try (InputStream in = strategy.download(bucketDir.toString(), path)) {
             assertArrayEquals(content, in.readAllBytes());
         }
+    }
+
+    @Test
+    @DisplayName("upload 关闭由本方法打开的 MultipartFile 输入流")
+    void shouldCloseOpenedMultipartInputStreamOnUpload() throws IOException {
+        // TempFileMultipartFile 等 getInputStream 新开句柄，调用方打开须负责关闭
+        CountingCloseStream in = new CountingCloseStream(
+            "close-me".getBytes(StandardCharsets.UTF_8));
+
+        strategy.upload(bucketDir.toString(), "c.bin",
+            new CountingCloseMultipartFile("c.bin", "application/octet-stream", in, 8));
+
+        assertEquals(1, in.closeCount, "upload 打开的输入流应只关闭一次");
+        assertTrue(Files.exists(bucketDir.resolve("c.bin")));
     }
 
     @Test
@@ -360,6 +404,43 @@ class LocalStorageStrategyTest {
         assertArrayEquals(tmpContent, readAll("same.bin.upload-tmp"),
             "既有 .upload-tmp 对象不得被改写或删除");
         assertArrayEquals("new".getBytes(StandardCharsets.UTF_8), readAll("same.bin"));
+    }
+
+    /**
+     * 记录 close() 调用次数的字节输入流
+     */
+    private static class CountingCloseStream extends ByteArrayInputStream {
+
+        private int closeCount;
+
+        CountingCloseStream(byte[] buf) {
+            super(buf);
+        }
+
+        @Override
+        public void close() throws IOException {
+            closeCount++;
+            super.close();
+        }
+    }
+
+    /**
+     * getInputStream 返回给定流的 MultipartFile（便于断言调用方关闭行为）
+     */
+    private static class CountingCloseMultipartFile extends MockMultipartFile {
+
+        private final InputStream in;
+
+        CountingCloseMultipartFile(String name, String contentType, InputStream in,
+            long size) {
+            super(name, name, contentType, new byte[(int) size]);
+            this.in = in;
+        }
+
+        @Override
+        public InputStream getInputStream() {
+            return this.in;
+        }
     }
 
     /**
