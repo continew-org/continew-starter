@@ -193,10 +193,10 @@ class LogRecordTest {
         Set<Include> includes = EnumSet.of(Include.REQUEST_HEADERS);
         includes.addAll(fields);
 
-        LogRecord record = recordRequest(observedRequest, includes, "withoutHeaders");
+        LogRecord logRecord = recordRequest(observedRequest, includes, "withoutHeaders");
 
-        assertThat(record.getRequest().getHeaders()).isNull();
-        assertThat(JSONUtil.toJsonStr(record)).contains("/fixture/client")
+        assertThat(logRecord.getRequest().getHeaders()).isNull();
+        assertThat(JSONUtil.toJsonStr(logRecord)).contains("/fixture/client")
             .doesNotContain(CHROME_UA, COOKIE_MARKER, AUTH_MARKER);
         ArgumentMatcher<String> unusedHeader = name -> HttpHeaders.COOKIE.equalsIgnoreCase(name)
             || HttpHeaders.AUTHORIZATION.equalsIgnoreCase(name)
@@ -205,7 +205,7 @@ class LogRecordTest {
         verify(observedRequest, never()).getHeader(argThat(unusedHeader));
         verify(observedRequest, never()).getHeaders(argThat(unusedHeader));
         verify(observedRequest, never()).getCookies();
-        assertThat(record.getRequest()).extracting(LogRequest::getBrowser, LogRequest::getOs)
+        assertThat(logRecord.getRequest()).extracting(LogRequest::getBrowser, LogRequest::getOs)
             .containsExactly(expectedBrowser, expectedOs);
     }
 
@@ -225,14 +225,14 @@ class LogRecordTest {
         request.addHeader("user-agent", CHROME_UA);
         request.addHeader("X-Example", "fixture-header");
 
-        LogRecord record = recordRequest(request, Set.of(Include.REQUEST_HEADERS, Include.BROWSER,
-            Include.OS), "withHeaders");
+        LogRecord logRecord = recordRequest(request, Set.of(Include.REQUEST_HEADERS,
+            Include.BROWSER, Include.OS), "withHeaders");
 
-        assertThat(record.getRequest().getHeaders()).containsEntry("user-agent", CHROME_UA)
+        assertThat(logRecord.getRequest().getHeaders()).containsEntry("user-agent", CHROME_UA)
             .containsEntry("X-Example", "fixture-header");
-        assertThat(record.getRequest()).extracting(LogRequest::getBrowser, LogRequest::getOs)
+        assertThat(logRecord.getRequest()).extracting(LogRequest::getBrowser, LogRequest::getOs)
             .containsExactly(CHROME_BROWSER, WINDOWS_OS);
-        assertThat(JSONUtil.toJsonStr(record)).containsOnlyOnce(CHROME_UA);
+        assertThat(JSONUtil.toJsonStr(logRecord)).containsOnlyOnce(CHROME_UA);
     }
 
     @ParameterizedTest
