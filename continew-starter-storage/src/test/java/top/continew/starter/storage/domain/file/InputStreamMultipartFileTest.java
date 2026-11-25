@@ -76,7 +76,7 @@ class InputStreamMultipartFileTest {
 
     @Test
     @DisplayName("actualSize 回填与 isEmpty 语义")
-    void shouldBackfillActualSizeAndEmptiness() throws IOException {
+    void shouldBackfillActualSizeAndEmptiness() {
         InputStreamMultipartFile file = new InputStreamMultipartFile("f", "a.bin",
             "application/octet-stream", 0, new ByteArrayInputStream(new byte[0]));
         assertTrue(file.isEmpty());

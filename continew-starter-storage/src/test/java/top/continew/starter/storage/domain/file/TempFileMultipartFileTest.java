@@ -17,6 +17,7 @@
 package top.continew.starter.storage.domain.file;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -132,11 +133,15 @@ class TempFileMultipartFileTest {
 
     @Test
     @DisplayName("delete 幂等，重复调用不抛错")
-    void shouldDeleteIdempotently() throws IOException {
+    void shouldDeleteIdempotently() throws Exception {
         TempFileMultipartFile file = TempFileMultipartFile.materialize("f", "a.txt",
             "text/plain", new ByteArrayInputStream(new byte[] {1}));
+        Path tempPath = tempFilePath(file);
+        assertTrue(Files.exists(tempPath), "物化后临时文件应已落盘");
         file.delete();
-        file.delete();
+        assertFalse(Files.exists(tempPath), "delete 应删除临时文件");
+        assertDoesNotThrow(file::delete, "重复 delete 不应抛错");
+        assertFalse(Files.exists(tempPath), "重复 delete 不应重建临时文件");
     }
 
     @Test

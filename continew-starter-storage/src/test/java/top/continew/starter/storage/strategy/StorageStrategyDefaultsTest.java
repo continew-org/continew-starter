@@ -47,6 +47,7 @@ class StorageStrategyDefaultsTest {
         @Override
         public void upload(String bucket, String path,
             org.springframework.web.multipart.MultipartFile file) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -56,10 +57,12 @@ class StorageStrategyDefaultsTest {
 
         @Override
         public void delete(String bucket, String path) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void batchDelete(String bucket, List<String> paths) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -80,11 +83,13 @@ class StorageStrategyDefaultsTest {
         @Override
         public void copy(String sourceBucket, String targetBucket, String sourcePath,
             String targetPath) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
         public void move(String sourceBucket, String targetBucket, String sourcePath,
             String targetPath) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -127,6 +132,7 @@ class StorageStrategyDefaultsTest {
 
         @Override
         public void abortMultipartUpload(String bucket, String path, String uploadId) {
+            throw new UnsupportedOperationException();
         }
 
         @Override
@@ -138,8 +144,9 @@ class StorageStrategyDefaultsTest {
     @Test
     @DisplayName("默认流式上传与范围下载拒绝服务")
     void shouldRejectUnsupportedOptionalOperations() {
+        InputStream in = InputStream.nullInputStream();
         assertThrows(StorageException.class,
-            () -> STRATEGY.uploadStream("b", "p", InputStream.nullInputStream(), "t", 0));
+            () -> STRATEGY.uploadStream("b", "p", in, "t", 0));
         assertThrows(StorageException.class,
             () -> STRATEGY.downloadRange("b", "p", 0, 1));
     }

@@ -96,7 +96,7 @@ class OssStorageStrategyStreamUploadTest {
 
     @Test
     @DisplayName("upload 关闭由本方法打开的 MultipartFile 输入流")
-    void shouldCloseOpenedMultipartInputStreamOnUpload() throws IOException {
+    void shouldCloseOpenedMultipartInputStreamOnUpload() {
         S3Client client = mock(S3Client.class);
         OssStorageStrategy strategy = newStrategy(client);
         CountingCloseStream in = new CountingCloseStream(new byte[16]);

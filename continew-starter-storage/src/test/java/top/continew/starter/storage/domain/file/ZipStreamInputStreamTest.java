@@ -75,18 +75,15 @@ class ZipStreamInputStreamTest {
     @DisplayName("read() 单字节与 read(byte[],off,len) 语义一致")
     void shouldReadSingleAndBulkConsistently() throws IOException {
         byte[] content = "xy".getBytes(StandardCharsets.UTF_8);
-        ZipStreamInputStream zip = new ZipStreamInputStream(List.of("p"),
-            k -> open(content), p -> p);
-        try {
+        try (ZipStreamInputStream zip = new ZipStreamInputStream(List.of("p"),
+            k -> open(content), p -> p)) {
             assertTrue(zip.read() >= 0, "ZIP 头部即产出字节");
             byte[] buf = new byte[16];
             int n = zip.read(buf, 0, buf.length);
             assertTrue(n > 0);
-            assertTrue(zip.read(buf, 0, 0) == 0, "len=0 读返回 0");
+            assertEquals(0, zip.read(buf, 0, 0), "len=0 读返回 0");
             int avail = zip.available();
             assertTrue(avail >= 0);
-        } finally {
-            zip.close();
         }
     }
 

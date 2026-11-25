@@ -97,17 +97,18 @@ class LocalStorageStrategyTest {
 
     @Test
     @DisplayName("范围下载非法区间与越界起点均拒绝")
-    void shouldRejectIllegalRange() throws IOException {
+    void shouldRejectIllegalRange() {
         String path = "range.bin";
-        strategy.upload(bucketDir.toString(), path,
+        String bucket = bucketDir.toString();
+        strategy.upload(bucket, path,
             file("range.bin", "0123".getBytes(StandardCharsets.UTF_8)));
 
         assertThrows(StorageException.class,
-            () -> strategy.downloadRange(bucketDir.toString(), path, -1, 2));
+            () -> strategy.downloadRange(bucket, path, -1, 2));
         assertThrows(StorageException.class,
-            () -> strategy.downloadRange(bucketDir.toString(), path, 5, 1));
+            () -> strategy.downloadRange(bucket, path, 5, 1));
         assertThrows(StorageException.class,
-            () -> strategy.downloadRange(bucketDir.toString(), path, 10, 20));
+            () -> strategy.downloadRange(bucket, path, 10, 20));
     }
 
     @Test
@@ -126,7 +127,7 @@ class LocalStorageStrategyTest {
 
     @Test
     @DisplayName("upload 关闭由本方法打开的 MultipartFile 输入流")
-    void shouldCloseOpenedMultipartInputStreamOnUpload() throws IOException {
+    void shouldCloseOpenedMultipartInputStreamOnUpload() {
         // TempFileMultipartFile 等 getInputStream 新开句柄，调用方打开须负责关闭
         CountingCloseStream in = new CountingCloseStream(
             "close-me".getBytes(StandardCharsets.UTF_8));

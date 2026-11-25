@@ -422,15 +422,15 @@ public class FileStorageService {
      */
     private void uploadStreamFile(StorageStrategy strategy, String bucket, String path,
         InputStreamMultipartFile streamFile, MultipartFile file, long streamLimit) {
-        try {
+        try (StreamCloser closer = () -> quietCloseStream(streamFile)) {
             InputStream raw;
             try {
                 raw = streamFile.getInputStream();
             } catch (IOException e) {
                 throw new StorageException("流式上传失败: " + e.getMessage(), e);
             }
-            // bounded 由 finally 中 streamFile.closeStream() 唯一关闭；TWR 会因
-            // FilterInputStream.close() 二次关闭源流，且 close 异常会误报落盘后失败
+            // bounded 不入 TWR：FilterInputStream.close() 会二次关闭源流，且 close
+            // 异常会误报落盘后失败；源流由 closer 经 closeStream() 关闭一次
             BoundedInputStream bounded =
                 new BoundedInputStream(raw, streamLimit, true);
             InputStream in = withProgress(bounded, file);
@@ -451,12 +451,6 @@ public class FileStorageService {
                     throw se;
                 }
                 throw new StorageException("流式上传失败: " + e.getMessage(), e);
-            }
-        } finally {
-            try {
-                streamFile.closeStream();
-            } catch (IOException e) {
-                LOGGER.warn("关闭上传源流失败", e);
             }
         }
     }
@@ -598,6 +592,29 @@ public class FileStorageService {
     }
 
     /**
+     * 静默关闭上传源流：关闭失败只记警告，不改变上传结果
+     *
+     * @param streamFile 单次读流文件
+     */
+    private void quietCloseStream(InputStreamMultipartFile streamFile) {
+        try {
+            streamFile.closeStream();
+        } catch (IOException e) {
+            LOGGER.warn("关闭上传源流失败", e);
+        }
+    }
+
+    /**
+     * try-with-resources 资源句柄：close() 不抛受检异常，由 TWR 触发
+     * 但不改变正常返回或既有异常的抛出
+     */
+    private interface StreamCloser extends AutoCloseable {
+
+        @Override
+        void close();
+    }
+
+    /**
      * 将不可复读的流式文件物化为临时文件（按 streamLimit 限量），并按需补回进度包装
      *
      * @param streamFile  已判空的流式文件
@@ -608,10 +625,10 @@ public class FileStorageService {
     private MultipartFile materializeForRepeatableRead(
         InputStreamMultipartFile streamFile, UploadProgressListener listener,
         long streamLimit) {
-        try {
+        try (StreamCloser closer = () -> quietCloseStream(streamFile)) {
             InputStream raw = streamFile.getInputStream();
-            // bounded 由 finally 中 streamFile.closeStream() 唯一关闭；TWR 会因
-            // FilterInputStream.close() 二次关闭源流，且 close 异常会误报物化失败
+            // bounded 不入 TWR：FilterInputStream.close() 会二次关闭源流，且 close
+            // 异常会误报物化失败；源流由 closer 经 closeStream() 关闭一次
             BoundedInputStream bounded =
                 new BoundedInputStream(raw, streamLimit, true);
             TempFileMultipartFile tempFile = TempFileMultipartFile.materialize(streamFile
@@ -624,12 +641,6 @@ public class FileStorageService {
             return tempFile;
         } catch (IOException e) {
             throw new StorageException("需要可复读内容，流物化失败: " + e.getMessage(), e);
-        } finally {
-            try {
-                streamFile.closeStream();
-            } catch (IOException e) {
-                LOGGER.warn("关闭上传源流失败", e);
-            }
         }
     }
 
@@ -1483,45 +1494,66 @@ public class FileStorageService {
                     StringConstants.SLASH);
             long maxEntries = properties.getZipImportMaxEntries();
             boolean stopped = false;
-            ZipEntry entry;
-            while (!stopped && (entry = zin.getNextEntry()) != null) {
-                String entryName = entry.getName();
-                resp.setTotal(resp.getTotal() + 1);
-                if (resp.getTotal() > maxEntries) {
-                    // 首条被拒条目计入 total 并留痕，但不读取其内容
-                    resp.addEntry(entryName, false, 0L, "超过条目数限制: " + maxEntries);
+            while (!stopped) {
+                ZipEntry entry = zin.getNextEntry();
+                if (entry == null) {
                     break;
                 }
-
-                ZipEntryCheck check = checkEntry(entry);
-                if (!check.importable()) {
-                    // 目录或非法名条目：排空成功记原因、排空失败记该条一次失败并停止
-                    stopped = !drainSkippedEntry(zin, resp, entryName, check.skipReason());
-                    continue;
-                }
-                String normalizedName = check.name();
-                String targetPath = StrUtil.isBlank(normalizedParent) ? normalizedName
-                    : normalizedParent + StringConstants.SLASH + normalizedName;
-
-                // 读取侧已按单条/全包硬限计量，物化到临时文件后才可能触碰目标对象；
-                // 任一层超限或读取失败都记该条失败并停止导入，不触碰既有对象
-                TempFileMultipartFile temp = materializeZipEntry(zin, resp, entryName,
-                    normalizedName);
-                if (temp == null) {
-                    stopped = true;
-                    continue;
-                }
-                try {
-                    uploadZipEntry(strategy, bucket, targetPath, temp, resp, entryName);
-                } finally {
-                    temp.delete();
-                }
+                stopped = importZipEntry(strategy, bucket, zin, resp, normalizedParent,
+                    maxEntries, entry);
             }
         } catch (IOException e) {
             // 下一条目头部损坏或源流关闭失败属归档级错误，不归到上一条目
             throw new StorageException("ZIP 导入读取失败: " + e.getMessage(), e);
         }
         return resp;
+    }
+
+    /**
+     * 处理单条 ZIP 条目：条目数超限与读取失败停止导入，校验拒绝与上传失败只记该条
+     *
+     * @param strategy         目标策略
+     * @param bucket           存储桶
+     * @param zin              计量 ZIP 输入流
+     * @param resp             导入结果
+     * @param normalizedParent 规范化父路径（已剥尾斜杠）
+     * @param maxEntries       条目数上限
+     * @param entry            当前 ZIP 条目
+     * @return 是否停止导入
+     */
+    private boolean importZipEntry(StorageStrategy strategy, String bucket,
+        BudgetedZipInputStream zin, ZipImportResp resp, String normalizedParent,
+        long maxEntries, ZipEntry entry) {
+        String entryName = entry.getName();
+        resp.setTotal(resp.getTotal() + 1);
+        if (resp.getTotal() > maxEntries) {
+            // 首条被拒条目计入 total 并留痕，但不读取其内容
+            resp.addEntry(entryName, false, 0L, "超过条目数限制: " + maxEntries);
+            return true;
+        }
+
+        ZipEntryCheck check = checkEntry(entry);
+        if (!check.importable()) {
+            // 目录或非法名条目：排空成功记原因、排空失败记该条一次失败并停止
+            return !drainSkippedEntry(zin, resp, entryName, check.skipReason());
+        }
+        String normalizedName = check.name();
+        String targetPath = StrUtil.isBlank(normalizedParent) ? normalizedName
+            : normalizedParent + StringConstants.SLASH + normalizedName;
+
+        // 读取侧已按单条/全包硬限计量，物化到临时文件后才可能触碰目标对象；
+        // 任一层超限或读取失败都记该条失败并停止导入，不触碰既有对象
+        TempFileMultipartFile temp = materializeZipEntry(zin, resp, entryName,
+            normalizedName);
+        if (temp == null) {
+            return true;
+        }
+        try {
+            uploadZipEntry(strategy, bucket, targetPath, temp, resp, entryName);
+        } finally {
+            temp.delete();
+        }
+        return false;
     }
 
     /**
