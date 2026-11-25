@@ -81,4 +81,20 @@ public interface RecordableHttpRequest {
      * @return IP
      */
     String getIp();
+
+    /**
+     * 支持单独读取 {@code User-Agent} 的请求适配器
+     *
+     * @since 3.1.0
+     */
+    interface WithUserAgent extends RecordableHttpRequest {
+
+        /**
+         * 仅读取 {@code User-Agent}，不枚举请求头或调用 {@link #getHeaders()}
+         *
+         * @return User-Agent 请求头值，不存在时为 {@code null}
+         * @since 3.1.0
+         */
+        String readUserAgent();
+    }
 }
