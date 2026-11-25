@@ -70,7 +70,8 @@ test('特权上下文不检出仓库代码，模板与校验器按 workflow_sha 
   assert.doesNotMatch(yaml, /actions\/checkout@/);
   assert.match(yaml, /TRUSTED_SHA: \$\{\{ github\.workflow_sha \}\}/);
   const fetch = stepLiteral('pr-validation.yml', 'Fetch trusted template and validator', 'run');
-  assert.match(fetch, /gh api "repos\/\$\{GITHUB_REPOSITORY\}\/contents\/\$1\?ref=\$\{TRUSTED_SHA\}"/);
+  assert.match(fetch, /local path="\$1"/);
+  assert.match(fetch, /contents\/\$path\?ref=\$\{TRUSTED_SHA\}/);
   assert.match(fetch, /Accept: application\/vnd\.github\.raw/);
   for (const file of ['.github/PULL_REQUEST_TEMPLATE.md', 'scripts/ci/validate-pr-body.cjs']) {
     assert.match(fetch, new RegExp(`fetch ${file.replace(/\./g, '\\.')}`));

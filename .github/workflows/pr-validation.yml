@@ -71,10 +71,11 @@ jobs:
           set -euo pipefail
           root="$RUNNER_TEMP/pr-body"
           fetch() {
-            mkdir -p "$root/$(dirname "$1")"
-            gh api "repos/${GITHUB_REPOSITORY}/contents/$1?ref=${TRUSTED_SHA}" \
-              -H 'Accept: application/vnd.github.raw' > "$root/$1"
-            test -s "$root/$1"
+            local path="$1"
+            mkdir -p "$root/$(dirname "$path")"
+            gh api "repos/${GITHUB_REPOSITORY}/contents/$path?ref=${TRUSTED_SHA}" \
+              -H 'Accept: application/vnd.github.raw' > "$root/$path"
+            test -s "$root/$path"
           }
           fetch .github/PULL_REQUEST_TEMPLATE.md
           fetch scripts/ci/validate-pr-body.cjs
