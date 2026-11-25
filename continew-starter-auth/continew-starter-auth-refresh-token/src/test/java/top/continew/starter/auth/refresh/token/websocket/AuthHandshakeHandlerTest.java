@@ -58,10 +58,10 @@ class AuthHandshakeHandlerTest {
         logger.addAppender(events);
         logger.setAdditive(false);
         logger.setLevel(Level.TRACE);
-        try {
+        try (ServletServerHttpResponse serverResponse = new ServletServerHttpResponse(response)) {
             AuthHandshakeHandler handler = new AuthHandshakeHandler();
             boolean upgraded = handler.doHandshake(new ServletServerHttpRequest(servlet),
-                new ServletServerHttpResponse(response), mock(WebSocketHandler.class), Map.of());
+                serverResponse, mock(WebSocketHandler.class), Map.of());
             assertThat(upgraded).isFalse();
             assertThat(response.getStatus()).isEqualTo(400);
             assertThat(events.list).filteredOn(event -> event.getLevel() == Level.TRACE)
