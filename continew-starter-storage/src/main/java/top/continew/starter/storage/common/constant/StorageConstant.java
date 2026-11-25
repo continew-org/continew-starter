@@ -60,6 +60,12 @@ public class StorageConstant {
     public static final Long DEFAULT_MULTIPART_UPLOAD_PART_SIZE = 5 * 1024 * 1024L;
 
     /**
+     * S3 单次 PUT 对象大小上限（字节）：AWS 规定单个 PUT Object 最大 5 GiB，
+     * 超过须走分片上传
+     */
+    public static final Long S3_SINGLE_PUT_MAX_SIZE = 5L * 1024 * 1024 * 1024;
+
+    /**
      * 本地分片上传临时目录
      */
     public static final String DEFAULT_LOCAL_MULTIPART_TEMP_DIR = "/tmp";
@@ -79,5 +85,10 @@ public class StorageConstant {
      * ContentType 图片前缀
      */
     public static final String CONTENT_TYPE_IMAGE = "image/";
+
+    /**
+     * ZIP 文件后缀（含点）
+     */
+    public static final String ZIP_SUFFIX = ".zip";
 
 }

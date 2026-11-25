@@ -21,11 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 import top.continew.starter.core.constant.StringConstants;
+import top.continew.starter.storage.autoconfigure.properties.StorageProperties;
 import top.continew.starter.storage.common.constant.StorageConstant;
 import top.continew.starter.storage.common.exception.StorageException;
+import top.continew.starter.storage.common.util.BoundedInputStream;
+import top.continew.starter.storage.common.util.ZipFileUtils;
 import top.continew.starter.storage.domain.file.EnhancedMultipartFile;
 import top.continew.starter.storage.domain.file.FileWrapper;
+import top.continew.starter.storage.domain.file.InputStreamMultipartFile;
 import top.continew.starter.storage.domain.file.ProgressAwareMultipartFile;
+import top.continew.starter.storage.domain.file.TempFileMultipartFile;
 import top.continew.starter.storage.domain.model.context.UploadContext;
 import top.continew.starter.storage.domain.model.req.MultipartUploadInitReq;
 import top.continew.starter.storage.domain.model.req.ThumbnailInfo;
@@ -34,19 +39,32 @@ import top.continew.starter.storage.domain.model.resp.FilePartInfo;
 import top.continew.starter.storage.domain.model.resp.MultipartInitResp;
 import top.continew.starter.storage.domain.model.resp.MultipartUploadResp;
 import top.continew.starter.storage.domain.model.resp.StrategyStatusResp;
+import top.continew.starter.storage.domain.model.resp.ZipImportResp;
 import top.continew.starter.storage.engine.StorageStrategyRouter;
+import top.continew.starter.storage.operation.FileOperation;
+import top.continew.starter.storage.operation.FilesOperation;
 import top.continew.starter.storage.processor.preprocess.FileNameGenerator;
 import top.continew.starter.storage.processor.preprocess.FilePathGenerator;
 import top.continew.starter.storage.processor.preprocess.FileValidator;
 import top.continew.starter.storage.processor.preprocess.ThumbnailProcessor;
 import top.continew.starter.storage.processor.preprocess.UploadCompleteProcessor;
+import top.continew.starter.storage.processor.preprocess.impl.DefaultFileNameGenerator;
+import top.continew.starter.storage.processor.preprocess.impl.DefaultFilePathGenerator;
+import top.continew.starter.storage.processor.preprocess.impl.DefaultThumbnailProcessor;
+import top.continew.starter.storage.processor.preprocess.impl.FileSizeValidator;
+import top.continew.starter.storage.processor.preprocess.impl.FileTypeValidator;
+import top.continew.starter.storage.processor.progress.ProgressInputStream;
+import top.continew.starter.storage.processor.progress.ProgressTracker;
 import top.continew.starter.storage.processor.progress.UploadProgressListener;
 import top.continew.starter.storage.processor.registry.ProcessorRegistry;
 import top.continew.starter.storage.service.FileProcessor;
 import top.continew.starter.storage.service.FileRecorder;
 import top.continew.starter.storage.strategy.StorageStrategy;
 
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -61,6 +79,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * 增强版文件存储服务
@@ -76,6 +96,7 @@ public class FileStorageService {
     private final StorageStrategyRouter router;
     private final ProcessorRegistry processorRegistry;
     private final FileRecorder fileRecorder;
+    private final StorageProperties properties;
     private final ThreadLocal<List<FileProcessor>> tempProcessors =
         ThreadLocal.withInitial(ArrayList::new);
     private final ThreadLocal<UploadProgressListener> progressListener = new ThreadLocal<>();
@@ -83,9 +104,17 @@ public class FileStorageService {
     public FileStorageService(StorageStrategyRouter router,
         ProcessorRegistry processorRegistry,
         FileRecorder fileRecorder) {
+        this(router, processorRegistry, fileRecorder, new StorageProperties());
+    }
+
+    public FileStorageService(StorageStrategyRouter router,
+        ProcessorRegistry processorRegistry,
+        FileRecorder fileRecorder,
+        StorageProperties properties) {
         this.router = router;
         this.processorRegistry = processorRegistry;
         this.fileRecorder = fileRecorder;
+        this.properties = properties;
     }
 
     /**
@@ -174,6 +203,28 @@ public class FileStorageService {
     }
 
     /**
+     * 单文件链式操作
+     *
+     * @param bucket 存储桶
+     * @param path   路径
+     * @return 单文件链式操作
+     */
+    public FileOperation file(String bucket, String path) {
+        return new FileOperation(this, bucket, path);
+    }
+
+    /**
+     * 多文件链式操作
+     *
+     * @param bucket 存储桶
+     * @param paths  路径列表（调用方列表会被快照，后续外部变更不影响本次操作）
+     * @return 多文件链式操作
+     */
+    public FilesOperation files(String bucket, List<String> paths) {
+        return new FilesOperation(this, bucket, paths);
+    }
+
+    /**
      * 创建预处理
      *
      * @param file     文件
@@ -241,6 +292,18 @@ public class FileStorageService {
             // 包装文件
             prepareFile(context, listener);
 
+            // 流式内容的读取上限：取启用的文件大小校验器最小上限，无校验器则不限
+            long streamLimit = unwrapStreamFile(context.getFile()) == null ? Long.MAX_VALUE
+                : resolveStreamLimit(platform, context, customProcessors);
+
+            InputStreamMultipartFile streamFile = unwrapStreamFile(context.getFile());
+            // 存在需要读取内容的自定义处理器时先限量物化，保证验证拿到可复读文件
+            if (streamFile != null
+                && hasContentReadingProcessors(platform, context, customProcessors)) {
+                context.setFile(
+                    materializeForRepeatableRead(streamFile, listener, streamLimit));
+            }
+
             // 1. 执行文件验证（验证阶段）
             setFileReadPhase(context.getFile(), ProgressAwareMultipartFile.ReadPhase.VALIDATION);
             executeValidation(context, platform, customProcessors);
@@ -258,25 +321,36 @@ public class FileStorageService {
             ThumbnailProcessor thumbnailProcessor =
                 prepareThumbnail(context, platform, customProcessors);
 
+            // 缩略图需二次读取：不可复读的流式文件先限量物化为临时文件再上传
+            if (context.isGenerateThumbnail()) {
+                InputStreamMultipartFile streamFileForThumbnail =
+                    unwrapStreamFile(context.getFile());
+                if (streamFileForThumbnail != null) {
+                    context.setFile(materializeForRepeatableRead(streamFileForThumbnail,
+                        listener, streamLimit));
+                }
+            }
+
             // 5. 执行实际上传
             setFileReadPhase(context.getFile(), ProgressAwareMultipartFile.ReadPhase.UPLOAD);
-            upload(platform, context.getBucket(), context.getFullPath(), context.getFile());
+            upload(platform, context.getBucket(), context.getFullPath(), context.getFile(),
+                streamLimit);
 
-            // 6. 构建文件信息
+            // 7. 构建文件信息
             FileInfo fileInfo = buildFileInfo(platform, context);
 
-            // 7. 处理缩略图生成（缩略图阶段）
+            // 8. 处理缩略图生成（缩略图阶段）
             if (thumbnailProcessor != null && context.isGenerateThumbnail()) {
                 setFileReadPhase(context.getFile(), ProgressAwareMultipartFile.ReadPhase.THUMBNAIL);
                 processThumbnail(fileInfo, thumbnailProcessor, context);
             }
 
-            // 8. 保存文件记录
+            // 9. 保存文件记录
             if (fileRecorder != null) {
                 fileRecorder.save(fileInfo);
             }
 
-            // 9. 触发完成事件
+            // 10. 触发完成事件
             triggerCompleteEvent(fileInfo, context, platform, customProcessors);
 
             return fileInfo;
@@ -295,7 +369,293 @@ public class FileStorageService {
      * @param file     文件
      */
     public void upload(String platform, String bucket, String path, MultipartFile file) {
-        router.route(platform).upload(bucket, path, file);
+        upload(platform, bucket, path, file, Long.MAX_VALUE);
+    }
+
+    /**
+     * 上传（带流式内容读取上限）
+     *
+     * @param platform    平台编码
+     * @param bucket      存储桶
+     * @param path        路径
+     * @param file        文件
+     * @param streamLimit 流式内容读取上限（字节，Long.MAX_VALUE 表示不限）
+     */
+    private void upload(String platform, String bucket, String path, MultipartFile file,
+        long streamLimit) {
+        StorageStrategy strategy = router.route(platform);
+        InputStreamMultipartFile streamFile = unwrapStreamFile(file);
+        if (streamFile == null) {
+            try {
+                strategy.upload(bucket, path, file);
+                ProgressTracker tracker = trackerOf(file);
+                if (tracker != null) {
+                    tracker.complete();
+                }
+            } catch (Exception e) {
+                ProgressTracker tracker = trackerOf(file);
+                if (tracker != null) {
+                    tracker.error(e);
+                }
+                throw e;
+            }
+            return;
+        }
+        if (strategy.supportUploadStream()) {
+            uploadStreamFile(strategy, bucket, path, streamFile, file, streamLimit);
+            return;
+        }
+        // 第三方策略不支持流式上传：物化为临时文件回退到常规上传，保持兼容
+        materializeAndUpload(strategy, bucket, path, streamFile, file, streamLimit);
+    }
+
+    /**
+     * 流式文件直传：源流只经 {@link InputStreamMultipartFile#closeStream()} 关闭一次；
+     * 上传成功显式 complete，失败显式 error，进度不随流关闭误报成功
+     *
+     * @param strategy    目标策略
+     * @param bucket      存储桶
+     * @param path        路径
+     * @param streamFile  单次读流文件
+     * @param file        原始包装文件（含进度监听包装）
+     * @param streamLimit 流式内容读取上限
+     */
+    private void uploadStreamFile(StorageStrategy strategy, String bucket, String path,
+        InputStreamMultipartFile streamFile, MultipartFile file, long streamLimit) {
+        try (StreamCloser closer = () -> quietCloseStream(streamFile)) {
+            InputStream raw;
+            try {
+                raw = streamFile.getInputStream();
+            } catch (IOException e) {
+                throw new StorageException("流式上传失败: " + e.getMessage(), e);
+            }
+            // bounded 不入 TWR：FilterInputStream.close() 会二次关闭源流，且 close
+            // 异常会误报落盘后失败；源流由 closer 经 closeStream() 关闭一次
+            BoundedInputStream bounded =
+                new BoundedInputStream(raw, streamLimit, true);
+            InputStream in = withProgress(bounded, file);
+            ProgressTracker tracker = trackerOf(in);
+            try {
+                strategy.uploadStream(bucket, path, in, streamFile.getContentType(),
+                    streamFile.getSize());
+                streamFile.setActualSize(bounded.getCount());
+                if (tracker != null) {
+                    tracker.complete();
+                }
+            } catch (Exception e) {
+                streamFile.setActualSize(bounded.getCount());
+                if (tracker != null) {
+                    tracker.error(e);
+                }
+                if (e instanceof StorageException se) {
+                    throw se;
+                }
+                throw new StorageException("流式上传失败: " + e.getMessage(), e);
+            }
+        }
+    }
+
+    /**
+     * 将流式文件物化为临时文件后走常规上传，临时文件随用随删
+     *
+     * @param strategy    目标策略
+     * @param bucket      存储桶
+     * @param path        路径
+     * @param streamFile  单次读流文件
+     * @param file        原始包装文件
+     * @param streamLimit 流式内容读取上限
+     */
+    private void materializeAndUpload(StorageStrategy strategy, String bucket, String path,
+        InputStreamMultipartFile streamFile, MultipartFile file, long streamLimit) {
+        TempFileMultipartFile tempFile = null;
+        try {
+            tempFile = materializeViaStream(strategy, bucket, path, streamFile, file,
+                streamLimit);
+        } finally {
+            try {
+                streamFile.closeStream();
+            } catch (IOException e) {
+                LOGGER.warn("关闭上传源流失败", e);
+            }
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+        }
+    }
+
+    /**
+     * 以限量流物化临时文件并完成常规上传，进度成功/失败显式上报
+     *
+     * @param strategy    目标策略
+     * @param bucket      存储桶
+     * @param path        路径
+     * @param streamFile  单次读流文件
+     * @param file        原始包装文件
+     * @param streamLimit 流式内容读取上限
+     * @return 已上传的临时文件（调用方负责删除）
+     */
+    private TempFileMultipartFile materializeViaStream(StorageStrategy strategy,
+        String bucket, String path, InputStreamMultipartFile streamFile,
+        MultipartFile file, long streamLimit) {
+        // bounded 由调用方 finally 中 streamFile.closeStream() 唯一关闭，不在此 TWR
+        BoundedInputStream bounded;
+        try {
+            bounded =
+                new BoundedInputStream(streamFile.getInputStream(), streamLimit, true);
+        } catch (IOException e) {
+            throw new StorageException("流式上传物化失败: " + e.getMessage(), e);
+        }
+        InputStream in = withProgress(bounded, file);
+        ProgressTracker tracker = trackerOf(in);
+        return doUploadMaterialized(strategy, bucket, path, streamFile, bounded,
+            tracker, in);
+    }
+
+    /**
+     * 把限量流物化为临时文件并完成常规上传；上传失败时清理临时文件防泄漏
+     *
+     * @param strategy   目标策略
+     * @param bucket     存储桶
+     * @param path       路径
+     * @param streamFile 单次读流文件
+     * @param bounded    限量输入流
+     * @param tracker    进度追踪器（可空）
+     * @param in         已按需包装进度的限量流
+     * @return 已上传的临时文件（调用方负责删除）
+     */
+    private TempFileMultipartFile doUploadMaterialized(StorageStrategy strategy,
+        String bucket, String path, InputStreamMultipartFile streamFile,
+        BoundedInputStream bounded, ProgressTracker tracker, InputStream in) {
+        TempFileMultipartFile tempFile = null;
+        try {
+            tempFile = TempFileMultipartFile.materialize(streamFile.getName(),
+                streamFile.getOriginalFilename(), streamFile.getContentType(), in);
+            streamFile.setActualSize(bounded.getCount());
+            strategy.upload(bucket, path, tempFile);
+            if (tracker != null) {
+                tracker.complete();
+            }
+            return tempFile;
+        } catch (Exception e) {
+            // 物化成功但上传失败：方法内清理，避免泄漏临时文件
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+            streamFile.setActualSize(bounded.getCount());
+            if (tracker != null) {
+                tracker.error(e);
+            }
+            if (e instanceof StorageException se) {
+                throw se;
+            }
+            if (e instanceof IOException ioe) {
+                throw new StorageException("流式上传物化失败: " + ioe.getMessage(), ioe);
+            }
+            throw (RuntimeException) e;
+        }
+    }
+
+    /**
+     * 按需包装进度监听流
+     *
+     * @param in   内容输入流
+     * @param file 原始包装文件
+     * @return 包装后输入流
+     */
+    private InputStream withProgress(InputStream in, MultipartFile file) {
+        if (file instanceof ProgressAwareMultipartFile aware
+            && aware.getProgressTracker() != null) {
+            return new ProgressInputStream(in, aware.getProgressTracker());
+        }
+        return in;
+    }
+
+    /**
+     * 从包装流中取得进度追踪器
+     *
+     * @param in 内容输入流
+     * @return 进度追踪器，无则 null
+     */
+    private ProgressTracker trackerOf(InputStream in) {
+        return in instanceof ProgressInputStream pis ? pis.getTracker() : null;
+    }
+
+    /**
+     * 从上传文件中取得进度追踪器
+     *
+     * @param file 上传文件
+     * @return 进度追踪器，无则 null
+     */
+    private ProgressTracker trackerOf(MultipartFile file) {
+        return file instanceof ProgressAwareMultipartFile aware ? aware.getProgressTracker()
+            : null;
+    }
+
+    /**
+     * 静默关闭上传源流：关闭失败只记警告，不改变上传结果
+     *
+     * @param streamFile 单次读流文件
+     */
+    private void quietCloseStream(InputStreamMultipartFile streamFile) {
+        try {
+            streamFile.closeStream();
+        } catch (IOException e) {
+            LOGGER.warn("关闭上传源流失败", e);
+        }
+    }
+
+    /**
+     * try-with-resources 资源句柄：close() 不抛受检异常，由 TWR 触发
+     * 但不改变正常返回或既有异常的抛出
+     */
+    private interface StreamCloser extends AutoCloseable {
+
+        @Override
+        void close();
+    }
+
+    /**
+     * 将不可复读的流式文件物化为临时文件（按 streamLimit 限量），并按需补回进度包装
+     *
+     * @param streamFile  已判空的流式文件
+     * @param listener    进度监听器
+     * @param streamLimit 流式内容读取上限
+     * @return 可复读的 MultipartFile
+     */
+    private MultipartFile materializeForRepeatableRead(
+        InputStreamMultipartFile streamFile, UploadProgressListener listener,
+        long streamLimit) {
+        try (StreamCloser closer = () -> quietCloseStream(streamFile)) {
+            InputStream raw = streamFile.getInputStream();
+            // bounded 不入 TWR：FilterInputStream.close() 会二次关闭源流，且 close
+            // 异常会误报物化失败；源流由 closer 经 closeStream() 关闭一次
+            BoundedInputStream bounded =
+                new BoundedInputStream(raw, streamLimit, true);
+            TempFileMultipartFile tempFile = TempFileMultipartFile.materialize(streamFile
+                .getName(), streamFile.getOriginalFilename(), streamFile.getContentType(),
+                bounded);
+            streamFile.setActualSize(bounded.getCount());
+            if (listener != null) {
+                return new ProgressAwareMultipartFile(tempFile, false, listener, true);
+            }
+            return tempFile;
+        } catch (IOException e) {
+            throw new StorageException("需要可复读内容，流物化失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 剥离包装层，取回不可复读的流式文件；非流式文件返回 null
+     *
+     * @param file 包装文件
+     * @return 流式文件
+     */
+    private InputStreamMultipartFile unwrapStreamFile(MultipartFile file) {
+        MultipartFile unwrapped = file;
+        while (unwrapped instanceof EnhancedMultipartFile enhanced && enhanced.isWrapped()) {
+            unwrapped = enhanced.getOriginalFile();
+        }
+        return unwrapped instanceof InputStreamMultipartFile streamFile ? streamFile : null;
     }
 
     /**
@@ -312,12 +672,20 @@ public class FileStorageService {
             return;
         }
 
+        // 单次读的流式文件不能进内存缓存，仅在有监听器时补进度包装
+        if (file instanceof InputStreamMultipartFile) {
+            if (listener != null) {
+                context.setFile(new ProgressAwareMultipartFile(file, false, listener, true));
+            }
+            return;
+        }
+
         // 判断是否需要缓存
         boolean needCache = true;
 
         // 如果有进度监听器，使用 ProgressAwareMultipartFile
         if (listener != null) {
-            context.setFile(new ProgressAwareMultipartFile(file, needCache, listener));
+            context.setFile(new ProgressAwareMultipartFile(file, needCache, listener, true));
         } else if (!(file instanceof EnhancedMultipartFile)) {
             // 否则只使用 EnhancedMultipartFile 提供缓存
             context.setFile(EnhancedMultipartFile.wrap(file, needCache));
@@ -433,6 +801,13 @@ public class FileStorageService {
         FileInfo fileInfo = getFileInfo(platform, context.getBucket(), context.getFullPath());
         fileInfo.setOriginalFileName(context.getFile().getOriginalFilename());
 
+        // 长度未知的流式上传以实际读取字节数回填大小，保证 FileInfo.size 不为 -1
+        InputStreamMultipartFile streamFile = unwrapStreamFile(context.getFile());
+        if (streamFile != null && streamFile.getActualSize() >= 0
+            && (fileInfo.getSize() == null || fileInfo.getSize() < 0)) {
+            fileInfo.setSize(streamFile.getActualSize());
+        }
+
         if (context.getMetadata() != null && !context.getMetadata().isEmpty()) {
             fileInfo.getMetadata().putAll(context.getMetadata());
         }
@@ -526,6 +901,53 @@ public class FileStorageService {
     }
 
     /**
+     * 流式内容读取上限：取所有启用的大小校验器中最严格的上限，无校验器则不限制
+     *
+     * @param platform         平台编码
+     * @param context          上传上下文
+     * @param customProcessors 自定义处理器
+     * @return 读取上限（字节）
+     */
+    private long resolveStreamLimit(String platform, UploadContext context,
+        List<FileProcessor> customProcessors) {
+        return collectProcessors(customProcessors, FileValidator.class, platform, context)
+            .stream()
+            .filter(FileSizeValidator.class::isInstance)
+            .map(FileSizeValidator.class::cast)
+            .mapToLong(FileSizeValidator::getMaxSize)
+            .min()
+            .orElse(Long.MAX_VALUE);
+    }
+
+    /**
+     * 是否存在需要读取文件内容的处理器：除内置不读内容的类型外一律按"可能读"处理，
+     * 单次读流式文件须先物化才可安全进入后续校验/生成/处理阶段
+     *
+     * @param platform         平台编码
+     * @param context          上传上下文
+     * @param customProcessors 自定义处理器
+     * @return 是否存在内容读取型处理器
+     */
+    private boolean hasContentReadingProcessors(String platform, UploadContext context,
+        List<FileProcessor> customProcessors) {
+        List<FileProcessor> all = new ArrayList<>();
+        if (customProcessors != null) {
+            all.addAll(customProcessors);
+        }
+        all.addAll(processorRegistry.getProcessors(FileValidator.class, platform, context));
+        all.addAll(processorRegistry.getProcessors(FileNameGenerator.class, platform, context));
+        all.addAll(processorRegistry.getProcessors(FilePathGenerator.class, platform, context));
+        all.addAll(processorRegistry.getProcessors(ThumbnailProcessor.class, platform, context));
+        all.addAll(processorRegistry.getProcessors(UploadCompleteProcessor.class, platform,
+            context));
+        return all.stream().anyMatch(p -> !(p instanceof FileSizeValidator)
+            && !(p instanceof FileTypeValidator)
+            && !(p instanceof DefaultFileNameGenerator)
+            && !(p instanceof DefaultFilePathGenerator)
+            && !(p instanceof DefaultThumbnailProcessor));
+    }
+
+    /**
      * 处理缩略图
      *
      * @param fileInfo  文件信息
@@ -587,10 +1009,28 @@ public class FileStorageService {
      * @param file 文件
      */
     private void cleanupFileCache(MultipartFile file) {
+        if (file == null) {
+            return;
+        }
         if (file instanceof ProgressAwareMultipartFile awareFile) {
             awareFile.clearCache();
         } else if (file instanceof EnhancedMultipartFile enhancedFile) {
             enhancedFile.clearCache();
+        }
+        // 流式与物化文件的释放：关闭源流、删除临时文件（幂等）
+        InputStreamMultipartFile unwrapped = unwrapStreamFile(file);
+        if (unwrapped != null) {
+            try {
+                unwrapped.closeStream();
+            } catch (IOException e) {
+                LOGGER.warn("关闭上传源流失败", e);
+            }
+        }
+        while (file instanceof EnhancedMultipartFile enhanced && enhanced.isWrapped()) {
+            file = enhanced.getOriginalFile();
+        }
+        if (file instanceof TempFileMultipartFile tempFile) {
+            tempFile.delete();
         }
     }
 
@@ -937,15 +1377,345 @@ public class FileStorageService {
     }
 
     /**
-     * 批量下载
+     * 字节范围下载（闭区间 [start, end]）
+     *
+     * <p>
+     * 本方法只校验范围参数本身，文件大小解析、末端钳制与不存在/越界处理由策略
+     * 实现决定（避免服务层预查造成整文件读取）：本地策略按文件大小钳制末端并
+     * 抛出越界异常；S3 按 Range 语义由服务端处理（end 越界自动截断至文件末尾，
+     * start 越界或文件不存在返回错误）。返回流由调用方关闭。
+     * </p>
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param path     路径
+     * @param start    起始字节偏移（含，从 0 计）
+     * @param end      结束字节偏移（含）
+     * @return 范围内容输入流
+     */
+    public InputStream downloadRange(String platform, String bucket, String path, long start,
+        long end) {
+        if (start < 0 || end < start) {
+            throw new StorageException("下载范围非法: start=" + start + ", end=" + end);
+        }
+        return router.route(platform).downloadRange(bucket, path, start, end);
+    }
+
+    /**
+     * 字节范围下载到输出流（闭区间 [start, end]），输出流由调用方关闭
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param path     路径
+     * @param out      目标输出流
+     * @param start    起始字节偏移（含，从 0 计）
+     * @param end      结束字节偏移（含）
+     */
+    public void writeRangeDownload(String platform, String bucket, String path, OutputStream out,
+        long start, long end) {
+        try (InputStream in = downloadRange(platform, bucket, path, start, end)) {
+            in.transferTo(out);
+        } catch (IOException e) {
+            throw new StorageException("范围下载失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 批量下载为 ZIP 流
+     *
+     * <p>
+     * 走 {@link StorageStrategy#batchDownload(String, List)}，默认实现按流式生成：
+     * 消费方读取时才逐个拉取源文件写入 ZIP 结构，内存以复制缓冲区为界，但 ZIP
+     * 中央目录随条目数增长占用内存；条目名取对象路径，重名自动追加 " (n)" 后缀。
+     * 第三方/装饰器策略可覆盖定制。返回流由调用方关闭，关闭即停止拉取源文件。
+     * </p>
      *
      * @param platform 平台编码
      * @param bucket   存储桶
      * @param paths    路径列表
-     * @return 打包后的输入流
+     * @return ZIP 格式输入流
      */
     public InputStream batchDownload(String platform, String bucket, List<String> paths) {
         return router.route(platform).batchDownload(bucket, paths);
+    }
+
+    /**
+     * 批量下载为 ZIP 写入输出流，输出流由调用方关闭
+     *
+     * @param platform 平台编码
+     * @param bucket   存储桶
+     * @param paths    路径列表
+     * @param out      目标输出流
+     */
+    public void writeBatchDownload(String platform, String bucket, List<String> paths,
+        OutputStream out) {
+        try (InputStream in = batchDownload(platform, bucket, paths)) {
+            in.transferTo(out);
+        } catch (IOException e) {
+            throw new StorageException("批量下载失败: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 导入 ZIP 包到存储
+     *
+     * <p>
+     * 流式解包：逐条上传，不做整包内存缓冲。条目名做目录穿越校验（空名、绝对路径、
+     * Windows 驱动器路径、".." 段）；目录与非法名条目先经受预算的 closeEntry 排空
+     * 再记失败继续，排空超限记失败并停止，同一条目只计一次。同名目标对象会被覆盖。
+     * 解压侧在读取侧计量：所有途经字节按单条与全包两层硬限，读取请求钳到剩余
+     * 额度外仅多探测 1 字节；任一层超限时把当前条目记失败并停止导入，此前已成功
+     * 的对象保留、不做回滚。total 与明细一一对应，含因条目数上限被拒绝的条目。
+     * </p>
+     * <p>
+     * 归档级错误（下一条目头部损坏、源流关闭失败等）不折算成条目失败，包装为
+     * {@link StorageException} 抛出，已上传对象同样不回滚。
+     * </p>
+     *
+     * @param platform   平台编码
+     * @param bucket     存储桶
+     * @param parentPath 导入后对象存放的父级路径（可空，为根）
+     * @param zipSource  ZIP 输入流（由本方法关闭）
+     * @return 导入结果（总数、成功、失败与逐条明细）
+     * @throws StorageException 归档级读取失败或源流关闭失败时抛出
+     */
+    public ZipImportResp importZip(String platform, String bucket, String parentPath,
+        InputStream zipSource) {
+        ZipImportResp resp = new ZipImportResp();
+
+        // zipSource 自进入方法即由本方法负责关闭，路由/父路径校验失败同样生效
+        try (BudgetedZipInputStream zin =
+            new BudgetedZipInputStream(zipSource, properties.getZipImportMaxEntryBytes(),
+                properties.getZipImportMaxTotalBytes())) {
+            StorageStrategy strategy = router.route(platform);
+            // 父路径规范化后剥尾斜杠，避免与条目名拼出连续斜杠
+            String normalizedParent = StrUtil.isBlank(parentPath) ? StringConstants.EMPTY
+                : StrUtil.removeSuffix(ZipFileUtils.normalizeEntryName(parentPath),
+                    StringConstants.SLASH);
+            long maxEntries = properties.getZipImportMaxEntries();
+            boolean stopped = false;
+            while (!stopped) {
+                ZipEntry entry = zin.getNextEntry();
+                if (entry == null) {
+                    break;
+                }
+                stopped = importZipEntry(strategy, bucket, zin, resp, normalizedParent,
+                    maxEntries, entry);
+            }
+        } catch (IOException e) {
+            // 下一条目头部损坏或源流关闭失败属归档级错误，不归到上一条目
+            throw new StorageException("ZIP 导入读取失败: " + e.getMessage(), e);
+        }
+        return resp;
+    }
+
+    /**
+     * 处理单条 ZIP 条目：条目数超限与读取失败停止导入，校验拒绝与上传失败只记该条
+     *
+     * @param strategy         目标策略
+     * @param bucket           存储桶
+     * @param zin              计量 ZIP 输入流
+     * @param resp             导入结果
+     * @param normalizedParent 规范化父路径（已剥尾斜杠）
+     * @param maxEntries       条目数上限
+     * @param entry            当前 ZIP 条目
+     * @return 是否停止导入
+     */
+    private boolean importZipEntry(StorageStrategy strategy, String bucket,
+        BudgetedZipInputStream zin, ZipImportResp resp, String normalizedParent,
+        long maxEntries, ZipEntry entry) {
+        String entryName = entry.getName();
+        resp.setTotal(resp.getTotal() + 1);
+        if (resp.getTotal() > maxEntries) {
+            // 首条被拒条目计入 total 并留痕，但不读取其内容
+            resp.addEntry(entryName, false, 0L, "超过条目数限制: " + maxEntries);
+            return true;
+        }
+
+        ZipEntryCheck check = checkEntry(entry);
+        if (!check.importable()) {
+            // 目录或非法名条目：排空成功记原因、排空失败记该条一次失败并停止
+            return !drainSkippedEntry(zin, resp, entryName, check.skipReason());
+        }
+        String normalizedName = check.name();
+        String targetPath = StrUtil.isBlank(normalizedParent) ? normalizedName
+            : normalizedParent + StringConstants.SLASH + normalizedName;
+
+        // 读取侧已按单条/全包硬限计量，物化到临时文件后才可能触碰目标对象；
+        // 任一层超限或读取失败都记该条失败并停止导入，不触碰既有对象
+        TempFileMultipartFile temp = materializeZipEntry(zin, resp, entryName,
+            normalizedName);
+        if (temp == null) {
+            return true;
+        }
+        try {
+            uploadZipEntry(strategy, bucket, targetPath, temp, resp, entryName);
+        } finally {
+            temp.delete();
+        }
+        return false;
+    }
+
+    /**
+     * 校验条目：目录或非法名记为不可导入并返回原因，可导入返回规范化名
+     *
+     * @param entry ZIP 条目
+     * @return 校验结果（规范化名或拒绝原因）
+     */
+    private ZipEntryCheck checkEntry(ZipEntry entry) {
+        if (entry.isDirectory()) {
+            return new ZipEntryCheck(null, "目录条目不导入");
+        }
+        try {
+            return new ZipEntryCheck(ZipFileUtils.normalizeEntryName(entry.getName()),
+                null);
+        } catch (StorageException e) {
+            return new ZipEntryCheck(null, e.getMessage());
+        }
+    }
+
+    /**
+     * 条目校验结果
+     *
+     * @param name       规范化条目名（可导入时非 null）
+     * @param skipReason 拒绝原因（可导入时为 null）
+     */
+    private record ZipEntryCheck(String name, String skipReason) {
+
+        boolean importable() {
+            return name != null;
+        }
+    }
+
+    /**
+     * 经计量 read 排空被跳过的条目；成功记拒绝原因，失败记该条一次失败
+     *
+     * @param zin        计量 ZIP 输入流
+     * @param resp       导入结果
+     * @param entryName  条目名
+     * @param skipReason 拒绝原因
+     * @return 排空成功；排空失败时记该条一次失败并返回 false
+     */
+    private boolean drainSkippedEntry(BudgetedZipInputStream zin, ZipImportResp resp,
+        String entryName, String skipReason) {
+        try {
+            zin.closeEntry();
+            resp.addEntry(entryName, false, 0L, skipReason);
+            return true;
+        } catch (IOException e) {
+            resp.addEntry(entryName, false, 0L, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * 物化单条 ZIP 条目到临时文件；读取超限或失败记该条一次失败并返回 null
+     *
+     * @param zin            计量 ZIP 输入流
+     * @param resp           导入结果
+     * @param entryName      原始条目名
+     * @param normalizedName 规范化条目名
+     * @return 临时文件；失败返回 null
+     */
+    private TempFileMultipartFile materializeZipEntry(BudgetedZipInputStream zin,
+        ZipImportResp resp, String entryName, String normalizedName) {
+        try {
+            return TempFileMultipartFile.materialize(entryName, normalizedName,
+                guessZipEntryContentType(normalizedName), zin);
+        } catch (IOException e) {
+            resp.addEntry(entryName, false, 0L, e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * 上传单条物化条目并记录结果；同名目标对象覆盖写入，已存在对象不特殊保护。
+     * 成功/失败与消息分离：无异常消息的失败也如实计为失败
+     *
+     * @param strategy   目标策略
+     * @param bucket     存储桶
+     * @param targetPath 目标路径
+     * @param temp       物化临时文件
+     * @param resp       导入结果
+     * @param entryName  原始条目名
+     */
+    private void uploadZipEntry(StorageStrategy strategy, String bucket,
+        String targetPath, TempFileMultipartFile temp, ZipImportResp resp,
+        String entryName) {
+        try {
+            strategy.upload(bucket, targetPath, temp);
+            resp.addEntry(entryName, true, temp.getSize(), null);
+        } catch (Exception e) {
+            resp.addEntry(entryName, false, temp.getSize(), e.getMessage());
+        }
+    }
+
+    /**
+     * 按读取侧计量的 ZIP 输入流：单条与全包两层硬限，读取请求钳到剩余额度外
+     * 仅多探测 1 字节判定超限。JDK 的 closeEntry 排空同样走 read，因此目录、
+     * 非法名、STORED 与 DEFLATED 条目一致受限；close 只关闭源流，不做排空。
+     */
+    private static class BudgetedZipInputStream extends ZipInputStream {
+
+        private final long entryLimit;
+        private final long totalLimit;
+        private long entryRead;
+        private long totalRead;
+
+        /**
+         * 构造预算统计流
+         *
+         * @param in         源输入流（关闭本流即关闭源）
+         * @param entryLimit 单条解压字节上限
+         * @param totalLimit 全包解压字节上限
+         */
+        BudgetedZipInputStream(InputStream in, long entryLimit, long totalLimit) {
+            super(in);
+            this.entryLimit = entryLimit;
+            this.totalLimit = totalLimit;
+        }
+
+        @Override
+        public ZipEntry getNextEntry() throws IOException {
+            // super 先 closeEntry 排空上一条目（走计量 read），返回后重置单条计数
+            ZipEntry entry = super.getNextEntry();
+            this.entryRead = 0;
+            return entry;
+        }
+
+        @Override
+        public int read(byte[] b, int off, int len) throws IOException {
+            if (len == 0) {
+                return 0;
+            }
+            // 剩余额度按减法计，防溢出；额度外仅多探测 1 字节判定超限
+            long remaining = Math.min(entryLimit - entryRead, totalLimit - totalRead);
+            int toRead = remaining >= len ? len : (int) (remaining + 1L);
+            int n = super.read(b, off, toRead);
+            if (n <= 0) {
+                return n;
+            }
+            if (n > entryLimit - entryRead) {
+                throw new IOException("ZIP 条目超过单条解压大小限制: " + entryLimit + " 字节");
+            }
+            if (n > totalLimit - totalRead) {
+                throw new IOException("ZIP 导入超过总解压大小限制: " + totalLimit + " 字节");
+            }
+            this.entryRead += n;
+            this.totalRead += n;
+            return n;
+        }
+    }
+
+    /**
+     * 按条目名推断内容类型
+     *
+     * @param entryName ZIP 条目名
+     * @return 内容类型，未知返回 application/octet-stream
+     */
+    private String guessZipEntryContentType(String entryName) {
+        String type = URLConnection.guessContentTypeFromName(entryName);
+        return type == null ? "application/octet-stream" : type;
     }
 
     /**

@@ -59,6 +59,21 @@ public class StorageProperties {
     private String localMultipartTempDir = StorageConstant.DEFAULT_LOCAL_MULTIPART_TEMP_DIR;
 
     /**
+     * ZIP 导入最大条目数（解压侧限额）
+     */
+    private long zipImportMaxEntries = 10000L;
+
+    /**
+     * ZIP 导入单条最大解压后大小（字节）
+     */
+    private long zipImportMaxEntryBytes = 512L * 1024 * 1024;
+
+    /**
+     * ZIP 导入累计最大解压后大小（字节）
+     */
+    private long zipImportMaxTotalBytes = 2L * 1024 * 1024 * 1024;
+
+    /**
      * 本地存储配置列表
      */
     private List<LocalStorageConfig> local = new ArrayList<>();
@@ -122,5 +137,29 @@ public class StorageProperties {
 
     public void setLocalMultipartTempDir(String localMultipartTempDir) {
         this.localMultipartTempDir = localMultipartTempDir;
+    }
+
+    public long getZipImportMaxEntries() {
+        return zipImportMaxEntries;
+    }
+
+    public void setZipImportMaxEntries(long zipImportMaxEntries) {
+        this.zipImportMaxEntries = zipImportMaxEntries;
+    }
+
+    public long getZipImportMaxEntryBytes() {
+        return zipImportMaxEntryBytes;
+    }
+
+    public void setZipImportMaxEntryBytes(long zipImportMaxEntryBytes) {
+        this.zipImportMaxEntryBytes = zipImportMaxEntryBytes;
+    }
+
+    public long getZipImportMaxTotalBytes() {
+        return zipImportMaxTotalBytes;
+    }
+
+    public void setZipImportMaxTotalBytes(long zipImportMaxTotalBytes) {
+        this.zipImportMaxTotalBytes = zipImportMaxTotalBytes;
     }
 }

@@ -33,3 +33,6 @@ logs/
 !.codebuddy/skills/**
 !.codebuddy/.mcp.json
 .zcodeignore
+
+# OpenIdea
+/.openidea/

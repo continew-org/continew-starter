@@ -35,14 +35,30 @@ public class ProgressTracker {
     private final AtomicInteger lastPercentage = new AtomicInteger(-1);
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean completed = new AtomicBoolean(false);
+    // 服务内部显式成功/失败判定模式：100% 不自动判定完成
+    private final boolean manualCompletion;
 
     // 通知阈值：至少变化1%或者达到 1MB 阈值
     private static final int PERCENTAGE_THRESHOLD = 1;
     private static final long BYTES_THRESHOLD = 1024L * 1024L;
 
     public ProgressTracker(long totalBytes, UploadProgressListener listener) {
+        this(totalBytes, listener, false);
+    }
+
+    /**
+     * 构造进度跟踪器
+     *
+     * @param totalBytes       上传总字节数（未知传 0 或负值）
+     * @param listener         进度监听器
+     * @param manualCompletion true 时 100% 仅上报进度，完成由调用方显式
+     *                         {@link #complete()} 判定（服务内部上传链路用）
+     */
+    public ProgressTracker(long totalBytes, UploadProgressListener listener,
+        boolean manualCompletion) {
         this.totalBytes = totalBytes;
         this.listener = listener;
+        this.manualCompletion = manualCompletion;
     }
 
     /**
@@ -57,7 +73,8 @@ public class ProgressTracker {
     /**
      * 更新上传进度
      * <p>
-     * 累计已上传字节数，当百分比变化达到 1% 或字节数变化达到 1MB 阈值时回调监听器，达到 100% 时自动标记完成
+     * 累计已上传字节数，当百分比变化达到 1% 或字节数变化达到 1MB 阈值时回调监听器；
+     * 默认模式达到 100% 自动判定完成，manualCompletion 模式仅上报进度、由调用方显式判定
      *
      * @param bytes 本次新增的已上传字节数
      */
@@ -94,11 +111,20 @@ public class ProgressTracker {
             lastNotifiedBytes.set(currentBytes);
             listener.onProgress(currentBytes, totalBytes, currentPercentage);
 
-            // 如果达到100%，标记完成
-            if (currentPercentage == 100) {
+            // 默认模式 100% 判定完成；manualCompletion 模式由调用方显式判定
+            if (!manualCompletion && currentPercentage == 100) {
                 complete();
             }
         }
+    }
+
+    /**
+     * 是否为手动完成判定模式（进度包装流据此决定是否关闭即完成）
+     *
+     * @return true 表示完成由调用方显式判定
+     */
+    boolean isManualCompletion() {
+        return manualCompletion;
     }
 
     /**

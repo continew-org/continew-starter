@@ -44,6 +44,7 @@ import software.amazon.awssdk.services.s3.model.ListPartsResponse;
 import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
 import software.amazon.awssdk.services.s3.model.UploadPartRequest;
 import software.amazon.awssdk.services.s3.model.UploadPartResponse;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -61,6 +62,7 @@ import top.continew.starter.storage.domain.model.resp.MultipartInitResp;
 import top.continew.starter.storage.domain.model.resp.MultipartUploadResp;
 import top.continew.starter.storage.strategy.StorageStrategy;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -99,12 +101,22 @@ public class OssStorageStrategy implements StorageStrategy {
     private final long uploadPartInMemoryThreshold;
 
     public OssStorageStrategy(OssStorageConfig config) {
+        this(config, null);
+    }
+
+    /**
+     * 测试专用构造器：注入预置 S3 客户端（为 null 时按配置创建）
+     *
+     * @param config   配置
+     * @param s3Client 预置客户端
+     */
+    OssStorageStrategy(OssStorageConfig config, S3Client s3Client) {
         this.config = config;
         this.multipartUploadThreshold = resolveMultipartUploadThreshold(config);
         this.multipartUploadPartSize = resolveMultipartUploadPartSize(config);
         this.multipartTempDir = resolveMultipartTempDir(config);
         this.uploadPartInMemoryThreshold = resolveUploadPartInMemoryThreshold();
-        this.s3Client = createS3Client(config);
+        this.s3Client = s3Client == null ? createS3Client(config) : s3Client;
         this.s3Presigner = createS3Presigner(config);
     }
 
@@ -171,6 +183,15 @@ public class OssStorageStrategy implements StorageStrategy {
 
     @Override
     public void upload(String bucket, String path, MultipartFile file) {
+        // 长度未知的单次流直接走流式上传，避免 putObject 因缺失 contentLength 失败
+        if (file.getSize() < 0) {
+            try (InputStream in = file.getInputStream()) {
+                uploadStream(bucket, path, in, file.getContentType(), file.getSize());
+                return;
+            } catch (IOException e) {
+                throw new StorageException("S3上传异常" + e.getMessage(), e);
+            }
+        }
         String key = normalizeKey(path);
         // 构建上传请求
         PutObjectRequest.Builder requestBuilder = PutObjectRequest.builder()
@@ -178,16 +199,232 @@ public class OssStorageStrategy implements StorageStrategy {
             .key(key)
             .contentType(file.getContentType())
             .contentLength(file.getSize());
-
-        try {
-            // 执行上传
+        // RequestBody.fromInputStream 不接管流所有权，getInputStream 由本方法打开并关闭
+        try (InputStream in = file.getInputStream()) {
             s3Client.putObject(requestBuilder.build(),
-                RequestBody.fromInputStream(file.getInputStream(), file
-                    .getSize()));
-
+                RequestBody.fromInputStream(in, file.getSize()));
         } catch (Exception e) {
             throw new StorageException("S3上传异常" + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public boolean supportUploadStream() {
+        return true;
+    }
+
+    @Override
+    public void uploadStream(String bucket, String path, InputStream inputStream,
+        String contentType, long contentLength) {
+        String key = normalizeKey(path);
+        if (contentLength > StorageConstant.S3_SINGLE_PUT_MAX_SIZE) {
+            // AWS 单次 PUT Object 上限 5 GiB：调用 SDK 与消费流之前先拒绝
+            throw new StorageException("流式上传大小 " + contentLength
+                + " 字节超过 S3 单次 PUT 上限 " + StorageConstant.S3_SINGLE_PUT_MAX_SIZE
+                + " 字节，请改用分片上传 API");
+        }
+        try {
+            if (contentLength >= 0) {
+                // 长度已知：单次 PUT
+                PutObjectRequest.Builder requestBuilder = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .contentType(contentType)
+                    .contentLength(contentLength);
+                s3Client.putObject(requestBuilder.build(),
+                    RequestBody.fromInputStream(inputStream, contentLength));
+                return;
+            }
+
+            // 长度未知：探测缓冲，未超过阈值则单次 PUT，否则转分片上传（上限 64MB 防溢出）
+            byte[] probe = new byte[(int) Math.min(uploadPartInMemoryThreshold,
+                64L * 1024 * 1024)];
+            int probeSize = Math.max(readUpTo(inputStream, probe, probe.length), 0);
+            if (probeSize < probe.length) {
+                // 含空流（probeSize=0）：按实际长度单次 PUT
+                PutObjectRequest.Builder requestBuilder = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .contentType(contentType)
+                    .contentLength((long) probeSize);
+                s3Client.putObject(requestBuilder.build(),
+                    RequestBody.fromInputStream(new ByteArrayInputStream(probe, 0, probeSize),
+                        probeSize));
+                return;
+            }
+            uploadStreamMultipart(bucket, key, inputStream, contentType, probe, probeSize);
+        } catch (StorageException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new StorageException("S3流式上传异常: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 未知长度流的分片上传：以探测数据为首块，按分片大小逐块直传，失败时中止分片任务
+     *
+     * @param bucket      存储桶
+     * @param key         规范化对象键
+     * @param inputStream 剩余内容输入流
+     * @param contentType 内容类型
+     * @param head        已探测的首块数据
+     * @param headSize    首块数据实际长度
+     */
+    private void uploadStreamMultipart(String bucket, String key, InputStream inputStream,
+        String contentType, byte[] head, int headSize) {
+        // S3 要求除最后一片外每片至少 5MB，缓冲尺寸取下限 5MB
+        int partBufferSize =
+            (int) Math.clamp(multipartUploadPartSize, 5L * 1024 * 1024, 64L * 1024 * 1024);
+        String uploadId = null;
+        try {
+            CreateMultipartUploadResponse initResponse = s3Client
+                .createMultipartUpload(CreateMultipartUploadRequest.builder()
+                    .bucket(bucket)
+                    .key(key)
+                    .contentType(contentType)
+                    .build());
+            uploadId = initResponse.uploadId();
+
+            List<CompletedPart> completedParts =
+                streamParts(bucket, key, uploadId, inputStream, head, headSize,
+                    partBufferSize);
+            if (completedParts.isEmpty()) {
+                throw new StorageException("S3流式上传异常: 无有效分片数据");
+            }
+            s3Client.completeMultipartUpload(CompleteMultipartUploadRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .uploadId(uploadId)
+                .multipartUpload(multipartUpload -> multipartUpload.parts(completedParts))
+                .build());
+        } catch (Exception e) {
+            abortMultipartQuietly(bucket, key, uploadId);
+            if (e instanceof StorageException storageException) {
+                throw storageException;
+            }
+            throw new StorageException("S3流式上传异常: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 以首块探测数据起片，按分片大小逐块直传余下内容
+     *
+     * @param bucket         存储桶
+     * @param key            规范化对象键
+     * @param uploadId       分片上传标识
+     * @param inputStream    剩余内容输入流
+     * @param head           已探测的首块数据
+     * @param headSize       首块数据实际长度
+     * @param partBufferSize 分片缓冲尺寸
+     * @return 已完成分片列表
+     * @throws IOException 读取源内容失败时抛出
+     */
+    private List<CompletedPart> streamParts(String bucket, String key, String uploadId,
+        InputStream inputStream, byte[] head, int headSize,
+        int partBufferSize) throws IOException {
+        List<CompletedPart> completedParts = new ArrayList<>();
+        byte[] buffer = new byte[partBufferSize];
+        System.arraycopy(head, 0, buffer, 0, headSize);
+        int bufferSize = headSize;
+        int partNumber = 1;
+        boolean eof = false;
+        while (!eof) {
+            int n = readUpTo(inputStream, buffer, bufferSize, partBufferSize - bufferSize);
+            if (n < 0) {
+                eof = true;
+            } else {
+                bufferSize += n;
+            }
+            // 凑满一片或已到流末尾时上传该片（末尾允许不足 5MB）
+            if (bufferSize == partBufferSize || (eof && bufferSize > 0)) {
+                completedParts
+                    .add(uploadOnePart(bucket, key, uploadId, partNumber, buffer, bufferSize));
+                partNumber++;
+                bufferSize = 0;
+            }
+        }
+        return completedParts;
+    }
+
+    /**
+     * 上传单个分片
+     *
+     * @param bucket     存储桶
+     * @param key        规范化对象键
+     * @param uploadId   分片上传标识
+     * @param partNumber 分片序号
+     * @param data       分片数据
+     * @param size       有效数据长度
+     * @return 已完成分片
+     */
+    private CompletedPart uploadOnePart(String bucket, String key, String uploadId,
+        int partNumber, byte[] data, int size) {
+        UploadPartResponse partResponse = s3Client.uploadPart(UploadPartRequest.builder()
+            .bucket(bucket)
+            .key(key)
+            .uploadId(uploadId)
+            .partNumber(partNumber)
+            .contentLength((long) size)
+            .build(),
+            RequestBody.fromInputStream(new ByteArrayInputStream(data, 0, size), size));
+        return CompletedPart.builder().partNumber(partNumber).eTag(partResponse.eTag()).build();
+    }
+
+    /**
+     * 中止分片上传，失败仅记日志（不掩盖原异常）
+     *
+     * @param bucket   存储桶
+     * @param key      规范化对象键
+     * @param uploadId 分片上传标识，null 表示尚未初始化成功
+     */
+    private void abortMultipartQuietly(String bucket, String key, String uploadId) {
+        if (uploadId == null) {
+            return;
+        }
+        try {
+            s3Client.abortMultipartUpload(AbortMultipartUploadRequest.builder()
+                .bucket(bucket)
+                .key(key)
+                .uploadId(uploadId)
+                .build());
+        } catch (Exception abortError) {
+            LOGGER.warn("中止分片上传失败: uploadId={}", uploadId, abortError);
+        }
+    }
+
+    /**
+     * 从流中尽量读取指定字节数，直到缓冲区填满或流结束
+     *
+     * @param in     输入流
+     * @param buffer 目标缓冲区
+     * @param len    期望读取的最大字节数（从 0 偏移写入）
+     * @return 实际读取字节数，流已结束且未读到数据时返回 -1
+     * @throws IOException 读取失败时抛出
+     */
+    private int readUpTo(InputStream in, byte[] buffer, int len) throws IOException {
+        return readUpTo(in, buffer, 0, len);
+    }
+
+    /**
+     * 从流中尽量读取指定字节数写入缓冲区指定偏移，直到填满或流结束
+     *
+     * @param in     输入流
+     * @param buffer 目标缓冲区
+     * @param off    缓冲区写入偏移
+     * @param len    期望读取的最大字节数
+     * @return 实际读取字节数，流已结束且未读到数据时返回 -1
+     * @throws IOException 读取失败时抛出
+     */
+    private int readUpTo(InputStream in, byte[] buffer, int off, int len) throws IOException {
+        int total = 0;
+        while (total < len) {
+            int n = in.read(buffer, off + total, len - total);
+            if (n < 0) {
+                return total == 0 ? -1 : total;
+            }
+            total += n;
+        }
+        return total;
     }
 
     /**
@@ -204,8 +441,16 @@ public class OssStorageStrategy implements StorageStrategy {
     }
 
     @Override
-    public InputStream batchDownload(String bucket, List<String> paths) {
-        return null;
+    public InputStream downloadRange(String bucket, String path, long start, long end) {
+        try {
+            return s3Client.getObject(GetObjectRequest.builder()
+                .bucket(bucket)
+                .key(normalizeKey(path))
+                .range("bytes=" + start + "-" + end)
+                .build());
+        } catch (Exception e) {
+            throw new StorageException("S3范围下载失败: " + e.getMessage(), e);
+        }
     }
 
     /**
@@ -317,45 +562,80 @@ public class OssStorageStrategy implements StorageStrategy {
 
     /**
      * 列出文件
+     *
+     * <p>
+     * 按 continuationToken 翻页聚合，直到返回条数达到 {@code maxKeys} 或结果不再截断；
+     * 聚合超过 {@code maxKeys} 时截断返回前 {@code maxKeys} 条。
+     * </p>
      */
     // 返回可变列表以保持 StorageStrategy 接口既有契约，允许调用方按需修改结果集（与 LocalStorageStrategy.list 一致）
     @SuppressWarnings("java:S6204")
     @Override
     public List<FileInfo> list(String bucket, String prefix, int maxKeys) {
+        if (maxKeys <= 0) {
+            return new ArrayList<>();
+        }
         try {
             String bucketName = bucket;
-            ListObjectsV2Request request = ListObjectsV2Request.builder()
-                .bucket(bucketName)
-                .prefix(prefix == null ? null : normalizeKey(prefix))
-                .maxKeys(maxKeys)
-                .build();
+            String normalizedPrefix = prefix == null ? null : normalizeKey(prefix);
+            List<FileInfo> result = new ArrayList<>();
+            String continuationToken = null;
 
-            ListObjectsV2Response response = s3Client.listObjectsV2(request);
+            while (result.size() < maxKeys) {
+                // 单次请求量按剩余条数收敛，且不超过 S3 协议上限 1000
+                int requestKeys = Math.min(maxKeys - result.size(), 1000);
+                ListObjectsV2Request request = ListObjectsV2Request.builder()
+                    .bucket(bucketName)
+                    .prefix(normalizedPrefix)
+                    .maxKeys(requestKeys)
+                    .continuationToken(continuationToken)
+                    .build();
 
-            return response.contents().stream().map(s3Object -> {
-                FileInfo fileInfo = new FileInfo();
-                fileInfo.setBucket(bucketName);
-                fileInfo.setPlatform(config.getPlatform());
-                fileInfo.setPath(s3Object.key());
-                fileInfo.setFullPath(s3Object.key());
-                fileInfo.setName(getFileName(s3Object.key()));
-                fileInfo.setSize(s3Object.size());
-                fileInfo.setUrl(getFileUrl(s3Object.key()));
-                fileInfo
-                    .setUploadTime(LocalDateTime.ofInstant(s3Object.lastModified(), java.time.ZoneId
-                        .systemDefault()));
+                ListObjectsV2Response response = s3Client.listObjectsV2(request);
+                response.contents()
+                    .forEach(s3Object -> result.add(toFileInfo(bucketName, s3Object)));
 
-                Map<String, String> metadata = new HashMap<>();
-                metadata.put("etag", s3Object.eTag());
-                metadata.put("storageClass", s3Object.storageClassAsString());
-                fileInfo.setMetadata(metadata);
+                continuationToken = response.nextContinuationToken();
+                if (!Boolean.TRUE.equals(response.isTruncated())
+                    || continuationToken == null) {
+                    break;
+                }
+            }
 
-                return fileInfo;
-            }).collect(Collectors.toList());
+            if (result.size() > maxKeys) {
+                return new ArrayList<>(result.subList(0, maxKeys));
+            }
+            return result;
 
         } catch (Exception e) {
             throw new StorageException("S3列出文件失败: " + e.getMessage(), e);
         }
+    }
+
+    /**
+     * 将 S3 对象摘要转换为 FileInfo
+     *
+     * @param bucket   存储桶
+     * @param s3Object S3 对象摘要
+     * @return 文件信息
+     */
+    private FileInfo toFileInfo(String bucket, S3Object s3Object) {
+        FileInfo fileInfo = new FileInfo();
+        fileInfo.setBucket(bucket);
+        fileInfo.setPlatform(config.getPlatform());
+        fileInfo.setPath(s3Object.key());
+        fileInfo.setFullPath(s3Object.key());
+        fileInfo.setName(getFileName(s3Object.key()));
+        fileInfo.setSize(s3Object.size());
+        fileInfo.setUrl(getFileUrl(s3Object.key()));
+        fileInfo.setUploadTime(
+            LocalDateTime.ofInstant(s3Object.lastModified(), java.time.ZoneId.systemDefault()));
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("etag", s3Object.eTag());
+        metadata.put("storageClass", s3Object.storageClassAsString());
+        fileInfo.setMetadata(metadata);
+        return fileInfo;
     }
 
     /**

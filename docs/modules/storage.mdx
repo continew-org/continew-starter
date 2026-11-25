@@ -1,6 +1,6 @@
 ---
 title: 存储
-description: continew-starter-storage 提供统一的文件存储抽象，支持本地磁盘与 S3 协议对象存储（兼容 MinIO、阿里云 OSS、腾讯云 COS 等主流云厂商），具备链式上传、缩略图、进度监听、分片上传与预签名 URL 能力。
+description: 在本地磁盘或 S3 兼容对象存储中链式上传、下载和删除文件，支持范围下载、ZIP 导入导出及预签名 URL。
 ---
 
 存储模块提供统一的文件存储抽象，屏蔽本地磁盘与对象存储的差异。应用只需注入 `FileStorageService`，通过链式 API 完成上传、下载、删除等操作，具体存储到本地磁盘还是 S3 兼容对象存储（MinIO、阿里云 OSS、腾讯云 COS、Amazon S3 等）由配置决定，且支持多平台并存与动态切换。
@@ -27,6 +27,9 @@ description: continew-starter-storage 提供统一的文件存储抽象，支持
 | `multipart-upload-threshold` | 全局分片阈值（字节），超过该大小的文件走分片上传 | `10485760`（10MB） |
 | `multipart-upload-part-size` | 全局分片大小（字节） | `5242880`（5MB） |
 | `local-multipart-temp-dir` | 全局本地分片临时目录 | `/tmp` |
+| `zip-import-max-entries` | ZIP 导入最大条目数（解压侧限额） | `10000` |
+| `zip-import-max-entry-bytes` | ZIP 导入单条最大解压后大小（字节） | `536870912`（512MB） |
+| `zip-import-max-total-bytes` | ZIP 导入累计最大解压后大小（字节） | `2147483648`（2GB） |
 | `local` | 本地存储配置列表（可配置多个，见下文） | 空列表 |
 | `oss` | S3 对象存储配置列表（可配置多个，见下文） | 空列表 |
 
@@ -153,7 +156,93 @@ fileStorageService.of(bytes, "avatar.png", "image/png").upload();
 fileStorageService.of(inputStream, "report.pdf", "application/pdf").upload();
 ```
 
+输入流来源在上传完成后由服务层关闭，调用方不应重复关闭。流式文件只支持单次读取：当目标存储平台实现 `uploadStream` SPI（本地与 S3 内置策略均已实现）时按流式上传直传；S3 已知长度超过单次 PUT 上限 5 GiB 时在读取流之前抛 `StorageException` 并提示改用分片上传，长度未知的流超过探测阈值后自动转分片上传；第三方自定义策略未实现该 SPI 时，服务层自动把流物化为临时文件走常规上传。流式文件若请求缩略图，会先落盘为临时文件再上传以保证可复读。
+
+### 字节范围下载
+
+`downloadRange` 按 HTTP Range 风格返回闭区间 `[start, end]` 的内容流，`writeRangeDownload` 直接写入调用方提供的输出流（输出流由调用方关闭）。服务层只校验范围参数（`start` 非负且不大于 `end`），对象存在性与边界由策略处理：本地策略按文件大小钳制 `end`，起点越界或文件不存在抛 `StorageException`；S3 由服务端按 Range 语义处理，`end` 越界自动截断、`start` 越界或对象不存在返回错误。
+
+```java
+// 读取第 0-1023 字节（闭区间）
+try (InputStream in = fileStorageService.downloadRange("minio", bucketName, path, 0, 1023)) {
+    in.transferTo(response.getOutputStream());
+}
+
+fileStorageService.writeRangeDownload("minio", bucketName, path, outputStream, 0, 1023);
+```
+
+`StorageStrategy` 默认 `downloadRange` 抛出不支持异常，本地与 S3 内置策略已实现。
+
+### 批量下载与 ZIP 导入
+
+`batchDownload` 以流式 ZIP 返回多个文件：消费方读取时才逐个拉取源文件写入 ZIP，条目名取对象路径，重名自动追加 ` (n)` 后缀；`writeBatchDownload` 写入调用方输出流。`importZip` 反向把 ZIP 包逐条导入存储：目录与非法条目名（目录穿越等）先排空内容再记失败并继续，同名目标覆盖写入；条目大小或总解压大小超 `zip-import-*` 限额（含排空被跳过条目）时记该条失败并停止导入，此前已成功上传的对象保留不回滚；条目数超限时首条被拒条目计入 total 并留痕、不读取其内容。结果 total 与逐条明细一一对应；ZIP 头部损坏、源流关闭失败等归档级错误抛 `StorageException`，已上传对象同样不回滚。
+
+```java
+// 批量下载为 ZIP 流
+try (InputStream zip = fileStorageService.batchDownload("minio", bucketName, paths)) {
+    zip.transferTo(response.getOutputStream());
+}
+
+// 导入 ZIP 到指定目录
+ZipImportResp resp = fileStorageService.importZip("minio", bucketName, "imports", zipInputStream);
+```
+
 `FileInfo` 包含平台（`platform`）、存储桶（`bucket`）、路径（`path`）、原始文件名（`originalFileName`）、访问 URL（`url`）、缩略图路径（`thumbnailPath`）等信息。
+
+### 链式操作
+
+自 3.1.0 起，使用 `file(bucket, path)` 操作单个文件，使用 `files(bucket, paths)` 操作多个文件。`.platform(...)` 可指定存储平台，省略时使用执行操作时的默认平台。`zip()`、`asZip()`、`range(...)` 和 `importTo(...)` 只组装参数，不读写存储。
+
+下载、删除、导入等操作委托给同名或对应的服务方法，沿用原有的限额。返回的输入流和传入的输出流均由调用方关闭。
+
+```java
+// 单文件操作
+try (InputStream in = fileStorageService.file(bucketName, path).download()) {
+    in.transferTo(response.getOutputStream());
+}
+FileInfo info = fileStorageService.file(bucketName, path).platform("minio").info();
+fileStorageService.file(bucketName, path).copyTo("backup/" + path);
+fileStorageService.file(bucketName, path).moveTo("other-bucket", path);
+
+// 范围下载
+fileStorageService.file(bucketName, path).range(0, 1023)
+    .writeTo(response.getOutputStream());
+```
+
+在 S3 兼容平台上，可为同一个对象生成下载或上传预签名 URL，有效期以秒为单位：
+
+```java
+String downloadUrl = fileStorageService.file(bucketName, path)
+    .platform("minio").presignedUrl(3600);
+String uploadUrl = fileStorageService.file(bucketName, path)
+    .platform("minio").uploadPresignedUrl(3600);
+```
+
+将多个文件打包成 ZIP，写入调用方提供的输出流：
+
+```java
+fileStorageService.files(bucketName, paths).zip()
+    .writeTo(outputStream);
+```
+
+如果要批量删除文件，只传入需要删除的路径：
+
+```java
+fileStorageService.files(bucketName, pathsToDelete).delete();
+```
+
+```java
+// 已有 ZIP 解包导入：默认同桶同级同名目录（dir/a.zip -> dir/a），
+// importTo / importToBucket 指定目标路径或目标桶，可覆盖目标
+ZipImportResp resp = fileStorageService.file(bucketName, "dir/a.zip")
+    .asZip().importZip();
+fileStorageService.file(bucketName, "dir/a.zip").asZip()
+    .importTo("target/").importZip();
+fileStorageService.file(bucketName, "dir/a.zip").asZip()
+    .importToBucket("backup-bucket").importZip();
+```
+
+`asZip()` 校验源路径以 `.zip` 结尾（大小写不敏感）且文件名非空；对象键原样传给 `download`（含合法的前导 `/` 键），仅派生目标目录剥为相对路径。源 ZIP 下载流由 `importZip` 负责关闭，成功与失败路径一致。
 
 ### 下载、删除与其他操作
 
@@ -171,6 +260,14 @@ boolean exists = fileStorageService.exists("minio", bucketName, path);
 // 生成预签名 URL（下载/上传，单位：秒；本地存储返回普通 URL）
 String url = fileStorageService.generatePresignedUrl(bucketName, path, 3600);
 String uploadUrl = fileStorageService.generateUploadPresignedUrl("minio", bucketName, path, 3600);
+```
+
+### 按前缀列出文件
+
+`list(platform, bucket, prefix, maxKeys)` 返回匹配路径前缀的文件。对于 S3 兼容存储，`maxKeys` 是整次调用的返回上限。单页放不下时，存储策略会自动请求下一页，直到达到上限或没有更多结果，调用方不用传分页令牌。
+
+```java
+List<FileInfo> files = fileStorageService.list("minio", bucketName, "reports/", 1500);
 ```
 
 ### 分片上传
@@ -225,3 +322,7 @@ FileInfo fileInfo = fileStorageService.completeMultipartUpload(initResp.getUploa
 - 本地存储的 `endpoint` 会注册为静态资源映射前缀，文件 URL 形如 `endpoint + 存储路径 + 文件名`；请确保应用已对外暴露该路径。
 - 对接 MinIO 等自建 S3 服务时，通常需要开启 `path-style-access-enabled`；对接云厂商（阿里云 OSS、腾讯云 COS、Amazon S3）时按需配置 `region`。
 - 可通过 `FileStorageService` 的 `register` / `defaultStorage` / `unload` 方法在运行时动态注册、切换默认平台或卸载策略，实现多租户场景下的动态存储配置。
+
+## 相关源码
+
+- [`FileStorageService`](https://github.com/continew-org/continew-starter/blob/dev/continew-starter-storage/src/main/java/top/continew/starter/storage/core/FileStorageService.java)
