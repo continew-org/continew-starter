@@ -31,6 +31,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +42,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.web.socket.WebSocketHttpHeaders;
 import org.springframework.web.socket.WebSocketSession;
 import top.continew.starter.auth.refresh.token.api.AuthSessionConstants;
 import top.continew.starter.auth.refresh.token.service.RefreshTokenService;
@@ -142,6 +145,7 @@ class WebSocketHandshakeProtocolIT {
 
         assertThat(webSocketClientService).isExactlyInstanceOf(WebSocketClientServiceImpl.class);
         assertThat(webSocketHandler).isExactlyInstanceOf(AuthWebSocketHandler.class);
+        assertThat(webSocketHandler.getSubProtocols()).containsExactly(AUTH_SUBPROTOCOL);
     }
 
     @AfterEach
@@ -183,7 +187,7 @@ class WebSocketHandshakeProtocolIT {
         String acceptedProtocol = webSocket.getSubprotocol();
         assertThat(AUTH_SUBPROTOCOL.equals(acceptedProtocol)
             && !acceptedProtocol.startsWith(BEARER_SUBPROTOCOL_PREFIX)).isTrue();
-        this.assertRegisteredOpenSession(accessToken);
+        this.assertRegisteredOpenSession(accessToken, List.of(AUTH_SUBPROTOCOL));
     }
 
     @Test
@@ -196,12 +200,13 @@ class WebSocketHandshakeProtocolIT {
 
         String acceptedProtocol = webSocket.getSubprotocol();
         assertThat(acceptedProtocol == null || acceptedProtocol.isEmpty()).isTrue();
-        this.assertRegisteredOpenSession(accessToken);
+        this.assertRegisteredOpenSession(accessToken, List.of());
     }
 
-    @Test
-    @DisplayName("多物理行子协议头仍只协商固定协议且不回显凭证")
-    void shouldNegotiateFixedProtocolAcrossPhysicalHeaderLines() throws Exception {
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    @DisplayName("多物理行凭证不进入握手头，固定协议只在声明时协商")
+    void shouldStripCredentialsAcrossPhysicalHeaderLines(boolean offerFixed) throws Exception {
         String accessToken = this.issueAccessToken();
         when(refreshTokenService.isInvalid(accessToken)).thenReturn(false);
         String bearerProtocol = this.bearerProtocol(accessToken);
@@ -210,7 +215,7 @@ class WebSocketHandshakeProtocolIT {
             socket.connect(new InetSocketAddress("127.0.0.1", port),
                 (int) CONNECT_TIMEOUT.toMillis());
             socket.setSoTimeout((int) HANDSHAKE_TIMEOUT.toMillis());
-            String request = this.repeatedHeaderUpgradeRequest(bearerProtocol);
+            String request = this.repeatedHeaderUpgradeRequest(bearerProtocol, offerFixed);
             socket.getOutputStream().write(request.getBytes(StandardCharsets.ISO_8859_1));
             socket.getOutputStream().flush();
 
@@ -223,17 +228,16 @@ class WebSocketHandshakeProtocolIT {
                 .filter(line -> line.regionMatches(true, 0, SUBPROTOCOL_HEADER_PREFIX, 0,
                     SUBPROTOCOL_HEADER_PREFIX.length()))
                 .toList();
-            String acceptedProtocol = protocolHeaders.size() == 1
-                ? protocolHeaders.get(0).substring(SUBPROTOCOL_HEADER_PREFIX.length()).trim()
-                : "";
-            boolean onlyFixedProtocolWasAccepted = protocolHeaders.size() == 1
-                && AUTH_SUBPROTOCOL.equals(acceptedProtocol)
-                && !acceptedProtocol.startsWith(BEARER_SUBPROTOCOL_PREFIX)
-                && !response.contains(accessToken)
-                && !response.contains(bearerProtocol);
-
-            assertThat(switchingProtocols && onlyFixedProtocolWasAccepted).isTrue();
-            this.assertRegisteredOpenSession(accessToken);
+            List<String> accepted = protocolHeaders.stream()
+                .map(line -> line.substring(SUBPROTOCOL_HEADER_PREFIX.length()).trim())
+                .toList();
+            assertThat(switchingProtocols).isTrue();
+            assertThat(accepted).withFailMessage("Unexpected negotiated protocol.")
+                .isEqualTo(offerFixed ? List.of(AUTH_SUBPROTOCOL) : List.of());
+            assertThat(response.contains(accessToken) || response.contains(bearerProtocol))
+                .isFalse();
+            this.assertRegisteredOpenSession(accessToken,
+                offerFixed ? List.of(AUTH_SUBPROTOCOL, "chat.v2") : List.of());
         }
     }
 
@@ -266,7 +270,7 @@ class WebSocketHandshakeProtocolIT {
         return URI.create("ws://127.0.0.1:" + port + "/websocket?token=" + encoded);
     }
 
-    private String repeatedHeaderUpgradeRequest(String bearerProtocol) {
+    private String repeatedHeaderUpgradeRequest(String bearerProtocol, boolean offerFixed) {
         byte[] key = new byte[16];
         secureRandom.nextBytes(key);
         return "GET /websocket HTTP/1.1\r\n"
@@ -275,8 +279,9 @@ class WebSocketHandshakeProtocolIT {
             + "Connection: Upgrade\r\n"
             + "Sec-WebSocket-Key: " + Base64.getEncoder().encodeToString(key) + "\r\n"
             + "Sec-WebSocket-Version: 13\r\n"
-            + SUBPROTOCOL_HEADER_PREFIX + " " + AUTH_SUBPROTOCOL + ", chat.v2\r\n"
-            + SUBPROTOCOL_HEADER_PREFIX + " " + bearerProtocol + "\r\n"
+            + SUBPROTOCOL_HEADER_PREFIX + " "
+            + (offerFixed ? AUTH_SUBPROTOCOL + ", chat.v2" : "Bearer.A") + "\r\n"
+            + SUBPROTOCOL_HEADER_PREFIX + " " + bearerProtocol + ", Bearer.\r\n"
             + "Origin: http://127.0.0.1\r\n"
             + "\r\n";
     }
@@ -314,7 +319,7 @@ class WebSocketHandshakeProtocolIT {
         }
     }
 
-    private void assertRegisteredOpenSession(String accessToken) {
+    private void assertRegisteredOpenSession(String accessToken, List<String> expectedProtocols) {
         await().pollInterval(Duration.ofMillis(100)).atMost(REGISTRATION_TIMEOUT)
             .untilAsserted(() -> {
                 String clientId = credentialRegistry.findClientIdByToken(accessToken);
@@ -330,6 +335,13 @@ class WebSocketHandshakeProtocolIT {
                 WebSocketSession serverSession = sessionDao.get(clientId);
                 assertThat(serverSession).isNotNull();
                 assertThat(serverSession.isOpen()).isTrue();
+                WebSocketHttpHeaders headers = new WebSocketHttpHeaders(serverSession
+                    .getHandshakeHeaders());
+                assertThat(headers.getSecWebSocketProtocol())
+                    .withFailMessage("Unexpected protocols in Spring handshake headers.")
+                    .isEqualTo(expectedProtocols);
+                assertThat(headers.containsHeader(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL))
+                    .isEqualTo(!expectedProtocols.isEmpty());
             });
     }
 

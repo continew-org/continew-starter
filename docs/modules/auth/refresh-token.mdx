@@ -344,9 +344,9 @@ const socket = new WebSocket(`wss://${location.host}/websocket`, [
 ]);
 ```
 
-第一项用于协议协商，第二项以无填充的 base64url 携带凭证。握手成功后，默认处理器在 `101 Switching Protocols` 响应中只回显 `Sec-WebSocket-Protocol: continew.auth.v1`，此时 `socket.protocol` 为 `continew.auth.v1`。只报 `Bearer.` 凭证项时没有可协商的协议，浏览器会拒绝连接。自定义处理器需自行声明支持的协议，不应回显凭证项。
+第一项用于协议协商，第二项以无填充的 base64url 携带凭证。按示例中的小写协议名发起握手时，默认处理器在 `101 Switching Protocols` 响应中只回显 `Sec-WebSocket-Protocol: continew.auth.v1`，此时 `socket.protocol` 为 `continew.auth.v1`。只报 `Bearer.` 凭证项时没有可协商的协议，浏览器会拒绝连接。要覆盖默认处理器，请注册 `DefaultWebSocketHandler` 子类的 Bean，并自行声明支持的子协议。单独注册其他 `WebSocketHandler` 实现不会让默认处理器退避。
 
-旧客户端仍可不报子协议，使用 `?token=` 传入 Access Token。服务端按声明顺序读取所有同名请求头和行内的逗号分隔项，只在没有可解码的 Bearer 凭证时读取 query。没有凭证、选中的令牌无登录主体或会话已失效，都会拒绝握手，不再尝试其他凭证。base64url 可逆，网关和应用都不应记录 `Sec-WebSocket-Protocol` 请求头。
+旧客户端仍可不报子协议，使用 `?token=` 传入 Access Token。服务端按声明顺序读取所有同名请求头和行内的逗号分隔项，只在没有可解码的 Bearer 凭证时读取 query。没有凭证、选中的令牌无登录主体或会话已失效，都会拒绝握手，不再尝试其他凭证。认证成功后，默认端点会从后续 Spring 握手读取的请求头中移除全部 `Bearer.` 项，包括未选中和无法解码的项。此处理不改变容器或网关收到的原始请求，也不会清除旧客户端 URL 中的 `?token=`。base64url 可逆，网关、容器和应用日志都应排除原始协议头与带令牌的查询串。
 
 ## 主要特性
 

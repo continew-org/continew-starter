@@ -29,8 +29,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.web.socket.WebSocketHandler;
+import org.springframework.web.socket.server.HandshakeHandler;
 import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
 import top.continew.starter.auth.refresh.token.api.AuthSessionRevocationNotifier;
 import top.continew.starter.auth.refresh.token.service.RefreshTokenService;
@@ -46,6 +45,7 @@ import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec;
 import top.continew.starter.auth.refresh.token.support.RefreshTokenRequestGuard;
 import top.continew.starter.auth.refresh.token.support.TenantArgumentPolicyLockTargetResolver;
 import top.continew.starter.auth.refresh.token.support.UserArgumentPolicyLockTargetResolver;
+import top.continew.starter.auth.refresh.token.websocket.AuthHandshakeHandler;
 import top.continew.starter.auth.refresh.token.websocket.AuthWebSocketHandler;
 import top.continew.starter.auth.refresh.token.websocket.AuthWebSocketSessionService;
 import top.continew.starter.auth.refresh.token.websocket.ConcurrentWebSocketSessionDao;
@@ -56,6 +56,7 @@ import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.messaging.websocket.autoconfigure.WebSocketAutoConfiguration;
 import top.continew.starter.messaging.websocket.autoconfigure.WebSocketProperties;
 import top.continew.starter.messaging.websocket.core.WebSocketClientService;
+import top.continew.starter.messaging.websocket.core.WebSocketEndpointFactory;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
 
 import jakarta.annotation.PostConstruct;
@@ -250,23 +251,23 @@ public class AuthRefreshAutoConfiguration {
             credentialRegistry);
     }
 
-    /**
-     * 由消息模块注册端点时创建处理器，仅启用认证模块时不依赖 WebSocket 配置属性。
-     *
-     * @param webSocketProperties WebSocket 配置属性
-     * @param sessionDao          WebSocket 会话 DAO
-     * @return 支持认证子协议的默认处理器
-     * @since 3.1.0
-     */
     @Bean
-    @Lazy
     @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
-    @ConditionalOnProperty(prefix = PropertiesConstants.MESSAGING_WEBSOCKET,
-        name = PropertiesConstants.ENABLED, havingValue = "true", matchIfMissing = true)
-    @ConditionalOnMissingBean(WebSocketHandler.class)
-    public AuthWebSocketHandler webSocketHandler(WebSocketProperties webSocketProperties,
-        WebSocketSessionDao sessionDao) {
-        return new AuthWebSocketHandler(webSocketProperties, sessionDao);
+    @ConditionalOnMissingBean
+    WebSocketEndpointFactory authWebSocketEndpointFactory() {
+        return new WebSocketEndpointFactory() {
+
+            @Override
+            public AuthWebSocketHandler createHandler(WebSocketProperties properties,
+                WebSocketSessionDao sessionDao) {
+                return new AuthWebSocketHandler(properties, sessionDao);
+            }
+
+            @Override
+            public HandshakeHandler createHandshakeHandler() {
+                return new AuthHandshakeHandler();
+            }
+        };
     }
 
     /**

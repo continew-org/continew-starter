@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Test;
 import org.redisson.api.RTopic;
 import org.redisson.api.RedissonClient;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.web.socket.SubProtocolCapable;
@@ -32,10 +33,12 @@ import org.springframework.web.socket.WebSocketHandler;
 import top.continew.starter.auth.refresh.token.service.RefreshTokenService;
 import top.continew.starter.auth.refresh.token.service.SessionInvalidationService;
 import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec;
+import top.continew.starter.auth.refresh.token.websocket.AuthWebSocketHandler;
 import top.continew.starter.messaging.websocket.autoconfigure.WebSocketAutoConfiguration;
 import top.continew.starter.messaging.websocket.autoconfigure.WebSocketProperties;
 import top.continew.starter.messaging.websocket.core.DefaultWebSocketHandler;
 import top.continew.starter.messaging.websocket.core.WebSocketClientService;
+import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
 import top.continew.starter.test.support.AutoConfigurationImportsAssert;
 
 /**
@@ -173,7 +176,40 @@ class AuthRefreshAutoConfigurationContractTest {
         this.authWebContext.run(context -> {
             assertThat(context).hasSingleBean(RefreshTokenService.class);
             assertThat(context).doesNotHaveBean(WebSocketProperties.class);
+            assertThat(context).doesNotHaveBean(WebSocketHandler.class);
         });
+    }
+
+    @Test
+    void shouldSkipHandlerWhenMessagingIsExcluded() {
+        this.authWebContext.withUserConfiguration(WebSocketImports.class)
+            .withPropertyValues("spring.autoconfigure.exclude=" + WebSocketAutoConfiguration.class
+                .getName())
+            .run(context -> {
+                assertThat(context).hasSingleBean(RefreshTokenService.class);
+                assertThat(context).doesNotHaveBean(WebSocketProperties.class);
+                assertThat(context).doesNotHaveBean(WebSocketHandler.class);
+            });
+    }
+
+    @ImportAutoConfiguration(WebSocketAutoConfiguration.class)
+    static class WebSocketImports {
+    }
+
+    @Test
+    void shouldKeepMessagingDefaultsWithoutAuthHandlerInNonWebContext() {
+        this.contextRunner
+            .withConfiguration(AutoConfigurations.of(WebSocketAutoConfiguration.class))
+            .withBean(RedissonClient.class, this::mockedRedissonClient)
+            .withPropertyValues("continew-starter.refresh-token.secret=" + SECRET)
+            .run(context -> {
+                assertThat(context).hasSingleBean(RefreshTokenService.class);
+                assertThat(context).doesNotHaveBean(AuthWebSocketHandler.class);
+                assertThat(context).hasSingleBean(WebSocketSessionDao.class);
+                assertThat(context).hasSingleBean(WebSocketClientService.class);
+                assertThat(context.getBean(WebSocketHandler.class))
+                    .isExactlyInstanceOf(DefaultWebSocketHandler.class);
+            });
     }
 
     /**

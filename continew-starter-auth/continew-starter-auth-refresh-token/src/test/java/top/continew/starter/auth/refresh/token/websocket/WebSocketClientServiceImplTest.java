@@ -40,6 +40,7 @@ import org.springframework.web.socket.WebSocketHttpHeaders;
 import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
 import top.continew.starter.auth.refresh.token.autoconfigure.RefreshTokenProperties;
 import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec;
+import top.continew.starter.auth.refresh.token.support.WebSocketTokenExtractor;
 import top.continew.starter.core.exception.BusinessException;
 
 import java.nio.charset.StandardCharsets;
@@ -111,7 +112,7 @@ class WebSocketClientServiceImplTest {
         String accessOffer = this.bearerProtocol(ACCESS_TOKEN);
         String queryOffer = this.bearerProtocol(QUERY_TOKEN);
         ServletServerHttpRequest request = this.handshake(QUERY_TOKEN,
-            "continew.auth.v10, continew.auth.v1", "Bearer.A, " + accessOffer, queryOffer);
+            "continew.auth.v10, Bearer.A", "continew.auth.v1, " + accessOffer, queryOffer);
         try (MockedStatic<StpUtil> stpUtil = mockStatic(StpUtil.class)) {
             stpUtil.when(() -> StpUtil.getLoginIdByToken(ACCESS_TOKEN)).thenReturn(1L);
             stpUtil.when(() -> StpUtil.getLoginIdByToken(QUERY_TOKEN)).thenReturn(2L);
@@ -121,9 +122,10 @@ class WebSocketClientServiceImplTest {
             assertEquals(ACCESS_TOKEN, registry.resolve(clientId));
             assertNull(registry.findClientIdByToken(QUERY_TOKEN));
             stpUtil.verify(() -> StpUtil.getLoginIdByToken(QUERY_TOKEN), never());
-            WebSocketHttpHeaders headers = new WebSocketHttpHeaders(request.getHeaders());
-            assertEquals(List.of("continew.auth.v10", "continew.auth.v1", "Bearer.A", accessOffer,
-                queryOffer), headers.getSecWebSocketProtocol());
+            WebSocketHttpHeaders headers = new WebSocketHttpHeaders(
+                WebSocketTokenExtractor.forHandshake(request).getHeaders());
+            assertEquals(List.of("continew.auth.v10", "continew.auth.v1"),
+                headers.getSecWebSocketProtocol());
         }
     }
 
@@ -157,8 +159,11 @@ class WebSocketClientServiceImplTest {
         try (MockedStatic<StpUtil> stpUtil = mockStatic(StpUtil.class)) {
             stpUtil.when(() -> StpUtil.getLoginIdByToken(ACCESS_TOKEN)).thenReturn(1L);
 
-            String clientId = service.getClientId(this.handshake(null, protocols));
+            ServletServerHttpRequest request = this.handshake(null, protocols);
+            String clientId = service.getClientId(request);
             assertEquals(codec.fingerprint(ACCESS_TOKEN), clientId);
+            assertNull(WebSocketTokenExtractor.forHandshake(request).getHeaders()
+                .get(WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL));
         }
     }
 

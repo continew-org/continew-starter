@@ -19,6 +19,7 @@ package top.continew.starter.messaging.websocket.autoconfigure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,10 +28,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistration;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.messaging.websocket.core.DefaultWebSocketHandler;
 import top.continew.starter.messaging.websocket.core.WebSocketClientService;
+import top.continew.starter.messaging.websocket.core.WebSocketEndpointFactory;
 import top.continew.starter.messaging.websocket.core.WebSocketInterceptor;
 import top.continew.starter.messaging.websocket.dao.DefaultWebSocketSessionDao;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
@@ -54,22 +57,37 @@ public class WebSocketAutoConfiguration {
     private static final Logger LOGGER = LoggerFactory.getLogger(WebSocketAutoConfiguration.class);
     private final WebSocketProperties properties;
 
+    private WebSocketEndpointFactory endpointFactory;
+
     public WebSocketAutoConfiguration(WebSocketProperties properties) {
         this.properties = properties;
+    }
+
+    @Autowired(required = false)
+    void setEndpointFactory(WebSocketEndpointFactory endpointFactory) {
+        this.endpointFactory = endpointFactory;
     }
 
     @Bean
     public WebSocketConfigurer webSocketConfigurer(WebSocketHandler handler,
         HandshakeInterceptor interceptor) {
-        return registry -> registry.addHandler(handler, properties.getPath())
-            .addInterceptors(interceptor)
-            .setAllowedOrigins(properties.getAllowedOrigins().toArray(String[]::new));
+        return registry -> {
+            WebSocketHandlerRegistration registration =
+                registry.addHandler(handler, properties.getPath())
+                    .addInterceptors(interceptor)
+                    .setAllowedOrigins(properties.getAllowedOrigins().toArray(String[]::new));
+            if (endpointFactory != null) {
+                registration.setHandshakeHandler(endpointFactory.createHandshakeHandler());
+            }
+        };
     }
 
     @Bean
     @ConditionalOnMissingBean
     public DefaultWebSocketHandler webSocketHandler(WebSocketSessionDao webSocketSessionDao) {
-        return new DefaultWebSocketHandler(properties, webSocketSessionDao);
+        return endpointFactory == null
+            ? new DefaultWebSocketHandler(properties, webSocketSessionDao)
+            : endpointFactory.createHandler(properties, webSocketSessionDao);
     }
 
     @Bean

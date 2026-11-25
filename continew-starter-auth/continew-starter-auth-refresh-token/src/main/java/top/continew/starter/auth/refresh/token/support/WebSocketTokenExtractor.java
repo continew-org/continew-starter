@@ -18,10 +18,13 @@ package top.continew.starter.auth.refresh.token.support;
 
 import static org.springframework.web.socket.WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServletServerHttpRequest;
 
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * WebSocket 握手凭证读取器。
@@ -53,6 +56,44 @@ public final class WebSocketTokenExtractor {
         }
         String token = request.getServletRequest().getParameter("token");
         return token == null || token.isBlank() ? null : token;
+    }
+
+    /**
+     * 为 Spring 握手构造不含 Bearer 凭证的协议头，保留其余协议的声明顺序。
+     *
+     * @param request 认证后的 Servlet 请求
+     * @return 交给 Spring 握手处理器的请求
+     * @since 3.1.0
+     */
+    public static ServletServerHttpRequest forHandshake(ServletServerHttpRequest request) {
+        List<String> values = request.getHeaders().getOrEmpty(SEC_WEBSOCKET_PROTOCOL);
+        if (values.isEmpty()) {
+            return request;
+        }
+        List<String> protocols = new ArrayList<>();
+        for (String value : values) {
+            for (String item : value.split(",")) {
+                String protocol = item.strip();
+                if (!protocol.isEmpty() && !protocol.startsWith(BEARER_PROTOCOL_PREFIX)) {
+                    protocols.add(protocol);
+                }
+            }
+        }
+        // Servlet 请求头的 remove 只撤销覆盖值；独立副本才能真正移除原始键。
+        HttpHeaders headers = HttpHeaders.copyOf(request.getHeaders());
+        if (protocols.isEmpty()) {
+            headers.remove(SEC_WEBSOCKET_PROTOCOL);
+        } else {
+            // Spring 只对单行协议头拆分逗号。
+            headers.set(SEC_WEBSOCKET_PROTOCOL, String.join(", ", protocols));
+        }
+        return new ServletServerHttpRequest(request.getServletRequest()) {
+
+            @Override
+            public HttpHeaders getHeaders() {
+                return headers;
+            }
+        };
     }
 
     private static String decodeBearer(String protocol) {

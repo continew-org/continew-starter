@@ -16,9 +16,6 @@
 
 package top.continew.starter.auth.refresh.token.websocket;
 
-import static org.springframework.web.socket.WebSocketHttpHeaders.SEC_WEBSOCKET_PROTOCOL;
-
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.ServletServerHttpRequest;
 import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
 import top.continew.starter.auth.refresh.token.support.AccessTokenClaimsReader;
@@ -26,8 +23,6 @@ import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec;
 import top.continew.starter.auth.refresh.token.support.WebSocketTokenExtractor;
 import top.continew.starter.core.exception.BusinessException;
 import top.continew.starter.messaging.websocket.core.WebSocketClientService;
-
-import java.util.List;
 
 /**
  * WebSocket 握手的当前登录用户 Provider。
@@ -61,17 +56,9 @@ public class WebSocketClientServiceImpl implements WebSocketClientService {
             || accessSessionValidator.isInvalid(token)) {
             throw new BusinessException("登录已过期，请重新登录");
         }
-        normalizeProtocolHeaders(request.getHeaders());
         String clientId = tokenCodec.fingerprint(token);
         credentialRegistry.register(clientId, token);
         return clientId;
     }
 
-    private static void normalizeProtocolHeaders(HttpHeaders headers) {
-        List<String> values = headers.getOrEmpty(SEC_WEBSOCKET_PROTOCOL);
-        if (values.size() > 1) {
-            // Spring 只对单行协议头拆分逗号，合并同名头须保留候选的声明顺序。
-            headers.set(SEC_WEBSOCKET_PROTOCOL, String.join(", ", values));
-        }
-    }
 }
