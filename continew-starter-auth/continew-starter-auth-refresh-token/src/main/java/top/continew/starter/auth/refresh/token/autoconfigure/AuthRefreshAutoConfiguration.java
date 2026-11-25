@@ -25,9 +25,11 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.socket.server.HandshakeHandler;
 import top.continew.starter.auth.refresh.token.api.AccessSessionValidator;
 import top.continew.starter.auth.refresh.token.api.AuthSessionRevocationNotifier;
 import top.continew.starter.auth.refresh.token.service.RefreshTokenService;
@@ -43,6 +45,8 @@ import top.continew.starter.auth.refresh.token.support.RefreshTokenCodec;
 import top.continew.starter.auth.refresh.token.support.RefreshTokenRequestGuard;
 import top.continew.starter.auth.refresh.token.support.TenantArgumentPolicyLockTargetResolver;
 import top.continew.starter.auth.refresh.token.support.UserArgumentPolicyLockTargetResolver;
+import top.continew.starter.auth.refresh.token.websocket.AuthHandshakeHandler;
+import top.continew.starter.auth.refresh.token.websocket.AuthWebSocketHandler;
 import top.continew.starter.auth.refresh.token.websocket.AuthWebSocketSessionService;
 import top.continew.starter.auth.refresh.token.websocket.ConcurrentWebSocketSessionDao;
 import top.continew.starter.auth.refresh.token.websocket.WebSocketClientServiceImpl;
@@ -50,7 +54,9 @@ import top.continew.starter.auth.refresh.token.websocket.WebSocketCredentialRegi
 import top.continew.starter.cache.redisson.autoconfigure.RedissonAutoConfiguration;
 import top.continew.starter.core.constant.PropertiesConstants;
 import top.continew.starter.messaging.websocket.autoconfigure.WebSocketAutoConfiguration;
+import top.continew.starter.messaging.websocket.autoconfigure.WebSocketProperties;
 import top.continew.starter.messaging.websocket.core.WebSocketClientService;
+import top.continew.starter.messaging.websocket.core.WebSocketEndpointFactory;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
 
 import jakarta.annotation.PostConstruct;
@@ -243,6 +249,25 @@ public class AuthRefreshAutoConfiguration {
         WebSocketCredentialRegistry credentialRegistry) {
         return new WebSocketClientServiceImpl(accessSessionValidator, tokenCodec,
             credentialRegistry);
+    }
+
+    @Bean
+    @ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
+    @ConditionalOnMissingBean
+    WebSocketEndpointFactory authWebSocketEndpointFactory() {
+        return new WebSocketEndpointFactory() {
+
+            @Override
+            public AuthWebSocketHandler createHandler(WebSocketProperties properties,
+                WebSocketSessionDao sessionDao) {
+                return new AuthWebSocketHandler(properties, sessionDao);
+            }
+
+            @Override
+            public HandshakeHandler createHandshakeHandler() {
+                return new AuthHandshakeHandler();
+            }
+        };
     }
 
     /**

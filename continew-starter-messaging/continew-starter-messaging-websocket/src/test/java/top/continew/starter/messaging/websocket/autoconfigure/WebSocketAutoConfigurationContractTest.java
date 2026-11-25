@@ -24,6 +24,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.WebApplicationContextRunner;
 import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.server.HandshakeInterceptor;
+import top.continew.starter.messaging.websocket.core.DefaultWebSocketHandler;
 import top.continew.starter.messaging.websocket.core.WebSocketClientService;
 import top.continew.starter.messaging.websocket.dao.DefaultWebSocketSessionDao;
 import top.continew.starter.messaging.websocket.dao.WebSocketSessionDao;
@@ -80,6 +82,21 @@ class WebSocketAutoConfigurationContractTest {
             assertThat(context.getStartupFailure())
                 .hasRootCauseInstanceOf(NoSuchBeanDefinitionException.class);
         });
+    }
+
+    @Test
+    void shouldNotResolveClientServiceWhenCustomInterceptorHandlesHandshake() {
+        new WebApplicationContextRunner()
+            .withConfiguration(AutoConfigurations.of(WebSocketAutoConfiguration.class))
+            .withBean(HandshakeInterceptor.class, () -> mock(HandshakeInterceptor.class))
+            .withBean("lazyClient", WebSocketClientService.class,
+                () -> mock(WebSocketClientService.class),
+                definition -> definition.setLazyInit(true))
+            .run(context -> {
+                assertThat(context).hasSingleBean(DefaultWebSocketHandler.class);
+                assertThat(context).hasSingleBean(WebSocketConfigurer.class);
+                assertThat(context.getBeanFactory().containsSingleton("lazyClient")).isFalse();
+            });
     }
 
     /**

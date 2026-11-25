@@ -332,6 +332,22 @@ public class ActiveSessionCleaner implements AuthSessionRevocationNotifier {
 3.0.0 起 `RefreshTokenServiceImpl` 构造签名的第 5 个参数由单个 `AuthSessionRevocationNotifier` 改为 `List<AuthSessionRevocationNotifier>`（多实现聚合）。经自动配置装配的应用无需改动；自行 `new RefreshTokenServiceImpl` 的代码需改传 `List`。同时 WebSocket 通知服务的装配条件改为按 `AuthWebSocketSessionService` 具体类型判断（`@ConditionalOnMissingBean(AuthWebSocketSessionService.class)`），业务注册自定义回调后 WebSocket 推送仍正常装配。
 </Callout>
 
+### 10. 浏览器 WebSocket 握手
+
+自 3.1.0 起，同时启用 Refresh Token 和 WebSocket 模块时，浏览器可以用两个子协议项连接默认端点 `/websocket`，URL 不带令牌。以下示例用于 HTTPS 页面，`accessToken` 是登录后取得的 JWT：
+
+```js
+const encoded = btoa(accessToken).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const socket = new WebSocket(`wss://${location.host}/websocket`, [
+  'continew.auth.v1',
+  `Bearer.${encoded}`,
+]);
+```
+
+第一项用于协议协商，第二项以无填充的 base64url 携带凭证。按示例中的小写协议名发起握手时，默认处理器在 `101 Switching Protocols` 响应中只回显 `Sec-WebSocket-Protocol: continew.auth.v1`，此时 `socket.protocol` 为 `continew.auth.v1`。只报 `Bearer.` 凭证项时没有可协商的协议，浏览器会拒绝连接。要覆盖默认处理器，请注册 `DefaultWebSocketHandler` 子类的 Bean，并自行声明支持的子协议。单独注册其他 `WebSocketHandler` 实现不会让默认处理器退避。
+
+旧客户端仍可不报子协议，使用 `?token=` 传入 Access Token。服务端按声明顺序读取所有同名请求头和行内的逗号分隔项，只在没有可解码的 Bearer 凭证时读取 query。没有凭证、选中的令牌无登录主体或会话已失效，都会拒绝握手，不再尝试其他凭证。认证成功后，默认端点会从后续 Spring 握手读取的请求头中移除全部 `Bearer.` 项，包括未选中和无法解码的项。此处理不改变容器或网关收到的原始请求，也不会清除旧客户端 URL 中的 `?token=`。base64url 可逆，网关、容器和应用日志都应排除原始协议头与带令牌的查询串。
+
 ## 主要特性
 
 - **原子轮换**：指纹门禁完成旧→新令牌的原子切换，宽限期内幂等重放、只前进一代
