@@ -61,19 +61,26 @@ jobs:
           validateSingleCommit: false
           # if true, the PR title must match the single commit message
           validateSingleCommitMatchesPrTitle: false
-      - name: Checkout trusted template and validator
+      - name: Fetch trusted template and validator
         if: github.event.pull_request.user.type != 'Bot'
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          # 脚本、模板与工作流取自同一可信提交，包括以维护分支为目标的 PR。
-          ref: ${{ github.workflow_sha }}
-          persist-credentials: false
-          sparse-checkout-cone-mode: false
-          sparse-checkout: |
-            /.github/PULL_REQUEST_TEMPLATE.md
-            /scripts/ci/validate-pr-body.cjs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRUSTED_SHA: ${{ github.workflow_sha }}
+        # 特权上下文不检出仓库代码：按触发本次运行的 workflow 提交取文件，且不写入凭据。
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/pr-body"
+          fetch() {
+            mkdir -p "$root/$(dirname "$1")"
+            gh api "repos/${GITHUB_REPOSITORY}/contents/$1?ref=${TRUSTED_SHA}" \
+              -H 'Accept: application/vnd.github.raw' > "$root/$1"
+            test -s "$root/$1"
+          }
+          fetch .github/PULL_REQUEST_TEMPLATE.md
+          fetch scripts/ci/validate-pr-body.cjs
       - name: Validate PR body against template
         if: github.event.pull_request.user.type != 'Bot'
+        working-directory: ${{ runner.temp }}/pr-body
         run: node scripts/ci/validate-pr-body.cjs
 
   check-commit-authors:

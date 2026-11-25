@@ -178,4 +178,5 @@ jobs:
           probe ''
           case "${OCR_REASONING_EFFORT,,}" in
             minimal|low|medium|high|max) probe "${OCR_REASONING_EFFORT,,}" ;;
+            *) ;;
           esac

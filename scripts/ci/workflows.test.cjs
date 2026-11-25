@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const { execFileSync } = require('node:child_process');
-const { readFileSync } = require('node:fs');
+const { mkdtempSync, readFileSync, statSync, writeFileSync } = require('node:fs');
+const { tmpdir } = require('node:os');
 const { join } = require('node:path');
 const { test } = require('node:test');
 const { validate } = require('./validate-pr-body.cjs');
@@ -56,14 +57,60 @@ test('PR 标题必检，正文随同一 required job 校验，只有正文步骤
   const yaml = workflow('pr-validation.yml');
   assert.match(yaml, /types: \[[^\]]*\bedited\b[^\]]*\]/);
   const title = yaml.split('  validate-pr-title:\n')[1].split(/^  [\w-]+:\s*$/m)[0];
-  const [before, checkout, body] = title.split(/      - name: /);
+  const [before, fetch, body] = title.split(/      - name: /);
   assert.match(before, /name: Validate PR title\n/);
   assert.match(before, /uses: amannn\/action-semantic-pull-request@/);
   assert.doesNotMatch(before, /^\s*if:/m);
-  assert.match(checkout, /ref: \$\{\{ github\.workflow_sha \}\}/);
-  assert.match(checkout, /persist-credentials: false/);
-  for (const step of [checkout, body]) assert.match(step, /if: github\.event\.pull_request\.user\.type != 'Bot'/);
+  for (const step of [fetch, body]) assert.match(step, /if: github\.event\.pull_request\.user\.type != 'Bot'/);
   assert.match(body, /run: node scripts\/ci\/validate-pr-body\.cjs/);
+});
+
+test('特权上下文不检出仓库代码，模板与校验器按 workflow_sha 从 API 取得', () => {
+  const yaml = workflow('pr-validation.yml');
+  assert.doesNotMatch(yaml, /actions\/checkout@/);
+  assert.match(yaml, /TRUSTED_SHA: \$\{\{ github\.workflow_sha \}\}/);
+  const fetch = stepLiteral('pr-validation.yml', 'Fetch trusted template and validator', 'run');
+  assert.match(fetch, /gh api "repos\/\$\{GITHUB_REPOSITORY\}\/contents\/\$1\?ref=\$\{TRUSTED_SHA\}"/);
+  assert.match(fetch, /Accept: application\/vnd\.github\.raw/);
+  for (const file of ['.github/PULL_REQUEST_TEMPLATE.md', 'scripts/ci/validate-pr-body.cjs']) {
+    assert.match(fetch, new RegExp(`fetch ${file.replace(/\./g, '\\.')}`));
+  }
+  assert.match(yaml, /working-directory: \$\{\{ runner\.temp \}\}\/pr-body/);
+});
+
+test('无 checkout 时按 API 组装可信文件，并在同构目录执行校验器', () => {
+  const fetch = stepLiteral('pr-validation.yml', 'Fetch trusted template and validator', 'run');
+  const dir = mkdtempSync(join(tmpdir(), 'pr-body-'));
+  const runner = join(dir, 'runner');
+  const src = root.replace(/\\/g, '/');
+  // 用同名 shell 函数替换 gh，仅回放仓库内真实文件；fetch 步骤本身逐字取自工作流。
+  const fakeGh = `gh() {
+    local path="\${2#*contents/}"
+    path="\${path%%\\?*}"
+    case "$path" in
+      .github/PULL_REQUEST_TEMPLATE.md) cat "$SRC/.github/PULL_REQUEST_TEMPLATE.md" ;;
+      scripts/ci/validate-pr-body.cjs) cat "$SRC/scripts/ci/validate-pr-body.cjs" ;;
+      *) return 1 ;;
+    esac
+  }`;
+  const env = {
+    ...process.env,
+    RUNNER_TEMP: runner,
+    GITHUB_REPOSITORY: 'continew-org/continew-starter',
+    TRUSTED_SHA: 'e3e04c4c',
+    SRC: src,
+  };
+  execFileSync('bash', ['-euc', `${fakeGh}\n${fetch}`], { env, stdio: 'pipe' });
+  for (const file of ['.github/PULL_REQUEST_TEMPLATE.md', 'scripts/ci/validate-pr-body.cjs']) {
+    assert.ok(statSync(join(runner, 'pr-body', file)).size > 0, file);
+  }
+  const event = join(dir, 'event.json');
+  writeFileSync(event, JSON.stringify({ pull_request: { body: valid } }));
+  execFileSync('node', ['scripts/ci/validate-pr-body.cjs'], {
+    cwd: join(runner, 'pr-body'),
+    env: { ...process.env, GITHUB_EVENT_PATH: event },
+    stdio: 'pipe',
+  });
 });
 
 test('OCR 不上传原始评审产物，探针只输出状态码', () => {
@@ -71,6 +118,16 @@ test('OCR 不上传原始评审产物，探针只输出状态码', () => {
   assert.match(yaml, /upload_artifacts: 'false'/);
   assert.doesNotMatch(yaml, /uses: actions\/upload-artifact@/);
   assert.match(stepLiteral('ocr-review.yml', 'Diagnose LLM endpoint', 'run'), /-o \/dev\/null -w .*%\{http_code\}/);
+});
+
+test('OCR 未配置推理档位时不产生含空串 reasoning_effort 的 extra_body', () => {
+  const yaml = workflow('ocr-review.yml');
+  assert.match(yaml, /llm_extra_body: '\{\}'/);
+  assert.doesNotMatch(yaml, /"reasoning_effort": "\$\{\{/);
+  assert.match(yaml, /llm_reasoning_effort: \$\{\{ steps\.protocol\.outputs\.anthropic == 'false' && env\.OCR_REASONING_EFFORT \|\| '' \}\}/);
+  const probe = stepLiteral('ocr-review.yml', 'Diagnose LLM endpoint', 'run');
+  assert.match(probe, /\n  \*\) ;;/);
+  assert.match(probe, /if \$effort != "" then \{reasoning_effort: \$effort\} else \{\} end/);
 });
 
 // 取指定步骤的 YAML literal，以生产脚本为被测对象，不发送请求或评论。
