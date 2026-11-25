@@ -67,7 +67,6 @@ class ProgressInputStreamTest {
         inOrder.verify(listener).onProgress(2L, 3L, 66);
         inOrder.verify(listener).onProgress(3L, 3L, 100);
         inOrder.verify(listener).onComplete();
-        verify(listener, times(1)).onComplete();
     }
 
     @Test
@@ -95,7 +94,7 @@ class ProgressInputStreamTest {
             listener));
         in.close();
         verify(underlying, times(1)).close();
-        verify(listener, times(1)).onComplete();
+        verify(listener).onComplete();
     }
 
     @Test

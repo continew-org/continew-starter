@@ -434,6 +434,9 @@ Spring Cache 实现未定义独立的 `@ConfigurationProperties` 类，直接使
 | `continew-starter.storage.multipart-upload-threshold` | `long` | `10485760`（10 MB） | 全局分片阈值（字节） |
 | `continew-starter.storage.multipart-upload-part-size` | `long` | `5242880`（5 MB） | 全局分片大小（字节） |
 | `continew-starter.storage.local-multipart-temp-dir` | `String` | `/tmp` | 全局本地分片临时目录 |
+| `continew-starter.storage.zip-import-max-entries` | `long` | `10000` | ZIP 导入最大条目数（解压侧限额） |
+| `continew-starter.storage.zip-import-max-entry-bytes` | `long` | `536870912`（512 MB） | ZIP 导入单条最大解压后大小（字节） |
+| `continew-starter.storage.zip-import-max-total-bytes` | `long` | `2147483648`（2 GB） | ZIP 导入累计最大解压后大小（字节） |
 | `continew-starter.storage.local` | `List<LocalStorageConfig>` | `[]` | 本地存储配置列表 |
 | `continew-starter.storage.oss` | `List<OssStorageConfig>` | `[]` | OSS 存储配置列表 |
 

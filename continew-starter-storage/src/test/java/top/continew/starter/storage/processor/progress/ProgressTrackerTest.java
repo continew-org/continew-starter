@@ -83,10 +83,23 @@ class ProgressTrackerTest {
         inOrder.verify(listener).onComplete();
 
         tracker.updateProgress(1);
-        tracker.complete();
         verify(listener, times(1)).onStart();
         verify(listener, times(1)).onComplete();
         verify(listener, times(2)).onProgress(anyLong(), anyLong(), anyInt());
+    }
+
+    @Test
+    void shouldNotAutoCompleteInManualMode() {
+        // 服务内部手动判定模式：100% 仅上报进度，complete 由调用方显式触发
+        UploadProgressListener listener = mock(UploadProgressListener.class);
+        ProgressTracker tracker = new ProgressTracker(100, listener, true);
+        tracker.start();
+        tracker.updateProgress(100);
+        verify(listener).onProgress(100L, 100L, 100);
+        verify(listener, never()).onComplete();
+
+        tracker.complete();
+        verify(listener).onComplete();
     }
 
     @Test

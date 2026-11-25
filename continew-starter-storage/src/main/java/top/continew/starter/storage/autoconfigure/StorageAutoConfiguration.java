@@ -108,7 +108,7 @@ public class StorageAutoConfiguration {
     public FileStorageService fileStorageService(StorageStrategyRouter router,
         ProcessorRegistry processorRegistry,
         FileRecorder fileRecorder) {
-        return new FileStorageService(router, processorRegistry, fileRecorder);
+        return new FileStorageService(router, processorRegistry, fileRecorder, properties);
     }
 
     /**
