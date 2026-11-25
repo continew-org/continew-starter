@@ -319,9 +319,13 @@ class WebSocketHandshakeProtocolIT {
             .untilAsserted(() -> {
                 String clientId = credentialRegistry.findClientIdByToken(accessToken);
                 assertThat(clientId).isNotNull();
-                assertThat(!clientId.equals(accessToken)).isTrue();
-                assertThat(clientId.equals(refreshTokenCodec.fingerprint(accessToken))).isTrue();
-                assertThat(accessToken.equals(credentialRegistry.resolve(clientId))).isTrue();
+                assertThat(clientId).withFailMessage("Client ID must not be the raw access token.")
+                    .isNotEqualTo(accessToken);
+                assertThat(clientId).withFailMessage("Client ID must match the token fingerprint.")
+                    .isEqualTo(refreshTokenCodec.fingerprint(accessToken));
+                assertThat(credentialRegistry.resolve(clientId))
+                    .withFailMessage("Registered credential must match the issued access token.")
+                    .isEqualTo(accessToken);
 
                 WebSocketSession serverSession = sessionDao.get(clientId);
                 assertThat(serverSession).isNotNull();
