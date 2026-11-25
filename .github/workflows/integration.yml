@@ -33,6 +33,8 @@ jobs:
           java-version: 25
           distribution: temurin
           cache: maven
+          # 由 dev 上同时执行单测和集成测试的作业填充共享缓存，PR 与定时任务只读取。
+          cache-read-only: ${{ github.event_name != 'push' || github.ref != 'refs/heads/dev' }}
       - name: Build and verify with integration tests
         # verify 触发完整门禁与单元测试；integration 激活 Failsafe 运行 *IT（CI 有 Docker，真实执行）；coverage 激活 JaCoCo 采集覆盖率
         run: ./mvnw -B verify -Pintegration -Pcoverage

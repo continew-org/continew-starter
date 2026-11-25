@@ -4,12 +4,17 @@ on:
   pull_request_target:
     types: [opened, reopened, synchronize, edited]
 
+concurrency:
+  group: pr-validation-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   validate-pr-title:
     name: Validate PR title
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
+      contents: read
       pull-requests: read
     steps:
       - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
@@ -56,13 +61,27 @@ jobs:
           validateSingleCommit: false
           # if true, the PR title must match the single commit message
           validateSingleCommitMatchesPrTitle: false
+      - name: Checkout trusted template and validator
+        if: github.event.pull_request.user.type != 'Bot'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # 脚本、模板与工作流取自同一可信提交，包括以维护分支为目标的 PR。
+          ref: ${{ github.workflow_sha }}
+          persist-credentials: false
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /.github/PULL_REQUEST_TEMPLATE.md
+            /scripts/ci/validate-pr-body.cjs
+      - name: Validate PR body against template
+        if: github.event.pull_request.user.type != 'Bot'
+        run: node scripts/ci/validate-pr-body.cjs
 
   check-commit-authors:
     name: Verify commit author emails
     runs-on: ubuntu-24.04
     timeout-minutes: 10
-    # 仅在提交变动时校验，标题/描述编辑（edited）无需重跑；Bot 提交的邮箱不绑定账号，跳过
-    if: github.event.action != 'edited' && github.event.pull_request.user.type != 'Bot'
+    # edited 也必须给出实际结果，不能用同名 skipped 检查覆盖尚未修复的失败。
+    if: github.event.pull_request.user.type != 'Bot'
     permissions:
       pull-requests: write
     steps:
@@ -73,22 +92,20 @@ jobs:
             const { owner, repo } = context.repo;
             const prNumber = context.payload.pull_request.number;
 
-            const commits = await github.rest.pulls.listCommits({
+            const commits = await github.paginate(github.rest.pulls.listCommits, {
               owner,
               repo,
               pull_number: prNumber,
               per_page: 100,
             });
 
-            const unlinked = commits.data.filter(c => !c.author);
-            if (unlinked.length === 0) {
-              core.info('所有提交的作者邮箱均已绑定 GitHub 账号。');
+            // listCommits 最多返回 250 条；未取得完整提交列表时不能放行。
+            if (commits.length !== context.payload.pull_request.commits) {
+              core.setFailed('未取得完整的 PR 提交列表，无法确认所有作者邮箱。请检查提交数并重试。');
               return;
             }
-
-            const details = unlinked.map(c =>
-              `| \`${c.sha.slice(0, 7)}\` | ${c.commit.author.name} | ${c.commit.author.email} |`
-            ).join('\n');
+            const unlinked = commits.filter(c => !c.author);
+            const details = unlinked.map(c => `\`${c.sha.slice(0, 7)}\``).join('、');
 
             const body = [
               '### ⚠️ 提交作者校验未通过',
@@ -96,9 +113,7 @@ jobs:
               '以下提交的作者邮箱**未绑定任何 GitHub 账号**，',
               '这将导致 CLA 无法签署，进而阻塞 PR 合并。',
               '',
-              '| 提交 | 作者 | 邮箱 |',
-              '|:-----|:-----|:-----|',
-              details,
+              '涉及提交：' + details,
               '',
               '**修复方式：**',
               '1. 将该邮箱添加到你的 GitHub 账号：https://github.com/settings/emails',
@@ -109,30 +124,28 @@ jobs:
               '   ```',
               '3. 修订提交并强推：',
               '   ```',
-              '   git rebase -i HEAD~' + unlinked.length + ' # 标记为 "edit"，修改作者信息后 continue',
+              '   git rebase -i ' + context.payload.pull_request.base.sha + ' # 将待修订提交标记为 edit',
               '   git push --force-with-lease',
               '   ```',
               '',
               '*推送后本校验会自动重新运行。*',
             ].join('\n');
 
-            // Post or update comment
             const marker = '<!-- pr-validation-author-check -->';
-            const commentBody = marker + '\n' + body;
-            const existingComments = await github.rest.issues.listComments({
-              owner,
-              repo,
-              issue_number: prNumber,
+            const existingComments = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number: prNumber, per_page: 100,
             });
-            const existing = existingComments.data.find(c => c.body.includes(marker));
-            if (existing) {
+            const existing = existingComments.find(c => c.user?.login === 'github-actions[bot]' && c.body?.startsWith(marker));
+            if (!existing && !unlinked.length) return;
+            const commentBody = marker + '\n' + (unlinked.length ? body : '所有提交的作者邮箱均已绑定 GitHub 账号。');
+            if (existing && existing.body !== commentBody) {
               await github.rest.issues.updateComment({
                 owner,
                 repo,
                 comment_id: existing.id,
                 body: commentBody,
               });
-            } else {
+            } else if (!existing) {
               await github.rest.issues.createComment({
                 owner,
                 repo,
@@ -141,6 +154,6 @@ jobs:
               });
             }
 
-            core.setFailed(
-              `${unlinked.length} 个提交的作者邮箱未绑定 GitHub 账号，修复方式见 PR 评论。`
-            );
+            if (unlinked.length) {
+              core.setFailed(`${unlinked.length} 个提交的作者邮箱未绑定 GitHub 账号，修复方式见 PR 评论。`);
+            }
