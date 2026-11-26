@@ -19,7 +19,7 @@ on:
     branches:
       - dev
       - main
-      - '[0-9]*.x'
+      - '[0-9]+.[0-9]+.x'
     tags:
       - '**'
   workflow_dispatch:
@@ -38,6 +38,7 @@ concurrency:
 
 jobs:
   mirror:
+    name: Mirror
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
@@ -58,16 +59,13 @@ jobs:
       - name: 过滤镜像分支
         run: |
           set -euo pipefail
-          # refspec 不支持 [0-9] 字符类；逐分支写死 refspec 时，仓库缺某个分支会让整次 push 失败，
-          # 所以白名单在 shell 里判定，推送用全量 glob。同样的 pattern 在 shell 里 * 跨 /、
-          # 在触发层不跨，两者不等价：触发层过滤只作用于 push 事件，workflow_dispatch 不受约束，
-          # 且 clone 也会带下非白名单分支，所以这里必须再判一次。
+          # bare clone 包含全部分支；无论由分支、标签还是手动触发，推送集合都使用同一白名单。
           while read -r b; do
-            case "$b" in
-              main|dev|[0-9]*.x) ;;
-              *) git -C repo.git update-ref -d "refs/heads/$b"; echo "  不镜像分支: $b" ;;
-            esac
-          done < <(git -C repo.git for-each-ref --format='%(refname:short)' refs/heads/)
+            if [[ $b != main && $b != dev && ! $b =~ ^[0-9]+\.[0-9]+\.x$ ]]; then
+              git -C repo.git update-ref -d "refs/heads/$b"
+              echo "  不镜像分支: $b"
+            fi
+          done < <(git -C repo.git for-each-ref --format='%(refname:lstrip=2)' refs/heads/)
 
       - name: 镜像到 Gitee 与 AtomGit
         env:
