@@ -42,6 +42,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
+import top.continew.starter.core.util.ServletUtils;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.enums.Include;
 import top.continew.starter.log.handler.AbstractLogHandler;
@@ -70,8 +71,8 @@ class LogRecordTest {
      */
     private static final String CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-    private static final String CHROME_BROWSER = "Chrome 120.0.0.0";
-    private static final String WINDOWS_OS = "Windows 10 or Windows Server 2016";
+    private static final String CHROME_BROWSER = ServletUtils.getBrowser(CHROME_UA);
+    private static final String WINDOWS_OS = ServletUtils.getOs(CHROME_UA);
     private static final String COOKIE_MARKER = "fixture-cookie-value";
     private static final String AUTH_MARKER = "fixture-authorization-value";
 
@@ -228,6 +229,8 @@ class LogRecordTest {
         LogRecord logRecord = recordRequest(request, Set.of(Include.REQUEST_HEADERS,
             Include.BROWSER, Include.OS), "withHeaders");
 
+        assertThat(CHROME_BROWSER).contains("Chrome");
+        assertThat(WINDOWS_OS).contains("Windows");
         assertThat(logRecord.getRequest().getHeaders()).containsEntry("user-agent", CHROME_UA)
             .containsEntry("X-Example", "fixture-header");
         assertThat(logRecord.getRequest()).extracting(LogRequest::getBrowser, LogRequest::getOs)
@@ -263,6 +266,7 @@ class LogRecordTest {
 
         verify(request, never()).getHeaders();
         verify(request, never()).getHeader(any());
+        verify(request, never()).readUserAgent();
         assertThat(logRequest.getHeaders()).isNull();
         assertThat(logRequest.getBrowser()).isNull();
         assertThat(logRequest.getOs()).isNull();
@@ -349,6 +353,10 @@ class LogRecordTest {
 
         public String getHeader(String name) {
             return getHeaders().get(name);
+        }
+
+        public String readUserAgent() {
+            return CHROME_UA;
         }
     }
 }
