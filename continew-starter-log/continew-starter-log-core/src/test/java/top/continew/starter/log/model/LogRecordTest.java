@@ -42,7 +42,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
-import top.continew.starter.core.util.ServletUtils;
 import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.enums.Include;
 import top.continew.starter.log.handler.AbstractLogHandler;
@@ -71,8 +70,6 @@ class LogRecordTest {
      */
     private static final String CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
-    private static final String CHROME_BROWSER = ServletUtils.getBrowser(CHROME_UA);
-    private static final String WINDOWS_OS = ServletUtils.getOs(CHROME_UA);
     private static final String COOKIE_MARKER = "fixture-cookie-value";
     private static final String AUTH_MARKER = "fixture-authorization-value";
 
@@ -175,15 +172,14 @@ class LogRecordTest {
     void browserAndOsShouldBeParsedFromUserAgent() {
         LogRequest logRequest = new LogRequest(mockRequest(), Set
             .of(Include.REQUEST_HEADERS, Include.BROWSER, Include.OS));
-        assertThat(logRequest.getBrowser()).contains("Chrome");
-        assertThat(logRequest.getOs()).isNotBlank();
+        assertClientFields(logRequest, true, true);
     }
 
     @ParameterizedTest(name = "[{index}] {0}：浏览器={2}，操作系统={3}")
     @MethodSource("clientFieldCases")
     @DisplayName("方法排除请求头时只记录启用的客户端字段")
     void shouldRecordSelectedClientFieldsWithoutHeaders(Set<Include> fields, String userAgent,
-        String expectedBrowser, String expectedOs) throws NoSuchMethodException {
+        boolean expectBrowser, boolean expectOs) throws NoSuchMethodException {
         MockHttpServletRequest request = new MockHttpServletRequest("GET", "/fixture/client");
         if (userAgent != null) {
             request.addHeader("user-agent", userAgent);
@@ -206,17 +202,18 @@ class LogRecordTest {
         verify(observedRequest, never()).getHeader(argThat(unusedHeader));
         verify(observedRequest, never()).getHeaders(argThat(unusedHeader));
         verify(observedRequest, never()).getCookies();
-        assertThat(logRecord.getRequest()).extracting(LogRequest::getBrowser, LogRequest::getOs)
-            .containsExactly(expectedBrowser, expectedOs);
+        assertClientFields(logRecord.getRequest(), expectBrowser, expectOs);
     }
 
     static Stream<Arguments> clientFieldCases() {
         Set<Include> both = Set.of(Include.BROWSER, Include.OS);
-        return Stream.of(Arguments.of(Set.of(Include.BROWSER), CHROME_UA, CHROME_BROWSER, null),
-            Arguments.of(Set.of(Include.OS), CHROME_UA, null, WINDOWS_OS),
-            Arguments.of(both, CHROME_UA, CHROME_BROWSER, WINDOWS_OS),
-            Arguments.of(Set.of(), CHROME_UA, null, null), Arguments.of(both, null, null, null),
-            Arguments.of(both, "", null, null), Arguments.of(both, " \t", null, null));
+        return Stream.of(Arguments.of(Set.of(Include.BROWSER), CHROME_UA, true, false),
+            Arguments.of(Set.of(Include.OS), CHROME_UA, false, true),
+            Arguments.of(both, CHROME_UA, true, true),
+            Arguments.of(Set.of(), CHROME_UA, false, false),
+            Arguments.of(both, null, false, false),
+            Arguments.of(both, "", false, false),
+            Arguments.of(both, " \t", false, false));
     }
 
     @Test
@@ -229,12 +226,9 @@ class LogRecordTest {
         LogRecord logRecord = recordRequest(request, Set.of(Include.REQUEST_HEADERS,
             Include.BROWSER, Include.OS), "withHeaders");
 
-        assertThat(CHROME_BROWSER).contains("Chrome");
-        assertThat(WINDOWS_OS).contains("Windows");
         assertThat(logRecord.getRequest().getHeaders()).containsEntry("user-agent", CHROME_UA)
             .containsEntry("X-Example", "fixture-header");
-        assertThat(logRecord.getRequest()).extracting(LogRequest::getBrowser, LogRequest::getOs)
-            .containsExactly(CHROME_BROWSER, WINDOWS_OS);
+        assertClientFields(logRecord.getRequest(), true, true);
         assertThat(JSONUtil.toJsonStr(logRecord)).containsOnlyOnce(CHROME_UA);
     }
 
@@ -310,6 +304,20 @@ class LogRecordTest {
         assertThat(logRecord.getDescription()).isEqualTo("新增用户");
         assertThat(logRecord.getModule()).isEqualTo("用户管理");
         assertThat(logRecord.getErrorMsg()).isEqualTo("非法参数");
+    }
+
+    private void assertClientFields(LogRequest request, boolean expectBrowser, boolean expectOs) {
+        if (expectBrowser) {
+            assertThat(request.getBrowser()).startsWith("Chrome")
+                .containsPattern("\\b120\\.0\\.0\\.0\\b");
+        } else {
+            assertThat(request.getBrowser()).isNull();
+        }
+        if (expectOs) {
+            assertThat(request.getOs()).startsWith("Windows");
+        } else {
+            assertThat(request.getOs()).isNull();
+        }
     }
 
     private LogRecord recordRequest(MockHttpServletRequest request, Set<Include> includes,
