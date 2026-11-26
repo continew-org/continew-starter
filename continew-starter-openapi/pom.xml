@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>top.continew.starter</groupId>
+        <artifactId>continew-starter</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>continew-starter-openapi</artifactId>
+    <packaging>jar</packaging>
+
+    <name>${project.artifactId}</name>
+    <description>ContiNew Starter 开放接口签名认证模块</description>
+
+    <dependencies>
+        <!-- 核心模块（常量、包装器、Servlet 工具） -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-core</artifactId>
+        </dependency>
+
+        <!-- Web 模块（失败响应 R 结构，传递 Servlet 与 Web MVC 能力） -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-web</artifactId>
+        </dependency>
+
+        <!-- 测试依赖 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 测试支撑模块（自动配置 imports 完整性断言工具） -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>continew-starter-test-support</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

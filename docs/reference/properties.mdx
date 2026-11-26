@@ -314,6 +314,24 @@ Spring Cache 实现未定义独立的 `@ConfigurationProperties` 类，直接使
 
 模块开关写作 `continew-starter.idempotent.enabled`，但它**不在 `IdempotentProperties` 类中**，而是自动配置类 `IdempotentAutoConfiguration` 上的 `@ConditionalOnProperty(..., matchIfMissing = true)` 条件：不配置即启用，显式设为 `false` 时整个模块不装配。这一项不会出现在 IDE 配置提示里，属于「条件属性」而非「绑定属性」，与上面那些有 getter/setter 的键不是一回事。
 
+## 开放接口模块（Open API）
+
+### `continew-starter.openapi`（开放接口验签，`OpenApiSignProperties`）
+
+| 配置项 | 类型 | 默认值 | 说明 |
+|:-------|:-----|:-------|:-----|
+| `continew-starter.openapi.enabled` | `Boolean` | `false` | 是否启用 |
+| `continew-starter.openapi.include-paths` | `List<String>` | `/open/*` | 验签过滤器拦截路径，仅支持 Servlet url-pattern 语法，Ant 风格 `**` 不会生效 |
+| `continew-starter.openapi.algorithm` | `String` | `OCN1-HMAC-SHA256` | 协议标识 |
+| `continew-starter.openapi.sign.timestamp-window` | `Long` | `300` | 时间戳允许窗口（秒） |
+| `continew-starter.openapi.sign.clock-skew` | `Long` | `0` | 额外时钟偏差容忍（秒） |
+| `continew-starter.openapi.sign.max-body-size` | `Long` | `1048576` | 请求体大小上限（字节） |
+| `continew-starter.openapi.sign.max-header-size` | `Integer` | `4096` | 签名头长度上限（字节） |
+| `continew-starter.openapi.sign.max-query-size` | `Integer` | `8192` | query 长度上限（字节） |
+| `continew-starter.openapi.replay.nonce-ttl` | `Long` | `600` | nonce 占位有效期（秒） |
+
+`enabled` 同样是 `@ConditionalOnProperty` 条件属性，但与幂等模块相反：`OpenApiSignAutoConfiguration` 未设置 `matchIfMissing`，不配置即关闭，使用方必须显式设为 `true` 开启。协议规范、SPI 覆盖方式与测试向量见[开放接口签名认证](/docs/starter/modules/openapi)。
+
 ## 链路追踪模块（Trace）
 
 ### `continew-starter.trace`，链路追踪（`TraceProperties` / `TLogProperties`）
