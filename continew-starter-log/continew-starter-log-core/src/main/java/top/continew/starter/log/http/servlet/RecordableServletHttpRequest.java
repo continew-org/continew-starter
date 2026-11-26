@@ -18,6 +18,7 @@ package top.continew.starter.log.http.servlet;
 
 import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.json.JSONUtil;
+import org.springframework.http.HttpHeaders;
 import org.springframework.web.util.UriUtils;
 import org.springframework.web.util.WebUtils;
 import top.continew.starter.core.constant.StringConstants;
@@ -39,7 +40,7 @@ import java.util.Map;
  * @author echo
  * @since 1.1.0
  */
-public final class RecordableServletHttpRequest implements RecordableHttpRequest {
+public final class RecordableServletHttpRequest implements RecordableHttpRequest.WithUserAgent {
 
     private final HttpServletRequest request;
 
@@ -76,6 +77,17 @@ public final class RecordableServletHttpRequest implements RecordableHttpRequest
     @Override
     public Map<String, String> getHeaders() {
         return ServletUtils.getHeaderMap(request);
+    }
+
+    /**
+     * 从 Servlet 请求单独读取 {@code User-Agent}
+     *
+     * @return User-Agent 请求头值，不存在时为 {@code null}
+     * @since 3.1.0
+     */
+    @Override
+    public String readUserAgent() {
+        return request.getHeader(HttpHeaders.USER_AGENT);
     }
 
     @Override

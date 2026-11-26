@@ -85,7 +85,8 @@ public class LogRequest {
         this.method = request.getMethod();
         this.url = request.getUrl();
         this.ip = request.getIp();
-        this.headers = (includes.contains(Include.REQUEST_HEADERS)) ? request.getHeaders() : null;
+        boolean includeHeaders = includes.contains(Include.REQUEST_HEADERS);
+        this.headers = includeHeaders ? request.getHeaders() : null;
         if (includes.contains(Include.REQUEST_BODY)) {
             this.body = request.getBody();
         } else if (includes.contains(Include.REQUEST_PARAM)) {
@@ -94,20 +95,33 @@ public class LogRequest {
         this.address = (includes.contains(Include.IP_ADDRESS))
             ? ExceptionUtils.exToNull(() -> IpUtils.getIpv4Address(this.ip))
             : null;
-        if (this.headers == null) {
+        boolean includeBrowser = includes.contains(Include.BROWSER);
+        boolean includeOs = includes.contains(Include.OS);
+        if (!includeBrowser && !includeOs) {
             return;
         }
-        String userAgentString = this.headers.entrySet()
-            .stream()
-            .filter(h -> HttpHeaders.USER_AGENT.equalsIgnoreCase(h.getKey()))
-            .map(Map.Entry::getValue)
-            .findFirst()
-            .orElse(null);
-        if (CharSequenceUtil.isNotBlank(userAgentString)) {
-            this.browser = (includes.contains(Include.BROWSER))
-                ? ServletUtils.getBrowser(userAgentString) : null;
-            this.os = (includes.contains(Include.OS)) ? ServletUtils.getOs(userAgentString) : null;
+        String userAgent = null;
+        if (includeHeaders) {
+            userAgent = findRecordedUserAgent();
+        } else if (request instanceof RecordableHttpRequest.WithUserAgent userAgentRequest) {
+            userAgent = userAgentRequest.readUserAgent();
         }
+        if (CharSequenceUtil.isNotBlank(userAgent)) {
+            this.browser = includeBrowser ? ServletUtils.getBrowser(userAgent) : null;
+            this.os = includeOs ? ServletUtils.getOs(userAgent) : null;
+        }
+    }
+
+    private String findRecordedUserAgent() {
+        if (this.headers == null) {
+            return null;
+        }
+        return this.headers.entrySet()
+            .stream()
+            .filter(header -> HttpHeaders.USER_AGENT.equalsIgnoreCase(header.getKey()))
+            .findFirst()
+            .map(Map.Entry::getValue)
+            .orElse(null);
     }
 
     public String getMethod() {

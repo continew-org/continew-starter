@@ -17,25 +17,45 @@
 package top.continew.starter.log.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONUtil;
 import net.dreamlu.mica.ip2region.core.Ip2regionSearcher;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentMatcher;
 import org.mockito.MockedStatic;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import top.continew.starter.log.annotation.Log;
 import top.continew.starter.log.enums.Include;
+import top.continew.starter.log.handler.AbstractLogHandler;
 import top.continew.starter.log.http.RecordableHttpRequest;
+import top.continew.starter.log.http.RecordableHttpRequest.WithUserAgent;
 import top.continew.starter.log.http.RecordableHttpResponse;
 
 import java.net.URI;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 
 /**
  * {@link LogRecord} 及其请求/响应投影模型测试
@@ -50,6 +70,8 @@ class LogRecordTest {
      */
     private static final String CHROME_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         + "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+    private static final String COOKIE_MARKER = "fixture-cookie-value";
+    private static final String AUTH_MARKER = "fixture-authorization-value";
 
     /**
      * start 与 finish 应记录起止时间戳并计算耗时
@@ -150,18 +172,98 @@ class LogRecordTest {
     void browserAndOsShouldBeParsedFromUserAgent() {
         LogRequest logRequest = new LogRequest(mockRequest(), Set
             .of(Include.REQUEST_HEADERS, Include.BROWSER, Include.OS));
-        assertThat(logRequest.getBrowser()).contains("Chrome");
-        assertThat(logRequest.getOs()).isNotBlank();
+        assertClientFields(logRequest, true, true);
     }
 
-    /**
-     * 锁定当前行为：浏览器解析依赖请求头包含项，未包含请求头时即使包含浏览器项也为 null
-     */
+    @ParameterizedTest(name = "[{index}] {0}：浏览器={2}，操作系统={3}")
+    @MethodSource("clientFieldCases")
+    @DisplayName("方法排除请求头时只记录启用的客户端字段")
+    void shouldRecordSelectedClientFieldsWithoutHeaders(Set<Include> fields, String userAgent,
+        boolean expectBrowser, boolean expectOs) throws NoSuchMethodException {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/fixture/client");
+        if (userAgent != null) {
+            request.addHeader("user-agent", userAgent);
+        }
+        request.addHeader(HttpHeaders.COOKIE, "sid=" + COOKIE_MARKER);
+        request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer " + AUTH_MARKER);
+        MockHttpServletRequest observedRequest = spy(request);
+        Set<Include> includes = EnumSet.of(Include.REQUEST_HEADERS);
+        includes.addAll(fields);
+
+        LogRecord logRecord = recordRequest(observedRequest, includes, "withoutHeaders");
+
+        assertThat(logRecord.getRequest().getHeaders()).isNull();
+        assertThat(JSONUtil.toJsonStr(logRecord)).contains("/fixture/client")
+            .doesNotContain(CHROME_UA, COOKIE_MARKER, AUTH_MARKER);
+        ArgumentMatcher<String> unusedHeader = name -> HttpHeaders.COOKIE.equalsIgnoreCase(name)
+            || HttpHeaders.AUTHORIZATION.equalsIgnoreCase(name)
+            || (fields.isEmpty() && HttpHeaders.USER_AGENT.equalsIgnoreCase(name));
+        verify(observedRequest, never()).getHeaderNames();
+        verify(observedRequest, never()).getHeader(argThat(unusedHeader));
+        verify(observedRequest, never()).getHeaders(argThat(unusedHeader));
+        verify(observedRequest, never()).getCookies();
+        assertClientFields(logRecord.getRequest(), expectBrowser, expectOs);
+    }
+
+    static Stream<Arguments> clientFieldCases() {
+        Set<Include> both = Set.of(Include.BROWSER, Include.OS);
+        return Stream.of(Arguments.of(Set.of(Include.BROWSER), CHROME_UA, true, false),
+            Arguments.of(Set.of(Include.OS), CHROME_UA, false, true),
+            Arguments.of(both, CHROME_UA, true, true),
+            Arguments.of(Set.of(), CHROME_UA, false, false),
+            Arguments.of(both, null, false, false),
+            Arguments.of(both, "", false, false),
+            Arguments.of(both, " \t", false, false));
+    }
+
     @Test
-    @DisplayName("未含请求头时浏览器解析跳过（锁定当前行为）")
-    void browserShouldBeNullWhenHeadersNotIncluded() {
-        LogRequest logRequest = new LogRequest(mockRequest(), Set.of(Include.BROWSER));
+    @DisplayName("启用请求头时保留普通头并记录浏览器和操作系统")
+    void shouldKeepHeadersAndClientFieldsWhenHeadersIncluded() throws NoSuchMethodException {
+        MockHttpServletRequest request = new MockHttpServletRequest("GET", "/fixture/client");
+        request.addHeader("user-agent", CHROME_UA);
+        request.addHeader("X-Example", "fixture-header");
+
+        LogRecord logRecord = recordRequest(request, Set.of(Include.REQUEST_HEADERS,
+            Include.BROWSER, Include.OS), "withHeaders");
+
+        assertThat(logRecord.getRequest().getHeaders()).containsEntry("user-agent", CHROME_UA)
+            .containsEntry("X-Example", "fixture-header");
+        assertClientFields(logRecord.getRequest(), true, true);
+        assertThat(JSONUtil.toJsonStr(logRecord)).containsOnlyOnce(CHROME_UA);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    @DisplayName("启用请求头时不绕过适配器过滤后的请求头读取原始 UA")
+    void shouldNotBypassFilteredHeaders(boolean hasVisibleHeaders) {
+        Map<String, String> headers = hasVisibleHeaders ? Map.of("X-Example", "visible") : null;
+        WithUserAgent request = mock(WithUserAgent.class);
+        when(request.getHeaders()).thenReturn(headers);
+        when(request.readUserAgent()).thenReturn(CHROME_UA);
+
+        Set<Include> includes = Set.of(Include.REQUEST_HEADERS, Include.BROWSER, Include.OS);
+        LogRequest logRequest = new LogRequest(request, includes);
+
+        assertThat(logRequest.getHeaders()).isEqualTo(headers);
         assertThat(logRequest.getBrowser()).isNull();
+        assertThat(logRequest.getOs()).isNull();
+        verify(request, never()).readUserAgent();
+    }
+
+    @Test
+    @DisplayName("排除请求头时不调用旧适配器的同名方法或枚举请求头")
+    void shouldNotReadHeadersFromLegacyAdapter() {
+        LegacyHeaderRequest request = mock(LegacyHeaderRequest.class, CALLS_REAL_METHODS);
+        when(request.getHeaders()).thenReturn(Map.of(HttpHeaders.USER_AGENT, CHROME_UA));
+
+        LogRequest logRequest = new LogRequest(request, Set.of(Include.BROWSER, Include.OS));
+
+        verify(request, never()).getHeaders();
+        verify(request, never()).getHeader(any());
+        verify(request, never()).readUserAgent();
+        assertThat(logRequest.getHeaders()).isNull();
+        assertThat(logRequest.getBrowser()).isNull();
+        assertThat(logRequest.getOs()).isNull();
     }
 
     /**
@@ -204,6 +306,37 @@ class LogRecordTest {
         assertThat(logRecord.getErrorMsg()).isEqualTo("非法参数");
     }
 
+    private void assertClientFields(LogRequest request, boolean expectBrowser, boolean expectOs) {
+        if (expectBrowser) {
+            assertThat(request.getBrowser()).startsWith("Chrome")
+                .containsPattern("\\b120\\.0\\.0\\.0\\b");
+        } else {
+            assertThat(request.getBrowser()).isNull();
+        }
+        if (expectOs) {
+            assertThat(request.getOs()).startsWith("Windows");
+        } else {
+            assertThat(request.getOs()).isNull();
+        }
+    }
+
+    private LogRecord recordRequest(MockHttpServletRequest request, Set<Include> includes,
+        String methodName) throws NoSuchMethodException {
+        AbstractLogHandler handler = new AbstractLogHandler() {
+        };
+        LogRecord.Started started = handler.start(Instant.EPOCH, request);
+        return handler.finish(started, Instant.EPOCH, new MockHttpServletResponse(), includes,
+            Endpoints.class.getDeclaredMethod(methodName), Endpoints.class);
+    }
+
+    private interface Endpoints {
+
+        @Log(excludes = Include.REQUEST_HEADERS)
+        void withoutHeaders();
+
+        void withHeaders();
+    }
+
     private RecordableHttpRequest mockRequest() {
         RecordableHttpRequest request = mock(RecordableHttpRequest.class);
         when(request.getMethod()).thenReturn("GET");
@@ -222,5 +355,16 @@ class LogRecordTest {
         when(response.getBody()).thenReturn("{\"ok\":true}");
         when(response.getParams()).thenReturn("{\"ok\":true}");
         return response;
+    }
+
+    abstract static class LegacyHeaderRequest implements RecordableHttpRequest {
+
+        public String getHeader(String name) {
+            return getHeaders().get(name);
+        }
+
+        public String readUserAgent() {
+            return CHROME_UA;
+        }
     }
 }

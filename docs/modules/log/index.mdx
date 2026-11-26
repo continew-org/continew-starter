@@ -54,6 +54,7 @@ continew-starter:
 - 两种实现互斥，只引入其中一个；自动配置仅在 Servlet Web 应用中生效。
 - 日志记录过程做了异常兜底：记录失败不会影响业务方法的正常返回或异常传播（异常以 ERROR 级别输出到控制台）。
 - `REQUEST_BODY` 与 `REQUEST_PARAM` 互斥（`RESPONSE_BODY` 与 `RESPONSE_PARAM` 同理）：包含 body 时对应的 param 记录无效。
+- 在 `3.1.0-SNAPSHOT`（尚未随正式版发布）中，排除 `REQUEST_HEADERS` 后仍可单独或同时启用 `BROWSER` 和 `OS`，从 `User-Agent` 解析所选字段；日志不保存原始 `User-Agent`、`Cookie`、`Authorization` 等请求头。自定义请求适配器若要在排除请求头时提供这些字段，须实现 `RecordableHttpRequest.WithUserAgent`，只读取 `User-Agent`。
 - 访问日志打印与请求日志记录相互独立：`continew-starter.log.access-log.enabled` 开启后，即使某接口未被 `@Log` 覆盖（AOP 版）也会打印访问日志。
 - 访问日志打印会自动排除常见静态资源与文档路径（`/doc.html`、`/v*/api-docs/**`、`/swagger-ui/**`、`/webjars/**`、`/favicon.ico`、`/actuator/**`、`/error` 等），无需手工配置 `exclude-patterns`。
 
